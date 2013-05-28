@@ -36,7 +36,7 @@ public final class Connection implements java.sql.Connection {
     /**
      * Acolyte handler
      */
-    private Object handler;
+    private final Object handler;
 
     // --- Constructors ---
 
@@ -51,6 +51,16 @@ public final class Connection implements java.sql.Connection {
     public Connection(final String url, 
                       final Properties props, 
                       final Object handler) {
+
+        if (url == null) {
+            throw new IllegalArgumentException("Invalid JDBC URL");
+        } // end of if
+
+        if (handler == null) {
+            throw new IllegalArgumentException("Invalid Acolyte handler");
+        } // end of if
+
+        // ---
 
         this.url = url;
         this.props = props;
