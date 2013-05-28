@@ -27,7 +27,9 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
             and(conn.getWarnings aka "warnings" must beNull).
             and(conn.getTransactionIsolation.aka("transaction isolation").
               mustEqual(java.sql.Connection.TRANSACTION_NONE)).
-            and(conn.getTypeMap aka "type-map" mustEqual emptyTypeMap)
+            and(conn.getTypeMap aka "type-map" mustEqual emptyTypeMap).
+            and(conn.getClientInfo aka "client info" mustEqual emptyClientInfo)
+
         }
     }
   }
@@ -40,11 +42,20 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
     }
   }
+
+  "Client info setter" should {
+    "refuse null properties" in {
+      connection(jdbcUrl, null, "handler").setClientInfo(null).
+        aka("setter") must throwA[java.lang.IllegalArgumentException]
+
+    }
+  }
 }
 
 sealed trait ConnectionFixtures {
   val jdbcUrl = "jdbc:acolyte:test"
   val emptyTypeMap = new java.util.HashMap[String, Class[_]]()
+  val emptyClientInfo = new java.util.Properties()
 
   def connection(url: String, props: java.util.Properties, handler: Any) =
     new acolyte.Connection(url, props, handler)

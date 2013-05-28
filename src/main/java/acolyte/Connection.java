@@ -69,6 +69,16 @@ public final class Connection implements java.sql.Connection {
      */
     private Map<String,Class<?>> typemap = new HashMap<String,Class<?>>();
 
+    /**
+     * Current savepoint
+     */
+    private Savepoint savepoint = null;
+
+    /**
+     * Client info properties
+     */
+    private Properties clientInfo = new Properties();
+
     // --- Constructors ---
 
     /**
@@ -296,15 +306,15 @@ public final class Connection implements java.sql.Connection {
      * {@inheritDoc}
      */
     public Savepoint setSavepoint() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        return (this.savepoint = new acolyte.Savepoint());
+    } // end of setSavepoint
 
     /**
      * {@inheritDoc}
      */
-    public Savepoint setSavepoint(String str) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+    public Savepoint setSavepoint(String name) throws SQLException {
+        return (this.savepoint = new acolyte.Savepoint(name));
+    } // end of setSavepoint
 
     /**
      * {@inheritDoc}
@@ -408,18 +418,25 @@ public final class Connection implements java.sql.Connection {
     /**
      * {@inheritDoc}
      */
-    public void setClientInfo(String a, String b) 
+    public void setClientInfo(final String name, final String value) 
         throws SQLClientInfoException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        this.clientInfo.put(name, value);
+    } // end of setClientInfo
 
     /**
      * {@inheritDoc}
+     * @throws IllegalArgumentException if |properties| is null
      */
-    public void setClientInfo(Properties props) throws SQLClientInfoException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+    public void setClientInfo(final Properties properties) 
+        throws SQLClientInfoException {
+
+        if (properties == null) {
+            throw new IllegalArgumentException();
+        } // end of if
+
+        this.clientInfo = properties;
+    } // end of setClientInfo
 
     /**
      * {@inheritDoc}
@@ -432,8 +449,8 @@ public final class Connection implements java.sql.Connection {
      * {@inheritDoc}
      */
     public Properties getClientInfo() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        return this.clientInfo;
+    } // end of getClientInfo
 
     /**
      * {@inheritDoc}
