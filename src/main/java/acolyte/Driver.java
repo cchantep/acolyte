@@ -23,15 +23,31 @@ public final class Driver implements java.sql.Driver {
         } // end of catch
     } // end of <cinit>
 
+    // --- Properties ---
+
+    /**
+     * Handler to be used on next connection.
+     */
+    private Object handler = null;
+
     // --- Driver impl ---
 
     /**
      * {@inheritDoc}
+     * @throws IllegalStateException if no handler is set for connection
      */
     public Connection connect(final String url, final Properties info) 
         throws SQLException {
 
-        throw new SQLException("No yet implemented");
+        if (!acceptsURL(url)) {
+            return null;
+        } // end of if
+
+        if (this.handler == null) {
+            throw new IllegalStateException("No connection handler");
+        } // end of if
+
+        return new acolyte.Connection(url, info, this.handler);
     } // end of connect
 
     /**
@@ -85,6 +101,6 @@ public final class Driver implements java.sql.Driver {
      * TODO: Will allow to handle queries/returns results by handle.
      */
     public void setHandler(Object/*JdbcHandler*/ handler) {
-        throw new RuntimeException("Not yet implemented");
+        this.handler = handler;
     } // end of setHandler
 } // end of class Driver

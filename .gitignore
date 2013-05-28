@@ -4,3 +4,5 @@ target
 # IDE
 *~
 semantic.cache
+.ensime
+.ensime_lucene
