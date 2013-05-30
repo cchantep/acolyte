@@ -1,6 +1,13 @@
 package acolyte
 
-import java.sql.{ SQLException, SQLFeatureNotSupportedException }
+import java.util.concurrent.Executors
+
+import java.sql.{
+  ResultSet,
+  SQLClientInfoException,
+  SQLException,
+  SQLFeatureNotSupportedException
+}
 
 import org.specs2.mutable.Specification
 
@@ -31,7 +38,11 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
             and(conn.getTransactionIsolation.aka("transaction isolation").
               mustEqual(java.sql.Connection.TRANSACTION_NONE)).
             and(conn.getTypeMap aka "type-map" mustEqual emptyTypeMap).
-            and(conn.getClientInfo aka "client info" mustEqual emptyClientInfo)
+            and(conn.getClientInfo aka "client info" mustEqual emptyClientInfo).
+            and(conn.getCatalog aka "catalog" must beNull).
+            and(conn.getSchema aka "schema" must beNull).
+            and(conn.getHoldability.
+              aka("holdability") mustEqual ResultSet.CLOSE_CURSORS_AT_COMMIT)
 
         }
     }
@@ -49,7 +60,25 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
   "Client info setter" should {
     "refuse null properties" in {
       defaultCon.setClientInfo(null).
-        aka("setter") must throwA[java.lang.IllegalArgumentException]
+        aka("set client info") must throwA[java.lang.IllegalArgumentException]
+
+    }
+
+    "not be settable on a closed connection" in {
+      lazy val c = defaultCon
+      c.close()
+
+      c.setClientInfo(new java.util.Properties()).
+        aka("set client info") must throwA[SQLClientInfoException]
+
+    }
+
+    "not be set a single property on a closed connection" in {
+      lazy val c = defaultCon
+      c.close()
+
+      c.setClientInfo("name", "value").
+        aka("set single client property") must throwA[SQLClientInfoException]
 
     }
   }
@@ -91,13 +120,135 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       c.isValid(0) aka "validity" must beFalse
     }
 
-    "not be rollbackable" in {
+    "not return property" >> {
       lazy val c = defaultCon
       c.close()
 
-      c.rollback() aka "rollback" must throwA[SQLException](
-        message = "Connection is closed")
+      "catalog" in {
+        c.getCatalog aka "getter" must throwA[SQLException](
+          message = "Connection is closed")
+      }
 
+      "auto-commit" in {
+        c.getAutoCommit aka "getter" must throwA[SQLException](
+          message = "Connection is closed")
+
+      }
+
+      "read-only" in {
+        c.isReadOnly aka "getter" must throwA[SQLException](
+          message = "Connection is closed")
+
+      }
+
+      "isolation level" in {
+        c.getTransactionIsolation aka "getter" must throwA[SQLException](
+          message = "Connection is closed")
+
+      }
+
+      "warnings" in {
+        c.getWarnings aka "getter" must throwA[SQLException](
+          message = "Connection is closed")
+
+      }
+
+      "type-map" in {
+        c.getTypeMap aka "getter" must throwA[SQLException](
+          message = "Connection is closed")
+
+      }
+
+      "holdability" in {
+        c.getHoldability aka "getter" must throwA[SQLException](
+          message = "Connection is closed")
+
+      }
+
+      "client info properties" in {
+        c.getClientInfo aka "getter" must throwA[SQLClientInfoException]
+      }
+
+      "client info property" in {
+        c.getClientInfo("name").
+          aka("getter") must throwA[SQLClientInfoException]
+
+      }
+
+      "schema" in {
+        c.getSchema aka "getter" must throwA[SQLException](
+          message = "Connection is closed")
+
+      }
+
+      "meta-data" in {
+        c.getMetaData aka "getter" must throwA[SQLException](
+          message = "Connection is closed")
+
+      }
+    }
+
+    "not set property" >> {
+      lazy val c = defaultCon
+      c.close()
+
+      "catalog" in {
+        c.setCatalog("catalog") aka "setter" must throwA[SQLException](
+          message = "Connection is closed")
+      }
+
+      "auto-commit" in {
+        c.setAutoCommit(true) aka "setter" must throwA[SQLException](
+          message = "Connection is closed")
+
+      }
+
+      "read-only" in {
+        c.setReadOnly(true) aka "setter" must throwA[SQLException](
+          message = "Connection is closed")
+
+      }
+
+      "isolation level" in {
+        c.setTransactionIsolation(-1) aka "setter" must throwA[SQLException](
+          message = "Connection is closed")
+
+      }
+
+      "warnings" in {
+        c.clearWarnings() aka "setter" must throwA[SQLException](
+          message = "Connection is closed")
+
+      }
+
+      "type-map" in {
+        c.setTypeMap(new java.util.HashMap()).
+          aka("setter") must throwA[SQLException]("Connection is closed")
+
+      }
+
+      "holdability" in {
+        c.setHoldability(-1) aka "setter" must throwA[SQLException](
+          message = "Connection is closed")
+
+      }
+
+      "client info properties" in {
+        c.setClientInfo(new java.util.Properties()).
+          aka("setter") must throwA[SQLClientInfoException]
+      }
+
+      "client info property" in {
+        c.setClientInfo("name", "value").
+          aka("setter") must throwA[SQLClientInfoException]
+
+      }
+
+      "schema" in {
+        c.setSchema("schema") aka "setter" must throwA[SQLException](
+          message = "Connection is closed")
+
+      }
     }
   }
 
@@ -109,6 +260,223 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       (c.getAutoCommit aka "auto-commit" must beTrue).
         and(c.rollback() aka "rollback" must throwA[SQLException](
           message = "Auto-commit is enabled"))
+
+    }
+
+    "not be applied on closed connection" in {
+      lazy val c = defaultCon
+      c.close()
+
+      c.rollback() aka "rollback" must throwA[SQLException](
+        message = "Connection is closed")
+
+    }
+  }
+
+  "Savepoint" should {
+    "not be set on closed connection" >> {
+      lazy val c = defaultCon
+      c.close()
+
+      "as un-named one" in {
+        c.setSavepoint() aka "setter" must throwA[SQLException](
+          message = "Connection is closed")
+
+      }
+
+      "as named one" in {
+        c.setSavepoint("name") aka "setter" must throwA[SQLException](
+          message = "Connection is closed")
+
+      }
+    }
+
+    "not be set when auto-commit mode is enabled" >> {
+      val c = defaultCon
+      c.setAutoCommit(true)
+
+      "as un-named one" in {
+        c.setSavepoint() aka "setter" must throwA[SQLException](
+          message = "Auto-commit is enabled")
+
+      }
+
+      "as named one" in {
+        c.setSavepoint("name") aka "setter" must throwA[SQLException](
+          message = "Auto-commit is enabled")
+
+      }
+    }
+  }
+
+  "Savepoint rollback" should {
+    "not be supported when auto-commit is enabled" in {
+      lazy val c = defaultCon
+      lazy val s = c.setSavepoint
+
+      c.setAutoCommit(true)
+
+      c.rollback(s) aka "savepoint rollback" must throwA[SQLException](
+        message = "Auto-commit is enabled")
+
+    }
+
+    "not be applied on closed connection" in {
+      lazy val c = defaultCon
+      lazy val s = c.setSavepoint
+
+      c.close()
+
+      c.rollback(s) aka "savepoint rollback" must throwA[SQLException](
+        message = "Connection is closed")
+
+    }
+
+    "be an unsupported feature" in {
+      lazy val c = defaultCon
+      lazy val s = c.setSavepoint
+
+      c.rollback(s).
+        aka("savepoint rollback") must throwA[SQLFeatureNotSupportedException]
+
+    }
+  }
+
+  "Savepoint release" should {
+    "not be supported when auto-commit is enabled" in {
+      lazy val c = defaultCon
+      lazy val s = c.setSavepoint
+
+      c.setAutoCommit(true)
+
+      c.releaseSavepoint(s) aka "savepoint release" must throwA[SQLException](
+        message = "Auto-commit is enabled")
+
+    }
+
+    "not be applied on closed connection" in {
+      lazy val c = defaultCon
+      lazy val s = c.setSavepoint
+
+      c.close()
+
+      c.releaseSavepoint(s) aka "savepoint release" must throwA[SQLException](
+        message = "Connection is closed")
+
+    }
+
+    "be an unsupported feature" in {
+      lazy val c = defaultCon
+      lazy val s = c.setSavepoint
+
+      c.releaseSavepoint(s).
+        aka("savepoint release") must throwA[SQLFeatureNotSupportedException]
+
+    }
+  }
+
+  "Commit" should {
+    "not be supported when auto-commit is enabled" in {
+      lazy val c = defaultCon
+      c.setAutoCommit(true)
+
+      (c.getAutoCommit aka "auto-commit" must beTrue).
+        and(c.commit() aka "commit" must throwA[SQLException](
+          message = "Auto-commit is enabled"))
+
+    }
+  }
+
+  "Auto-commit mode" should {
+    "not be set on a closed connection" in {
+      lazy val c = defaultCon
+      c.close()
+
+      c.setAutoCommit(true) aka "setting" must throwA[SQLException](
+        message = "Connection is closed")
+
+    }
+  }
+
+  "Native conversion" should {
+    "not be called on a closed connection" in {
+      lazy val c = defaultCon
+      c.close()
+
+      c.nativeSQL("test") aka "conversion" must throwA[SQLException](
+        message = "Connection is closed")
+
+    }
+
+    "return unchanged SQL" in {
+      defaultCon.nativeSQL("SELECT *") aka "SQL" mustEqual "SELECT *"
+    }
+  }
+
+  "Holdability" should {
+    "not be changeable" in {
+      defaultCon.setHoldability(ResultSet.HOLD_CURSORS_OVER_COMMIT).
+        aka("set holdability") must throwA[SQLFeatureNotSupportedException]
+
+    }
+  }
+
+  "Savepoint" should {
+    "not be settable without name on auto-commit connection" in {
+      lazy val c = defaultCon
+      c.setAutoCommit(true)
+
+      c.setSavepoint() aka "set savepoint" must throwA[SQLException](
+        message = "Auto-commit is enabled")
+
+    }
+
+    "not be settable with name on auto-commit connection" in {
+      lazy val c = defaultCon
+      c.setAutoCommit(true)
+
+      c.setSavepoint("savepoint").
+        aka("set savepoint") must throwA[SQLException](
+          message = "Auto-commit is enabled")
+
+    }
+  }
+
+  "Connection wrapper" should {
+    "be valid for java.sql.Connection" in {
+      defaultCon.isWrapperFor(classOf[java.sql.Connection]).
+        aka("is wrapper for java.sql.Connection") must beTrue
+
+    }
+
+    "be unwrapped to java.sql.Connection" in {
+      Option(defaultCon.unwrap(classOf[java.sql.Connection])).
+        aka("unwrapped") must beSome.which(_.isInstanceOf[java.sql.Connection])
+
+    }
+  }
+
+  "Abortion" should {
+    lazy val exec = Executors.newSingleThreadExecutor
+
+    "not be executed without executor" in {
+      defaultCon.abort(null) aka "abortion" must throwA[SQLException](
+        message = "Missing executor")
+
+    }
+
+    "be no-op on a closed connection" in {
+      lazy val c = defaultCon
+      c.close()
+
+      c.abort(exec) aka "abortion" must not(throwA[SQLException])
+    }
+
+    "mark connection as closed" in {
+      lazy val c = defaultCon
+
+      (c.abort(exec) aka "aborting" must not(throwA[SQLException])).
+        and(c.isClosed aka "closed" must beTrue)
 
     }
   }
