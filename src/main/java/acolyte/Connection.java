@@ -227,8 +227,8 @@ public final class Connection implements java.sql.Connection {
     public DatabaseMetaData getMetaData() throws SQLException {
         checkClosed();
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        return new acolyte.DatabaseMetaData(this);
+    } // end of getMetaData
 
     /**
      * {@inheritDoc}

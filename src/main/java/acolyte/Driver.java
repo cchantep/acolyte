@@ -15,6 +15,20 @@ import java.sql.Connection;
  * @author Cedric Chantepie
  */
 public final class Driver implements java.sql.Driver {
+    // --- Constants ---
+
+    /**
+     * Major version
+     */
+    public static final int MAJOR_VERSION = 0;
+
+    /**
+     * Minor version
+     */
+    public static final int MINOR_VERSION = 1;
+
+    // --- Shared ---
+
     static {
         try {
             java.sql.DriverManager.registerDriver(new Driver());
@@ -71,14 +85,14 @@ public final class Driver implements java.sql.Driver {
      * {@inheritDoc}
      */
     public int getMajorVersion() {
-        return 0;
+        return MAJOR_VERSION;
     } // end of getMajorVersion
 
     /**
      * {@inheritDoc}
      */
     public int getMinorVersion() {
-        return 1;
+        return MINOR_VERSION;
     } // end of getMinorVersion
 
     /**

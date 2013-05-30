@@ -42,7 +42,9 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
             and(conn.getCatalog aka "catalog" must beNull).
             and(conn.getSchema aka "schema" must beNull).
             and(conn.getHoldability.
-              aka("holdability") mustEqual ResultSet.CLOSE_CURSORS_AT_COMMIT)
+              aka("holdability") mustEqual ResultSet.CLOSE_CURSORS_AT_COMMIT).
+            and(Option(conn.getMetaData) aka "meta-data" must beSome.which(
+              _.getConnection aka "meta-data owner" mustEqual conn))
 
         }
     }
