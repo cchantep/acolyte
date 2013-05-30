@@ -6,6 +6,7 @@ import java.util.Map;
 
 import java.util.concurrent.Executor;
 
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLClientInfoException;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -53,6 +54,11 @@ public final class Connection implements java.sql.Connection {
      * Closed flag
      */
     private boolean closed = false;
+
+    /**
+     * Validity
+     */
+    private boolean validity = true;
 
     /**
      * Current warnings
@@ -163,15 +169,26 @@ public final class Connection implements java.sql.Connection {
      * {@inheritDoc}
      */
     public void rollback() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        if (this.closed) {
+            throw new SQLException("Connection is closed");
+        } // end of if
+            
+        if (this.autoCommit) {
+            throw new SQLException("Auto-commit is enabled");
+        } // end of if
+    } // end of rollback
 
     /**
      * {@inheritDoc}
      */
     public void close() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        if (this.closed) {
+            throw new SQLException("Connection is already closed");
+        } // end of if
+
+        this.closed = true;
+        this.validity = false;
+    } // end of close
 
     /**
      * {@inheritDoc}
@@ -410,10 +427,11 @@ public final class Connection implements java.sql.Connection {
 
     /**
      * {@inheritDoc}
+     * @see #isClosed
      */
-    public boolean isValid(int i) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+    public boolean isValid(int timeout) throws SQLException {
+        return this.validity;
+    } // end of isValid
 
     /**
      * {@inheritDoc}
@@ -441,9 +459,9 @@ public final class Connection implements java.sql.Connection {
     /**
      * {@inheritDoc}
      */
-    public String getClientInfo(String str) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+    public String getClientInfo(String name) throws SQLException {
+        return this.clientInfo.getProperty(name);
+    } // end of getClientInfo
 
     /**
      * {@inheritDoc}
@@ -490,16 +508,18 @@ public final class Connection implements java.sql.Connection {
     /**
      * {@inheritDoc}
      */
-    public void setNetworkTimeout(Executor exec, int i) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+    public void setNetworkTimeout(final Executor executor, 
+                                  final int milliseconds) throws SQLException {
+
+        throw new SQLFeatureNotSupportedException();
+    } // end of setNetworkTimeout
 
     /**
      * {@inheritDoc}
      */
     public int getNetworkTimeout() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        throw new SQLFeatureNotSupportedException();
+    } // end of getNetworkTimeout
 
     /**
      * {@inheritDoc}

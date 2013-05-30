@@ -1,5 +1,7 @@
 package acolyte
 
+import java.sql.{ SQLException, SQLFeatureNotSupportedException }
+
 import org.specs2.mutable.Specification
 
 object ConnectionSpec extends Specification with ConnectionFixtures {
@@ -24,6 +26,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
           (conn.getAutoCommit aka "auto-commit" must beFalse).
             and(conn.isReadOnly aka "read-only" must beFalse).
             and(conn.isClosed aka "closed" must beFalse).
+            and(conn.isValid(0) aka "validity" must beTrue).
             and(conn.getWarnings aka "warnings" must beNull).
             and(conn.getTransactionIsolation.aka("transaction isolation").
               mustEqual(java.sql.Connection.TRANSACTION_NONE)).
@@ -36,8 +39,8 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
   "Type-map setter" should {
     "refuse null mapping" in {
-      connection(jdbcUrl, null, "handler").setTypeMap(null).
-        aka("setter") must throwA[java.sql.SQLException](
+      defaultCon.setTypeMap(null).
+        aka("setter") must throwA[SQLException](
           message = "Invalid type-map")
 
     }
@@ -45,8 +48,67 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
   "Client info setter" should {
     "refuse null properties" in {
-      connection(jdbcUrl, null, "handler").setClientInfo(null).
+      defaultCon.setClientInfo(null).
         aka("setter") must throwA[java.lang.IllegalArgumentException]
+
+    }
+  }
+
+  "Network timeout" should {
+    "not be settable" in {
+      defaultCon.setNetworkTimeout(null, 0).
+        aka("timeout setting") must throwA[SQLFeatureNotSupportedException]
+
+    }
+
+    "not be readable" in {
+      defaultCon.getNetworkTimeout.
+        aka("getter") must throwA[SQLFeatureNotSupportedException]
+
+    }
+  }
+
+  "Closed connection" should {
+    "be marked" in {
+      lazy val c = defaultCon
+      c.close()
+
+      c.isClosed aka "closed" must beTrue
+    }
+
+    "not be closed again" in {
+      lazy val c = defaultCon
+      c.close()
+
+      c.close() aka "closing" must throwA[SQLException](
+        message = "Connection is already closed")
+    }
+
+    "not be valid" in {
+      lazy val c = defaultCon
+      c.close()
+
+      c.isValid(0) aka "validity" must beFalse
+    }
+
+    "not be rollbackable" in {
+      lazy val c = defaultCon
+      c.close()
+
+      c.rollback() aka "rollback" must throwA[SQLException](
+        message = "Connection is closed")
+
+    }
+  }
+
+  "Rollback" should {
+    "not be supported when auto-commit is enabled" in {
+      lazy val c = defaultCon
+      c.setAutoCommit(true)
+
+      (c.getAutoCommit aka "auto-commit" must beTrue).
+        and(c.rollback() aka "rollback" must throwA[SQLException](
+          message = "Auto-commit is enabled"))
 
     }
   }
@@ -56,6 +118,8 @@ sealed trait ConnectionFixtures {
   val jdbcUrl = "jdbc:acolyte:test"
   val emptyTypeMap = new java.util.HashMap[String, Class[_]]()
   val emptyClientInfo = new java.util.Properties()
+
+  def defaultCon = connection(jdbcUrl, null, "handler")
 
   def connection(url: String, props: java.util.Properties, handler: Any) =
     new acolyte.Connection(url, props, handler)
