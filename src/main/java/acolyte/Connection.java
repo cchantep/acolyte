@@ -34,7 +34,7 @@ public final class Connection implements java.sql.Connection {
     /**
      * JDBC URL
      */
-    private final String url;
+    final String url;
 
     /**
      * JDBC meta-properties

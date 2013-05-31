@@ -16,14 +16,14 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
     /**
      * Connection
      */
-    private final Connection connection;
+    private final acolyte.Connection connection;
 
     // --- Constructors ---
 
     /**
      * Connection constructor.
      */
-    DatabaseMetaData(final Connection connection) {
+    DatabaseMetaData(final acolyte.Connection connection) {
         if (connection == null) {
             throw new IllegalArgumentException();
         } // end of if
@@ -37,92 +37,95 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
      * {@inheritDoc}
      */
     public boolean allProceduresAreCallable() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of allProceduresAreCallable
 
     /**
      * {@inheritDoc}
      */
     public boolean allTablesAreSelectable() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of allTablesAreSelectable
 
     /**
      * {@inheritDoc}
      */
     public String getURL() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return this.connection.url;
+    } // end of getURL
 
     /**
      * {@inheritDoc}
      */
     public String getUserName() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return "acolyte";
+    } // end of getUserName
 
     /**
      * {@inheritDoc}
      */
     public boolean isReadOnly() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return this.connection.isReadOnly();
+    } // end of isReadOnly
 
     /**
      * {@inheritDoc}
      */
     public boolean nullsAreSortedHigh() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return false;
+    } // end of nullsAreSortedHigh
 
     /**
      * {@inheritDoc}
      */
     public boolean nullsAreSortedLow() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of nullsAreSortedLow
 
     /**
      * {@inheritDoc}
      */
     public boolean nullsAreSortedAtStart() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return false;
+    } // end of nullsAreSortedAtStart
 
     /**
      * {@inheritDoc}
      */
     public boolean nullsAreSortedAtEnd() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of nullsAreSortedAtEnd
 
     /**
      * {@inheritDoc}
      */
     public String getDatabaseProductName() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return "Acolyte";
+    } // end of getDatabaseProductName
 
     /**
      * {@inheritDoc}
      */
     public String getDatabaseProductVersion() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return "0.1-beta";
+    } // end of getDatabaseProductVersion
 
     /**
      * {@inheritDoc}
      */
     public String getDriverName() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return "acolyte";
+    } // end of getDriverName
 
     /**
      * {@inheritDoc}
      */
     public String getDriverVersion() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return String.format("%d.%d", 
+                             getDriverMajorVersion(),
+                             getDriverMinorVersion());
+
+    } // end of getDriverVersion
 
     /**
      * {@inheritDoc}
@@ -142,155 +145,155 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
      * {@inheritDoc}
      */
     public boolean usesLocalFiles() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return false;
+    } // end of usesLocalFiles
 
     /**
      * {@inheritDoc}
      */
     public boolean usesLocalFilePerTable() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return false;
+    } // end of usesLocalFilePerTable
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsMixedCaseIdentifiers() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsMixedCaseIdentifiers
 
     /**
      * {@inheritDoc}
      */
     public boolean storesUpperCaseIdentifiers() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return false;
+    } // end of storesUpperCaseIdentifiers
 
     /**
      * {@inheritDoc}
      */
     public boolean storesLowerCaseIdentifiers() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return false;
+    } // end of storesLowerCaseIdentifiers
 
     /**
      * {@inheritDoc}
      */
     public boolean storesMixedCaseIdentifiers() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of storesMixedCaseIdentifiers
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsMixedCaseQuotedIdentifiers() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsMixedCaseQuotedIdentifiers
 
     /**
      * {@inheritDoc}
      */
     public boolean storesUpperCaseQuotedIdentifiers() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return false;
+    } // end of storesUpperCaseQuotedIdentifiers
 
     /**
      * {@inheritDoc}
      */
     public boolean storesLowerCaseQuotedIdentifiers() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return false;
+    } // end of storesLowerCaseQuotedIdentifiers
 
     /**
      * {@inheritDoc}
      */
     public boolean storesMixedCaseQuotedIdentifiers() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of storesMixedCaseQuotedIdentifiers
 
     /**
      * {@inheritDoc}
      */
     public String getIdentifierQuoteString() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return "`";
+    } // end of getIdentifierQuoteString
 
     /**
      * {@inheritDoc}
      */
     public String getSQLKeywords() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return "";
+    } // end of getSQLKeywords
 
     /**
      * {@inheritDoc}
      */
     public String getNumericFunctions() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return "";
+    } // end of getNumericFunctions
 
     /**
      * {@inheritDoc}
      */
     public String getStringFunctions() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return "";
+    } // end of getStringFunctions
 
     /**
      * {@inheritDoc}
      */
     public String getSystemFunctions() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return "";
+    } // end of getSystemFunctions
 
     /**
      * {@inheritDoc}
      */
     public String getTimeDateFunctions() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return "";
+    } // end of getTimeDateFunctions
 
     /**
      * {@inheritDoc}
      */
     public String getSearchStringEscape() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return "\\";
+    } // end of getSearchStringEscape
 
     /**
      * {@inheritDoc}
      */
     public String getExtraNameCharacters() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return "";
+    } // end of getExtraNameCharacters
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsAlterTableWithAddColumn() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsAlterTableWithAddColumn
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsAlterTableWithDropColumn() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsAlterTableWithDropColumn
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsColumnAliasing() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsColumnAliasing
 
     /**
      * {@inheritDoc}
      */
     public boolean nullPlusNonNullIsNull() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of nullPlusNonNullIsNull
 
     /**
      * {@inheritDoc}
@@ -312,8 +315,8 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
      * {@inheritDoc}
      */
     public boolean supportsTableCorrelationNames() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsTableCorrelationNames
 
     /**
      * {@inheritDoc}
@@ -321,239 +324,239 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
     public boolean supportsDifferentTableCorrelationNames() 
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsDifferentTableCorrelationNames
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsExpressionsInOrderBy() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsExpressionsInOrderBy
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsOrderByUnrelated() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsOrderByUnrelated
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsGroupBy() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsGroupBy
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsGroupByUnrelated() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsGroupByUnrelated
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsGroupByBeyondSelect() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsGroupByBeyondSelect
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsLikeEscapeClause() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsLikeEscapeClause
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsMultipleResultSets() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsMultipleResultSets
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsMultipleTransactions() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsMultipleTransactions
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsNonNullableColumns() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsNonNullableColumns
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsMinimumSQLGrammar() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsMinimumSQLGrammar
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsCoreSQLGrammar() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsCoreSQLGrammar
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsExtendedSQLGrammar() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsExtendedSQLGrammar
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsANSI92EntryLevelSQL() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsANSI92EntryLevelSQL
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsANSI92IntermediateSQL() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsANSI92IntermediateSQL
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsANSI92FullSQL() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsANSI92FullSQL
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsIntegrityEnhancementFacility() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsIntegrityEnhancementFacility
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsOuterJoins() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsOuterJoins
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsFullOuterJoins() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsFullOuterJoins
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsLimitedOuterJoins() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsLimitedOuterJoins
 
     /**
      * {@inheritDoc}
      */
     public String getSchemaTerm() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return "schema";
+    } // end of getSchemaTerm
 
     /**
      * {@inheritDoc}
      */
     public String getProcedureTerm() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return "procedure";
+    } // end of getProcedureTerm
 
     /**
      * {@inheritDoc}
      */
     public String getCatalogTerm() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return "catalog";
+    } // end of getCatalogTerm
 
     /**
      * {@inheritDoc}
      */
     public boolean isCatalogAtStart() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of isCatalogAtStart
 
     /**
      * {@inheritDoc}
      */
     public String getCatalogSeparator() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return ".";
+    } // end of getCatalogSeparator
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsSchemasInDataManipulation() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsSchemasInDataManipulation
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsSchemasInProcedureCalls() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsSchemasInProcedureCalls
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsSchemasInTableDefinitions() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsSchemasInTableDefinitions
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsSchemasInIndexDefinitions() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsSchemasInIndexDefinitions
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsSchemasInPrivilegeDefinitions() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsSchemasInPrivilegeDefinitions
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsCatalogsInDataManipulation() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsCatalogsInDataManipulation
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsCatalogsInProcedureCalls() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsCatalogsInProcedureCalls
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsCatalogsInTableDefinitions() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsCatalogsInTableDefinitions
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsCatalogsInIndexDefinitions() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsCatalogsInIndexDefinitions
 
     /**
      * {@inheritDoc}
@@ -561,113 +564,113 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
     public boolean supportsCatalogsInPrivilegeDefinitions() 
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsCatalogsInPrivilegeDefinitions
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsPositionedDelete() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsPositionedDelete
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsPositionedUpdate() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsPositionedUpdate
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsSelectForUpdate() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsSelectForUpdate
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsStoredProcedures() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsStoredProcedures
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsSubqueriesInComparisons() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsSubqueriesInComparisons
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsSubqueriesInExists() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsSubqueriesInExists
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsSubqueriesInIns() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsSubqueriesInIns
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsSubqueriesInQuantifieds() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsSubqueriesInQuantifieds
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsCorrelatedSubqueries() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsCorrelatedSubqueries
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsUnion() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsUnion
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsUnionAll() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsUnionAll
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsOpenCursorsAcrossCommit() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsOpenCursorsAcrossCommit
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsOpenCursorsAcrossRollback() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsOpenCursorsAcrossRollback
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsOpenStatementsAcrossCommit() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsOpenStatementsAcrossCommit
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsOpenStatementsAcrossRollback() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsOpenStatementsAcrossRollback
 
     /**
      * {@inheritDoc}
