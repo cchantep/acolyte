@@ -404,6 +404,65 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
     "supports OpenStatementsAcrossRollback" in {
       metadata().supportsOpenStatementsAcrossRollback aka "flag" must beTrue
     }
+
+    "have no max limit" in {
+      lazy val m = metadata()
+
+      (m.getMaxBinaryLiteralLength aka "bin length" mustEqual 0).
+        and(m.getMaxCharLiteralLength aka "char length" mustEqual 0).
+        and(m.getMaxColumnNameLength aka "colname length" mustEqual 0).
+        and(m.getMaxColumnsInGroupBy aka "grouped by cols" mustEqual 0).
+        and(m.getMaxColumnsInIndex aka "indexed cols" mustEqual 0).
+        and(m.getMaxColumnsInOrderBy aka "ordered cols" mustEqual 0).
+        and(m.getMaxColumnsInSelect aka "selected cols" mustEqual 0).
+        and(m.getMaxColumnsInTable aka "table cols" mustEqual 0).
+        and(m.getMaxConnections aka "connections" mustEqual 0).
+        and(m.getMaxCursorNameLength aka "cursor name" mustEqual 0).
+        and(m.getMaxIndexLength aka "index" mustEqual 0).
+        and(m.getMaxSchemaNameLength aka "schema name" mustEqual 0).
+        and(m.getMaxProcedureNameLength aka "procedure name" mustEqual 0).
+        and(m.getMaxCatalogNameLength aka "catalog name" mustEqual 0).
+        and(m.getMaxRowSize aka "row size" mustEqual 0).
+        and(m.getMaxStatementLength aka "statement length" mustEqual 0).
+        and(m.getMaxStatements aka "statements" mustEqual 0).
+        and(m.getMaxTableNameLength aka "table name" mustEqual 0).
+        and(m.getMaxTablesInSelect aka "selected tables" mustEqual 0).
+        and(m.getMaxUserNameLength aka "username" mustEqual 0)
+    }
+
+    "have NONE as default transaction isolation" in {
+      metadata().getDefaultTransactionIsolation.
+        aka("isolation") mustEqual java.sql.Connection.TRANSACTION_NONE
+
+    }
+
+    "supports DataDefinitionAndDataManipulationTransactions" in {
+      metadata().supportsDataDefinitionAndDataManipulationTransactions.
+        aka("flag") must beTrue
+
+    }
+
+    "not supports data manipulation only in transaction" in {
+      metadata().supportsDataManipulationTransactionsOnly.
+        aka("flag") must beFalse
+
+    }
+  }
+
+  "Data definition" should {
+    "not cause commit" in {
+      metadata().dataDefinitionCausesTransactionCommit aka "flag" must beFalse
+    }
+
+    "not be ignored in transaction" in {
+      metadata().dataDefinitionIgnoredInTransactions aka "flag" must beFalse
+    }
+  }
+
+  "Max row size" should {
+    "include blobs" in {
+      metadata().doesMaxRowSizeIncludeBlobs aka "flag" must beTrue
+    }
   }
 
   "Catalog" should {

@@ -676,155 +676,155 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
      * {@inheritDoc}
      */
     public int getMaxBinaryLiteralLength() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return 0;
+    } // end of getMaxBinaryLiteralLength
 
     /**
      * {@inheritDoc}
      */
     public int getMaxCharLiteralLength() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return 0;
+    } // end of getMaxCharLiteralLength
 
     /**
      * {@inheritDoc}
      */
     public int getMaxColumnNameLength() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return 0;
+    } // end of getMaxColumnNameLength
 
     /**
      * {@inheritDoc}
      */
     public int getMaxColumnsInGroupBy() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return 0;
+    } // end of getMaxColumnsInGroupBy
 
     /**
      * {@inheritDoc}
      */
     public int getMaxColumnsInIndex() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return 0;
+    } // end of getMaxColumnsInIndex
 
     /**
      * {@inheritDoc}
      */
     public int getMaxColumnsInOrderBy() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return 0;
+    } // end of getMaxColumnsInOrderBy
 
     /**
      * {@inheritDoc}
      */
     public int getMaxColumnsInSelect() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return 0;
+    } // end of getMaxColumnsInSelect
 
     /**
      * {@inheritDoc}
      */
     public int getMaxColumnsInTable() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return 0;
+    } // end of getMaxColumnsInTable
 
     /**
      * {@inheritDoc}
      */
     public int getMaxConnections() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return 0;
+    } // end of getMaxConnections
 
     /**
      * {@inheritDoc}
      */
     public int getMaxCursorNameLength() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return 0;
+    } // end of getMaxCursorNameLength
 
     /**
      * {@inheritDoc}
      */
     public int getMaxIndexLength() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return 0;
+    } // end of getMaxIndexLength
 
     /**
      * {@inheritDoc}
      */
     public int getMaxSchemaNameLength() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return 0;
+    } // end of getMaxSchemaNameLength
 
     /**
      * {@inheritDoc}
      */
     public int getMaxProcedureNameLength() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return 0;
+    } // end of getMaxProcedureNameLength
 
     /**
      * {@inheritDoc}
      */
     public int getMaxCatalogNameLength() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return 0;
+    } // end of getMaxCatalogNameLength
 
     /**
      * {@inheritDoc}
      */
     public int getMaxRowSize() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return 0;
+    } // end of getMaxRowSize
 
     /**
      * {@inheritDoc}
      */
     public boolean doesMaxRowSizeIncludeBlobs() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of doesMaxRowSizeIncludeBlobs
 
     /**
      * {@inheritDoc}
      */
     public int getMaxStatementLength() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return 0;
+    } // end of getMaxStatementLength
 
     /**
      * {@inheritDoc}
      */
     public int getMaxStatements() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return 0;
+    } // end of getMaxStatements
 
     /**
      * {@inheritDoc}
      */
     public int getMaxTableNameLength() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return 0;
+    } // end of getMaxTableNameLength
 
     /**
      * {@inheritDoc}
      */
     public int getMaxTablesInSelect() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
+        return 0;
     } // end of
 
     /**
      * {@inheritDoc}
      */
     public int getMaxUserNameLength() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return 0;
+    } // end of getMaxUserNameLength
 
     /**
      * {@inheritDoc}
      */
     public int getDefaultTransactionIsolation() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return Connection.TRANSACTION_NONE;
+    } // end of getDefaultTransactionIsolation
 
     /**
      * {@inheritDoc}
@@ -848,8 +848,8 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
     public boolean supportsDataDefinitionAndDataManipulationTransactions() 
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsDataDefinitionAndDataManipulationTransactions
 
     /**
      * {@inheritDoc}
@@ -857,22 +857,22 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
     public boolean supportsDataManipulationTransactionsOnly() 
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return false;
+    } // end of supportsDataManipulationTransactionsOnly
 
     /**
      * {@inheritDoc}
      */
     public boolean dataDefinitionCausesTransactionCommit() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return false;
+    } // end of dataDefinitionCausesTransactionCommit
 
     /**
      * {@inheritDoc}
      */
     public boolean dataDefinitionIgnoredInTransactions() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return false;
+    } // end of dataDefinitionIgnoredInTransactions
 
     /**
      * {@inheritDoc}
