@@ -31,6 +31,13 @@ import java.sql.Ref;
  * @author Cedric Chantepie
  */
 abstract class AbstractResultSet implements java.sql.ResultSet {
+    // --- Shared ---
+
+    /**
+     * Empty result set
+     */
+    public static final AbstractResultSet EMPTY = new AbstractResultSet() { };
+
     // --- Properties ---
 
     /**

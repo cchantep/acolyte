@@ -714,6 +714,35 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
       metadata().supportsBatchUpdates aka "batch update" must beTrue
     }
   }
+
+  "Types" should {
+    "known from user definitions" in {
+      lazy val udts = metadata().getUDTs("catalog", "schema", "type", null)
+
+      (udts.getFetchSize aka "UDTs" mustEqual 0).
+        and(udts.next aka "next type" must beFalse)
+
+    }
+
+    /*
+getSuperTypes(final String catalog,
+                                   final String schemaPattern,
+                                   final String typeNamePattern)
+ */
+  }
+
+  /*
+getSuperTables(final String catalog,
+                                    final String schemaPattern,
+                                    final String tableNamePattern)
+ */
+
+  /*
+getAttributes(final String catalog,
+                                   final String schemaPattern,
+                                   final String typeNamePattern,
+                                   final String attributeNamePattern)
+ */
 }
 
 sealed trait MetaDataFixtures {
