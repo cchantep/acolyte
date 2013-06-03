@@ -1298,11 +1298,11 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
     /**
      * {@inheritDoc}
      */
-    public ResultSet getSchemas(final String catalog,
+    public ResultSet getSchemas(final String catalog, 
                                 final String schemaPattern) 
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
+        return AbstractResultSet.EMPTY;
     } // end of getSchemas
 
     /**
@@ -1325,8 +1325,8 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
      * {@inheritDoc}
      */
     public ResultSet getClientInfoProperties() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return AbstractResultSet.EMPTY;
+    } // end of getClientInfoProperties
 
     /**
      * {@inheritDoc}
@@ -1336,7 +1336,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                   final String functionNamePattern) 
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
+        return AbstractResultSet.EMPTY;
     } // end of getFunctions
 
     /**
@@ -1347,8 +1347,9 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                         final String functionNamePattern,
                                         final String columnNamePattern)
         throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+
+        return AbstractResultSet.EMPTY;
+    } // end of getFunctionColumns
 
     /**
      * {@inheritDoc}
@@ -1358,7 +1359,8 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                       final String tableNamePattern,
                                       final String columnNamePattern)
         throws SQLException {
-        throw new RuntimeException("Not yet implemented");
+
+        return AbstractResultSet.EMPTY;
     } // end of getPseudoColumns
 
     /**

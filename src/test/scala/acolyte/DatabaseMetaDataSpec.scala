@@ -567,12 +567,29 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
 
     }
 
+    "not have pseudo columns" in {
+      lazy val cols = metadata().
+        getPseudoColumns("catalog", "schema", "table", "col")
+
+      (cols.getFetchSize aka "table cols" mustEqual 0).
+        and(cols.next aka "next col" must beFalse)
+
+    }
+
     "not have column privileges" in {
       lazy val privs = metadata().
         getColumnPrivileges("catalog", "schema", "table", "cols")
 
       (privs.getFetchSize aka "col privileges" mustEqual 0).
         and(privs.next aka "next priv" must beFalse)
+
+    }
+
+    "not have super definitions" in {
+      lazy val supr = metadata().getSuperTables("catalog", "schema", "table")
+
+      (supr.getFetchSize aka "definitions" mustEqual 0).
+        and(supr.next aka "next table" must beFalse)
 
     }
 
@@ -724,25 +741,64 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
 
     }
 
-    /*
-getSuperTypes(final String catalog,
-                                   final String schemaPattern,
-                                   final String typeNamePattern)
- */
+    "known from super definitions" in {
+      lazy val supr = metadata().getSuperTypes("catalog", "schema", "type")
+
+      (supr.getFetchSize aka "types" mustEqual 0).
+        and(supr.next aka "next type" must beFalse)
+
+    }
   }
 
-  /*
-getSuperTables(final String catalog,
-                                    final String schemaPattern,
-                                    final String tableNamePattern)
- */
+  "Supported client info properties" should {
+    "be expected one" in {
+      lazy val clientInfo = metadata().getClientInfoProperties
 
-  /*
-getAttributes(final String catalog,
-                                   final String schemaPattern,
-                                   final String typeNamePattern,
-                                   final String attributeNamePattern)
- */
+      (clientInfo.getFetchSize aka "client info" mustEqual 0).
+        and(clientInfo.next aka "next property" must beFalse)
+
+    }
+  }
+
+  "Attributes" should {
+    "be expected one" in {
+      lazy val attrs = metadata().
+        getAttributes("catalog", "schema", "type", "attr")
+
+      (attrs.getFetchSize aka "attributes" mustEqual 0).
+        and(attrs.next aka "next attr" must beFalse)
+
+    }
+  }
+
+  "Schemas" should {
+    "not be known" in {
+      lazy val schemas = metadata().getSchemas("catalog", "schema")
+
+      (schemas.getFetchSize aka "schemas" mustEqual 0).
+        and(schemas.next aka "next schema" must beFalse)
+
+    }
+  }
+
+  "Functions" should {
+    "not be listed" in {
+      lazy val funcs = metadata().getFunctions("catalog", "schema", "func")
+
+      (funcs.getFetchSize aka "functions" mustEqual 0).
+        and(funcs.next aka "next function" must beFalse)
+
+    }
+
+    "not be described" in {
+      lazy val cols = metadata().
+        getFunctionColumns("catalog", "schema", "func", "col")
+
+      (cols.getFetchSize aka "function cols" mustEqual 0).
+        and(cols.next aka "next col" must beFalse)
+
+    }
+  }
 }
 
 sealed trait MetaDataFixtures {
