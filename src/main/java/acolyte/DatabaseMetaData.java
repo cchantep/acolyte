@@ -882,7 +882,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                    final String procedureNamePattern) 
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
+        return new AbstractResultSet() { };
     } // end of getProcedures
 
     /**
@@ -894,8 +894,8 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                          final String columnNamePattern)
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return new AbstractResultSet() { };
+    } // end of getProcedureColumns
 
     /**
      * {@inheritDoc}
@@ -905,29 +905,29 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                final String tableNamePattern, 
                                final String[] types) throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return new AbstractResultSet() { };
+    } // end of getTables
 
     /**
      * {@inheritDoc}
      */
     public ResultSet getSchemas() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return new AbstractResultSet() { };
+    } // end of getSchemas
 
     /**
      * {@inheritDoc}
      */
     public ResultSet getCatalogs() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return new AbstractResultSet() { };
+    } // end of getCatalogs
 
     /**
      * {@inheritDoc}
      */
     public ResultSet getTableTypes() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return new AbstractResultSet() { };
+    } // end of getTableTypes
 
     /**
      * {@inheritDoc}
@@ -938,8 +938,8 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                 final String columnNamePattern)
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return new AbstractResultSet() { };
+    } // end of getColumns
 
     /**
      * {@inheritDoc}
@@ -950,8 +950,8 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                          final String columnNamePattern)
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return new AbstractResultSet() { };
+    } // end of getColumnPrivileges
 
     /**
      * {@inheritDoc}
@@ -961,8 +961,8 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                         final String tableNamePattern) 
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return new AbstractResultSet() { };
+    } // end of getTablePrivileges
 
     /**
      * {@inheritDoc}
@@ -974,8 +974,8 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                           final boolean nullable)
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return new AbstractResultSet() { };
+    } // end of getBestRowIdentifier
 
     /**
      * {@inheritDoc}
@@ -985,8 +985,8 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                        final String table)
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return new AbstractResultSet() { };
+    } // end of getVersionColumns
 
     /**
      * {@inheritDoc}
@@ -996,8 +996,8 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                     final String table)
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return new AbstractResultSet() { };
+    } // end of getPrimaryKey
 
     /**
      * {@inheritDoc}
@@ -1006,8 +1006,9 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                      final String schema,
                                      final String table)
         throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+
+        return new AbstractResultSet() { };
+    } // end of getImportedKeys
 
     /**
      * {@inheritDoc}
@@ -1017,8 +1018,8 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                      final String table)
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return new AbstractResultSet() { };
+    } // end of getExportedKeys
 
     /**
      * {@inheritDoc}
@@ -1031,15 +1032,15 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                        final String foreignTable)
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return new AbstractResultSet() { };
+    } // end of getCrossReference
 
     /**
      * {@inheritDoc}
      */
     public ResultSet getTypeInfo() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return new AbstractResultSet() { };
+    } // end of getTypeInfo
 
     /**
      * {@inheritDoc}
@@ -1051,15 +1052,15 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                   final boolean approximate)
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return new AbstractResultSet() { };
+    } // end of getIndexInfo
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsResultSetType(final int type) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return (type == ResultSet.TYPE_FORWARD_ONLY);
+    } // end of supportsResultSetType
 
     /**
      * {@inheritDoc}
@@ -1068,78 +1069,78 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                                 final int concurrency) 
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return supportsResultSetType(type);
+    } // end of supportsResultSetConcurrency
 
     /**
      * {@inheritDoc}
      */
     public boolean ownUpdatesAreVisible(final int type) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return supportsResultSetType(type);
+    } // end of ownUpdatesAreVisible
 
     /**
      * {@inheritDoc}
      */
     public boolean ownDeletesAreVisible(final int type) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return supportsResultSetType(type);
+    } // end of ownDeletesAreVisible
 
     /**
      * {@inheritDoc}
      */
     public boolean ownInsertsAreVisible(final int type) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return supportsResultSetType(type);
+    } // end of ownInsertsAreVisible
 
     /**
      * {@inheritDoc}
      */
     public boolean othersUpdatesAreVisible(final int type) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return false;
+    } // end of othersUpdatesAreVisible
 
     /**
      * {@inheritDoc}
      */
     public boolean othersDeletesAreVisible(final int type) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return false;
+    } // end of othersDeletesAreVisible
 
     /**
      * {@inheritDoc}
      */
     public boolean othersInsertsAreVisible(final int type) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return false;
+    } // end of othersInsertsAreVisible
 
     /**
      * {@inheritDoc}
      */
     public boolean updatesAreDetected(final int type) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return supportsResultSetType(type);
+    } // end of updatesAreDetected
 
     /**
      * {@inheritDoc}
      */
     public boolean deletesAreDetected(final int type) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return supportsResultSetType(type);
+    } // end of deletesAreDetected
 
     /**
      * {@inheritDoc}
      */
     public boolean insertsAreDetected(final int type) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return supportsResultSetType(type);
+    } // end of insertsAreDetected
 
     /**
      * {@inheritDoc}
      */
     public boolean supportsBatchUpdates() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of
+        return true;
+    } // end of supportsBatchUpdates
 
     /**
      * {@inheritDoc}

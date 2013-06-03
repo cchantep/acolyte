@@ -494,6 +494,226 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
 
     }
   }
+
+  "Procedures" should {
+    "not be listed" in {
+      lazy val procs = metadata().getProcedures("catalog", "schema", "proc")
+
+      (procs.getFetchSize aka "procedures" mustEqual 0).
+        and(procs.next aka "next proc" must beFalse)
+
+    }
+  }
+
+  "Procedure" should {
+    "not be described" in {
+      lazy val proc = metadata().
+        getProcedureColumns("catalog", "schema", "proc", "cols")
+
+      (proc.getFetchSize aka "procedure" mustEqual 0).
+        and(proc.next aka "next col" must beFalse)
+
+    }
+  }
+
+  "Tables" should {
+    "not be listed" in {
+      lazy val tables = metadata().
+        getTables("catalog", "schema", "table", null)
+
+      (tables.getFetchSize aka "tables" mustEqual 0).
+        and(tables.next aka "next table" must beFalse)
+
+    }
+  }
+
+  "Schemas" should {
+    "not be listed" in {
+      lazy val schemas = metadata().getSchemas
+
+      (schemas.getFetchSize aka "schemas" mustEqual 0).
+        and(schemas.next aka "next schema" must beFalse)
+
+    }
+  }
+
+  "Schemas" should {
+    "not be listed" in {
+      lazy val catalogs = metadata().getSchemas
+
+      (catalogs.getFetchSize aka "schemas" mustEqual 0).
+        and(catalogs.next aka "next schema" must beFalse)
+
+    }
+  }
+
+  "Table types" should {
+    "not be listed" in {
+      lazy val catalogs = metadata().getTableTypes
+
+      (catalogs.getFetchSize aka "table types" mustEqual 0).
+        and(catalogs.next aka "next type" must beFalse)
+
+    }
+  }
+
+  "Table" should {
+    "not have known columns" in {
+      lazy val cols = metadata().
+        getColumns("catalog", "schema", "table", "cols")
+
+      (cols.getFetchSize aka "table cols" mustEqual 0).
+        and(cols.next aka "next col" must beFalse)
+
+    }
+
+    "not have column privileges" in {
+      lazy val privs = metadata().
+        getColumnPrivileges("catalog", "schema", "table", "cols")
+
+      (privs.getFetchSize aka "col privileges" mustEqual 0).
+        and(privs.next aka "next priv" must beFalse)
+
+    }
+
+    "not have privileges" in {
+      lazy val privs = metadata().
+        getTablePrivileges("catalog", "schema", "table")
+
+      (privs.getFetchSize aka "col privileges" mustEqual 0).
+        and(privs.next aka "next priv" must beFalse)
+
+    }
+
+    "not have best row identifier" in {
+      lazy val bestRowId = metadata().
+        getBestRowIdentifier("catalog", "schema", "table", -1, false)
+
+      (bestRowId.getFetchSize aka "best rowid" mustEqual 0).
+        and(bestRowId.next aka "next rowid" must beFalse)
+
+    }
+
+    "not have version columns" in {
+      lazy val verCols = metadata().
+        getVersionColumns("catalog", "schema", "table")
+
+      (verCols.getFetchSize aka "version columns" mustEqual 0).
+        and(verCols.next aka "next column" must beFalse)
+
+    }
+
+    "not have primary key" in {
+      lazy val pkey = metadata().getPrimaryKeys("catalog", "schema", "table")
+
+      (pkey.getFetchSize aka "primary keys" mustEqual 0).
+        and(pkey.next aka "next key" must beFalse)
+
+    }
+
+    "not have imported key" in {
+      lazy val keys = metadata().getImportedKeys("catalog", "schema", "table")
+
+      (keys.getFetchSize aka "imported keys" mustEqual 0).
+        and(keys.next aka "next key" must beFalse)
+
+    }
+
+    "not have exported key" in {
+      lazy val keys = metadata().getExportedKeys("catalog", "schema", "table")
+
+      (keys.getFetchSize aka "exported keys" mustEqual 0).
+        and(keys.next aka "next key" must beFalse)
+
+    }
+
+    "not have index info" in {
+      lazy val index = metadata().
+        getIndexInfo("catalog", "schema", "table", true, true)
+
+      (index.getFetchSize aka "index info" mustEqual 0).
+        and(index.next aka "next info" must beFalse)
+
+    }
+  }
+
+  "Cross reference" should {
+    "not be known" in {
+      lazy val xref = metadata().getCrossReference(
+        "pcat", "pschem", "ptable",
+        "fcat", "fschem", "ftable")
+
+      (xref.getFetchSize aka "cross reference" mustEqual 0).
+        and(xref.next aka "next ref" must beFalse)
+
+    }
+  }
+
+  "Type information" should {
+    "not be known" in {
+      lazy val info = metadata().getTypeInfo
+
+      (info.getFetchSize aka "type info" mustEqual 0).
+        and(info.next aka "next info" must beFalse)
+
+    }
+  }
+
+  "Result sets" should {
+    "support only for FORWARD type" in {
+      lazy val meta = metadata()
+
+      (meta.supportsResultSetType(ResultSet.TYPE_FORWARD_ONLY).
+        aka("forward") must beTrue).
+        and(meta.supportsResultSetType(ResultSet.TYPE_SCROLL_INSENSITIVE).
+          aka("insensitive scroll") must beFalse).
+        and(meta.supportsResultSetType(ResultSet.TYPE_SCROLL_SENSITIVE).
+          aka("sensitive scroll") must beFalse)
+
+    }
+
+    "support CONCUR_READ_ONLY" in {
+      metadata().supportsResultSetConcurrency(ResultSet.TYPE_FORWARD_ONLY,
+        ResultSet.CONCUR_READ_ONLY) aka "concurrency" must beTrue
+
+    }
+
+    "have expected visibility of its own changes" in {
+      lazy val meta = metadata()
+      val t = ResultSet.TYPE_FORWARD_ONLY
+
+      (meta.ownInsertsAreVisible(t) aka "insert" must beTrue).
+        and(meta.ownUpdatesAreVisible(t) aka "update" must beTrue).
+        and(meta.ownDeletesAreVisible(t) aka "delete" must beTrue)
+
+    }
+
+    "have expected visibility of its others changes" in {
+      lazy val meta = metadata()
+      val t = ResultSet.TYPE_FORWARD_ONLY
+
+      (meta.othersInsertsAreVisible(t) aka "insert" must beFalse).
+        and(meta.othersUpdatesAreVisible(t) aka "update" must beFalse).
+        and(meta.othersDeletesAreVisible(t) aka "delete" must beFalse)
+
+    }
+
+    "be able to detect row change" in {
+      lazy val meta = metadata()
+      val t = ResultSet.TYPE_FORWARD_ONLY
+
+      (meta.insertsAreDetected(t) aka "insert" must beTrue).
+        and(meta.updatesAreDetected(t) aka "update" must beTrue).
+        and(meta.deletesAreDetected(t) aka "delete" must beTrue)
+
+    }
+  }
+
+  "Batch update" should {
+    "be supported" in {
+      metadata().supportsBatchUpdates aka "batch update" must beTrue
+    }
+  }
 }
 
 sealed trait MetaDataFixtures {

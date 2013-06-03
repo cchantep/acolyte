@@ -56,6 +56,14 @@ object AbstractResultSetSpec extends Specification {
     "be forward only" in {
       defaultSet.getType aka "type" mustEqual ResultSet.TYPE_FORWARD_ONLY
     }
+
+    "have a cursor name" in {
+      defaultSet.getCursorName aka "cursor name" must not beNull
+    }
+
+    "have no warnings" in {
+      defaultSet.getWarnings aka "warnings" must beNull
+    }
   }
 
   "Fetch size" should {
@@ -189,6 +197,69 @@ object AbstractResultSetSpec extends Specification {
 
         (rs.absolute(2) aka "move" must beFalse).
           and(rs.isAfterLast aka "after last" must beTrue)
+      }
+    }
+
+    "be moved to last" >> {
+      "without change" in {
+        lazy val rs = defaultSet
+        (rs.last aka "last" must beTrue) and (rs.getRow aka "row" mustEqual 0)
+      }
+
+      "at 1" in {
+        lazy val rs = defaultSet
+        rs.setFetchSize(1)
+
+        (rs.last aka "last" must beTrue) and (rs.getRow aka "row" mustEqual 1)
+      }
+    }
+
+    "be moved to first" >> {
+      "without change" in {
+        lazy val rs = defaultSet
+        (rs.first aka "first" must beFalse).
+          and(rs.getRow aka "row" mustEqual 1).
+          and(rs.isAfterLast aka "after last" must beTrue)
+      }
+
+      "at 1" in {
+        lazy val rs = defaultSet
+        rs.setFetchSize(1)
+
+        (rs.first aka "first" must beTrue) and (rs.getRow aka "row" mustEqual 1)
+      }
+
+      "with failure when backward" in {
+        lazy val rs = defaultSet
+        rs.setFetchSize(2)
+
+        (rs.absolute(2) aka "forward move" must beTrue).
+          and(rs.getRow aka "row" mustEqual 2).
+          and(rs.first aka "backward first" must throwA[SQLException](
+            message = "Backward move"))
+
+      }
+    }
+
+    "be moved before first" >> {
+      "without change" in {
+        lazy val rs = defaultSet
+        rs.beforeFirst
+
+        (rs.getRow aka "row" mustEqual 0).
+          and(rs.isBeforeFirst aka "before first" must beTrue)
+
+      }
+
+      "with failure when backward" in {
+        lazy val rs = defaultSet
+        rs.setFetchSize(1)
+
+        (rs.first aka "move first" must beTrue).
+          and(rs.getRow aka "row" mustEqual 1).
+          and(rs.beforeFirst aka "before first" must throwA[SQLException](
+            message = "Backward move"))
+
       }
     }
   }

@@ -53,28 +53,34 @@ abstract class AbstractResultSet implements java.sql.ResultSet {
      */
     protected int row = 0;
 
-    // ---
-    
     /**
-     * {@inheritDoc}
+     * Cursor name
      */
-    public boolean next() throws SQLException {
-        return relative(1);
-    } // end of next
+    protected final String cursorName = 
+        String.format("cursor-%d", System.identityHashCode(this));
+
+    // ---
 
     /**
      * {@inheritDoc}
      */
-    public void close() throws SQLException {
+    public ResultSetMetaData getMetaData() throws SQLException {
         throw new RuntimeException("Not implemented");
-    } // end of 
+    } // end of getMetaData
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void close() throws SQLException {
+        // Nothing to do
+    } // end of close
 
     /**
      * {@inheritDoc}
      */
     public boolean wasNull() throws SQLException {
         throw new RuntimeException("Not implemented");
-    } // end of 
+    } // end of wasNull
 
     /**
      * {@inheritDoc}
@@ -313,29 +319,22 @@ abstract class AbstractResultSet implements java.sql.ResultSet {
      * {@inheritDoc}
      */
     public SQLWarning getWarnings() throws SQLException {
-        throw new RuntimeException("Not implemented");
+        return null;
     } // end of getWarnings
 
     /**
      * {@inheritDoc}
      */
     public void clearWarnings() throws SQLException {
-        throw new RuntimeException("Not implemented");
-    } // end of 
+        // Nothing to do for this base impl
+    } // end of clearWarings
 
     /**
      * {@inheritDoc}
      */
     public String getCursorName() throws SQLException {
-        throw new RuntimeException("Not implemented");
+        return this.cursorName;
     } // end of getCursorName
-
-    /**
-     * {@inheritDoc}
-     */
-    public ResultSetMetaData getMetaData() throws SQLException {
-        throw new RuntimeException("Not implemented");
-    } // end of getMetaData
 
     /**
      * {@inheritDoc}
@@ -496,6 +495,13 @@ abstract class AbstractResultSet implements java.sql.ResultSet {
     public boolean previous() throws SQLException {
         return relative(-1);
     } // end of previous
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean next() throws SQLException {
+        return relative(1);
+    } // end of next
 
     /**
      * {@inheritDoc}
