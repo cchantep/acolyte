@@ -354,7 +354,7 @@ public final class Connection implements java.sql.Connection {
     /**
      * {@inheritDoc}
      */
-    public void setHoldability(int holdability) throws SQLException {
+    public void setHoldability(final int holdability) throws SQLException {
         checkClosed();
 
         throw new SQLFeatureNotSupportedException();
@@ -385,7 +385,7 @@ public final class Connection implements java.sql.Connection {
     /**
      * {@inheritDoc}
      */
-    public Savepoint setSavepoint(String name) throws SQLException {
+    public Savepoint setSavepoint(final String name) throws SQLException {
         checkClosed();
 
         if (this.autoCommit) {
@@ -477,29 +477,29 @@ public final class Connection implements java.sql.Connection {
      * {@inheritDoc}
      */
     public Clob createClob() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        throw new SQLFeatureNotSupportedException();
+    } // end of createClob
 
     /**
      * {@inheritDoc}
      */
     public Blob createBlob() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        throw new SQLFeatureNotSupportedException();
+    } // end of createBlob
 
     /**
      * {@inheritDoc}
      */
     public NClob createNClob() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        throw new SQLFeatureNotSupportedException();
+    } // end of createNClob
 
     /**
      * {@inheritDoc}
      */
     public SQLXML createSQLXML() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        throw new SQLFeatureNotSupportedException();
+    } // end of createSQLXML
 
     /**
      * {@inheritDoc}
@@ -565,16 +565,20 @@ public final class Connection implements java.sql.Connection {
     /**
      * {@inheritDoc}
      */
-    public Array createArrayOf(String str, Object[] data) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+    public Array createArrayOf(final String typeName, 
+                               final Object[] elements) throws SQLException {
+
+        throw new SQLFeatureNotSupportedException();
+    } // end of createArrayOf
 
     /**
      * {@inheritDoc}
      */
-    public Struct createStruct(String str, Object[] data) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+    public Struct createStruct(final String typeName, 
+                               final Object[] attributes) throws SQLException {
+
+        throw new SQLFeatureNotSupportedException();
+    } // end of createStruct
 
     /**
      * {@inheritDoc}

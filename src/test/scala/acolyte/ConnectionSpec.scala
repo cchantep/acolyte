@@ -482,6 +482,46 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
     }
   }
+
+  "LOB" should {
+    "not be created for characters" in {
+      defaultCon.createClob.
+        aka("create clob") must throwA[SQLFeatureNotSupportedException]
+
+    }
+
+    "not be created for binary" in {
+      defaultCon.createBlob.
+        aka("create blob") must throwA[SQLFeatureNotSupportedException]
+
+    }
+
+    "not be created for national characters" in {
+      defaultCon.createNClob.
+        aka("create nclob") must throwA[SQLFeatureNotSupportedException]
+
+    }
+  }
+
+  "Structural types" should {
+    "not be supported for XML" in {
+      defaultCon.createSQLXML().
+        aka("create XML") must throwA[SQLFeatureNotSupportedException]
+
+    }
+
+    "not be supported for STRUCT" in {
+      defaultCon.createStruct("CHAR", Array[Object]()).
+        aka("create struct") must throwA[SQLFeatureNotSupportedException]
+
+    }
+
+    "not be supported for ARRAY" in {
+      defaultCon.createArrayOf("CHAR", Array[Object]()).
+        aka("create array") must throwA[SQLFeatureNotSupportedException]
+
+    }
+  }
 }
 
 sealed trait ConnectionFixtures {
