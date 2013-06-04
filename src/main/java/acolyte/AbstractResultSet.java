@@ -63,8 +63,29 @@ abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * Cursor name
      */
-    protected final String cursorName = 
-        String.format("cursor-%d", System.identityHashCode(this));
+    protected final String cursorName;
+
+    // --- Constructors ---
+
+    /**
+     * No-arg constructor
+     */
+    protected AbstractResultSet() {
+        this.cursorName = 
+            String.format("cursor-%d", System.identityHashCode(this));
+
+    } // end of <init>
+
+    /**
+     * Cursor constructor.
+     */
+    protected AbstractResultSet(final String cursor) {
+        if (cursor == null) {
+            throw new IllegalArgumentException();
+        } // end of if
+
+        this.cursorName = cursor;
+    } // end of <init>
 
     // ---
 

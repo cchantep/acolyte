@@ -30,6 +30,12 @@ object AbstractResultSetSpec extends Specification {
   }
 
   "New resultset" should {
+    "refuse invalid cursor name" in {
+      lazy val rs = new AbstractResultSet(null) { }
+
+      rs aka "ctor" must throwA[IllegalArgumentException]
+    }
+
     "not be closed" in {
       defaultSet.isClosed aka "closed" must beFalse
     }
