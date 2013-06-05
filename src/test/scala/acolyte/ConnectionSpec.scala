@@ -522,6 +522,23 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
     }
   }
+
+  "Plain statement" should {
+    "be owned by connection" in {
+      lazy val c = defaultCon
+
+      c.createStatement.getConnection aka "statement connection" mustEqual c
+    }
+
+    "not be created from a closed connection" in {
+      lazy val c = defaultCon
+      c.close()
+
+      c.createStatement aka "creation" must throwA[SQLException](
+        message = "Connection is closed")
+
+    }
+  }
 }
 
 sealed trait ConnectionFixtures {

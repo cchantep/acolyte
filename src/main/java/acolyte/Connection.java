@@ -136,6 +136,8 @@ public final class Connection implements java.sql.Connection {
      * {@inheritDoc}
      */
     public Statement createStatement() throws SQLException {
+        checkClosed();
+
         return new PlainStatement(this, this.handler);
     } // end of createStatement        
 
@@ -143,15 +145,19 @@ public final class Connection implements java.sql.Connection {
      * {@inheritDoc}
      */
     public PreparedStatement prepareStatement(String str) throws SQLException {
+        checkClosed();
+
         throw new RuntimeException("Not yet implemented");
-    } // end of 
+    } // end of prepareStatement
 
     /**
      * {@inheritDoc}
      */
     public CallableStatement prepareCall(String str) throws SQLException {
+        checkClosed();
+
         throw new RuntimeException("Not yet implemented");
-    } // end of 
+    } // end of prepareCall
 
     /**
      * {@inheritDoc}
@@ -353,6 +359,7 @@ public final class Connection implements java.sql.Connection {
 
     /**
      * {@inheritDoc}
+     * @throws java.sql.SQLFeatureNotSupportedException
      */
     public void setHoldability(final int holdability) throws SQLException {
         checkClosed();
@@ -475,6 +482,7 @@ public final class Connection implements java.sql.Connection {
 
     /**
      * {@inheritDoc}
+     * @throws java.sql.SQLFeatureNotSupportedException
      */
     public Clob createClob() throws SQLException {
         throw new SQLFeatureNotSupportedException();
@@ -482,6 +490,7 @@ public final class Connection implements java.sql.Connection {
 
     /**
      * {@inheritDoc}
+     * @throws java.sql.SQLFeatureNotSupportedException
      */
     public Blob createBlob() throws SQLException {
         throw new SQLFeatureNotSupportedException();
@@ -489,6 +498,7 @@ public final class Connection implements java.sql.Connection {
 
     /**
      * {@inheritDoc}
+     * @throws java.sql.SQLFeatureNotSupportedException
      */
     public NClob createNClob() throws SQLException {
         throw new SQLFeatureNotSupportedException();
@@ -496,6 +506,7 @@ public final class Connection implements java.sql.Connection {
 
     /**
      * {@inheritDoc}
+     * @throws java.sql.SQLFeatureNotSupportedException
      */
     public SQLXML createSQLXML() throws SQLException {
         throw new SQLFeatureNotSupportedException();
@@ -564,6 +575,7 @@ public final class Connection implements java.sql.Connection {
 
     /**
      * {@inheritDoc}
+     * @throws java.sql.SQLFeatureNotSupportedException
      */
     public Array createArrayOf(final String typeName, 
                                final Object[] elements) throws SQLException {
@@ -573,6 +585,7 @@ public final class Connection implements java.sql.Connection {
 
     /**
      * {@inheritDoc}
+     * @throws java.sql.SQLFeatureNotSupportedException
      */
     public Struct createStruct(final String typeName, 
                                final Object[] attributes) throws SQLException {
@@ -615,6 +628,7 @@ public final class Connection implements java.sql.Connection {
 
     /**
      * {@inheritDoc}
+     * @throws java.sql.SQLFeatureNotSupportedException
      */
     public void setNetworkTimeout(final Executor executor, 
                                   final int milliseconds) throws SQLException {
@@ -624,6 +638,7 @@ public final class Connection implements java.sql.Connection {
 
     /**
      * {@inheritDoc}
+     * @throws java.sql.SQLFeatureNotSupportedException
      */
     public int getNetworkTimeout() throws SQLException {
         throw new SQLFeatureNotSupportedException();
