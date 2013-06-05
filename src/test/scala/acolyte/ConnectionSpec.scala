@@ -16,7 +16,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
   "Connection constructor" should {
     "not accept null URL" in {
-      connection(url = null, props = null, handler = "handler").
+      connection(url = null, props = null, handler = defaultHandler).
         aka("connection") must throwA[IllegalArgumentException](
           message = "Invalid JDBC URL")
     }
@@ -28,7 +28,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
     }
 
     "return not-null instance for valid information" in {
-      Option(connection(url = jdbcUrl, props = null, handler = "handler")).
+      Option(connection(url = jdbcUrl, props = null, handler = defaultHandler)).
         aka("connection") must beSome.which { conn ⇒
           (conn.getAutoCommit aka "auto-commit" must beFalse).
             and(conn.isReadOnly aka "read-only" must beFalse).
@@ -528,9 +528,9 @@ sealed trait ConnectionFixtures {
   val jdbcUrl = "jdbc:acolyte:test"
   val emptyTypeMap = new java.util.HashMap[String, Class[_]]()
   val emptyClientInfo = new java.util.Properties()
+  val defaultHandler = EmptyConnectionHandler
 
-  def defaultCon = connection(jdbcUrl, null, "handler")
+  def defaultCon = connection(jdbcUrl, null, defaultHandler)
 
-  def connection(url: String, props: java.util.Properties, handler: Any) =
-    new acolyte.Connection(url, props, handler)
+  def connection(url: String, props: java.util.Properties, handler: ConnectionHandler) = new acolyte.Connection(url, props, handler)
 }

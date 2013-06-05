@@ -473,7 +473,7 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
 
   "Owner connection" should {
     "be attached to related meta-data" in {
-      lazy val c = new acolyte.Connection("jdbc:acolyte:meta", null, "handler")
+      lazy val c = new acolyte.Connection("jdbc:acolyte:meta", null, conHandler)
       lazy val m = metadata(c)
 
       c.setReadOnly(true)
@@ -802,5 +802,7 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
 }
 
 sealed trait MetaDataFixtures {
-  def metadata(c: Connection = new acolyte.Connection("jdbc:acolyte:test", null, "handler")) = new DatabaseMetaData(c)
+  val conHandler = EmptyConnectionHandler
+
+  def metadata(c: Connection = new acolyte.Connection("jdbc:acolyte:test", null, conHandler)) = new DatabaseMetaData(c)
 }

@@ -63,7 +63,7 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
       directConnect(
         url = jdbcUrl,
         props = null,
-        handler = "handler") aka "connection" must not beNull
+        handler = defaultHandler) aka "connection" must not beNull
     }
   }
 }
@@ -83,6 +83,8 @@ sealed trait DriverUtils {
     while (en.hasMoreElements) en.nextElement
     true
   }
+
+  val defaultHandler = EmptyConnectionHandler
 
   def isRegistered[T: ClassTag]: Boolean = {
     val driverClass = implicitly[ClassTag[T]].runtimeClass
@@ -104,7 +106,7 @@ sealed trait DriverUtils {
 
   def driver = new acolyte.Driver()
 
-  def directConnect(url: String, props: Map[String, String] = Map(), handler: Any = null) = {
+  def directConnect(url: String, props: Map[String, String] = Map(), handler: ConnectionHandler = null) = {
     val properties = new JProps()
     val d = driver
 

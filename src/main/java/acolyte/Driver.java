@@ -42,7 +42,7 @@ public final class Driver implements java.sql.Driver {
     /**
      * Handler to be used on next connection.
      */
-    private Object handler = null;
+    private ConnectionHandler handler = null;
 
     // --- Driver impl ---
 
@@ -114,7 +114,7 @@ public final class Driver implements java.sql.Driver {
     /**
      * TODO: Will allow to handle queries/returns results by handle.
      */
-    public void setHandler(Object/*JdbcHandler*/ handler) {
+    public void setHandler(final ConnectionHandler handler) {
         this.handler = handler;
     } // end of setHandler
 } // end of class Driver

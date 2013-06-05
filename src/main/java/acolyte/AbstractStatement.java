@@ -6,6 +6,11 @@ import java.sql.SQLWarning;
 import java.sql.Connection;
 import java.sql.ResultSet;
 
+/**
+ * Acolyte base statement.
+ *
+ * @author Cedric Chantepie
+ */
 abstract class AbstractStatement implements java.sql.Statement {
     // --- Properties ---
 

@@ -307,7 +307,8 @@ object AbstractStatementSpec extends Specification {
   def statement(c: Connection = defaultCon, h: StatementHandler = defaultHandler) = new AbstractStatement(c, h) {}
 
   val jdbcUrl = "jdbc:acolyte:test"
-  lazy val defaultCon = new acolyte.Connection(jdbcUrl, null, "handler")
+  lazy val defaultCon = new acolyte.
+    Connection(jdbcUrl, null, EmptyConnectionHandler)
 
   lazy val defaultHandler = new StatementHandler {
     def whenSQLQuery(sql: String): ResultSet = sys.error("TEST")

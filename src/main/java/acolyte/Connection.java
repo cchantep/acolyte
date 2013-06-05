@@ -44,7 +44,7 @@ public final class Connection implements java.sql.Connection {
     /**
      * Acolyte handler
      */
-    private final Object handler;
+    private final ConnectionHandler handler;
 
     /**
      * Auto-commit flag
@@ -113,7 +113,7 @@ public final class Connection implements java.sql.Connection {
      */
     public Connection(final String url, 
                       final Properties props, 
-                      final Object handler) {
+                      final ConnectionHandler handler) {
 
         if (url == null) {
             throw new IllegalArgumentException("Invalid JDBC URL");
@@ -136,7 +136,7 @@ public final class Connection implements java.sql.Connection {
      * {@inheritDoc}
      */
     public Statement createStatement() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
+        return new PlainStatement(this, this.handler);
     } // end of createStatement        
 
     /**
@@ -660,4 +660,17 @@ public final class Connection implements java.sql.Connection {
             throw new SQLException("Connection is closed");
         } // end of if
     } // end of checkClosed
+
+    // --- Inner classes ---
+
+    /**
+     * Plain statement (not prepared or callable).
+     */
+    private static final class PlainStatement extends AbstractStatement {
+        PlainStatement(final Connection connection,
+                       final StatementHandler handler) {
+
+            super(connection, handler);
+        }
+    } // end of class PlainStatement
 } // end of class Connection
