@@ -217,6 +217,14 @@ object AbstractStatementSpec extends Specification {
         aka("holdability") mustEqual ResultSet.CLOSE_CURSORS_AT_COMMIT
 
     }
+
+    "not be poolable" in {
+      statement().isPoolable aka "poolable" must beFalse
+    }
+
+    "not close on completion" in {
+      statement().isCloseOnCompletion aka "close on completion" must beFalse
+    }
   }
 
   "Warning" should {
