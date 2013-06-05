@@ -329,6 +329,7 @@ abstract class AbstractStatement implements java.sql.Statement {
 
     /**
      * {@inheritDoc}
+     * @throws java.sql.SQLException Batch is not supported
      */
     public void addBatch(final String sql) throws SQLException {
         throw new SQLException("Batch is not supported");
@@ -336,6 +337,7 @@ abstract class AbstractStatement implements java.sql.Statement {
 
     /**
      * {@inheritDoc}
+     * @throws java.sql.SQLException Batch is not supported
      */
     public void clearBatch() throws SQLException {
         throw new SQLException("Batch is not supported");
@@ -343,6 +345,7 @@ abstract class AbstractStatement implements java.sql.Statement {
 
     /**
      * {@inheritDoc}
+     * @throws java.sql.SQLException Batch is not supported
      */
     public int[] executeBatch() throws SQLException {
         throw new SQLException("Batch is not supported");

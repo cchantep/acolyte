@@ -1,6 +1,6 @@
 package acolyte
 
-import java.sql.SQLFeatureNotSupportedException
+import java.sql.{ SQLException, SQLFeatureNotSupportedException }
 
 import org.specs2.mutable.Specification
 
@@ -68,6 +68,13 @@ object PreparedStatementSpec extends Specification {
         and(statement().setNClob(0, null.asInstanceOf[java.io.Reader]).
           aka("setter") must throwA[SQLFeatureNotSupportedException])
 
+    }
+  }
+
+  "Batch" should {
+    "not be supported" in {
+      statement().addBatch() aka "batch" must throwA[SQLException](
+        message = "Batch is not supported")
     }
   }
 

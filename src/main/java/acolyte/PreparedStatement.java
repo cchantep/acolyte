@@ -233,10 +233,12 @@ public final class PreparedStatement
 
     /**
      * {@inheritDoc}
+     * @throws java.sql.SQLException Batch is not supported
+     * @see AbstractStatement#addBatch
      */
     public void addBatch() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        throw new SQLException("Batch is not supported");
+    } // end of addBatch
 
     /**
      * {@inheritDoc}
