@@ -373,7 +373,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
      * {@inheritDoc}
      */
     public boolean supportsMultipleResultSets() throws SQLException {
-        return true;
+        return false;
     } // end of supportsMultipleResultSets
 
     /**
@@ -1186,7 +1186,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
      * {@inheritDoc}
      */
     public boolean supportsGetGeneratedKeys() throws SQLException {
-        return true;
+        return false;
     } // end of supportsGetGeneratedKeys
 
     /**

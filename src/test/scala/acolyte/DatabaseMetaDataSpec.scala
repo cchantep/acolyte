@@ -38,8 +38,8 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
       metadata().supportsMultipleOpenResults aka "flag" must beFalse
     }
 
-    "support getting generated keys" in {
-      metadata().supportsGetGeneratedKeys aka "flag" must beTrue
+    "not support getting generated keys" in {
+      metadata().supportsGetGeneratedKeys aka "flag" must beFalse
     }
 
     "not support holding cursor over commit" in {
@@ -240,8 +240,8 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
       metadata().supportsLikeEscapeClause aka "flag" must beTrue
     }
 
-    "support multiple result sets" in {
-      metadata().supportsMultipleResultSets aka "flag" must beTrue
+    "not support multiple result sets" in {
+      metadata().supportsMultipleResultSets aka "flag" must beFalse
     }
 
     "support multiple transactions" in {

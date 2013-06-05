@@ -1,6 +1,11 @@
 package acolyte
 
-import java.sql.{ ResultSet, SQLException, SQLFeatureNotSupportedException }
+import java.sql.{
+  ResultSet,
+  SQLException,
+  SQLFeatureNotSupportedException,
+  Statement
+}
 
 import org.specs2.mutable.Specification
 
@@ -22,14 +27,14 @@ object AbstractStatementSpec extends Specification {
 
   "Wrapping" should {
     "be valid for java.sql.Statement" in {
-      statement().isWrapperFor(classOf[java.sql.Statement]).
+      statement().isWrapperFor(classOf[Statement]).
         aka("is wrapper for java.sql.Statement") must beTrue
 
     }
 
     "be unwrapped to java.sql.Statement" in {
-      Option(statement().unwrap(classOf[java.sql.Statement])).
-        aka("unwrapped") must beSome.which(_.isInstanceOf[java.sql.Statement])
+      Option(statement().unwrap(classOf[Statement])).
+        aka("unwrapped") must beSome.which(_.isInstanceOf[Statement])
 
     }
   }
@@ -75,6 +80,36 @@ object AbstractStatementSpec extends Specification {
         and(sql aka "executed SQL" mustEqual "QUERY")
 
     }
+
+    "be processed ignoring generated keys" in {
+      lazy val s = statement(h = h)
+
+      ((s.execute("QUERY", Statement.RETURN_GENERATED_KEYS).
+        aka("flag") must beTrue).
+        and(s.getResultSet aka "resultset" mustEqual AbstractResultSet.EMPTY).
+        and(s.getUpdateCount aka "update count" mustEqual -1).
+        and(sql aka "executed SQL" mustEqual "QUERY")).
+        /*2*/ and((s.execute("QUERY", Array[Int]()) aka "flag" must beTrue).
+          and(s.getResultSet aka "resultset" mustEqual AbstractResultSet.EMPTY).
+          and(s.getUpdateCount aka "update count" mustEqual -1).
+          and(sql aka "executed SQL" mustEqual "QUERY")).
+        /*3*/ and((s.execute("QUERY", Array[String]()) aka "flag" must beTrue).
+          and(s.getResultSet aka "resultset" mustEqual AbstractResultSet.EMPTY).
+          and(s.getUpdateCount aka "update count" mustEqual -1).
+          and(sql aka "executed SQL" mustEqual "QUERY"))
+
+    }
+
+    "be processed without generated keys" in {
+      lazy val s = statement(h = h)
+
+      (s.execute("QUERY", Statement.NO_GENERATED_KEYS).
+        aka("flag") must beTrue).
+        and(s.getResultSet aka "resultset" mustEqual AbstractResultSet.EMPTY).
+        and(s.getUpdateCount aka "update count" mustEqual -1).
+        and(sql aka "executed SQL" mustEqual "QUERY")
+
+    }
   }
 
   "Update" should {
@@ -96,6 +131,17 @@ object AbstractStatementSpec extends Specification {
 
     }
 
+    "return expected row count without generated keys" in {
+      lazy val s = statement(h = h)
+
+      (s.executeUpdate("UPDATE", Statement.NO_GENERATED_KEYS).
+        aka("result") mustEqual 5).
+        and(s.getUpdateCount aka "update count" mustEqual 5).
+        and(s.getResultSet aka "resultset" must beNull).
+        and(sql aka "executed SQL" mustEqual "UPDATE")
+
+    }
+
     "fail on a closed statement" in {
       lazy val s = statement()
       s.close()
@@ -109,6 +155,17 @@ object AbstractStatementSpec extends Specification {
       lazy val s = statement(h = h)
 
       (s.execute("UPDATE") aka "result" must beFalse).
+        and(s.getUpdateCount aka "update count" mustEqual 5).
+        and(s.getResultSet aka "resultset" must beNull).
+        and(sql aka "executed SQL" mustEqual "UPDATE")
+
+    }
+
+    "be processed without generated keys" in {
+      lazy val s = statement(h = h)
+
+      (s.execute("UPDATE", Statement.NO_GENERATED_KEYS).
+        aka("result") must beFalse).
         and(s.getUpdateCount aka "update count" mustEqual 5).
         and(s.getResultSet aka "resultset" must beNull).
         and(sql aka "executed SQL" mustEqual "UPDATE")
@@ -152,6 +209,12 @@ object AbstractStatementSpec extends Specification {
     "not support cancel" in {
       statement().cancel().
         aka("cancel") must throwA[SQLFeatureNotSupportedException]
+
+    }
+
+    "have default resultset holdability" in {
+      statement().getResultSetHoldability().
+        aka("holdability") mustEqual ResultSet.CLOSE_CURSORS_AT_COMMIT
 
     }
   }
@@ -209,6 +272,24 @@ object AbstractStatementSpec extends Specification {
     "be empty when null is returned by handler" in {
       statement().getGeneratedKeys.
         aka("keys") mustEqual AbstractResultSet.EMPTY
+
+    }
+
+    "not be returned from update" in {
+      (statement().executeUpdate("UPDATE", Statement.RETURN_GENERATED_KEYS).
+        aka("update 1") must throwA[SQLFeatureNotSupportedException]).
+        and(statement().executeUpdate("UPDATE", Array[Int]()).
+          aka("update 2") must throwA[SQLFeatureNotSupportedException]).
+        and(statement().executeUpdate("UPDATE", Array[String]()).
+          aka("update 3") must throwA[SQLFeatureNotSupportedException])
+
+    }
+
+    "not be returned from execution" in {
+      (statement().execute("UPDATE", Array[Int]()).
+        aka("execute 1") must throwA[SQLFeatureNotSupportedException]).
+        and(statement().execute("UPDATE", Array[String]()).
+          aka("execute 2") must throwA[SQLFeatureNotSupportedException])
 
     }
   }
