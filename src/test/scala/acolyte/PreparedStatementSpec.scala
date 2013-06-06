@@ -1,6 +1,6 @@
 package acolyte
 
-import java.sql.{ SQLException, SQLFeatureNotSupportedException }
+import java.sql.{ SQLException, SQLFeatureNotSupportedException, Types }
 
 import org.specs2.mutable.Specification
 
@@ -75,6 +75,28 @@ object PreparedStatementSpec extends Specification {
     "not be supported" in {
       statement().addBatch() aka "batch" must throwA[SQLException](
         message = "Batch is not supported")
+    }
+  }
+
+  "Null" should {
+    "be set as first parameter (VARCHAR)" in {
+      lazy val s = statement()
+      s.setNull(1, Types.VARCHAR)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.VARCHAR).
+        and(m.getParameterTypeName(1) aka "SQL name" mustEqual "VARCHAR").
+        and(m.getParameterClassName(1).
+          aka("class") mustEqual "java.lang.String").
+        and(m.isSigned(1) aka "sign" must beFalse).
+        and(m.getPrecision(1) aka "precision" mustEqual -1).
+        and(m.getScale(1) aka "scale" mustEqual -1).
+        and(m.isNullable(1).
+          aka("nullable") mustEqual java.sql.ParameterMetaData.
+          parameterNullableUnknown)
+
     }
   }
 

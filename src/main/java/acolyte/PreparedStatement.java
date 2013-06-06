@@ -1,11 +1,13 @@
 package acolyte;
 
-import java.math.BigDecimal;
-
 import java.io.InputStream;
 import java.io.Reader;
 
+import java.math.BigDecimal;
+
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.TreeMap;
 
 import java.net.URL;
 
@@ -25,6 +27,11 @@ import java.sql.Date;
 import java.sql.Time;
 import java.sql.Ref;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+
+import acolyte.ParameterMetaData.Parameter;
+import static acolyte.ParameterMetaData.Null;
+
 /**
  * Acolyte prepared statement.
  *
@@ -32,6 +39,13 @@ import java.sql.Ref;
  */
 public final class PreparedStatement 
     extends AbstractStatement implements java.sql.PreparedStatement {
+
+    // --- Properties ---
+
+    /**
+     * Parameters
+     */
+    private final TreeMap<Integer,ImmutablePair<Parameter,Object>> parameters = new TreeMap<Integer,ImmutablePair<Parameter,Object>>();
 
     // --- Constructors ---
 
@@ -69,9 +83,13 @@ public final class PreparedStatement
     /**
      * {@inheritDoc}
      */
-    public void setNull(final int i, final int j) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+    public void setNull(final int parameterIndex, 
+                        final int sqlType) throws SQLException {
+
+        this.parameters.put(parameterIndex, 
+                            ImmutablePair.of(Null(sqlType), null));
+
+    } // end of setNull
 
     /**
      * {@inheritDoc}
@@ -349,7 +367,13 @@ public final class PreparedStatement
      * {@inheritDoc}
      */
     public ParameterMetaData getParameterMetaData() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
+        final ArrayList<Parameter> params = new ArrayList<Parameter>();
+
+        for (final ImmutablePair<Parameter,Object> p : parameters.values()) {
+            params.add(p.left);
+        } // end of for
+
+        return new acolyte.ParameterMetaData(params);
     } // end of getParameterMetaData
 
     /**

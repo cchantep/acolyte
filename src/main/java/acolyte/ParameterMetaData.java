@@ -4,6 +4,8 @@ import java.util.List;
 
 import java.sql.SQLException;
 
+import static acolyte.Defaults.*;
+
 /**
  * Acolyte parameter meta-data.
  *
@@ -147,6 +149,23 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
 
         return proxy;
     } // end of unwrap
+
+    // --- Factory methods ---
+
+    /**
+     * Null constructor.
+     */
+    public static Parameter Null(final int sqlType) {
+        return new Parameter(jdbcTypeMappings.get(sqlType),
+                             parameterModeIn,
+                             sqlType,
+                             jdbcTypeNames.get(sqlType),
+                             jdbcTypePrecisions.get(sqlType),
+                             jdbcTypeScales.get(sqlType),
+                             parameterNullableUnknown,
+                             jdbcTypeSigns.get(sqlType));
+
+    } // end of Null
 
     // --- Inner classes ---
 
