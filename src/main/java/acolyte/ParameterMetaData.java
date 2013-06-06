@@ -1,8 +1,15 @@
 package acolyte;
 
+import java.util.Locale;
 import java.util.List;
 
+import java.math.BigDecimal;
+
 import java.sql.SQLException;
+import java.sql.Types;
+
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import static acolyte.Defaults.*;
 
@@ -153,9 +160,9 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     // --- Factory methods ---
 
     /**
-     * Null constructor.
+     * Default parameter.
      */
-    public static Parameter Null(final int sqlType) {
+    public static Parameter Default(final int sqlType) {
         return new Parameter(jdbcTypeMappings.get(sqlType),
                              parameterModeIn,
                              sqlType,
@@ -164,8 +171,92 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
                              jdbcTypeScales.get(sqlType),
                              parameterNullableUnknown,
                              jdbcTypeSigns.get(sqlType));
+    } // end of Default
 
+    /**
+     * Decimal parameter.
+     */
+    public static Parameter Decimal(final int sqlType,
+                                    final int scale) {
+
+        return new Parameter(jdbcTypeMappings.get(sqlType),
+                             parameterModeIn,
+                             sqlType,
+                             jdbcTypeNames.get(sqlType),
+                             jdbcTypePrecisions.get(sqlType),
+                             scale,
+                             parameterNullableUnknown,
+                             jdbcTypeSigns.get(sqlType));
+
+    } // end of Decimal
+
+    /**
+     * Null constructor.
+     */
+    public static Parameter Null(final int sqlType) {
+        return Default(sqlType);
     } // end of Null
+
+    /**
+     * Boolean constructor.
+     */
+    public static Parameter Bool() {
+        return Default(Types.BOOLEAN);
+    } // end of Bool
+
+    /**
+     * Byte constructor.
+     */
+    public static Parameter Byte() {
+        return Default(Types.TINYINT);
+    } // end of Byte
+
+    /**
+     * Short constructor.
+     */
+    public static Parameter Short() {
+        return Default(Types.SMALLINT);
+    } // end of Short
+
+    /**
+     * Integer constructor.
+     */
+    public static Parameter Int() {
+        return Default(Types.INTEGER);
+    } // end of Int
+
+    /**
+     * Long constructor.
+     */
+    public static Parameter Long() {
+        return Default(Types.BIGINT);
+    } // end of Long
+
+    /**
+     * Float constructor.
+     */
+    public static Parameter Float(final float f) {
+        final BigDecimal bd = new BigDecimal(Float.toString(f));
+
+        return Decimal(Types.FLOAT, bd.scale());
+    } // end of Float
+
+    /**
+     * Double constructor.
+     */
+    public static Parameter Double(final double d) {
+        final BigDecimal bd = new BigDecimal(String.format(Locale.US, "%f", d)).
+            stripTrailingZeros();
+
+        return Decimal(Types.DOUBLE, bd.scale());
+    } // end of Double
+
+    /**
+     * BigDecimal constructor.
+     */
+    public static Parameter Numeric(final BigDecimal bd) {
+        return Decimal(Types.NUMERIC, bd.scale());
+    } // end of BigDecimal
 
     // --- Inner classes ---
 
@@ -215,5 +306,55 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
             this.nullable = nullable;
             this.signed = signed;
         } // end of <init>
+
+        // ---
+
+        /**
+         * {@inheritDoc}
+         */
+        public String toString() {
+            return String.format("Parameter(class = %s, mode = %s, sqlType = %s, precision = %d, scale = %d, nullable = %s, signed = %s)", this.className, this.mode, this.sqlTypeName, this.precision, this.scale, this.nullable, this.signed);
+
+        } // end of toString
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean equals(Object o) {
+            if (o == null || !(o instanceof Parameter)) {
+                return false;
+            } // end of if
+
+            final Parameter other = (Parameter) o;
+
+            return new EqualsBuilder().
+                append(this.className, other.className).
+                append(this.mode, other.mode).
+                append(this.sqlType, other.sqlType).
+                append(this.sqlTypeName, other.sqlTypeName).
+                append(this.precision, other.precision).
+                append(this.scale, other.scale).
+                append(this.nullable, other.nullable).
+                append(this.signed, other.signed).
+                isEquals();
+
+        } // end of equals
+
+        /**
+         * {@inheritDoc}
+         */
+        public int hashCode() {
+            return new HashCodeBuilder(11, 1).
+                append(this.className).
+                append(this.mode).
+                append(this.sqlType).
+                append(this.sqlTypeName).
+                append(this.precision).
+                append(this.scale).
+                append(this.nullable).
+                append(this.signed).
+                toHashCode();
+
+        } // end of hashCode
     } // end of class Parameter
 } // end of class ParameterMetaData

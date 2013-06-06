@@ -30,7 +30,16 @@ import java.sql.Ref;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import acolyte.ParameterMetaData.Parameter;
+
+import static acolyte.ParameterMetaData.Numeric;
+import static acolyte.ParameterMetaData.Double;
+import static acolyte.ParameterMetaData.Float;
+import static acolyte.ParameterMetaData.Short;
+import static acolyte.ParameterMetaData.Bool;
+import static acolyte.ParameterMetaData.Byte;
 import static acolyte.ParameterMetaData.Null;
+import static acolyte.ParameterMetaData.Long;
+import static acolyte.ParameterMetaData.Int;
 
 /**
  * Acolyte prepared statement.
@@ -94,60 +103,88 @@ public final class PreparedStatement
     /**
      * {@inheritDoc}
      */
-    public void setBoolean(final int i, final boolean b) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+    public void setBoolean(final int parameterIndex, 
+                           final boolean x) throws SQLException {
+
+        this.parameters.put(parameterIndex, 
+                            ImmutablePair.of(Bool(), (Object)x));
+
+    } // end of setBoolean
 
     /**
      * {@inheritDoc}
      */
-    public void setByte(final int i, final byte b) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+    public void setByte(final int parameterIndex, 
+                        final byte x) throws SQLException {
+
+        this.parameters.put(parameterIndex,
+                            ImmutablePair.of(Byte(), (Object)x));
+
+    } // end of setByte
 
     /**
      * {@inheritDoc}
      */
-    public void setShort(final int i, final short s) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+    public void setShort(final int parameterIndex, 
+                         final short x) throws SQLException {
+
+        this.parameters.put(parameterIndex,
+                            ImmutablePair.of(Short(), (Object)x));
+
+    } // end of setShort
 
     /**
      * {@inheritDoc}
      */
-    public void setInt(final int i, final int j) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+    public void setInt(final int parameterIndex, 
+                       final int x) throws SQLException {
+
+        this.parameters.put(parameterIndex, ImmutablePair.of(Int(), (Object)x));
+    } // end of setInt
 
     /**
      * {@inheritDoc}
      */
-    public void setLong(final int i, final long j) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+    public void setLong(final int parameterIndex, 
+                        final long x) throws SQLException {
+
+        this.parameters.put(parameterIndex, 
+                            ImmutablePair.of(Long(), (Object)x));
+
+    } // end of setLong
 
     /**
      * {@inheritDoc}
      */
-    public void setFloat(final int i, final float f) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+    public void setFloat(final int parameterIndex, 
+                         final float x) throws SQLException {
+
+        this.parameters.put(parameterIndex, 
+                            ImmutablePair.of(Float(x), (Object)x));
+
+    } // end of setFloat
 
     /**
      * {@inheritDoc}
      */
-    public void setDouble(final int i, final double d) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+    public void setDouble(final int parameterIndex, 
+                          final double x) throws SQLException {
+
+        this.parameters.put(parameterIndex, 
+                            ImmutablePair.of(Double(x), (Object)x));
+
+    } // end of setDouble
 
     /**
      * {@inheritDoc}
      */
-    public void setBigDecimal(final int i, final BigDecimal bd) 
-        throws SQLException {
+    public void setBigDecimal(final int parameterIndex, 
+                              final BigDecimal x) throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        this.parameters.put(parameterIndex, 
+                            ImmutablePair.of(Numeric(x), (Object)x));
+
+    } // end of setBigDecimal
 
     /**
      * {@inheritDoc}

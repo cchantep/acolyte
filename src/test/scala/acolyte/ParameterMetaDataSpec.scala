@@ -11,6 +11,20 @@ import java.sql.ParameterMetaData.{
 
 import org.specs2.mutable.Specification
 
+import acolyte.ParameterMetaData.{
+  Bool ⇒ BoolP,
+  Byte ⇒ ByteP,
+  Decimal ⇒ DecimalP,
+  Default ⇒ DefaultP,
+  Long ⇒ LongP,
+  Null ⇒ NullP,
+  Short ⇒ ShortP,
+  Int ⇒ IntP,
+  Float ⇒ FloatP,
+  Double ⇒ DoubleP,
+  Numeric ⇒ NumericP
+}
+
 object ParameterMetaDataSpec
     extends Specification with ParameterMetaDataFixtures {
 
@@ -173,11 +187,115 @@ object ParameterMetaDataSpec
 
     }
   }
+
+  "Defaults" should {
+    jdbcTypeMap foreach { p ⇒
+      val (k, v) = p
+      s"be expected one for ${typeName(k)}" in {
+        DefaultP(k) aka "default parameter" mustEqual param(v, IN, k,
+          typeName(k), typePrecision(k), typeScale(k), UNKNOWN_NULL,
+          typeSign(k))
+
+      }
+    }
+  }
+
+  "Decimal" should {
+    Seq(Types.DECIMAL, Types.DOUBLE, Types.FLOAT, Types.REAL) foreach { t ⇒
+      (1 to 32) foreach { s ⇒
+
+        DecimalP(t, s) aka "decimal parameter" mustEqual param(jdbcTypeMap(t),
+          IN, t, typeName(t), typePrecision(t), s, UNKNOWN_NULL, typeSign(t))
+
+      }
+    }
+  }
+
+  "Null parameter" should {
+    jdbcTypeMap.keys foreach { k ⇒
+      s"be expected ${typeName(k)}" in {
+        NullP(k) aka "null parameter" mustEqual DefaultP(k)
+      }
+    }
+  }
+
+  "Boolean parameter" should {
+    "be default one" in {
+      BoolP aka "boolean parameter" mustEqual DefaultP(Types.BOOLEAN)
+    }
+  }
+
+  "Byte parameter" should {
+    "be default one" in {
+      ByteP aka "byte parameter" mustEqual DefaultP(Types.TINYINT)
+    }
+  }
+
+  "Short parameter" should {
+    "be default one" in {
+      ShortP aka "short parameter" mustEqual DefaultP(Types.SMALLINT)
+    }
+  }
+
+  "Integer parameter" should {
+    "be default one" in {
+      IntP aka "integer parameter" mustEqual DefaultP(Types.INTEGER)
+    }
+  }
+
+  "Long parameter" should {
+    "be default one" in {
+      LongP aka "long parameter" mustEqual DefaultP(Types.BIGINT)
+    }
+  }
+
+  "Float parameter" should {
+    "have scale 1" in {
+      FloatP(1.2f) aka "float parameter" mustEqual DecimalP(Types.FLOAT, 1)
+    }
+
+    "have scale 2" in {
+      FloatP(1.23f) aka "float parameter" mustEqual DecimalP(Types.FLOAT, 2)
+    }
+
+    "have scale 6" in {
+      FloatP(1.234567f) aka "float parameter" mustEqual DecimalP(Types.FLOAT, 6)
+    }
+  }
+
+  "Double parameter" should {
+    "have scale 1" in {
+      DoubleP(1.2f) aka "double parameter" mustEqual DecimalP(Types.DOUBLE, 1)
+    }
+
+    "have scale 5" in {
+      DoubleP(1.23456f).
+        aka("double parameter") mustEqual DecimalP(Types.DOUBLE, 5)
+    }
+  }
+
+  "BigDecimal parameter" should {
+    "have scale 3" in {
+      NumericP(new java.math.BigDecimal("1.234")).
+        aka("numeric parameter") mustEqual DecimalP(Types.NUMERIC, 3)
+
+    }
+  }
 }
 
 sealed trait ParameterMetaDataFixtures {
   import scala.collection.JavaConversions
   import acolyte.ParameterMetaData.Parameter
+
+  lazy val jdbcTypeMap = JavaConversions.mapAsScalaMap[Integer, String](
+    Defaults.jdbcTypeMappings).foldLeft(Map[Int, String]()) { (m, p) ⇒
+      m + (p._1.toInt -> p._2)
+    }
+
+  def typeName(t: Int): String = Defaults.jdbcTypeNames.get(t)
+  def typeSign(t: Int): Boolean = Defaults.jdbcTypeSigns.get(t)
+  def typePrecision(t: Int): Int = Defaults.jdbcTypePrecisions.get(t)
+  def typeScale(t: Int): Int = Defaults.jdbcTypeScales.get(t)
 
   def param(cn: String, m: Int = IN, st: Int = -1, stn: String, p: Int = -1, s: Int = -1, n: Int = UNKNOWN_NULL, sg: Boolean = false) = new Parameter(cn, m, st, stn, p, s, n, sg)
 

@@ -86,16 +86,129 @@ object PreparedStatementSpec extends Specification {
       lazy val m = s.getParameterMetaData
 
       (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.VARCHAR).
-        and(m.getParameterTypeName(1) aka "SQL name" mustEqual "VARCHAR").
-        and(m.getParameterClassName(1).
-          aka("class") mustEqual "java.lang.String").
-        and(m.isSigned(1) aka "sign" must beFalse).
-        and(m.getPrecision(1) aka "precision" mustEqual -1).
-        and(m.getScale(1) aka "scale" mustEqual -1).
-        and(m.isNullable(1).
-          aka("nullable") mustEqual java.sql.ParameterMetaData.
-          parameterNullableUnknown)
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.VARCHAR)
+
+    }
+  }
+
+  "Boolean" should {
+    "be set as first parameter" in {
+      lazy val s = statement()
+      s.setBoolean(1, true)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BOOLEAN)
+
+    }
+  }
+
+  "Byte" should {
+    "be set as first parameter" in {
+      lazy val s = statement()
+      s.setByte(1, 1.toByte)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TINYINT)
+
+    }
+  }
+
+  "Short" should {
+    "be set as first parameter" in {
+      lazy val s = statement()
+      s.setShort(1, 1.toShort)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.SMALLINT)
+
+    }
+  }
+
+  "Integer" should {
+    "be set as first parameter" in {
+      lazy val s = statement()
+      s.setInt(1, 1)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.INTEGER)
+
+    }
+  }
+
+  "Long" should {
+    "be set as first parameter" in {
+      lazy val s = statement()
+      s.setLong(1, 1.toLong)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BIGINT)
+
+    }
+  }
+
+  "Float" should {
+    "be set as first parameter" in {
+      lazy val s = statement()
+      s.setFloat(1, 1.2.toFloat)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.FLOAT).
+        and(m.getScale(1) aka "scale" mustEqual 1)
+
+    }
+  }
+
+  "Double" should {
+    "be set as first parameter" in {
+      lazy val s = statement()
+      s.setDouble(1, 1.234.toDouble)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.DOUBLE).
+        and(m.getScale(1) aka "scale" mustEqual 3)
+
+    }
+  }
+
+  "Numeric" should {
+    "be set as first parameter" in {
+      lazy val s = statement()
+      s.setBigDecimal(1, new java.math.BigDecimal("1.2345678"))
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.NUMERIC).
+        and(m.getScale(1) aka "scale" mustEqual 7)
+
+    }
+  }
+
+  "Parameter order" should {
+    "be kept" in {
+      lazy val s = statement()
+      s.setBoolean(2, false)
+      s.setNull(1, Types.INTEGER)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 2).
+        and(m.getParameterType(1) aka "first type" mustEqual Types.INTEGER).
+        and(m.getParameterType(2) aka "second type" mustEqual Types.BOOLEAN)
 
     }
   }
