@@ -12,6 +12,7 @@ import java.sql.ParameterMetaData.{
 import org.specs2.mutable.Specification
 
 import acolyte.ParameterMetaData.{
+  Parameter => Param,
   Bool ⇒ BoolP,
   Byte ⇒ ByteP,
   Decimal ⇒ DecimalP,
@@ -22,7 +23,11 @@ import acolyte.ParameterMetaData.{
   Int ⇒ IntP,
   Float ⇒ FloatP,
   Double ⇒ DoubleP,
-  Numeric ⇒ NumericP
+  Numeric ⇒ NumericP,
+  Str ⇒ StrP,
+  Date ⇒ DateP,
+  Time ⇒ TimeP,
+  Timestamp ⇒ TimestampP
 }
 
 object ParameterMetaDataSpec
@@ -279,6 +284,70 @@ object ParameterMetaDataSpec
       NumericP(new java.math.BigDecimal("1.234")).
         aka("numeric parameter") mustEqual DecimalP(Types.NUMERIC, 3)
 
+    }
+  }
+
+  "String parameter" should {
+    "be default one" in {
+      StrP aka "string parameter" mustEqual DefaultP(Types.VARCHAR)
+    }
+  }
+
+  "Temporaral parameters" should {
+    "be date" in {
+      DateP aka "date parameter" mustEqual DefaultP(Types.DATE)
+    }
+
+    "be time" in {
+      TimeP aka "time parameter" mustEqual DefaultP(Types.TIME)
+    }
+
+    "be timestamp" in {
+      TimestampP aka "ts parameter" mustEqual DefaultP(Types.TIMESTAMP)
+    }
+  }
+
+  "Missing parameter" should {
+    lazy val m = metadata(Seq(null.asInstanceOf[Param]))
+
+    "be handled for nullable check" in {
+      m.isNullable(1) aka "check" must throwA[SQLException](
+        message = "Parameter is not set: 1")
+    }
+
+    "be handled for sign check" in {
+      m.isSigned(1) aka "check" must throwA[SQLException](
+        message = "Parameter is not set: 1")
+    }
+
+    "be handled for precision check" in {
+      m.getPrecision(1) aka "check" must throwA[SQLException](
+        message = "Parameter is not set: 1")
+    }
+
+    "be handled for scale check" in {
+      m.getScale(1) aka "check" must throwA[SQLException](
+        message = "Parameter is not set: 1")
+    }
+
+    "be handled for type check" in {
+      m.getParameterType(1) aka "check" must throwA[SQLException](
+        message = "Parameter is not set: 1")
+    }
+
+    "be handled for type name check" in {
+      m.getParameterTypeName(1) aka "check" must throwA[SQLException](
+        message = "Parameter is not set: 1")
+    }
+
+    "be handled for class name check" in {
+      m.getParameterClassName(1) aka "check" must throwA[SQLException](
+        message = "Parameter is not set: 1")
+    }
+
+    "be handled for mode check" in {
+      m.getParameterMode(1) aka "check" must throwA[SQLException](
+        message = "Parameter is not set: 1")
     }
   }
 }

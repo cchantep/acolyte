@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.sql.SQLXML;
+import java.sql.Types;
 import java.sql.Array;
 import java.sql.NClob;
 import java.sql.RowId;
@@ -31,15 +32,19 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import acolyte.ParameterMetaData.Parameter;
 
+import static acolyte.ParameterMetaData.Timestamp;
 import static acolyte.ParameterMetaData.Numeric;
 import static acolyte.ParameterMetaData.Double;
 import static acolyte.ParameterMetaData.Float;
 import static acolyte.ParameterMetaData.Short;
+import static acolyte.ParameterMetaData.Date;
+import static acolyte.ParameterMetaData.Time;
 import static acolyte.ParameterMetaData.Bool;
 import static acolyte.ParameterMetaData.Byte;
 import static acolyte.ParameterMetaData.Null;
 import static acolyte.ParameterMetaData.Long;
 import static acolyte.ParameterMetaData.Int;
+import static acolyte.ParameterMetaData.Str;
 
 /**
  * Acolyte prepared statement.
@@ -95,9 +100,7 @@ public final class PreparedStatement
     public void setNull(final int parameterIndex, 
                         final int sqlType) throws SQLException {
 
-        this.parameters.put(parameterIndex, 
-                            ImmutablePair.of(Null(sqlType), null));
-
+        setParam(parameterIndex, Null(sqlType), null);
     } // end of setNull
 
     /**
@@ -106,9 +109,7 @@ public final class PreparedStatement
     public void setBoolean(final int parameterIndex, 
                            final boolean x) throws SQLException {
 
-        this.parameters.put(parameterIndex, 
-                            ImmutablePair.of(Bool(), (Object)x));
-
+        setParam(parameterIndex, Bool(), (Object)x);
     } // end of setBoolean
 
     /**
@@ -117,9 +118,7 @@ public final class PreparedStatement
     public void setByte(final int parameterIndex, 
                         final byte x) throws SQLException {
 
-        this.parameters.put(parameterIndex,
-                            ImmutablePair.of(Byte(), (Object)x));
-
+        setParam(parameterIndex, Byte(), (Object)x);
     } // end of setByte
 
     /**
@@ -128,9 +127,7 @@ public final class PreparedStatement
     public void setShort(final int parameterIndex, 
                          final short x) throws SQLException {
 
-        this.parameters.put(parameterIndex,
-                            ImmutablePair.of(Short(), (Object)x));
-
+        setParam(parameterIndex, Short(), (Object)x);
     } // end of setShort
 
     /**
@@ -139,7 +136,7 @@ public final class PreparedStatement
     public void setInt(final int parameterIndex, 
                        final int x) throws SQLException {
 
-        this.parameters.put(parameterIndex, ImmutablePair.of(Int(), (Object)x));
+        setParam(parameterIndex, Int(), (Object)x);
     } // end of setInt
 
     /**
@@ -148,9 +145,7 @@ public final class PreparedStatement
     public void setLong(final int parameterIndex, 
                         final long x) throws SQLException {
 
-        this.parameters.put(parameterIndex, 
-                            ImmutablePair.of(Long(), (Object)x));
-
+        setParam(parameterIndex, Long(), (Object)x);
     } // end of setLong
 
     /**
@@ -159,9 +154,7 @@ public final class PreparedStatement
     public void setFloat(final int parameterIndex, 
                          final float x) throws SQLException {
 
-        this.parameters.put(parameterIndex, 
-                            ImmutablePair.of(Float(x), (Object)x));
-
+        setParam(parameterIndex, Float(x), (Object)x);
     } // end of setFloat
 
     /**
@@ -170,9 +163,7 @@ public final class PreparedStatement
     public void setDouble(final int parameterIndex, 
                           final double x) throws SQLException {
 
-        this.parameters.put(parameterIndex, 
-                            ImmutablePair.of(Double(x), (Object)x));
-
+        setParam(parameterIndex, Double(x), (Object)x);
     } // end of setDouble
 
     /**
@@ -181,47 +172,53 @@ public final class PreparedStatement
     public void setBigDecimal(final int parameterIndex, 
                               final BigDecimal x) throws SQLException {
 
-        this.parameters.put(parameterIndex, 
-                            ImmutablePair.of(Numeric(x), (Object)x));
-
+        setParam(parameterIndex, Numeric(x), (Object)x);
     } // end of setBigDecimal
 
     /**
      * {@inheritDoc}
      */
-    public void setString(final int i, final String str) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+    public void setString(final int parameterIndex, 
+                          final String x) throws SQLException {
+
+        setParam(parameterIndex, Str(), (Object)x);
+    } // end of setString
 
     /**
      * {@inheritDoc}
      */
-    public void setBytes(final int i, final byte[] a) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setDate(final int i, final Date d) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setTime(final int i, final Time t) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setTimestamp(final int i, final Timestamp ts) 
+    public void setBytes(final int parameterIndex, final byte[] x) 
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        throw new SQLException("Not supported");
+    } // end of setBytes
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setDate(final int parameterIndex, 
+                        final Date x) throws SQLException {
+
+        setParam(parameterIndex, Date(), (Object)x);
+    } // end of setDate
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setTime(final int parameterIndex, 
+                        final Time x) throws SQLException {
+
+        setParam(parameterIndex, Time(), (Object)x);
+    } // end of setTime
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setTimestamp(final int parameterIndex, final Timestamp x) 
+        throws SQLException {
+
+        setParam(parameterIndex, Timestamp(), (Object)x);
+    } // end of setTimestamp
 
     /**
      * {@inheritDoc}
@@ -241,10 +238,10 @@ public final class PreparedStatement
     public void setUnicodeStream(final int parameterIndex, 
                                  final InputStream x, 
                                  final int length) throws SQLException {
-
+        
         throw new SQLFeatureNotSupportedException();
     } // end of setUnicodeStream
-
+    
     /**
      * {@inheritDoc}
      * @throws java.sql.SQLFeatureNotSupportedException
@@ -260,22 +257,55 @@ public final class PreparedStatement
      * {@inheritDoc}
      */
     public void clearParameters() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        this.parameters.clear();
+    } // end of clearParameters()
 
     /**
      * {@inheritDoc}
      */
-    public void setObject(final int i, final Object o, final int j) 
+    public void setObject(final int parameterIndex, 
+                          final Object x, 
+                          final int targetSqlType) 
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        if (!Defaults.jdbcTypeMappings.containsKey(targetSqlType)) {
+            throw new SQLFeatureNotSupportedException();
+        } // end of if
+
+        // ---
+
+        if (x == null) {
+            setNull(parameterIndex, targetSqlType);
+            return;
+        } // end of if
+
+        // ---
+        
+        switch (targetSqlType) {
+        case Types.DECIMAL: 
+            setBigDecimal(parameterIndex, (BigDecimal)x); 
+            break;
+        case Types.DOUBLE:
+            setDouble(parameterIndex, (Double)x);
+            
+        }
+                
+                /*
+        mappings.put(Types.DOUBLE, Double.class.getName());
+        mappings.put(Types.FLOAT, Float.class.getName());
+        mappings.put(Types.NUMERIC, BigDecimal.class.getName());
+        mappings.put(Types.REAL, Float.class.getName());
+                */
+
+
+        System.out.println("==> " + Defaults.jdbcTypeMappings.get(targetSqlType));
+    } // end of setObject
 
     /**
      * {@inheritDoc}
      */
-    public void setObject(final int i, final Object o) throws SQLException {
+    public void setObject(final int parameterIndex, 
+                          final Object o) throws SQLException {
         throw new RuntimeException("Not yet implemented");
     } // end of 
 
@@ -406,8 +436,13 @@ public final class PreparedStatement
     public ParameterMetaData getParameterMetaData() throws SQLException {
         final ArrayList<Parameter> params = new ArrayList<Parameter>();
 
+        
         for (final ImmutablePair<Parameter,Object> p : parameters.values()) {
-            params.add(p.left);
+            if (p == null) {
+                params.add(null);
+            } else {
+                params.add(p.left);
+            } // end of else
         } // end of for
 
         return new acolyte.ParameterMetaData(params);
@@ -612,4 +647,24 @@ public final class PreparedStatement
 
         throw new SQLFeatureNotSupportedException();
     } // end of setNClob
+
+    // ---
+
+    /**
+     * Set parameter
+     */
+    private void setParam(final int index, 
+                          final Parameter meta, 
+                          final Object val) {
+
+        // Fill gap
+        for (int i = index-1; 
+             i > 0 && !this.parameters.containsKey(i);
+             i--) { 
+
+            this.parameters.put(i, null);
+        } // end of for
+
+        this.parameters.put(index, ImmutablePair.of(meta, val));
+    } // end of setParam
 } // end of PreparedStatement

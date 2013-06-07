@@ -89,6 +89,17 @@ object PreparedStatementSpec extends Specification {
         and(m.getParameterType(1) aka "SQL type" mustEqual Types.VARCHAR)
 
     }
+
+    "be set as object" in {
+      lazy val s = statement()
+      s.setObject(1, null, Types.FLOAT)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.FLOAT)
+
+    }
   }
 
   "Boolean" should {
@@ -198,8 +209,64 @@ object PreparedStatementSpec extends Specification {
     }
   }
 
-  "Parameter order" should {
-    "be kept" in {
+  "String" should {
+    "be set as first parameter" in {
+      lazy val s = statement()
+      s.setString(1, "str")
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.VARCHAR)
+
+    }
+  }
+
+  "Byte array" should {
+    "not be supported" in {
+      statement().setBytes(1, Array[Byte]()).
+        aka("setter") must throwA[SQLException]("Not supported")
+
+    }
+  }
+
+  "Temporal data" should {
+    "be date as first parameter" in {
+      lazy val s = statement()
+      s.setDate(1, new java.sql.Date(1, 1, 1))
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.DATE)
+
+    }
+
+    "be time as first parameter" in {
+      lazy val s = statement()
+      s.setTime(1, new java.sql.Time(1, 1, 1))
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TIME)
+
+    }
+
+    "be timestamp as first parameter" in {
+      lazy val s = statement()
+      s.setTimestamp(1, new java.sql.Timestamp(1l))
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TIMESTAMP)
+
+    }
+  }
+
+  "Parameters" should {
+    "be kept in order when not set orderly" in {
       lazy val s = statement()
       s.setBoolean(2, false)
       s.setNull(1, Types.INTEGER)
@@ -209,6 +276,51 @@ object PreparedStatementSpec extends Specification {
       (m.getParameterCount aka "count" mustEqual 2).
         and(m.getParameterType(1) aka "first type" mustEqual Types.INTEGER).
         and(m.getParameterType(2) aka "second type" mustEqual Types.BOOLEAN)
+
+    }
+
+    "be kept in order when partially set at end" in {
+      lazy val s = statement()
+      s.setObject(2, null, Types.DOUBLE)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 2).
+        and(m.getParameterType(2) aka "SQL type" mustEqual Types.DOUBLE).
+        and(m.getParameterType(1) aka "missing" must throwA[SQLException](
+          message = "Parameter is not set: 1"))
+
+    }
+
+    "be kept in order when partially set at middle" in {
+      lazy val s = statement()
+      s.setObject(3, null, Types.DOUBLE)
+      s.setNull(1, Types.INTEGER)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 3).
+        and(m.getParameterType(3) aka "third type" mustEqual Types.DOUBLE).
+        and(m.getParameterType(1) aka "first type" mustEqual Types.INTEGER).
+        and(m.getParameterType(2) aka "missing" must throwA[SQLException](
+          message = "Parameter is not set: 2"))
+
+    }
+
+    "be cleared" in {
+      lazy val s = statement()
+      s.setBoolean(2, false)
+      s.setNull(1, Types.INTEGER)
+      s.clearParameters()
+
+      s.getParameterMetaData.getParameterCount aka "count" mustEqual 0
+    }
+  }
+
+  "Object" should {
+    "not be set as parameter" in {
+      statement().setObject(1, new Object(), Types.BLOB).
+        aka("object param") must throwA[SQLFeatureNotSupportedException]
 
     }
   }

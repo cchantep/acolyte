@@ -54,6 +54,8 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     public int isNullable(final int param) throws SQLException {
         try {
             return this.parameters.get(param-1).nullable;
+        } catch (NullPointerException e) {
+            throw new SQLException("Parameter is not set: " + param);
         } catch (IndexOutOfBoundsException out) {
             throw new SQLException("Parameter out of bounds: " + param);
         } // end of catch
@@ -65,6 +67,8 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     public boolean isSigned(final int param) throws SQLException {
         try {
             return this.parameters.get(param-1).signed;
+        } catch (NullPointerException e) {
+            throw new SQLException("Parameter is not set: " + param);
         } catch (IndexOutOfBoundsException out) {
             throw new SQLException("Parameter out of bounds: " + param);
         } // end of catch
@@ -76,6 +80,8 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     public int getPrecision(final int param) throws SQLException {
         try {
             return this.parameters.get(param-1).precision;
+        } catch (NullPointerException e) {
+            throw new SQLException("Parameter is not set: " + param);
         } catch (IndexOutOfBoundsException out) {
             throw new SQLException("Parameter out of bounds: " + param);
         } // end of catch
@@ -87,6 +93,8 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     public int getScale(final int param) throws SQLException {
         try {
             return this.parameters.get(param-1).scale;
+        } catch (NullPointerException e) {
+            throw new SQLException("Parameter is not set: " + param);
         } catch (IndexOutOfBoundsException out) {
             throw new SQLException("Parameter out of bounds: " + param);
         } // end of catch
@@ -98,6 +106,8 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     public int getParameterType(final int param) throws SQLException {
         try {
             return this.parameters.get(param-1).sqlType;
+        } catch (NullPointerException e) {
+            throw new SQLException("Parameter is not set: " + param);
         } catch (IndexOutOfBoundsException out) {
             throw new SQLException("Parameter out of bounds: " + param);
         } // end of catch
@@ -109,6 +119,8 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     public String getParameterTypeName(final int param) throws SQLException {
         try {
             return this.parameters.get(param-1).sqlTypeName;
+        } catch (NullPointerException e) {
+            throw new SQLException("Parameter is not set: " + param);
         } catch (IndexOutOfBoundsException out) {
             throw new SQLException("Parameter out of bounds: " + param);
         } // end of catch
@@ -120,6 +132,8 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     public String getParameterClassName(final int param) throws SQLException {
         try {
             return this.parameters.get(param-1).className;
+        } catch (NullPointerException e) {
+            throw new SQLException("Parameter is not set: " + param);
         } catch (IndexOutOfBoundsException out) {
             throw new SQLException("Parameter out of bounds: " + param);
         } // end of catch
@@ -131,6 +145,8 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     public int getParameterMode(final int param) throws SQLException {
         try {
             return this.parameters.get(param-1).mode;
+        } catch (NullPointerException e) {
+            throw new SQLException("Parameter is not set: " + param);
         } catch (IndexOutOfBoundsException out) {
             throw new SQLException("Parameter out of bounds: " + param);
         } // end of catch
@@ -257,6 +273,34 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     public static Parameter Numeric(final BigDecimal bd) {
         return Decimal(Types.NUMERIC, bd.scale());
     } // end of BigDecimal
+
+    /**
+     * String constructor.
+     */
+    public static Parameter Str() {
+        return Default(Types.VARCHAR);
+    } // end of Str
+
+    /**
+     * Date constructor.
+     */
+    public static Parameter Date() {
+        return Default(Types.DATE);
+    } // end of Date
+
+    /**
+     * Time constructor.
+     */
+    public static Parameter Time() {
+        return Default(Types.TIME);
+    } // end of Time
+
+    /**
+     * Timestamp constructor.
+     */
+    public static Parameter Timestamp() {
+        return Default(Types.TIMESTAMP);
+    } // end of Timestamp
 
     // --- Inner classes ---
 
