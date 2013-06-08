@@ -34,6 +34,7 @@ import acolyte.ParameterMetaData.Parameter;
 
 import static acolyte.ParameterMetaData.Timestamp;
 import static acolyte.ParameterMetaData.Numeric;
+import static acolyte.ParameterMetaData.Decimal;
 import static acolyte.ParameterMetaData.Double;
 import static acolyte.ParameterMetaData.Float;
 import static acolyte.ParameterMetaData.Short;
@@ -43,6 +44,7 @@ import static acolyte.ParameterMetaData.Bool;
 import static acolyte.ParameterMetaData.Byte;
 import static acolyte.ParameterMetaData.Null;
 import static acolyte.ParameterMetaData.Long;
+import static acolyte.ParameterMetaData.Real;
 import static acolyte.ParameterMetaData.Int;
 import static acolyte.ParameterMetaData.Str;
 
@@ -282,23 +284,30 @@ public final class PreparedStatement
         // ---
         
         switch (targetSqlType) {
-        case Types.DECIMAL: 
-            setBigDecimal(parameterIndex, (BigDecimal)x); 
-            break;
         case Types.DOUBLE:
             setDouble(parameterIndex, (Double)x);
-            
+            break;
+
+        case Types.REAL:
+            setReal(parameterIndex, (Float)x);
+            break;
+
+        case Types.FLOAT:
+            setFloat(parameterIndex, (Float)x);
+            break;
+
+        case Types.NUMERIC: 
+            setBigDecimal(parameterIndex, (BigDecimal)x); 
+            break;
+
+        case Types.DECIMAL: 
+            setDecimal(parameterIndex, (BigDecimal)x); 
+            break;
+
+        default:
+            setObject(parameterIndex, x);
+            break;
         }
-                
-                /*
-        mappings.put(Types.DOUBLE, Double.class.getName());
-        mappings.put(Types.FLOAT, Float.class.getName());
-        mappings.put(Types.NUMERIC, BigDecimal.class.getName());
-        mappings.put(Types.REAL, Float.class.getName());
-                */
-
-
-        System.out.println("==> " + Defaults.jdbcTypeMappings.get(targetSqlType));
     } // end of setObject
 
     /**
@@ -649,6 +658,24 @@ public final class PreparedStatement
     } // end of setNClob
 
     // ---
+
+    /**
+     * Sets parameter as DECIMAL.
+     */
+    void setDecimal(final int parameterIndex, 
+                    final BigDecimal x) throws SQLException {
+
+        setParam(parameterIndex, Decimal(x), (Object)x);
+    } // end of setBigDecimal
+
+    /**
+     * Sets parameter as REAL.
+     */
+    public void setReal(final int parameterIndex, 
+                        final float x) throws SQLException {
+
+        setParam(parameterIndex, Real(x), (Object)x);
+    } // end of setReal
 
     /**
      * Set parameter

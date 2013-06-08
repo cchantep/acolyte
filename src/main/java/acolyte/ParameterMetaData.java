@@ -258,6 +258,15 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     } // end of Float
 
     /**
+     * Float constructor (as REAL).
+     */
+    public static Parameter Real(final float f) {
+        final BigDecimal bd = new BigDecimal(Float.toString(f));
+
+        return Decimal(Types.REAL, bd.scale());
+    } // end of Real
+
+    /**
      * Double constructor.
      */
     public static Parameter Double(final double d) {
@@ -273,6 +282,13 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     public static Parameter Numeric(final BigDecimal bd) {
         return Decimal(Types.NUMERIC, bd.scale());
     } // end of BigDecimal
+
+    /**
+     * BigDecimal constructor (as DECIMAL).
+     */
+    public static Parameter Decimal(final BigDecimal bd) {
+        return Decimal(Types.DECIMAL, bd.scale());
+    } // end of Decimal
 
     /**
      * String constructor.

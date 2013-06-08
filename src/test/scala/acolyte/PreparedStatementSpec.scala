@@ -113,6 +113,17 @@ object PreparedStatementSpec extends Specification {
         and(m.getParameterType(1) aka "SQL type" mustEqual Types.BOOLEAN)
 
     }
+
+    "be set as first object" in {
+      lazy val s = statement()
+      s.setObject(1, true, Types.BOOLEAN)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BOOLEAN)
+
+    }
   }
 
   "Byte" should {
@@ -179,12 +190,47 @@ object PreparedStatementSpec extends Specification {
         and(m.getScale(1) aka "scale" mustEqual 1)
 
     }
+
+    "be set as first object" in {
+      lazy val s = statement()
+      s.setObject(1, 1.2.toFloat, Types.FLOAT)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.FLOAT).
+        and(m.getScale(1) aka "scale" mustEqual 1)
+
+    }
+
+    "be set as REAL object" in {
+      lazy val s = statement()
+      s.setObject(1, null, Types.REAL)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.REAL)
+
+    }
   }
 
   "Double" should {
     "be set as first parameter" in {
       lazy val s = statement()
       s.setDouble(1, 1.234.toDouble)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.DOUBLE).
+        and(m.getScale(1) aka "scale" mustEqual 3)
+
+    }
+
+    "be set as first object" in {
+      lazy val s = statement()
+      s.setObject(1, 1.234.toDouble, Types.DOUBLE)
 
       lazy val m = s.getParameterMetaData
 
@@ -204,6 +250,30 @@ object PreparedStatementSpec extends Specification {
 
       (m.getParameterCount aka "count" mustEqual 1).
         and(m.getParameterType(1) aka "SQL type" mustEqual Types.NUMERIC).
+        and(m.getScale(1) aka "scale" mustEqual 7)
+
+    }
+
+    "be set as first numeric object" in {
+      lazy val s = statement()
+      s.setObject(1, new java.math.BigDecimal("1.2345678"), Types.NUMERIC)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.NUMERIC).
+        and(m.getScale(1) aka "scale" mustEqual 7)
+
+    }
+
+    "be set as first decimal object" in {
+      lazy val s = statement()
+      s.setObject(1, new java.math.BigDecimal("1.2345678"), Types.DECIMAL)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.DECIMAL).
         and(m.getScale(1) aka "scale" mustEqual 7)
 
     }

@@ -12,6 +12,10 @@ Acolyte is a JDBC driver designed for cases like mockup, testing, or any case yo
 
 Acolyte can be used in SBT projects adding dependency `"cchantep" %% "acolyte" % "VERSION"` (coming on a repository).
 
+### Limitations
+
+Binary datatype are not currently supported.
+
 ### Code
 
 Acolyte driver behaves as any other JDBC driver, that's to say you can get a connection from, by using the well-known `java.sql.DriverManager.getConnection(jdbcUrl)` (and its variants).

@@ -12,7 +12,7 @@ import java.sql.ParameterMetaData.{
 import org.specs2.mutable.Specification
 
 import acolyte.ParameterMetaData.{
-  Parameter => Param,
+  Parameter ⇒ Param,
   Bool ⇒ BoolP,
   Byte ⇒ ByteP,
   Decimal ⇒ DecimalP,
@@ -27,7 +27,8 @@ import acolyte.ParameterMetaData.{
   Str ⇒ StrP,
   Date ⇒ DateP,
   Time ⇒ TimeP,
-  Timestamp ⇒ TimestampP
+  Timestamp ⇒ TimestampP,
+  Real ⇒ RealP
 }
 
 object ParameterMetaDataSpec
@@ -256,15 +257,20 @@ object ParameterMetaDataSpec
 
   "Float parameter" should {
     "have scale 1" in {
-      FloatP(1.2f) aka "float parameter" mustEqual DecimalP(Types.FLOAT, 1)
+      (FloatP(1.2f) aka "float parameter" mustEqual DecimalP(Types.FLOAT, 1)).
+        and(RealP(1.2f) aka "real parameter" mustEqual DecimalP(Types.REAL, 1))
     }
 
     "have scale 2" in {
-      FloatP(1.23f) aka "float parameter" mustEqual DecimalP(Types.FLOAT, 2)
+      (FloatP(1.23f) aka "float parameter" mustEqual DecimalP(Types.FLOAT, 2)).
+        and(RealP(1.23f) aka "real parameter" mustEqual DecimalP(Types.REAL, 2))
     }
 
     "have scale 6" in {
-      FloatP(1.234567f) aka "float parameter" mustEqual DecimalP(Types.FLOAT, 6)
+      (FloatP(1.234567f).
+        aka("float parameter") mustEqual DecimalP(Types.FLOAT, 6)).
+        and(RealP(1.234567f).
+          aka("real parameter") mustEqual DecimalP(Types.REAL, 6))
     }
   }
 
@@ -281,8 +287,10 @@ object ParameterMetaDataSpec
 
   "BigDecimal parameter" should {
     "have scale 3" in {
-      NumericP(new java.math.BigDecimal("1.234")).
-        aka("numeric parameter") mustEqual DecimalP(Types.NUMERIC, 3)
+      (NumericP(new java.math.BigDecimal("1.234")).
+        aka("numeric parameter") mustEqual DecimalP(Types.NUMERIC, 3)).
+        and(DecimalP(new java.math.BigDecimal("1.234")).
+          aka("decimal parameter") mustEqual DecimalP(Types.DECIMAL, 3))
 
     }
   }
