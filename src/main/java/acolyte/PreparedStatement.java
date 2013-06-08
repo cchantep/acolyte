@@ -35,6 +35,7 @@ import acolyte.ParameterMetaData.Parameter;
 import static acolyte.ParameterMetaData.Timestamp;
 import static acolyte.ParameterMetaData.Numeric;
 import static acolyte.ParameterMetaData.Decimal;
+import static acolyte.ParameterMetaData.Default;
 import static acolyte.ParameterMetaData.Double;
 import static acolyte.ParameterMetaData.Float;
 import static acolyte.ParameterMetaData.Short;
@@ -305,18 +306,39 @@ public final class PreparedStatement
             break;
 
         default:
-            setObject(parameterIndex, x);
+            setParam(parameterIndex, Default(targetSqlType), x);
             break;
         }
     } // end of setObject
 
     /**
      * {@inheritDoc}
+     * Cannot be used with null parameter |x|.
+     * @see #setObject(int,Object,int)
      */
     public void setObject(final int parameterIndex, 
-                          final Object o) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+                          final Object x) throws SQLException {
+
+        if (x == null) {
+            throw new SQLException("Cannot set parameter from null object");
+        } // end of if
+
+        // ---
+
+        final String className = x.getClass().getName();
+
+        if (!Defaults.jdbcTypeClasses.containsKey(className)) {
+            System.err.println("Parameter class: " + x.getClass());
+
+            throw new SQLFeatureNotSupportedException();
+        } // end of if
+        
+        // ---
+
+        final int sqlType = Defaults.jdbcTypeClasses.get(className);
+
+        setObject(parameterIndex, x, sqlType);
+    } // end of setObject
 
     /**
      * {@inheritDoc}
@@ -337,11 +359,13 @@ public final class PreparedStatement
     /**
      * {@inheritDoc}
      */
-    public void setCharacterStream(final int i, final Reader r, final int j) 
+    public void setCharacterStream(final int parameterIndex, 
+                                   final Reader reader, 
+                                   final int length) 
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        throw new SQLFeatureNotSupportedException();
+    } // end of setCharacterStream
 
     /**
      * {@inheritDoc}

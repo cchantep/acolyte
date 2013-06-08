@@ -24,7 +24,7 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     /**
      * Definitions
      */
-    private final List<Parameter> parameters;
+    public final List<Parameter> parameters;
 
     // --- Constructors ---
 
@@ -40,7 +40,7 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     } // end of <init>
 
     // ---
-    
+
     /**
      * {@inheritDoc}
      */
@@ -373,7 +373,7 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
          * {@inheritDoc}
          */
         public String toString() {
-            return String.format("Parameter(class = %s, mode = %s, sqlType = %s, precision = %d, scale = %d, nullable = %s, signed = %s)", this.className, this.mode, this.sqlTypeName, this.precision, this.scale, this.nullable, this.signed);
+            return String.format("Parameter(class = %s, mode = %s, sqlType = %s(%d), precision = %d, scale = %d, nullable = %s, signed = %s)", this.className, this.mode, this.sqlTypeName, this.sqlType, this.precision, this.scale, this.nullable, this.signed);
 
         } // end of toString
 

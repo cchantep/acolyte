@@ -43,6 +43,11 @@ final class Defaults {
      */
     public static final Map<Integer,Integer> jdbcTypeScales;
 
+    /**
+     * JDBC type classes
+     */
+    public static final Map<String,Integer> jdbcTypeClasses;
+
     static {
         // JDBC type mappings
         final HashMap<Integer,String> mappings = new HashMap<Integer,String>();
@@ -60,12 +65,26 @@ final class Defaults {
         mappings.put(Types.NUMERIC, BigDecimal.class.getName());
         mappings.put(Types.REAL, Float.class.getName());
         mappings.put(Types.SMALLINT, Short.class.getName());
-        mappings.put(Types.TINYINT, Short.class.getName());
+        mappings.put(Types.TINYINT, Byte.class.getName());
         mappings.put(Types.TIME, Time.class.getName());
         mappings.put(Types.TIMESTAMP, Timestamp.class.getName());
         mappings.put(Types.VARCHAR, String.class.getName());
 
         jdbcTypeMappings = Collections.unmodifiableMap(mappings);
+
+        // JDBC type classes
+        final HashMap<String,Integer> classes = new HashMap<String,Integer>();
+
+        for (final Integer t : mappings.keySet()) {
+            if (t == Types.BIT 
+                || t == Types.REAL
+                || t == Types.DECIMAL
+                || t == Types.LONGVARCHAR) continue; // Skip
+
+            classes.put(mappings.get(t), t);
+        } // end of for
+
+        jdbcTypeClasses = Collections.unmodifiableMap(classes);
 
         // JDBC type names
         final HashMap<Integer,String> names = new HashMap<Integer,String>();
