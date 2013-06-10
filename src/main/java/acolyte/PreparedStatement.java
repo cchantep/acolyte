@@ -328,8 +328,6 @@ public final class PreparedStatement
         final String className = x.getClass().getName();
 
         if (!Defaults.jdbcTypeClasses.containsKey(className)) {
-            System.err.println("Parameter class: " + x.getClass());
-
             throw new SQLFeatureNotSupportedException();
         } // end of if
         
@@ -345,7 +343,7 @@ public final class PreparedStatement
      */
     public boolean execute() throws SQLException {
         throw new RuntimeException("Not yet implemented");
-    } // end of 
+    } // end of execute
 
     /**
      * {@inheritDoc}
@@ -418,40 +416,49 @@ public final class PreparedStatement
     /**
      * {@inheritDoc}
      */
-    public void setDate(final int i, 
-                        final Date d, 
-                        final Calendar c) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+    public void setDate(final int parameterIndex, 
+                        final Date x, 
+                        final Calendar cal) throws SQLException {
+
+        setParam(parameterIndex, Date(), 
+                 (Object)ImmutablePair.of(x, cal.getTimeZone()));
+
+    } // end of setDate
 
     /**
      * {@inheritDoc}
      */
-    public void setTime(final int i, 
-                        final Time t, 
-                        final Calendar c) throws SQLException {
+    public void setTime(final int parameterIndex, 
+                        final Time x, 
+                        final Calendar cal) throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        setParam(parameterIndex, Time(), 
+                 (Object)ImmutablePair.of(x, cal.getTimeZone()));
+
+    } // end of setTime
 
     /**
      * {@inheritDoc}
      */
-    public void setTimestamp(final int i, 
-                             final Timestamp ts, 
-                             final Calendar c) 
+    public void setTimestamp(final int parameterIndex, 
+                             final Timestamp x, 
+                             final Calendar cal) 
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        setParam(parameterIndex, Timestamp(), 
+                 (Object)ImmutablePair.of(x, cal.getTimeZone()));
+
+    } // end of setTimestamp
 
     /**
      * {@inheritDoc}
      */
-    public void setNull(final int i, final int j, final String str) 
-        throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+    public void setNull(final int parameterIndex, 
+                        final int sqlType, 
+                        final String typeName) throws SQLException {
+
+        setNull(parameterIndex, sqlType);
+    } // end of setNull
 
     /**
      * {@inheritDoc}
@@ -569,13 +576,37 @@ public final class PreparedStatement
     /**
      * {@inheritDoc}
      */
-    public void setObject(final int i, 
-                          final Object o, 
-                          final int k, 
-                          final int j) throws SQLException {
+    public void setObject(final int parameterIndex, 
+                          final Object x, 
+                          final int targetSqlType, 
+                          final int scaleOrLength) throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        if (!Defaults.jdbcTypeMappings.containsKey(targetSqlType)) {
+            throw new SQLFeatureNotSupportedException();
+        } // end of if
+
+        // ---
+
+        if (x == null) {
+            setNull(parameterIndex, targetSqlType);
+            return;
+        } // end of if
+
+        // ---
+        switch (targetSqlType) {
+        case Types.DOUBLE:
+        case Types.REAL:
+        case Types.FLOAT:
+        case Types.NUMERIC: 
+        case Types.DECIMAL: 
+            setParam(parameterIndex, Decimal(targetSqlType, scaleOrLength), x);
+            break;
+
+        default:
+            setParam(parameterIndex, Default(targetSqlType), x);
+            break;
+        }
+    } // end of setObject
 
     /**
      * {@inheritDoc}

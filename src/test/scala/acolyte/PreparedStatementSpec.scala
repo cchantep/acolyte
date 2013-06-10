@@ -92,9 +92,31 @@ object PreparedStatementSpec extends Specification {
 
     }
 
+    "be set as first parameter with type name VARCHAR" in {
+      lazy val s = statement()
+      s.setNull(1, Types.VARCHAR, "VARCHAR")
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.VARCHAR)
+
+    }
+
     "be set as object" in {
       lazy val s = statement()
       s.setObject(1, null, Types.FLOAT)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.FLOAT)
+
+    }
+
+    "be set as object with scale" in {
+      lazy val s = statement()
+      s.setObject(1, null, Types.FLOAT, 1)
 
       lazy val m = s.getParameterMetaData
 
@@ -126,6 +148,17 @@ object PreparedStatementSpec extends Specification {
     "be set as first object with SQL type" in {
       lazy val s = statement()
       s.setObject(1, true, Types.BOOLEAN)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BOOLEAN)
+
+    }
+
+    "be set as first object with SQL type and scale" in {
+      lazy val s = statement()
+      s.setObject(1, true, Types.BOOLEAN, 1)
 
       lazy val m = s.getParameterMetaData
 
@@ -169,6 +202,17 @@ object PreparedStatementSpec extends Specification {
 
     }
 
+    "be set as first object with type and scale" in {
+      lazy val s = statement()
+      s.setObject(1, 1.toByte, Types.TINYINT, 1)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TINYINT)
+
+    }
+
     "be set as first object without type" in {
       lazy val s = statement()
       s.setObject(1, 1.toByte)
@@ -196,6 +240,17 @@ object PreparedStatementSpec extends Specification {
     "be set as first object with type" in {
       lazy val s = statement()
       s.setObject(1, 1.toShort, Types.SMALLINT)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.SMALLINT)
+
+    }
+
+    "be set as first object with type and scale" in {
+      lazy val s = statement()
+      s.setObject(1, 1.toShort, Types.SMALLINT, 1)
 
       lazy val m = s.getParameterMetaData
 
@@ -239,6 +294,17 @@ object PreparedStatementSpec extends Specification {
 
     }
 
+    "be set as first object with type and scale" in {
+      lazy val s = statement()
+      s.setObject(1, 1, Types.INTEGER, 1)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.INTEGER)
+
+    }
+
     "be set as first object without type" in {
       lazy val s = statement()
       s.setObject(1, 1)
@@ -266,6 +332,17 @@ object PreparedStatementSpec extends Specification {
     "be set as first object with type" in {
       lazy val s = statement()
       s.setObject(1, 1.toLong, Types.BIGINT)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BIGINT)
+
+    }
+
+    "be set as first object with type and scale" in {
+      lazy val s = statement()
+      s.setObject(1, 1.toLong, Types.BIGINT, 2)
 
       lazy val m = s.getParameterMetaData
 
@@ -311,6 +388,18 @@ object PreparedStatementSpec extends Specification {
 
     }
 
+    "be set as first object with type and scale" in {
+      lazy val s = statement()
+      s.setObject(1, 1.2.toFloat, Types.FLOAT, 3)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.FLOAT).
+        and(m.getScale(1) aka "scale" mustEqual 3)
+
+    }
+
     "be set as first object without type" in {
       lazy val s = statement()
       s.setObject(1, 1.2.toFloat)
@@ -323,7 +412,7 @@ object PreparedStatementSpec extends Specification {
 
     }
 
-    "be set as REAL object" in {
+    "be set as REAL null object" in {
       lazy val s = statement()
       s.setObject(1, null, Types.REAL)
 
@@ -331,6 +420,30 @@ object PreparedStatementSpec extends Specification {
 
       (m.getParameterCount aka "count" mustEqual 1).
         and(m.getParameterType(1) aka "SQL type" mustEqual Types.REAL)
+
+    }
+
+    "be set as REAL object" in {
+      lazy val s = statement()
+      s.setObject(1, 1.23f, Types.REAL)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.REAL).
+        and(m.getScale(1) aka "scale" mustEqual 2)
+
+    }
+
+    "be set as REAL object with scale" in {
+      lazy val s = statement()
+      s.setObject(1, 1.23f, Types.REAL, 1)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.REAL).
+        and(m.getScale(1) aka "scale" mustEqual 1)
 
     }
   }
@@ -357,6 +470,18 @@ object PreparedStatementSpec extends Specification {
       (m.getParameterCount aka "count" mustEqual 1).
         and(m.getParameterType(1) aka "SQL type" mustEqual Types.DOUBLE).
         and(m.getScale(1) aka "scale" mustEqual 3)
+
+    }
+
+    "be set as first object with type and scale" in {
+      lazy val s = statement()
+      s.setObject(1, 1.234.toDouble, Types.DOUBLE, 5)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.DOUBLE).
+        and(m.getScale(1) aka "scale" mustEqual 5)
 
     }
 
@@ -395,6 +520,18 @@ object PreparedStatementSpec extends Specification {
       (m.getParameterCount aka "count" mustEqual 1).
         and(m.getParameterType(1) aka "SQL type" mustEqual Types.NUMERIC).
         and(m.getScale(1) aka "scale" mustEqual 7)
+
+    }
+
+    "be set as first numeric object with type and scale" in {
+      lazy val s = statement()
+      s.setObject(1, new java.math.BigDecimal("1.2345678"), Types.NUMERIC, 2)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.NUMERIC).
+        and(m.getScale(1) aka "scale" mustEqual 2)
 
     }
 
@@ -446,6 +583,17 @@ object PreparedStatementSpec extends Specification {
 
     }
 
+    "be set as first object with type and length" in {
+      lazy val s = statement()
+      s.setObject(1, "str", Types.VARCHAR, 2)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.VARCHAR)
+
+    }
+
     "be set as first object without type" in {
       lazy val s = statement()
       s.setObject(1, "str")
@@ -467,6 +615,12 @@ object PreparedStatementSpec extends Specification {
 
     "not be supported passed as object (VARBINARY)" in {
       statement().setObject(1, Array[Byte](), Types.VARBINARY).
+        aka("setter") must throwA[SQLFeatureNotSupportedException]
+
+    }
+
+    "not be supported passed as object with scale (VARBINARY)" in {
+      statement().setObject(1, Array[Byte](), Types.VARBINARY, 1).
         aka("setter") must throwA[SQLFeatureNotSupportedException]
 
     }
@@ -494,9 +648,31 @@ object PreparedStatementSpec extends Specification {
 
     }
 
+    "be set as first parameter with calendar" in {
+      lazy val s = statement()
+      s.setDate(1, new java.sql.Date(1, 1, 1), java.util.Calendar.getInstance)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.DATE)
+
+    }
+
     "be set as first object with type" in {
       lazy val s = statement()
       s.setObject(1, new java.sql.Date(1, 1, 1), Types.DATE)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.DATE)
+
+    }
+
+    "be set as first object with type and scale" in {
+      lazy val s = statement()
+      s.setObject(1, new java.sql.Date(1, 1, 1), Types.DATE, 1)
 
       lazy val m = s.getParameterMetaData
 
@@ -529,9 +705,31 @@ object PreparedStatementSpec extends Specification {
 
     }
 
+    "be set as first parameter with calendar" in {
+      lazy val s = statement()
+      s.setTime(1, new java.sql.Time(1, 1, 1), java.util.Calendar.getInstance)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TIME)
+
+    }
+
     "be set as first object with type" in {
       lazy val s = statement()
       s.setObject(1, new java.sql.Time(1, 1, 1), Types.TIME)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TIME)
+
+    }
+
+    "be set as first object with type and scale" in {
+      lazy val s = statement()
+      s.setObject(1, new java.sql.Time(1, 1, 1), Types.TIME, 1)
 
       lazy val m = s.getParameterMetaData
 
@@ -564,9 +762,32 @@ object PreparedStatementSpec extends Specification {
 
     }
 
+    "be set as first parameter with calendar" in {
+      lazy val s = statement()
+      s.setTimestamp(1, new java.sql.Timestamp(1l), 
+        java.util.Calendar.getInstance)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TIMESTAMP)
+
+    }
+
     "be set as first object with type" in {
       lazy val s = statement()
       s.setObject(1, new java.sql.Timestamp(1l), Types.TIMESTAMP)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TIMESTAMP)
+
+    }
+
+    "be set as first object with type and scale" in {
+      lazy val s = statement()
+      s.setObject(1, new java.sql.Timestamp(1l), Types.TIMESTAMP, 1)
 
       lazy val m = s.getParameterMetaData
 
