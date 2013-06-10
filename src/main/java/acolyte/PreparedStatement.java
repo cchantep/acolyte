@@ -7,7 +7,11 @@ import java.math.BigDecimal;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.TimeZone;
 import java.util.TreeMap;
+import java.util.Locale;
+
+import java.text.SimpleDateFormat;
 
 import java.net.URL;
 
@@ -57,7 +61,40 @@ import static acolyte.ParameterMetaData.Str;
 public final class PreparedStatement 
     extends AbstractStatement implements java.sql.PreparedStatement {
 
+    // --- Shared ---
+
+    /**
+     * Date format
+     */
+    public static final SimpleDateFormat DATE;
+
+    /**
+     * Time format
+     */
+    public static final SimpleDateFormat TIME;
+
+    /**
+     * Date/Time format
+     */
+    public static final SimpleDateFormat DATE_TIME;
+
+    static {
+        DATE = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        TIME = new SimpleDateFormat("HH:mm:ss.S", Locale.US);
+        DATE_TIME = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.S", Locale.US);
+    } // end of static
+
     // --- Properties ---
+
+    /**
+     * SQL statement
+     */
+    private final String sql;
+
+    /**
+     * Is query?
+     */
+    private final boolean query;
 
     /**
      * Parameters
@@ -69,12 +106,22 @@ public final class PreparedStatement
     /**
      * Acolyte constructor.
      *
+     * @param connection Owner connection
+     * @param sql SQL statement
      * @param handler Statement handler (not null)
      */
     protected PreparedStatement(final Connection connection,
+                                final String sql,
                                 final StatementHandler handler) {
 
         super(connection, handler);
+
+        if (sql == null) {
+            throw new IllegalArgumentException("Missing SQL");
+        } // end of if
+
+        this.sql = sql;
+        this.query = handler.isQuery(sql);
     } // end of <init>
 
     // ---
@@ -85,8 +132,12 @@ public final class PreparedStatement
     public ResultSet executeQuery() throws SQLException {
         checkClosed();
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        if (!this.query) {
+            throw new SQLException("Not a query");
+        } // end of if
+        
+        return super.executeQuery(prepareSQL());
+    } // end of executeQuery
 
     /**
      * {@inheritDoc}
@@ -94,8 +145,12 @@ public final class PreparedStatement
     public int executeUpdate() throws SQLException {
         checkClosed();
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        if (this.query) {
+            throw new SQLException("Cannot update with query");
+        } // end of if
+
+        return super.executeUpdate(prepareSQL());
+    } // end of executeUpdate
 
     /**
      * {@inheritDoc}
@@ -342,7 +397,15 @@ public final class PreparedStatement
      * {@inheritDoc}
      */
     public boolean execute() throws SQLException {
-        throw new RuntimeException("Not yet implemented");
+        if (this.query) {
+            executeQuery();
+
+            return true;
+        } else {
+            executeUpdate();
+
+            return false;
+        } // end of else
     } // end of execute
 
     /**
@@ -749,4 +812,77 @@ public final class PreparedStatement
 
         this.parameters.put(index, ImmutablePair.of(meta, val));
     } // end of setParam
+
+    /**
+     * Returns parameter as SQL.
+     */
+    private String toSQL(final ImmutablePair<Parameter,Object> param) {
+        if (param.right == null) {
+            return "NULL";
+        } // end of if
+
+        // ---
+
+        switch (param.left.sqlType) {
+        case Types.LONGVARCHAR:
+        case Types.VARCHAR:
+            return String.
+                format("'%s'", ((String)param.right).replaceAll("'", "''"));
+
+        case Types.TIMESTAMP: 
+        case Types.DATE: 
+        case Types.TIME: {
+            @SuppressWarnings("unchecked")
+            final ImmutablePair<Object,TimeZone> data = 
+                (param.right instanceof java.util.Date) ? null
+                : (ImmutablePair<Object,TimeZone>) param.right;
+
+            final TimeZone tz = (data == null) 
+                ? TimeZone.getDefault() : data.right;
+
+            final java.util.Date time = (data == null) 
+                ? (java.util.Date) param.right : (java.util.Date) data.left;
+
+            final SimpleDateFormat fmt = 
+                (param.left.sqlType == Types.TIMESTAMP) ? DATE_TIME
+                : (param.left.sqlType == Types.DATE) ? DATE
+                : TIME;
+
+            final int off = Math.abs(tz.getRawOffset());
+            final char os = (tz.getRawOffset() < 0) ? '-' : '+';
+            final int oh = off / 3600000;
+            final int om = (off / 60000) - (oh * 60);
+            
+            return String.format("%s '%s%s%02d:%02d'", 
+                                 param.left.sqlTypeName,
+                                 fmt.format(time), os, oh, om);
+
+        }
+
+        default:
+            return param.right.toString();
+        }
+    } // end of toSQL
+
+    /**
+     * Prepares SQL.
+     */
+    private String prepareSQL() throws SQLException {
+        String str = this.sql;
+
+        for (final int index : this.parameters.keySet()) {
+            final ImmutablePair<Parameter,Object> param = 
+                this.parameters.get(index);
+
+            if (param == null) {
+                throw new SQLException("Missing parameter value: " + index);
+            } // end of if
+
+            // ---
+
+            str = str.replace("?", toSQL(param));
+        } // end of for
+
+        return str;
+    } // end of prepareSQL
 } // end of PreparedStatement
