@@ -6,6 +6,8 @@ import java.sql.{ SQLException, SQLFeatureNotSupportedException, Types }
 
 import org.specs2.mutable.Specification
 
+import acolyte.test.{EmptyConnectionHandler,Params}
+
 object PreparedStatementSpec extends Specification with Setters {
   "Prepared statement specification" title
 
@@ -1074,8 +1076,8 @@ object PreparedStatementSpec extends Specification with Setters {
     lazy val h = new StatementHandler {
       def getGeneratedKeys = null
       def isQuery(s: String) = true
-      def whenSQLUpdate(s: String) = -1
-      def whenSQLQuery(s: String) = {
+      def whenSQLUpdate(s: String,p:Params) = -1
+      def whenSQLQuery(s: String,p:Params) = {
         AbstractResultSet.EMPTY
       }
     }
@@ -1111,8 +1113,8 @@ object PreparedStatementSpec extends Specification with Setters {
       lazy val h = new StatementHandler {
         def getGeneratedKeys = null
         def isQuery(s: String) = true
-        def whenSQLUpdate(s: String) = -1
-        def whenSQLQuery(s: String) = {
+        def whenSQLUpdate(s: String,p:Params) = -1
+        def whenSQLQuery(s: String,p:Params) = {
           AbstractResultSet.EMPTY
         }
       }
@@ -1127,8 +1129,8 @@ object PreparedStatementSpec extends Specification with Setters {
     lazy val h = new StatementHandler {
       def getGeneratedKeys = null
       def isQuery(s: String) = true
-      def whenSQLUpdate(s: String) = -1
-      def whenSQLQuery(s: String) = {
+      def whenSQLUpdate(s: String,p:Params) = -1
+      def whenSQLQuery(s: String,p:Params) = {
         AbstractResultSet.EMPTY
       }
     }
@@ -1180,8 +1182,8 @@ object PreparedStatementSpec extends Specification with Setters {
     lazy val h = new StatementHandler {
       def getGeneratedKeys = null
       def isQuery(s: String) = false
-      def whenSQLUpdate(s: String) = { sql = s; 1 }
-      def whenSQLQuery(s: String) = AbstractResultSet.EMPTY
+      def whenSQLUpdate(s: String,p:Params) = { sql = s; 1 }
+      def whenSQLQuery(s: String,p:Params) = AbstractResultSet.EMPTY
     }
     val st = statement(c, s, h)
 
@@ -1196,8 +1198,10 @@ object PreparedStatementSpec extends Specification with Setters {
     lazy val h = new StatementHandler {
       def getGeneratedKeys = null
       def isQuery(s: String) = true
-      def whenSQLUpdate(s: String) = -1
-      def whenSQLQuery(s: String) = { sql = s; AbstractResultSet.EMPTY }
+      def whenSQLUpdate(s: String,p:Params) = -1
+      def whenSQLQuery(s: String,p:Params) = { 
+        sql = s; AbstractResultSet.EMPTY 
+      }
     }
     val st = statement(c, s, h)
 

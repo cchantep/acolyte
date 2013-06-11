@@ -3,6 +3,8 @@ package acolyte;
 import java.io.InputStream;
 import java.io.Reader;
 
+import java.util.ArrayList;
+
 import java.math.BigDecimal;
 
 import java.util.ArrayList;
@@ -135,8 +137,13 @@ public final class PreparedStatement
         if (!this.query) {
             throw new SQLException("Not a query");
         } // end of if
-        
-        return super.executeQuery(prepareSQL());
+
+        // ---
+
+        this.updateCount = -1;
+
+        return (this.result = this.handler.whenSQLQuery(sql, new ArrayList<ImmutablePair<Parameter,Object>>(this.parameters.values())));
+
     } // end of executeQuery
 
     /**
@@ -149,7 +156,12 @@ public final class PreparedStatement
             throw new SQLException("Cannot update with query");
         } // end of if
 
-        return super.executeUpdate(prepareSQL());
+        // ---
+
+        this.result = null;
+
+        return (this.updateCount = this.handler.whenSQLUpdate(sql, new ArrayList<ImmutablePair<Parameter,Object>>(this.parameters.values())));
+
     } // end of executeUpdate
 
     /**

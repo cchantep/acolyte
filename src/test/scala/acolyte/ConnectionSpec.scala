@@ -12,6 +12,8 @@ import java.sql.{
 
 import org.specs2.mutable.Specification
 
+import acolyte.test.EmptyConnectionHandler
+
 object ConnectionSpec extends Specification with ConnectionFixtures {
   "Connection specification" title
 

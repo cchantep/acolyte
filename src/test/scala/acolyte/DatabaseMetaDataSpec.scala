@@ -4,6 +4,8 @@ import java.sql.ResultSet
 
 import org.specs2.mutable.Specification
 
+import acolyte.test.EmptyConnectionHandler
+
 object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
   "Meta-data specification" title
 

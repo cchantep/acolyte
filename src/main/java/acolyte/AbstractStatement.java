@@ -1,10 +1,18 @@
 package acolyte;
 
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
+
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Connection;
 import java.sql.ResultSet;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
+
+import acolyte.ParameterMetaData.Parameter;
 
 /**
  * Acolyte base statement.
@@ -12,6 +20,13 @@ import java.sql.ResultSet;
  * @author Cedric Chantepie
  */
 abstract class AbstractStatement implements java.sql.Statement {
+    // --- Shared ---
+
+    /**
+     * No-parameter list
+     */
+    protected static final List<ImmutablePair<Parameter,Object>> NO_PARAMS = Collections.unmodifiableList(new ArrayList<ImmutablePair<Parameter,Object>>(0));
+
     // --- Properties ---
 
     /**
@@ -106,7 +121,7 @@ abstract class AbstractStatement implements java.sql.Statement {
 
         this.updateCount = -1;
 
-        return (this.result = this.handler.whenSQLQuery(sql));
+        return (this.result = this.handler.whenSQLQuery(sql, NO_PARAMS));
     } // end of executeQuery
 
     /**
@@ -117,7 +132,7 @@ abstract class AbstractStatement implements java.sql.Statement {
 
         this.result = null;
 
-        return (this.updateCount = this.handler.whenSQLUpdate(sql));
+        return (this.updateCount = this.handler.whenSQLUpdate(sql, NO_PARAMS));
     } // end of executeUpdate
 
     /**
@@ -232,13 +247,11 @@ abstract class AbstractStatement implements java.sql.Statement {
         checkClosed();
 
         if (this.handler.isQuery(sql)) {
-            this.result = this.handler.whenSQLQuery(sql);
-            this.updateCount = -1;
+            executeQuery(sql);
 
             return true;
         } else {
-            this.result = null;
-            this.updateCount = this.handler.whenSQLUpdate(sql);
+            executeUpdate(sql);
 
             return false;
         } // end of else

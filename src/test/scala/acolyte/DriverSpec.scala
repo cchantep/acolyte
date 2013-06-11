@@ -8,6 +8,8 @@ import scala.reflect.ClassTag
 
 import org.specs2.mutable.Specification
 
+import acolyte.test.EmptyConnectionHandler
+
 object DriverSpec extends Specification with DriverUtils with DriverFixtures {
   "Acolyte driver" title
 

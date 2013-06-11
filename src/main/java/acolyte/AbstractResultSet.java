@@ -30,7 +30,7 @@ import java.sql.Ref;
  *
  * @author Cedric Chantepie
  */
-abstract class AbstractResultSet implements java.sql.ResultSet {
+public abstract class AbstractResultSet implements java.sql.ResultSet {
     // --- Shared ---
 
     /**

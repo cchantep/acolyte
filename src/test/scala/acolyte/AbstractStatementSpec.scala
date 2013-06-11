@@ -9,6 +9,8 @@ import java.sql.{
 
 import org.specs2.mutable.Specification
 
+import acolyte.test.{ EmptyConnectionHandler, Params }
+
 object AbstractStatementSpec extends Specification {
   "Abstract statement specification" title
 
@@ -44,8 +46,8 @@ object AbstractStatementSpec extends Specification {
     lazy val h = new StatementHandler {
       def getGeneratedKeys = null
       def isQuery(s: String) = true
-      def whenSQLUpdate(s: String) = -1
-      def whenSQLQuery(s: String) = {
+      def whenSQLUpdate(s: String, p: Params) = -1
+      def whenSQLQuery(s: String, p: Params) = {
         sql = s
         AbstractResultSet.EMPTY
       }
@@ -117,8 +119,8 @@ object AbstractStatementSpec extends Specification {
     lazy val h = new StatementHandler {
       def getGeneratedKeys = null
       def isQuery(s: String) = false
-      def whenSQLUpdate(s: String) = { sql = s; 5 }
-      def whenSQLQuery(s: String): ResultSet = sys.error("TEST")
+      def whenSQLUpdate(s: String, p: Params) = { sql = s; 5 }
+      def whenSQLQuery(s: String, p: Params): ResultSet = sys.error("TEST")
     }
 
     "return expected row count" in {
