@@ -140,10 +140,19 @@ public final class PreparedStatement
 
         // ---
 
+        final ArrayList<ImmutablePair<Parameter,Object>> params = new ArrayList<ImmutablePair<Parameter,Object>>(this.parameters.values());
+
+        final int idx = params.indexOf(null);
+
+        if (idx != -1) {
+            throw new SQLException("Missing parameter value: " + (idx+1));
+        } // end of if
+        
+        // ---
+
         this.updateCount = -1;
 
-        return (this.result = this.handler.whenSQLQuery(sql, new ArrayList<ImmutablePair<Parameter,Object>>(this.parameters.values())));
-
+        return (this.result = this.handler.whenSQLQuery(sql, params));
     } // end of executeQuery
 
     /**
@@ -158,10 +167,19 @@ public final class PreparedStatement
 
         // ---
 
+        final ArrayList<ImmutablePair<Parameter,Object>> params = new ArrayList<ImmutablePair<Parameter,Object>>(this.parameters.values());
+
+        final int idx = params.indexOf(null);
+
+        if (idx != -1) {
+            throw new SQLException("Missing parameter value: " + (idx+1));
+        } // end of if
+
+        // ---
+
         this.result = null;
 
-        return (this.updateCount = this.handler.whenSQLUpdate(sql, new ArrayList<ImmutablePair<Parameter,Object>>(this.parameters.values())));
-
+        return (this.updateCount = this.handler.whenSQLUpdate(sql, params));
     } // end of executeUpdate
 
     /**

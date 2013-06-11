@@ -6,7 +6,7 @@ import java.sql.{ SQLException, SQLFeatureNotSupportedException, Types }
 
 import org.specs2.mutable.Specification
 
-import acolyte.test.{EmptyConnectionHandler,Params}
+import acolyte.test.{ EmptyConnectionHandler, Params, Param }
 
 object PreparedStatementSpec extends Specification with Setters {
   "Prepared statement specification" title
@@ -152,9 +152,9 @@ object PreparedStatementSpec extends Specification with Setters {
 
     "be NULL as SQL" in {
       (executeUpdate("TEST ?, y", Types.VARCHAR, null).
-        aka("SQL update") mustEqual "TEST NULL, y").
+        aka("SQL update") mustEqual ("TEST ?, y" -> null)).
         and(executeQuery("SELECT ? WHERE true", Types.FLOAT, null).
-          aka("SQL query") mustEqual "SELECT NULL WHERE true")
+          aka("SQL query") mustEqual ("SELECT ? WHERE true" -> null))
     }
   }
 
@@ -203,20 +203,20 @@ object PreparedStatementSpec extends Specification with Setters {
 
     }
 
-    "be properly encoded as SQL" >> {
+    "be properly prepared" >> {
       "when true" in {
         (executeUpdate("TEST ?, y", Types.BOOLEAN, true).
-          aka("SQL update") mustEqual "TEST true, y").
+          aka("SQL update") mustEqual ("TEST ?, y" -> true)).
           and(executeQuery("SELECT ? WHERE true", Types.BOOLEAN, true).
-            aka("SQL query") mustEqual "SELECT true WHERE true")
+            aka("SQL query") mustEqual ("SELECT ? WHERE true" -> true))
 
       }
 
       "when false" in {
         (executeUpdate("TEST ?, y", Types.BOOLEAN, false).
-          aka("SQL update") mustEqual "TEST false, y").
+          aka("SQL update") mustEqual ("TEST ?, y" -> false)).
           and(executeQuery("SELECT ? WHERE false", Types.BOOLEAN, false).
-            aka("SQL query") mustEqual "SELECT false WHERE false")
+            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> false))
 
       }
     }
@@ -267,11 +267,11 @@ object PreparedStatementSpec extends Specification with Setters {
 
     }
 
-    "be property encoded as SQL" in {
+    "be properly prepared" in {
       (executeUpdate("TEST ?, y", Types.TINYINT, 2.toByte).
-        aka("SQL update") mustEqual "TEST 2, y").
+        aka("SQL update") mustEqual ("TEST ?, y" -> 2.toByte)).
         and(executeQuery("SELECT ? WHERE false", Types.TINYINT, 100.toByte).
-          aka("SQL query") mustEqual "SELECT 100 WHERE false")
+          aka("SQL query") mustEqual ("SELECT ? WHERE false" -> 100.toByte))
 
     }
   }
@@ -321,11 +321,11 @@ object PreparedStatementSpec extends Specification with Setters {
 
     }
 
-    "be property encoded as SQL" in {
+    "be property prepared" in {
       (executeUpdate("TEST ?, y", Types.SMALLINT, 5.toShort).
-        aka("SQL update") mustEqual "TEST 5, y").
+        aka("SQL update") mustEqual ("TEST ?, y" -> 5.toShort)).
         and(executeQuery("SELECT ? WHERE false", Types.SMALLINT, 256.toShort).
-          aka("SQL query") mustEqual "SELECT 256 WHERE false")
+          aka("SQL query") mustEqual ("SELECT ? WHERE false" -> 256.toShort))
 
     }
   }
@@ -375,11 +375,11 @@ object PreparedStatementSpec extends Specification with Setters {
 
     }
 
-    "be property encoded as SQL" in {
+    "be property prepared" in {
       (executeUpdate("TEST ?, y", Types.INTEGER, 7).
-        aka("SQL update") mustEqual "TEST 7, y").
+        aka("SQL update") mustEqual ("TEST ?, y" -> 7)).
         and(executeQuery("SELECT ? WHERE false", Types.INTEGER, 1001).
-          aka("SQL query") mustEqual "SELECT 1001 WHERE false")
+          aka("SQL query") mustEqual ("SELECT ? WHERE false" -> 1001))
 
     }
   }
@@ -429,11 +429,11 @@ object PreparedStatementSpec extends Specification with Setters {
 
     }
 
-    "be property encoded as SQL" in {
+    "be property prepared" in {
       (executeUpdate("TEST ?, y", Types.BIGINT, 9.toLong).
-        aka("SQL update") mustEqual "TEST 9, y").
+        aka("SQL update") mustEqual ("TEST ?, y" -> 9.toLong)).
         and(executeQuery("SELECT ? WHERE false", Types.BIGINT, 67598.toLong).
-          aka("SQL query") mustEqual "SELECT 67598 WHERE false")
+          aka("SQL query") mustEqual ("SELECT ? WHERE false" -> 67598.toLong))
 
     }
   }
@@ -522,20 +522,22 @@ object PreparedStatementSpec extends Specification with Setters {
 
     }
 
-    "be property encoded as SQL" >> {
+    "be property prepared" >> {
       "when FLOAT" in {
         (executeUpdate("TEST ?, y", Types.FLOAT, 1.23.toFloat).
-          aka("SQL update") mustEqual "TEST 1.23, y").
+          aka("SQL update") mustEqual ("TEST ?, y" -> 1.23.toFloat)).
           and(executeQuery("SELECT ? WHERE false", Types.FLOAT, 34.561.toFloat).
-            aka("SQL query") mustEqual "SELECT 34.561 WHERE false")
+            aka("SQL query").
+            mustEqual(("SELECT ? WHERE false" -> 34.561.toFloat)))
 
       }
 
       "when REAL" in {
         (executeUpdate("TEST ?, y", Types.REAL, 1.23.toFloat).
-          aka("SQL update") mustEqual "TEST 1.23, y").
+          aka("SQL update") mustEqual ("TEST ?, y" -> 1.23.toFloat)).
           and(executeQuery("SELECT ? WHERE false", Types.REAL, 34.561.toFloat).
-            aka("SQL query") mustEqual "SELECT 34.561 WHERE false")
+            aka("SQL query").
+            mustEqual(("SELECT ? WHERE false" -> 34.561.toFloat)))
 
       }
     }
@@ -590,11 +592,11 @@ object PreparedStatementSpec extends Specification with Setters {
 
     }
 
-    "be encoded as SQL" in {
+    "be prepared" in {
       (executeUpdate("TEST ?, y", Types.DOUBLE, 1.23.toDouble).
-        aka("SQL update") mustEqual "TEST 1.23, y").
+        aka("SQL update") mustEqual ("TEST ?, y", 1.23.toDouble)).
         and(executeQuery("SELECT ? WHERE false", Types.DOUBLE, 34.561.toDouble).
-          aka("SQL query") mustEqual "SELECT 34.561 WHERE false")
+          aka("SQL query") mustEqual ("SELECT ? WHERE false", 34.561.toDouble))
 
     }
   }
@@ -660,13 +662,14 @@ object PreparedStatementSpec extends Specification with Setters {
 
     }
 
-    "be encoded as SQL" in {
-      (executeUpdate("TEST ?, y", Types.DECIMAL, 
-        new java.math.BigDecimal("876.78")).
-        aka("SQL update") mustEqual "TEST 876.78, y").
-        and(executeQuery("SELECT ? WHERE false", Types.DECIMAL, 
-          new java.math.BigDecimal("9007.2")).
-          aka("SQL query") mustEqual "SELECT 9007.2 WHERE false")
+    "be prepared" in {
+      val d1 = new java.math.BigDecimal("876.78")
+      val d2 = new java.math.BigDecimal("9007.2")
+
+      (executeUpdate("TEST ?, y", Types.DECIMAL, d1).
+        aka("SQL update") mustEqual ("TEST ?, y" -> d1)).
+        and(executeQuery("SELECT ? WHERE false", Types.DECIMAL, d2).
+          aka("SQL query") mustEqual ("SELECT ? WHERE false" -> d2))
 
     }
   }
@@ -716,20 +719,20 @@ object PreparedStatementSpec extends Specification with Setters {
 
     }
 
-    "be encoded as SQL" >> {
+    "be prepared" >> {
       "when VARCHAR" in {
         (executeUpdate("TEST ?, y", Types.VARCHAR, "l'étoile").
-          aka("SQL update") mustEqual "TEST 'l''étoile', y").
+          aka("SQL update") mustEqual ("TEST ?, y" -> "l'étoile")).
           and(executeQuery("SELECT ? WHERE false", Types.VARCHAR, "val").
-            aka("SQL query") mustEqual "SELECT 'val' WHERE false")
+            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> "val"))
 
       }
 
       "when LONGVARCHAR" in {
         (executeUpdate("TEST ?, y", Types.LONGVARCHAR, "l'étoile").
-          aka("SQL update") mustEqual "TEST 'l''étoile', y").
+          aka("SQL update") mustEqual ("TEST ?, y" -> "l'étoile")).
           and(executeQuery("SELECT ? WHERE false", Types.LONGVARCHAR, "val").
-            aka("SQL query") mustEqual "SELECT 'val' WHERE false")
+            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> "val"))
 
       }
     }
@@ -821,25 +824,27 @@ object PreparedStatementSpec extends Specification with Setters {
 
     }
 
-    "be encoded as SQL" >> {
+    "be prepared" >> {
       "with default TZ" in {
-        (executeUpdate("TEST ?, y", Types.DATE, new java.sql.Date(1, 2, 3)).
-          aka("SQL update") mustEqual "TEST DATE '1901-03-03+00:00', y").
-          and(executeQuery("SELECT ? WHERE false", Types.DATE,
-            new java.sql.Date(13, 10, 5)).aka("SQL query").
-            mustEqual("SELECT DATE '1913-11-05+00:00' WHERE false"))
+        val d1 = new java.sql.Date(1, 2, 3)
+        val d2 = new java.sql.Date(13, 10, 5)
+
+        (executeUpdate("TEST ?, y", Types.DATE, d1).
+          aka("SQL update") mustEqual ("TEST ?, y" -> d1)).
+          and(executeQuery("SELECT ? WHERE false", Types.DATE, d2).
+            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> d2))
 
       }
 
       "with 'Europe/Paris' TZ" in {
         val tz = TimeZone.getTimeZone("Europe/Paris")
+        val d1 = new java.sql.Date(1, 2, 3)
+        val d2 = new java.sql.Date(13, 10, 5)
 
-        (executeUpdate("TEST ?, y", Types.DATE, 
-          (new java.sql.Date(1, 2, 3) -> tz)).
-          aka("SQL update") mustEqual "TEST DATE '1901-03-03+01:00', y").
-          and(executeQuery("SELECT ? WHERE false", Types.DATE,
-            (new java.sql.Date(13, 10, 5) -> tz)).aka("SQL query").
-            mustEqual("SELECT DATE '1913-11-05+01:00' WHERE false"))
+        (executeUpdate("TEST ?, y", Types.DATE, (d1 -> tz)).
+          aka("SQL update") mustEqual ("TEST ?, y" -> (d1, tz))).
+          and(executeQuery("SELECT ? WHERE false", Types.DATE, (d2 -> tz)).
+            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> (d2, tz)))
 
       }
     }
@@ -901,25 +906,27 @@ object PreparedStatementSpec extends Specification with Setters {
 
     }
 
-    "be encoded as SQL" >> {
+    "be prepared" >> {
       "with default TZ" in {
-        (executeUpdate("TEST ?, y", Types.TIME, new java.sql.Time(1, 2, 3)).
-          aka("SQL update") mustEqual "TEST TIME '01:02:03.0+00:00', y").
-          and(executeQuery("SELECT ? WHERE false", Types.TIME,
-            new java.sql.Time(13, 10, 5)).aka("SQL query").
-            mustEqual("SELECT TIME '13:10:05.0+00:00' WHERE false"))
+        val t1 = new java.sql.Time(1, 2, 3)
+        val t2 = new java.sql.Time(13, 10, 5)
+
+        (executeUpdate("TEST ?, y", Types.TIME, t1).
+          aka("SQL update") mustEqual ("TEST ?, y" -> t1)).
+          and(executeQuery("SELECT ? WHERE false", Types.TIME, t2).
+            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> t2))
 
       }
 
       "with 'Europe/Paris' TZ" in {
         val tz = TimeZone.getTimeZone("Europe/Paris")
+        val t1 = new java.sql.Time(1, 2, 3)
+        val t2 = new java.sql.Time(13, 10, 5)
 
-        (executeUpdate("TEST ?, y", Types.TIME, 
-          (new java.sql.Time(1, 2, 3) -> tz)).
-          aka("SQL update") mustEqual "TEST TIME '01:02:03.0+01:00', y").
-          and(executeQuery("SELECT ? WHERE false", Types.TIME,
-            (new java.sql.Time(13, 10, 5) -> tz)).aka("SQL query").
-            mustEqual("SELECT TIME '13:10:05.0+01:00' WHERE false"))
+        (executeUpdate("TEST ?, y", Types.TIME, (t1 -> tz)).
+          aka("SQL update") mustEqual ("TEST ?, y" -> (t1, tz))).
+          and(executeQuery("SELECT ? WHERE false", Types.TIME, (t2 -> tz)).
+            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> (t2, tz)))
 
       }
     }
@@ -939,7 +946,7 @@ object PreparedStatementSpec extends Specification with Setters {
 
     "be set as first parameter with calendar" in {
       lazy val s = statement()
-      s.setTimestamp(1, new java.sql.Timestamp(1l), 
+      s.setTimestamp(1, new java.sql.Timestamp(1l),
         java.util.Calendar.getInstance)
 
       lazy val m = s.getParameterMetaData
@@ -982,31 +989,27 @@ object PreparedStatementSpec extends Specification with Setters {
 
     }
 
-    "be encoded as SQL" >> {
+    "be prepared" >> {
       "with default TZ" in {
-        (executeUpdate("TEST ?, y", Types.TIMESTAMP, 
-          new java.sql.Timestamp(1, 2, 3, 4, 5, 6, 7)).
-          aka("SQL update").
-          mustEqual("TEST TIMESTAMP '1901-03-03T04:05:06.0+00:00', y")).
-          and(executeQuery("SELECT ? WHERE false", Types.TIMESTAMP,
-            new java.sql.Timestamp(13, 10, 5, 1, 1, 45, 0)).aka("SQL query").
-            mustEqual(
-              "SELECT TIMESTAMP '1913-11-05T01:01:45.0+00:00' WHERE false"))
+        val ts1 = new java.sql.Timestamp(1, 2, 3, 4, 5, 6, 7)
+        val ts2 = new java.sql.Timestamp(13, 10, 5, 1, 1, 45, 0)
+
+        (executeUpdate("TEST ?, y", Types.TIMESTAMP, ts1).
+          aka("SQL update") mustEqual ("TEST ?, y" -> ts1)).
+          and(executeQuery("SELECT ? WHERE false", Types.TIMESTAMP, ts2).
+            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> ts2))
 
       }
 
       "with 'Europe/Paris' TZ" in {
         val tz = TimeZone.getTimeZone("Europe/Paris")
+        val ts1 = new java.sql.Timestamp(1, 2, 3, 4, 5, 6, 7)
+        val ts2 = new java.sql.Timestamp(13, 10, 5, 1, 1, 45, 0)
 
-        (executeUpdate("TEST ?, y", Types.TIMESTAMP, 
-          (new java.sql.Timestamp(1, 2, 3, 4, 5, 6, 7) -> tz)).
-          aka("SQL update").
-          mustEqual("TEST TIMESTAMP '1901-03-03T04:05:06.0+01:00', y")).
-          and(executeQuery("SELECT ? WHERE false", Types.TIMESTAMP,
-            (new java.sql.Timestamp(13, 10, 5, 1, 1, 45, 0) -> tz)).
-            aka("SQL query").
-            mustEqual(
-              "SELECT TIMESTAMP '1913-11-05T01:01:45.0+01:00' WHERE false"))
+        (executeUpdate("TEST ?, y", Types.TIMESTAMP, (ts1 -> tz)).
+          aka("SQL update") mustEqual ("TEST ?, y" -> (ts1, tz))).
+          and(executeQuery("SELECT ? WHERE false", Types.TIMESTAMP, (ts2 -> tz)).
+            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> (ts2, tz)))
 
       }
     }
@@ -1076,8 +1079,8 @@ object PreparedStatementSpec extends Specification with Setters {
     lazy val h = new StatementHandler {
       def getGeneratedKeys = null
       def isQuery(s: String) = true
-      def whenSQLUpdate(s: String,p:Params) = -1
-      def whenSQLQuery(s: String,p:Params) = {
+      def whenSQLUpdate(s: String, p: Params) = -1
+      def whenSQLQuery(s: String, p: Params) = {
         AbstractResultSet.EMPTY
       }
     }
@@ -1113,8 +1116,8 @@ object PreparedStatementSpec extends Specification with Setters {
       lazy val h = new StatementHandler {
         def getGeneratedKeys = null
         def isQuery(s: String) = true
-        def whenSQLUpdate(s: String,p:Params) = -1
-        def whenSQLQuery(s: String,p:Params) = {
+        def whenSQLUpdate(s: String, p: Params) = -1
+        def whenSQLQuery(s: String, p: Params) = {
           AbstractResultSet.EMPTY
         }
       }
@@ -1129,8 +1132,8 @@ object PreparedStatementSpec extends Specification with Setters {
     lazy val h = new StatementHandler {
       def getGeneratedKeys = null
       def isQuery(s: String) = true
-      def whenSQLUpdate(s: String,p:Params) = -1
-      def whenSQLQuery(s: String,p:Params) = {
+      def whenSQLUpdate(s: String, p: Params) = -1
+      def whenSQLQuery(s: String, p: Params) = {
         AbstractResultSet.EMPTY
       }
     }
@@ -1177,38 +1180,42 @@ object PreparedStatementSpec extends Specification with Setters {
 
   def statement(c: Connection = defaultCon, s: String = "TEST", h: StatementHandler = defaultHandler.getStatementHandler) = new PreparedStatement(c, s, h)
 
-  def executeUpdate[A](s: String, t: Int, v: A, c: Connection = defaultCon)(implicit set: SetParam[A]): String = {
+  def executeUpdate[A](s: String, t: Int, v: A, c: Connection = defaultCon)(implicit stmt: StatementParam[A]): (String, A) = {
     var sql: String = null
+    var param: Param = null
     lazy val h = new StatementHandler {
       def getGeneratedKeys = null
       def isQuery(s: String) = false
-      def whenSQLUpdate(s: String,p:Params) = { sql = s; 1 }
-      def whenSQLQuery(s: String,p:Params) = AbstractResultSet.EMPTY
+      def whenSQLUpdate(s: String, p: Params) = {
+        sql = s; param = p.get(0); 1
+      }
+      def whenSQLQuery(s: String, p: Params) = AbstractResultSet.EMPTY
     }
     val st = statement(c, s, h)
 
-    set(st, 1, v, t)
+    stmt.set(st, 1, v, t)
 
     st.executeUpdate()
-    sql
+    (sql -> stmt.get(param))
   }
 
-  def executeQuery[A](s: String, t: Int, v: A, c: Connection = defaultCon)(implicit set: SetParam[A]): String = {
+  def executeQuery[A](s: String, t: Int, v: A, c: Connection = defaultCon)(implicit stmt: StatementParam[A]): (String, A) = {
     var sql: String = null
+    var param: Param = null
     lazy val h = new StatementHandler {
       def getGeneratedKeys = null
       def isQuery(s: String) = true
-      def whenSQLUpdate(s: String,p:Params) = -1
-      def whenSQLQuery(s: String,p:Params) = { 
-        sql = s; AbstractResultSet.EMPTY 
+      def whenSQLUpdate(s: String, p: Params) = -1
+      def whenSQLQuery(s: String, p: Params) = {
+        sql = s; param = p.get(0); AbstractResultSet.EMPTY
       }
     }
     val st = statement(c, s, h)
 
-    set(st, 1, v, t)
+    stmt.set(st, 1, v, t)
 
     st.executeQuery()
-    sql
+    (sql -> stmt.get(param))
   }
 
   val jdbcUrl = {
@@ -1221,142 +1228,187 @@ object PreparedStatementSpec extends Specification with Setters {
   lazy val defaultHandler = EmptyConnectionHandler
 }
 
-sealed trait SetParam[A] {
-  def apply(s: PreparedStatement, i: Int, p: A, t: Int): PreparedStatement
+sealed trait StatementParam[A] {
+  def set(s: PreparedStatement, i: Int, p: A, t: Int): PreparedStatement
+  def get(p: Param): A
 }
 
 sealed trait Setters {
   import java.math.BigDecimal
   import java.util.Calendar
   import java.sql.{ Date, Time, Timestamp }
+  import org.apache.commons.lang3.tuple.ImmutablePair
 
-  implicit def SetNull: SetParam[Null] = new SetParam[Null] {
-    def apply(s: PreparedStatement, i: Int, p: Null, t: Int) = {
+  implicit def StmtNull: StatementParam[Null] = new StatementParam[Null] {
+    def set(s: PreparedStatement, i: Int, p: Null, t: Int) = {
       s.setNull(i, t)
       s
     }
+
+    def get(p: Param): Null = null
   }
 
-  implicit def SetBool: SetParam[Boolean] = new SetParam[Boolean] {
-    def apply(s: PreparedStatement, i: Int, p: Boolean, t: Int) = {
+  implicit def StmtBool: StatementParam[Boolean] = new StatementParam[Boolean] {
+    def set(s: PreparedStatement, i: Int, p: Boolean, t: Int) = {
       s.setBoolean(i, p)
       s
     }
+
+    def get(p: Param): Boolean = p.right.asInstanceOf[Boolean]
   }
 
-  implicit def SetByte: SetParam[Byte] = new SetParam[Byte] {
-    def apply(s: PreparedStatement, i: Int, p: Byte, t: Int) = {
+  implicit def StmtByte: StatementParam[Byte] = new StatementParam[Byte] {
+    def set(s: PreparedStatement, i: Int, p: Byte, t: Int) = {
       s.setByte(i, p)
       s
     }
+
+    def get(p: Param): Byte = p.right.asInstanceOf[Byte]
   }
 
-  implicit def SetShort: SetParam[Short] = new SetParam[Short] {
-    def apply(s: PreparedStatement, i: Int, p: Short, t: Int) = {
+  implicit def StmtShort: StatementParam[Short] = new StatementParam[Short] {
+    def set(s: PreparedStatement, i: Int, p: Short, t: Int) = {
       s.setShort(i, p)
       s
     }
+
+    def get(p: Param): Short = p.right.asInstanceOf[Short]
   }
 
-  implicit def SetInt: SetParam[Int] = new SetParam[Int] {
-    def apply(s: PreparedStatement, i: Int, p: Int, t: Int) = {
+  implicit def StmtInt: StatementParam[Int] = new StatementParam[Int] {
+    def set(s: PreparedStatement, i: Int, p: Int, t: Int) = {
       s.setInt(i, p)
       s
     }
+
+    def get(p: Param): Int = p.right.asInstanceOf[Int]
   }
 
-  implicit def SetLong: SetParam[Long] = new SetParam[Long] {
-    def apply(s: PreparedStatement, i: Int, p: Long, t: Int) = {
+  implicit def StmtLong: StatementParam[Long] = new StatementParam[Long] {
+    def set(s: PreparedStatement, i: Int, p: Long, t: Int) = {
       s.setLong(i, p)
       s
     }
+
+    def get(p: Param): Long = p.right.asInstanceOf[Long]
   }
 
-  implicit def SetFloat: SetParam[Float] = new SetParam[Float] {
-    def apply(s: PreparedStatement, i: Int, p: Float, t: Int) = {
+  implicit def StmtFloat: StatementParam[Float] = new StatementParam[Float] {
+    def set(s: PreparedStatement, i: Int, p: Float, t: Int) = {
       s.setFloat(i, p)
       s
     }
+
+    def get(p: Param): Float = p.right.asInstanceOf[Float]
   }
 
-  implicit def SetDouble: SetParam[Double] = new SetParam[Double] {
-    def apply(s: PreparedStatement, i: Int, p: Double, t: Int) = {
+  implicit def StmtDouble: StatementParam[Double] = new StatementParam[Double] {
+    def set(s: PreparedStatement, i: Int, p: Double, t: Int) = {
       s.setDouble(i, p)
       s
     }
+
+    def get(p: Param): Double = p.right.asInstanceOf[Double]
   }
 
-  implicit def SetBigDecimal: SetParam[BigDecimal] = new SetParam[BigDecimal] {
-    def apply(s: PreparedStatement, i: Int, p: BigDecimal, t: Int) = {
-      s.setBigDecimal(i, p);
-      s
+  implicit def StmtBigDecimal: StatementParam[BigDecimal] =
+    new StatementParam[BigDecimal] {
+      def set(s: PreparedStatement, i: Int, p: BigDecimal, t: Int) = {
+        s.setBigDecimal(i, p);
+        s
+      }
+
+      def get(p: Param): BigDecimal = p.right.asInstanceOf[BigDecimal]
     }
-  }
 
-  implicit def SetString: SetParam[String] = new SetParam[String] {
-    def apply(s: PreparedStatement, i: Int, p: String, t: Int) = {
+  implicit def StmtString: StatementParam[String] = new StatementParam[String] {
+    def set(s: PreparedStatement, i: Int, p: String, t: Int) = {
       s.setString(i, p)
       s
     }
+
+    def get(p: Param): String = p.right.asInstanceOf[String]
   }
 
-  implicit def SetDate: SetParam[Date] = new SetParam[Date] {
-    def apply(s: PreparedStatement, i: Int, p: Date, t: Int) = {
+  implicit def StmtDate: StatementParam[Date] = new StatementParam[Date] {
+    def set(s: PreparedStatement, i: Int, p: Date, t: Int) = {
       s.setDate(i, p)
       s
     }
+
+    def get(p: Param): Date = p.right.asInstanceOf[Date]
   }
 
-  implicit def SetDateWithTZ: SetParam[(Date, TimeZone)] = 
-    new SetParam[(Date, TimeZone)] {
-    def apply(s: PreparedStatement, i: Int, p: (Date, TimeZone), t: Int) = {
-      val (d, tz) = p
-      val cal = Calendar.getInstance()
-      
-      cal.setTimeZone(tz)
+  implicit def StmtDateWithTZ: StatementParam[(Date, TimeZone)] =
+    new StatementParam[(Date, TimeZone)] {
+      def set(s: PreparedStatement, i: Int, p: (Date, TimeZone), t: Int) = {
+        val (d, tz) = p
+        val cal = Calendar.getInstance()
 
-      s.setDate(i, d, cal)
-      s
+        cal.setTimeZone(tz)
+
+        s.setDate(i, d, cal)
+        s
+      }
+
+      def get(p: Param): (Date, TimeZone) = {
+        val pair = p.right.asInstanceOf[ImmutablePair[Date, TimeZone]]
+        (pair.left -> pair.right)
+      }
     }
-  }
 
-  implicit def SetTime: SetParam[Time] = new SetParam[Time] {
-    def apply(s: PreparedStatement, i: Int, p: Time, t: Int) = {
+  implicit def StmtTime: StatementParam[Time] = new StatementParam[Time] {
+    def set(s: PreparedStatement, i: Int, p: Time, t: Int) = {
       s.setTime(i, p)
       s
     }
+
+    def get(p: Param): Time = p.right.asInstanceOf[Time]
   }
 
-  implicit def SetTimeWithTZ: SetParam[(Time, TimeZone)] = 
-    new SetParam[(Time, TimeZone)] {
-    def apply(s: PreparedStatement, i: Int, p: (Time, TimeZone), t: Int) = {
-      val (d, tz) = p
-      val cal = Calendar.getInstance()
-      
-      cal.setTimeZone(tz)
+  implicit def StmtTimeWithTZ: StatementParam[(Time, TimeZone)] =
+    new StatementParam[(Time, TimeZone)] {
+      def set(s: PreparedStatement, i: Int, p: (Time, TimeZone), t: Int) = {
+        val (d, tz) = p
+        val cal = Calendar.getInstance()
 
-      s.setTime(i, d, cal)
-      s
+        cal.setTimeZone(tz)
+
+        s.setTime(i, d, cal)
+        s
+      }
+
+      def get(p: Param): (Time, TimeZone) = {
+        val pair = p.right.asInstanceOf[ImmutablePair[Time, TimeZone]]
+        (pair.left -> pair.right)
+      }
     }
-  }
 
-  implicit def SetTimestamp: SetParam[Timestamp] = new SetParam[Timestamp] {
-    def apply(s: PreparedStatement, i: Int, p: Timestamp, t: Int) = {
-      s.setTimestamp(i, p)
-      s
+  implicit def StmtTimestamp: StatementParam[Timestamp] =
+    new StatementParam[Timestamp] {
+      def set(s: PreparedStatement, i: Int, p: Timestamp, t: Int) = {
+        s.setTimestamp(i, p)
+        s
+      }
+
+      def get(p: Param): Timestamp = p.right.asInstanceOf[Timestamp]
     }
-  }
 
-  implicit def SetTimestampWithTZ: SetParam[(Timestamp, TimeZone)] = 
-    new SetParam[(Timestamp, TimeZone)] {
-    def apply(s: PreparedStatement, i: Int, p: (Timestamp, TimeZone), t: Int) = {
-      val (d, tz) = p
-      val cal = Calendar.getInstance()
-      
-      cal.setTimeZone(tz)
+  implicit def StmtTimestampWithTZ: StatementParam[(Timestamp, TimeZone)] =
+    new StatementParam[(Timestamp, TimeZone)] {
+      def set(s: PreparedStatement, i: Int, p: (Timestamp, TimeZone), t: Int) = {
+        val (d, tz) = p
+        val cal = Calendar.getInstance()
 
-      s.setTimestamp(i, d, cal)
-      s
+        cal.setTimeZone(tz)
+
+        s.setTimestamp(i, d, cal)
+        s
+      }
+
+      def get(p: Param): (Timestamp, TimeZone) = {
+        val pair = p.right.asInstanceOf[ImmutablePair[Timestamp, TimeZone]]
+        (pair.left -> pair.right)
+      }
     }
-  }
 }

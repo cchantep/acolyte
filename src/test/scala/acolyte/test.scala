@@ -9,7 +9,8 @@ import org.apache.commons.lang3.tuple.ImmutablePair
 import acolyte.ParameterMetaData.Parameter
 
 package object test {
-  type Params = JList[ImmutablePair[Parameter, Object]]
+  type Param = ImmutablePair[Parameter, Object]
+  type Params = JList[Param]
 
   object EmptyConnectionHandler extends ConnectionHandler {
     def getStatementHandler = EmptyStatementHandler
