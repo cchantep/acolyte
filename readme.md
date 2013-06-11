@@ -16,6 +16,7 @@ Acolyte can be used in SBT projects adding dependency `"cchantep" %% "acolyte" %
 
 - Binary datatype are not currently supported.
 - Callable statement are not (yet) implemented.
+- `ResultSet.RETURN_GENERATED_KEYS` is not supported.
 
 ### Code
 

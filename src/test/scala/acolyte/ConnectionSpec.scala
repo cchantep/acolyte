@@ -3,6 +3,7 @@ package acolyte
 import java.util.concurrent.Executors
 
 import java.sql.{
+  Statement,
   ResultSet,
   SQLClientInfoException,
   SQLException,
@@ -536,6 +537,60 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
       c.createStatement aka "creation" must throwA[SQLException](
         message = "Connection is closed")
+
+    }
+
+    "not be created with specific resultset type and/or concurrency" in {
+      (defaultCon.createStatement(1, 2).
+        aka("creation") must throwA[SQLFeatureNotSupportedException]).
+        and(defaultCon.createStatement(1, 2, 3).
+          aka("creation") must throwA[SQLFeatureNotSupportedException])
+
+    }
+  }
+
+  "Prepared statement" should {
+    "be owned by connection" in {
+      lazy val c = defaultCon
+
+      (c.prepareStatement("TEST").getConnection.
+        aka("statement connection") mustEqual c).
+        and(c.prepareStatement("TEST", Statement.NO_GENERATED_KEYS).
+          getConnection aka "statement connection" mustEqual c)
+
+    }
+
+    "not be created from a closed connection" in {
+      lazy val c = defaultCon
+      c.close()
+
+      c.prepareStatement("TEST") aka "creation" must throwA[SQLException](
+        message = "Connection is closed")
+
+    }
+
+    "not be created with specific resultset type and/or concurrency" in {
+      (defaultCon.prepareStatement("TEST", 1, 2).
+        aka("creation") must throwA[SQLFeatureNotSupportedException]).
+        and(defaultCon.prepareStatement("TEST", 1, 2, 3).
+          aka("creation") must throwA[SQLFeatureNotSupportedException])
+
+    }
+
+    "not supported auto-generated keys" in {
+      (defaultCon.prepareStatement("TEST", Array[Int]()).
+        aka("creation") must throwA[SQLFeatureNotSupportedException]).
+        and(defaultCon.prepareStatement("TEST", Array[String]()).
+          aka("creation") must throwA[SQLFeatureNotSupportedException])
+    }
+  }
+
+  "Callable statement" should {
+    "not be created with specific resultset type and/or concurrency" in {
+      (defaultCon.prepareCall("TEST", 1, 2).
+        aka("creation") must throwA[SQLFeatureNotSupportedException]).
+        and(defaultCon.prepareCall("TEST", 1, 2, 3).
+          aka("creation") must throwA[SQLFeatureNotSupportedException])
 
     }
   }

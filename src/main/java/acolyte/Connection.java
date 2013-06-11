@@ -138,22 +138,26 @@ public final class Connection implements java.sql.Connection {
     public Statement createStatement() throws SQLException {
         checkClosed();
 
-        return new PlainStatement(this, this.handler);
+        return new PlainStatement(this, this.handler.getStatementHandler());
     } // end of createStatement        
 
     /**
      * {@inheritDoc}
      */
-    public PreparedStatement prepareStatement(String str) throws SQLException {
+    public PreparedStatement prepareStatement(final String sql) 
+        throws SQLException {
+
         checkClosed();
 
-        throw new RuntimeException("Not yet implemented");
+        return new acolyte.
+            PreparedStatement(this, sql, this.handler.getStatementHandler());
+
     } // end of prepareStatement
 
     /**
      * {@inheritDoc}
      */
-    public CallableStatement prepareCall(String str) throws SQLException {
+    public CallableStatement prepareCall(String sql) throws SQLException {
         checkClosed();
 
         throw new RuntimeException("Not yet implemented");
@@ -311,27 +315,34 @@ public final class Connection implements java.sql.Connection {
     /**
      * {@inheritDoc}
      */
-    public Statement createStatement(int a, int b) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+    public Statement createStatement(final int resultSetType, 
+                                     final int resultSetConcurrency) 
+        throws SQLException {
+
+        throw new SQLFeatureNotSupportedException();
+    } // end of createStatement
 
     /**
      * {@inheritDoc}
      */
-    public PreparedStatement prepareStatement(String str, int a, int b) 
+    public PreparedStatement prepareStatement(final String sql, 
+                                              final int resultSetType, 
+                                              final int resultSetConcurrency)
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        throw new SQLFeatureNotSupportedException();
+    } // end of prepareStatement
 
     /**
      * {@inheritDoc}
      */
-    public CallableStatement prepareCall(String str, int a, int b) 
+    public CallableStatement prepareCall(final String sql, 
+                                         final int resultSetType, 
+                                         final int resultSetConcurrency)
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        throw new SQLFeatureNotSupportedException();
+    } // end of prepareCall
 
     /**
      * {@inheritDoc}
@@ -432,53 +443,91 @@ public final class Connection implements java.sql.Connection {
 
     /**
      * {@inheritDoc}
+     * @throws java.sql.SQLFeatureNotSupportedException
      */
-    public Statement createStatement(int a, int b, int c) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
-
-    /**
-     * {@inheritDoc}
-     */
-    public PreparedStatement prepareStatement(String str, int a, int b, int c) 
+    public Statement createStatement(final int resultSetType, 
+                                     final int resultSetConcurrency, 
+                                     final int resultSetHoldability) 
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        checkClosed();
+
+        throw new SQLFeatureNotSupportedException();
+    } // end of createStatement
 
     /**
      * {@inheritDoc}
+     * @throws java.sql.SQLFeatureNotSupportedException
      */
-    public CallableStatement prepareCall(String str, int a, int b, int c) 
+    public PreparedStatement prepareStatement(final String sql, 
+                                              final int resultSetType, 
+                                              final int resultSetConcurrency, 
+                                              final int resultSetHoldability)
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        checkClosed();
+
+        throw new SQLFeatureNotSupportedException();
+    } // end of prepareStatement
 
     /**
      * {@inheritDoc}
+     * @throws java.sql.SQLFeatureNotSupportedException
      */
-    public PreparedStatement prepareStatement(String str, int i) throws SQLException {
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
-
-    /**
-     * {@inheritDoc}
-     */
-    public PreparedStatement prepareStatement(String str, int[] args) 
+    public CallableStatement prepareCall(final String sql, 
+                                         final int resultSetType, 
+                                         final int resultSetConcurrency, 
+                                         final int resultSetHoldability)
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        checkClosed();
+
+        throw new SQLFeatureNotSupportedException();
+    } // end of prepareCall
 
     /**
      * {@inheritDoc}
+     * @throws java.sql.SQLFeatureNotSupportedException if |autoGeneratedKeys| is Statement.RETURN_GENERATED_KEYS
+     * @see #prepareStatement(java.lang.String)
      */
-    public PreparedStatement prepareStatement(String str, String[] args) 
+    public PreparedStatement prepareStatement(final String sql, 
+                                              final int autoGeneratedKeys) 
         throws SQLException {
 
-        throw new RuntimeException("Not yet implemented");
-    } // end of 
+        checkClosed();
+
+        if (autoGeneratedKeys == Statement.RETURN_GENERATED_KEYS) {
+            throw new SQLFeatureNotSupportedException();
+        } // end of if
+
+        return prepareStatement(sql);
+    } // end of prepareStatement
+
+    /**
+     * {@inheritDoc}
+     * @throws java.sql.SQLFeatureNotSupportedException
+     */
+    public PreparedStatement prepareStatement(final String sql, 
+                                              final int[] columnIndexes) 
+        throws SQLException {
+
+        checkClosed();
+
+        throw new SQLFeatureNotSupportedException();
+    } // end of prepareStatement
+
+    /**
+     * {@inheritDoc}
+     * @throws java.sql.SQLFeatureNotSupportedException
+     */
+    public PreparedStatement prepareStatement(final String sql, 
+                                              final String[] columnNames) 
+        throws SQLException {
+
+        checkClosed();
+
+        throw new SQLFeatureNotSupportedException();
+    } // end of prepareStatement
 
     /**
      * {@inheritDoc}
