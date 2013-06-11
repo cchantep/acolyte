@@ -1173,7 +1173,7 @@ object PreparedStatementSpec extends Specification with Setters {
 
   // ---
 
-  def statement(c: Connection = defaultCon, s: String = "TEST", h: StatementHandler = defaultHandler) = new PreparedStatement(c, s, h)
+  def statement(c: Connection = defaultCon, s: String = "TEST", h: StatementHandler = defaultHandler.getStatementHandler) = new PreparedStatement(c, s, h)
 
   def executeUpdate[A](s: String, t: Int, v: A, c: Connection = defaultCon)(implicit set: SetParam[A]): String = {
     var sql: String = null

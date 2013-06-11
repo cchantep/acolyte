@@ -6,4 +6,11 @@ package acolyte;
  * @author Cedric Chantepie
  * @see StatementHandler
  */
-public interface ConnectionHandler extends StatementHandler { }
+public interface ConnectionHandler {
+    
+    /**
+     * Returns statement handler.
+     */
+    public StatementHandler getStatementHandler();
+
+} // end of interface ConnectionHandler
