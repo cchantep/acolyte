@@ -14,7 +14,8 @@ Acolyte can be used in SBT projects adding dependency `"cchantep" %% "acolyte" %
 
 ### Limitations
 
-Binary datatype are not currently supported.
+- Binary datatype are not currently supported.
+- Callable statement are not (yet) implemented.
 
 ### Code
 
@@ -24,4 +25,4 @@ JDBC URL should match `"jdbc:acolyte:anything-you-want"`.
 
 ## Build
 
-Alohura can be built from these sources using SBT (0.12.2+): `sbt publish`
+Acolyte can be built from these sources using SBT (0.12.2+): `sbt publish`
