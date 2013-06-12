@@ -37,18 +37,12 @@ public final class Driver implements java.sql.Driver {
         } // end of catch
     } // end of <cinit>
 
-    // --- Properties ---
-
-    /**
-     * Handler to be used on next connection.
-     */
-    private ConnectionHandler handler = null;
-
     // --- Driver impl ---
 
     /**
      * {@inheritDoc}
-     * @throws IllegalStateException if no handler is set for connection
+     * @throws IllegalArgumentException if |info| doesn't contain handler
+     * (ConnectionHandler) for property "connection.handler".
      */
     public Connection connect(final String url, final Properties info) 
         throws SQLException {
@@ -57,11 +51,22 @@ public final class Driver implements java.sql.Driver {
             return null;
         } // end of if
 
-        if (this.handler == null) {
-            throw new IllegalStateException("No connection handler");
+        if (info == null || !info.containsKey("connection.handler")) {
+            throw new IllegalArgumentException("Invalid properties");
         } // end of if
 
-        return new acolyte.Connection(url, info, this.handler);
+        // ---
+
+        try {
+            return new acolyte.
+                Connection(url, info, 
+                           (ConnectionHandler) info.get("connection.handler"));
+
+        } catch (ClassCastException e) {
+            throw new IllegalArgumentException("Invalid handler: " + 
+                                               e.getMessage());
+
+        } // end of catch
     } // end of connect
 
     /**
@@ -109,12 +114,22 @@ public final class Driver implements java.sql.Driver {
         throw new SQLFeatureNotSupportedException();
     } // end of getParentLogger
 
-    // --- Handler support ---
+    // ---
 
     /**
-     * TODO: Will allow to handle queries/returns results by handle.
+     * Properties with handler
      */
-    public void setHandler(final ConnectionHandler handler) {
-        this.handler = handler;
-    } // end of setHandler
+    public static Properties properties(final ConnectionHandler handler) {
+        if (handler == null) {
+            throw new IllegalArgumentException();
+        } // end of if
+
+        // ---
+
+        final Properties props = new Properties();
+
+        props.put("connection.handler", handler);
+
+        return props;
+    } // end of properties
 } // end of class Driver

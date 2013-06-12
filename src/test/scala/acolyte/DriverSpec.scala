@@ -54,10 +54,30 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
 
     }
 
+    "not open connection without properties" in {
+      driver.connect(jdbcUrl, null).
+        aka("connect") must throwA[IllegalArgumentException](
+          message = "Invalid properties")
+
+    }
+
     "not open connection without handler" in {
       directConnect(jdbcUrl).
-        aka("connection") must throwA[java.lang.IllegalStateException](
-          message = "No connection handler")
+        aka("connection") must throwA[IllegalArgumentException](
+          message = "Invalid properties")
+
+    }
+
+    "not open connection with invalid handler" in {
+      lazy val props = {
+        val p = new java.util.Properties()
+        p.put("connection.handler", "test")
+        p
+      }
+
+      driver.connect(jdbcUrl, props).
+        aka("connection") must throwA[IllegalArgumentException](
+          message = "Invalid handler: ")
 
     }
 
@@ -66,6 +86,22 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
         url = jdbcUrl,
         props = null,
         handler = defaultHandler) aka "connection" must not beNull
+    }
+  }
+
+  "Properties factory" should {
+    "refuse null handler" in {
+      acolyte.Driver.properties(null).
+        aka("factory") must throwA[IllegalArgumentException]
+
+    }
+
+    "create expected instance" in {
+      lazy val props = acolyte.Driver.properties(defaultHandler)
+
+      (props.size aka "size" mustEqual 1).
+        and(props.get("connection.handler").
+          aka("handler") mustEqual defaultHandler)
     }
   }
 }
@@ -112,13 +148,15 @@ sealed trait DriverUtils {
     val properties = new JProps()
     val d = driver
 
-    d.setHandler(handler)
+    if (handler != null) {
+      properties.put("connection.handler", handler)
+    }
 
     d.connect(url, Option(props) match {
       case Some(map) ⇒
         properties.putAll(JavaConversions mapAsJavaMap props)
         properties
-      case _ ⇒ null
+      case _ ⇒ properties
     })
   }
 }
