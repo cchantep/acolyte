@@ -3,12 +3,9 @@ package acolyte
 import org.specs2.mutable.Specification
 
 import acolyte.AbstractStatement.NO_PARAMS
-import acolyte.ParameterMetaData.Parameter
 import acolyte.RuleStatementHandler.{ QueryHandler, UpdateHandler }
 
-import scala.language.implicitConversions
-
-import StatementDSL._
+import acolyte.Acolyte._
 
 object RuleStatementHandlerSpec extends Specification {
   "Rule-based statement handler" title
@@ -73,42 +70,4 @@ object RuleStatementHandlerSpec extends Specification {
 
     }
   }
-}
-
-object StatementDSL {
-  import java.util.{ ArrayList, List ⇒ JList }
-  import org.apache.commons.lang3.tuple.{ ImmutablePair ⇒ JTupple }
-  import scala.collection.JavaConversions
-
-  def handleStatement = new RuleStatementHandler()
-
-  case class Execution(
-    sql: String,
-    parameters: List[(Parameter, AnyRef)])
-
-  final class ScalaRuleStatementHandler(
-      b: RuleStatementHandler) extends RuleStatementHandler {
-
-    def withUpdateHandler(h: Execution ⇒ Int): RuleStatementHandler = {
-      super.withUpdateHandler(new UpdateHandler {
-        def apply(sql: String, p: JList[JTupple[Parameter, Object]]): Int = {
-          val ps: List[(Parameter, AnyRef)] =
-            JavaConversions.asScalaIterable(p).
-              foldLeft(Nil: List[(Parameter, AnyRef)]) { (l, t) ⇒
-                l :+ (t.left -> t.right)
-              }
-
-          h(Execution(sql, ps))
-        }
-      })
-    }
-
-    private def getJavaParams(e: Execution): JList[JTupple[Parameter, Object]] =
-      e.parameters.foldLeft(new ArrayList[JTupple[Parameter, Object]]()) {
-        (l, t) ⇒ l.add(JTupple.of(t._1, t._2)); l
-      }
-
-  }
-
-  implicit def RuleStatementHandlerAsScala(h: RuleStatementHandler): ScalaRuleStatementHandler = new ScalaRuleStatementHandler(h)
 }
