@@ -38,6 +38,31 @@ object RowListSpec extends Specification {
     }
   }
 
+  "Object column from result set" should {
+    "not be read by index when not on a row" in {
+      rowList[Row1[String]].append(row1("str")).resultSet.
+        getObject(1) aka "getObject" must throwA[SQLException](
+          message = "Not on a row")
+
+    }
+
+    "be expected one" in {
+      lazy val rs = rowList[Row1[Long]].append(row1(123.toLong)).resultSet
+      rs.next
+
+      rs.getObject(1) aka "cell1" mustEqual 123.toLong
+    }
+
+    "not be read with invalid index" in {
+      lazy val rs = rowList[Row1[Long]].append(row1(123.toLong)).resultSet
+      rs.next
+
+      rs.getObject(2) aka "getObject" must throwA[SQLException](
+        message = "Invalid column index: 2")
+
+    }
+  }
+
   "String column from result set" should {
     "not be read by index when not on a row" in {
       rowList[Row1[String]].append(row1("str")).resultSet.

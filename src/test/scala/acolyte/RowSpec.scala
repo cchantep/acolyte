@@ -21,8 +21,8 @@ object RowSpec extends Specification {
       (row2("str", 4).tuples.
         aka("cells") mustEqual List[(Any, String)]("str" -> null, 4 -> null)).
         and(row2("str", "first", 6, "second").tuples.
-          aka("cells") mustEqual List[(Any, String)]("str" -> "first",
-            6 -> "second"))
+          aka("cells") mustEqual List[(Any, String)](
+            "str" -> "first", 6 -> "second"))
 
     }
   }
