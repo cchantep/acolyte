@@ -2,6 +2,7 @@ package acolyte;
 
 import java.util.Collections;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import java.sql.SQLException;
@@ -94,10 +95,24 @@ public class RowList<R extends Row> {
     // --- Inner classes ---
 
     /**
+     * Column from a row.
+     */
+    public static final class Column<A> {
+        public final A value;
+
+        public Column(final A v) {
+            this.value = v;
+        } // end of <init>
+    } // end of class Column
+
+    /**
      * Result set made from list of row.
+     *
+     * @param R Row
      */
     private final class RowResultSet<R> extends AbstractResultSet {
-        final List<R> rows;
+        final Iterator<R> rows;
+        private Column<? extends Object> last;
 
         // --- Constructors ---
 
@@ -110,7 +125,8 @@ public class RowList<R extends Row> {
                 throw new IllegalArgumentException();
             } // end of if
 
-            this.rows = rows;
+            this.rows = rows.iterator();
+            this.last = null;
             super.fetchSize = rows.size();
         } // end of <init>
 
@@ -127,7 +143,30 @@ public class RowList<R extends Row> {
          * {@inheritDoc}
          */
         public int getFetchSize() throws SQLException {
+            checkClosed();
+
             return this.fetchSize;
         } // end of getFetchSize
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean wasNull() throws SQLException {
+            checkClosed();
+
+            return (this.last != null && this.last.value == null);
+        } // end of wasNull
+
+        /**
+         * {@inheritDoc}
+         */
+        public String getString(final int columnIndex) throws SQLException {
+            if (!isOn()) {
+                throw new SQLException("Not on a row");
+            } // end of if
+
+            throw new RuntimeException("Not implemented");
+        } // end of getString
+
     } // end of class RowResultSet
 } // end of class RowList

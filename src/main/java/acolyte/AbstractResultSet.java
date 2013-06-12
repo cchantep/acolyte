@@ -100,7 +100,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
      * {@inheritDoc}
      */
     public void close() throws SQLException {
-        // Nothing to do
+        this.closed = true;
     } // end of close
 
     /**
@@ -115,56 +115,56 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
      */
     public String getString(final int columnIndex) throws SQLException {
         throw new RuntimeException("Not implemented");
-    } // end of 
+    } // end of getString
 
     /**
      * {@inheritDoc}
      */
     public boolean getBoolean(final int columnIndex) throws SQLException {
         throw new RuntimeException("Not implemented");
-    } // end of 
+    } // end of getBoolean
 
     /**
      * {@inheritDoc}
      */
     public byte getByte(final int columnIndex) throws SQLException {
         throw new RuntimeException("Not implemented");
-    } // end of 
+    } // end of getByte
 
     /**
      * {@inheritDoc}
      */
     public short getShort(final int columnIndex) throws SQLException {
         throw new RuntimeException("Not implemented");
-    } // end of 
+    } // end of getShort
 
     /**
      * {@inheritDoc}
      */
     public int getInt(final int columnIndex) throws SQLException {
         throw new RuntimeException("Not implemented");
-    } // end of 
+    } // end of getInt
 
     /**
      * {@inheritDoc}
      */
     public long getLong(final int columnIndex) throws SQLException {
         throw new RuntimeException("Not implemented");
-    } // end of 
+    } // end of getLong
 
     /**
      * {@inheritDoc}
      */
     public float getFloat(final int columnIndex) throws SQLException {
         throw new RuntimeException("Not implemented");
-    } // end of 
+    } // end of getFloat
 
     /**
      * {@inheritDoc}
      */
     public double getDouble(final int columnIndex) throws SQLException {
         throw new RuntimeException("Not implemented");
-    } // end of 
+    } // end of getDouble
 
     /**
      * {@inheritDoc}
@@ -180,28 +180,28 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
      */
     public byte[] getBytes(final int columnIndex) throws SQLException {
         throw new RuntimeException("Not implemented");
-    } // end of 
+    } // end of getBytes
 
     /**
      * {@inheritDoc}
      */
     public Date getDate(final int columnIndex) throws SQLException {
         throw new RuntimeException("Not implemented");
-    } // end of 
+    } // end of getDate
 
     /**
      * {@inheritDoc}
      */
     public Time getTime(final int columnIndex) throws SQLException {
         throw new RuntimeException("Not implemented");
-    } // end of 
+    } // end of getTime
 
     /**
      * {@inheritDoc}
      */
     public Timestamp getTimestamp(final int columnIndex) throws SQLException {
         throw new RuntimeException("Not implemented");
-    } // end of 
+    } // end of getTimestamp
 
     /**
      * {@inheritDoc}
@@ -427,6 +427,13 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     public boolean isBeforeFirst() throws SQLException {
         return (this.row < 1);
     } // end of isBeforeFirst
+
+    /**
+     * Returns true if at/after start and at/before end.
+     */
+    public boolean isOn() throws SQLException {
+        return (!isBeforeFirst() && !isAfterLast());
+    } // end of isOn
 
     /**
      * {@inheritDoc}
@@ -1686,4 +1693,15 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
 
         return proxy;
     } // end of unwrap
+
+    // ---
+
+    /**
+     * Throws a SQLException("Result set is closed") if connection is closed.
+     */
+    protected void checkClosed() throws SQLException {
+        if (this.closed) {
+            throw new SQLException("Result set is closed");
+        } // end of if
+    } // end of checkClosed
 } // end of class AbstractResultSet

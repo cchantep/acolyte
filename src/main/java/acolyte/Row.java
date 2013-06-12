@@ -7,7 +7,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
  * Row marker interface
  */
 public interface Row { 
-
     /**
      * Row with 1 cell.
      */

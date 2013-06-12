@@ -232,7 +232,9 @@ object AbstractResultSetSpec extends Specification {
         lazy val rs = defaultSet
         rs.setFetchSize(1)
 
-        (rs.first aka "first" must beTrue) and (rs.getRow aka "row" mustEqual 1)
+        (rs.first aka "first" must beTrue).
+          and(rs.getRow aka "row" mustEqual 1).
+          and(rs.isOn aka "on" must beTrue)
       }
 
       "with failure when backward" in {
@@ -462,6 +464,17 @@ object AbstractResultSetSpec extends Specification {
         and(rs.moveToCurrentRow().
           aka("move-to-current") must throwA[UnsupportedOperationException])
 
+    }
+  }
+
+  "Closed set" should {
+    "be marked" in {
+      lazy val s = defaultSet
+      s.close()
+
+      (s.isClosed aka "closed" must beTrue).
+        and(s.checkClosed aka "check" must throwA[SQLException](
+          message = "Result set is closed"))
     }
   }
 

@@ -1,5 +1,7 @@
 package acolyte
 
+import java.sql.SQLException
+
 import org.specs2.mutable.Specification
 
 import acolyte.Row._
@@ -32,6 +34,15 @@ object RowListSpec extends Specification {
     "be 2" in {
       (rowList[Row1[String]].append(row1("a")).append(row1("b")).
         resultSet.getFetchSize aka "size" mustEqual 2)
+
+    }
+  }
+
+  "String column from result set" should {
+    "not be read by index when not on a row" in {
+      rowList[Row1[String]].append(row1("str")).resultSet.
+        getString(1) aka "getString" must throwA[SQLException](
+          message = "Not on a row")
 
     }
   }
