@@ -43,5 +43,10 @@ object Acolyte {
 
   implicit def RuleStatementHandlerAsScala(h: RuleStatementHandler): ScalaRuleStatementHandler = new ScalaRuleStatementHandler(h)
 
-  def rowList(rows: Row*) = new RowList(JavaConversions seqAsJavaList rows)
+  def rowList[R <: Row]: RowList[R] = new RowList[R]
+
+  def row1[A](c1: A): Row.Row1[A] = RowList.row1(c1)
+  def row2[A, B](c1: A, c2: B): Row.Row2[A, B] = RowList.row2(c1, c2)
+  def row2[A, B, C](c1: A, c2: B, c3: C): Row.Row3[A, B, C] =
+    RowList.row3(c1, c2, c3)
 }
