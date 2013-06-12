@@ -8,6 +8,8 @@ scalaVersion := "2.10.0"
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
 
+scalacOptions += "-feature"
+
 resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
 
 libraryDependencies += "org.apache.commons" % "commons-lang3" % "3.1"
