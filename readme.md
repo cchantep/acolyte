@@ -25,11 +25,15 @@ Acolyte driver behaves as any other JDBC driver, that's to say you can get a con
 JDBC URL should match `"jdbc:acolyte:anything-you-want"`.
 
 ```java
-// Prepare handler
+import java.sql.DriverManager;
+import java.sql.Connection;
+
 import acolyte.RuleStatementHandler;
+import acolyte.ConnectionHandler;
 import acolyte.StatementHandler;
 
-StatementHandler handler = new RuleStatementHandler().
+// Prepare handler
+StatementHandler stmtHandler = new RuleStatementHandler().
   withQueryDetection("^SELECT "). // regex test from beginning
   withQueryDetection("EXEC that_proc"). // second detection regex
   withUpdateHandler(new UpdateHandler() {
@@ -38,6 +42,9 @@ StatementHandler handler = new RuleStatementHandler().
       return count;
     }
   });
+
+Connection con = DriverManager.getConnection("jdbc:acolyte:anything-you-want",
+  acolyte.Driver.properties(new ConnectionHandler.Default(stmtHandler));
 ```
 
 ## Build
