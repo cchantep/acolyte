@@ -2,7 +2,9 @@ package acolyte;
 
 import java.util.Collections;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -18,9 +20,27 @@ public interface Row {
      * Returns information for cell(s) of row.
      * Each cell is decribed with a value (left) and an optional value (right).
      */
-    public List<ImmutablePair<Object,String>> cells();
+    public List<Object> cells();
+
+    /**
+     * Get cell matching given column |label|.
+     *
+     * @return null if |label| doesn't match any column
+     */
+    public Column<Object> cell(String label);
     
     // ---
+
+    /**
+     * Column from a row.
+     */
+    public static final class Column<A> {
+        public final A value;
+
+        public Column(final A v) {
+            this.value = v;
+        } // end of <init>
+    } // end of class Column
 
     /**
      * Row with 1 cell.
@@ -28,7 +48,7 @@ public interface Row {
     public static final class Row1<A> implements Row {
         public final A _1;
         public final String _1name;
-        public final List<ImmutablePair<Object,String>> cells;
+        public final List<Object> cells;
 
         // --- Constructors ---
 
@@ -41,10 +61,9 @@ public interface Row {
             this._1 = c1;
             this._1name = n1;
 
-            final ArrayList<ImmutablePair<Object,String>> cs = 
-                new ArrayList<ImmutablePair<Object,String>>();
+            final ArrayList<Object> cs = new ArrayList<Object>(1);
 
-            cs.add(ImmutablePair.of((Object)this._1, this._1name));
+            cs.add(this._1);
 
             this.cells = Collections.unmodifiableList(cs);
         } // end of <init>
@@ -54,9 +73,20 @@ public interface Row {
         /**
          * {@inheritDoc}
          */
-        public List<ImmutablePair<Object,String>> cells() {
+        public List<Object> cells() {
             return this.cells;
         } // end of cells
+
+        /**
+         * {@inheritDoc}
+         */
+        public Column<Object> cell(final String label) {
+            if (label != null && label.equals(this._1name)) {
+                return new Column<Object>(this._1);
+            } // end of if
+
+            return null;
+        } // end of cell
 
         // --- Object support ---
 
@@ -109,7 +139,8 @@ public interface Row {
         public final String _1name;
         public final String _2name;
 
-        public final List<ImmutablePair<Object,String>> cells;
+        public final List<Object> cells;
+        public final Map<String,Object> named;
 
         // --- Constructors ---
 
@@ -125,11 +156,22 @@ public interface Row {
             this._1name = n1;
             this._2name = n2;
 
-            final ArrayList<ImmutablePair<Object,String>> cs = 
-                new ArrayList<ImmutablePair<Object,String>>();
+            final ArrayList<Object> cs = new ArrayList<Object>();
 
-            cs.add(ImmutablePair.of((Object)this._1, this._1name));
-            cs.add(ImmutablePair.of((Object)this._2, this._2name));
+            cs.add(this._1);
+            cs.add(this._2);
+
+            final HashMap<String,Object> map = new HashMap<String,Object>();
+
+            if (this._1name != null) {
+                map.put(this._1name, this._1);
+            } // end of if
+
+            if (this._2name != null) {
+                map.put(this._2name, this._2);
+            } // end of if
+
+            this.named = Collections.unmodifiableMap(map);
 
             this.cells = Collections.unmodifiableList(cs);
         } // end of <init>
@@ -146,9 +188,20 @@ public interface Row {
         /**
          * {@inheritDoc}
          */
-        public List<ImmutablePair<Object,String>> cells() {
+        public List<Object> cells() {
             return this.cells;
         } // end of cells
+
+        /**
+         * {@inheritDoc}
+         */
+        public Column<Object> cell(final String label) {
+            if (!this.named.containsKey(label)) {
+                return null;
+            } // end of if
+
+            return new Column<Object>(this.named.get(label));
+        } // end of cell
 
         /**
          * Sets value for cell #1.
@@ -225,7 +278,8 @@ public interface Row {
         public final String _2name;
         public final String _3name;
 
-        public final List<ImmutablePair<Object,String>> cells;
+        public final List<Object> cells;
+        public final Map<String,Object> named;
 
         // --- Constructors ---
 
@@ -244,13 +298,27 @@ public interface Row {
             this._2name = n2;
             this._3name = n3;
 
-            final ArrayList<ImmutablePair<Object,String>> cs = 
-                new ArrayList<ImmutablePair<Object,String>>();
+            final ArrayList<Object> cs = new ArrayList<Object>();
 
-            cs.add(ImmutablePair.of((Object)this._1, this._1name));
-            cs.add(ImmutablePair.of((Object)this._2, this._2name));
-            cs.add(ImmutablePair.of((Object)this._3, this._3name));
+            cs.add(this._1);
+            cs.add(this._2);
+            cs.add(this._3);
 
+            final HashMap<String,Object> map = new HashMap<String,Object>();
+
+            if (this._1name != null) {
+                map.put(this._1name, this._1);
+            } // end of if
+
+            if (this._2name != null) {
+                map.put(this._2name, this._2);
+            } // end of if
+
+            if (this._3name != null) {
+                map.put(this._3name, this._3);
+            } // end of if
+
+            this.named = Collections.unmodifiableMap(map);
             this.cells = Collections.unmodifiableList(cs);
         } // end of <init>
 
@@ -269,9 +337,20 @@ public interface Row {
         /**
          * {@inheritDoc}
          */
-        public List<ImmutablePair<Object,String>> cells() {
+        public List<Object> cells() {
             return this.cells;
         } // end of cells
+
+        /**
+         * {@inheritDoc}
+         */
+        public Column<Object> cell(final String label) {
+            if (!this.named.containsKey(label)) {
+                return null;
+            } // end of if
+
+            return new Column<Object>(this.named.get(label));
+        } // end of cell
 
         /**
          * Sets value for cell #1.
