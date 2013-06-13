@@ -12,12 +12,6 @@ Acolyte is a JDBC driver designed for cases like mockup, testing, or any case yo
 
 Acolyte can be used in SBT projects adding dependency `"cchantep" %% "acolyte" % "VERSION"` (coming on a repository).
 
-### Limitations
-
-- Binary datatype are not currently supported.
-- Callable statement are not (yet) implemented.
-- `ResultSet.RETURN_GENERATED_KEYS` is not supported.
-
 ### Code
 
 Acolyte driver behaves as any other JDBC driver, that's to say you can get a connection from, by using the well-known `java.sql.DriverManager.getConnection(jdbcUrl)` (and its variants).
@@ -33,10 +27,10 @@ import acolyte.ConnectionHandler;
 import acolyte.StatementHandler;
 
 // Prepare handler
-StatementHandler stmtHandler = new RuleStatementHandler().
+StatementHandler handler = new RuleStatementHandler().
   withQueryDetection("^SELECT "). // regex test from beginning
   withQueryDetection("EXEC that_proc"). // second detection regex
-  withUpdateHandler(new UpdateHandler() {
+  withUpdateHandler(new RuleStatementHandler.UpdateHandler() {
     public int apply(String sql, …) {
       // ...
       return count;
@@ -44,8 +38,14 @@ StatementHandler stmtHandler = new RuleStatementHandler().
   });
 
 Connection con = DriverManager.getConnection("jdbc:acolyte:anything-you-want",
-  acolyte.Driver.properties(new ConnectionHandler.Default(stmtHandler));
+  acolyte.Driver.properties(handler);
 ```
+
+### Limitations
+
+- Binary datatype are not currently supported.
+- Callable statement are not (yet) implemented.
+- `ResultSet.RETURN_GENERATED_KEYS` is not supported.
 
 ## Build
 

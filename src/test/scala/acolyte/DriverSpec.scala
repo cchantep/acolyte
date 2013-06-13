@@ -91,17 +91,28 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
 
   "Properties factory" should {
     "refuse null handler" in {
-      acolyte.Driver.properties(null).
-        aka("factory") must throwA[IllegalArgumentException]
+      (acolyte.Driver.properties(null.asInstanceOf[ConnectionHandler]).
+        aka("factory") must throwA[IllegalArgumentException]).
+        and(acolyte.Driver.properties(null.asInstanceOf[StatementHandler]).
+          aka("factory") must throwA[IllegalArgumentException])
 
     }
 
-    "create expected instance" in {
+    "create expected instance from connection handler" in {
       lazy val props = acolyte.Driver.properties(defaultHandler)
 
       (props.size aka "size" mustEqual 1).
         and(props.get("connection.handler").
           aka("handler") mustEqual defaultHandler)
+    }
+
+    "create expected instance from statement handler" in {
+      val h = new RuleStatementHandler()
+      lazy val props = acolyte.Driver.properties(h)
+
+      (props.size aka "size" mustEqual 1).
+        and(props.get("connection.handler").asInstanceOf[ConnectionHandler].
+          getStatementHandler aka "handler" mustEqual h)
     }
   }
 }

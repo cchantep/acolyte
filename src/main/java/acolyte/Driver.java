@@ -132,4 +132,15 @@ public final class Driver implements java.sql.Driver {
 
         return props;
     } // end of properties
+
+    /**
+     * Properties with handler
+     */
+    public static Properties properties(final StatementHandler handler) {
+        if (handler == null) {
+            throw new IllegalArgumentException();
+        } // end of if
+
+        return properties(new ConnectionHandler.Default(handler));
+    } // end of properties
 } // end of class Driver
