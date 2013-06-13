@@ -3,7 +3,9 @@ package acolyte;
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import java.math.BigDecimal;
 
@@ -30,26 +32,38 @@ public class RowList<R extends Row> {
      */
     private final List<R> rows;
 
-    // --- Constructors ---
-
     /**
-     * No-arg constructor.
+     * Column names
      */
-    public RowList() {
-        this(new ArrayList<R>());
-    } // end of <init>
+    private final Map<String,Integer> colNames;
+
+    // --- Constructors ---
 
     /**
      * Bulk constructor.
      *
      * @throws IllegalArgumentException if rows is null
      */
-    protected RowList(final List<R> rows) {
+    protected RowList(final List<R> rows,
+                      final Map<String,Integer> colNames) {
+
         if (rows == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Invalid rows");
+        } // end of if
+
+        if (colNames == null) {
+            throw new IllegalArgumentException("Invalid names");
         } // end of if
 
         this.rows = Collections.unmodifiableList(rows);
+        this.colNames = Collections.unmodifiableMap(colNames);
+    } // end of <init>
+
+    /**
+     * No-arg constructor.
+     */
+    public RowList() {
+        this(new ArrayList<R>(), new HashMap<String,Integer>());
     } // end of <init>
 
     // ---
@@ -64,8 +78,29 @@ public class RowList<R extends Row> {
 
         copy.add(row);
 
-        return new RowList<R>(copy);
+        return new RowList<R>(copy, this.colNames);
     } // end of append
+
+    /**
+     * Returns copy of row list with updated column names.
+     *
+     * @param columnIndex Index of column (first index is 1)
+     * @param label Column name/label
+     */
+    public RowList<R> withLabel(final int columnIndex, final String label) {
+        if (label == null) {
+            throw new IllegalArgumentException("Invalid label");
+        } // end of if
+
+        // ---
+
+        final HashMap<String,Integer> cols = 
+            new HashMap<String,Integer>(this.colNames);
+
+        cols.put(label, (Integer) columnIndex);
+
+        return new RowList<R>(this.rows, cols);
+    } // end of withLabel
 
     /**
      * Returns result set from these rows.
@@ -80,35 +115,14 @@ public class RowList<R extends Row> {
      * Creates a row with 1 unnamed cell.
      */
     public static <A> Row.Row1<A> row1(final A c1) {
-        return new Row.Row1<A>(c1, null);
-    } // end of row1
-
-    /**
-     * Creates a row with 1 named cell.
-     *
-     * @param n1 Name of cell (or null)
-     */
-    public static <A> Row.Row1<A> row1(final A c1, final String n1) {
-        return new Row.Row1<A>(c1, n1);
+        return new Row.Row1<A>(c1);
     } // end of row1
 
     /**
      * Creates a row with 2 unnamed cells.
      */
     public static <A,B> Row.Row2<A,B> row2(final A c1, final B c2) {
-        return new Row.Row2<A,B>(c1, null, c2, null);
-    } // end of row2
-
-    /**
-     * Creates a row with 2 named cells.
-     *
-     * @param n1 Name of cell #1
-     * @param n2 Name of cell #2
-     */
-    public static <A,B> Row.Row2<A,B> row2(final A c1, final String n1,
-                                           final B c2, final String n2) {
-
-        return new Row.Row2<A,B>(c1, n1, c2, n2);
+        return new Row.Row2<A,B>(c1, c2);
     } // end of row2
 
     /**
@@ -118,21 +132,7 @@ public class RowList<R extends Row> {
                                                final B c2, 
                                                final C c3) {
 
-        return new Row.Row3<A,B,C>(c1, null, c2, null, c3, null);
-    } // end of row3
-
-    /**
-     * Creates a row with 3 named cells.
-     *
-     * @param n1 Name of cell #1
-     * @param n2 Name of cell #2
-     * @param n3 Name of cell #3
-     */
-    public static <A,B,C> Row.Row3<A,B,C> row3(final A c1, final String n1,
-                                               final B c2, final String n2,
-                                               final C c3, final String n3) {
-
-        return new Row.Row3<A,B,C>(c1, n1, c2, n2, c3, n3);
+        return new Row.Row3<A,B,C>(c1, c2, c3);
     } // end of row3
 
     // --- Inner classes ---
@@ -225,23 +225,27 @@ public class RowList<R extends Row> {
                 throw new SQLException("Not on a row");
             } // end of if
 
-            if (columnLabel == null) {
+            if (columnLabel == null || !colNames.containsKey(columnLabel)) {
                 throw new SQLException("Invalid label: " + columnLabel);
             } // end of if
 
             // ---
 
-            final Column<?> col = this.rows.get(this.row-1).cell(columnLabel);
+            final int columnIndex = colNames.get(columnLabel);
+            final int idx = columnIndex - 1;
+            final List<Object> cells = this.rows.get(this.row-1).cells();
 
-            if (col == null) {
-                throw new SQLException("Invalid label: " + columnLabel);
+            if (idx < 0 || idx >= cells.size()) {
+                throw new SQLException("Invalid column index: " + columnIndex);
             } // end of if
 
             // ---
 
-            this.last = col;
+            final Object val = cells.get(idx);
+
+            this.last = new Column<Object>(val);
             
-            return col.value;
+            return val;
         } // end of getObject            
 
         /**

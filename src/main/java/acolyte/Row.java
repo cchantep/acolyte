@@ -21,13 +21,6 @@ public interface Row {
      * Each cell is decribed with a value (left) and an optional value (right).
      */
     public List<Object> cells();
-
-    /**
-     * Get cell matching given column |label|.
-     *
-     * @return null if |label| doesn't match any column
-     */
-    public Column<Object> cell(String label);
     
     // ---
 
@@ -47,7 +40,6 @@ public interface Row {
      */
     public static final class Row1<A> implements Row {
         public final A _1;
-        public final String _1name;
         public final List<Object> cells;
 
         // --- Constructors ---
@@ -57,9 +49,8 @@ public interface Row {
          *
          * @param c1 Value for cell #1
          */
-        protected Row1(final A c1, final String n1) {
+        protected Row1(final A c1) {
             this._1 = c1;
-            this._1name = n1;
 
             final ArrayList<Object> cs = new ArrayList<Object>(1);
 
@@ -77,17 +68,6 @@ public interface Row {
             return this.cells;
         } // end of cells
 
-        /**
-         * {@inheritDoc}
-         */
-        public Column<Object> cell(final String label) {
-            if (label != null && label.equals(this._1name)) {
-                return new Column<Object>(this._1);
-            } // end of if
-
-            return null;
-        } // end of cell
-
         // --- Object support ---
 
         /**
@@ -95,7 +75,7 @@ public interface Row {
          */
         public int hashCode() {
             return new HashCodeBuilder(3, 7).
-                append(this._1).append(this._1name).
+                append(this._1).
                 toHashCode();
                 
         } // end of hashCode
@@ -115,7 +95,6 @@ public interface Row {
 
             return new EqualsBuilder().
                 append(this._1, other._1).
-                append(this._1name, other._1name).
                 isEquals();
 
         } // end of equals
@@ -136,42 +115,22 @@ public interface Row {
         public final A _1;
         public final B _2;
 
-        public final String _1name;
-        public final String _2name;
-
         public final List<Object> cells;
-        public final Map<String,Object> named;
 
         // --- Constructors ---
 
         /**
          * Copy constructor.
          */
-        public Row2(final A c1, final String n1, 
-                    final B c2, final String n2) {
+        public Row2(final A c1, final B c2) {
 
             this._1 = c1;
             this._2 = c2;
-
-            this._1name = n1;
-            this._2name = n2;
 
             final ArrayList<Object> cs = new ArrayList<Object>();
 
             cs.add(this._1);
             cs.add(this._2);
-
-            final HashMap<String,Object> map = new HashMap<String,Object>();
-
-            if (this._1name != null) {
-                map.put(this._1name, this._1);
-            } // end of if
-
-            if (this._2name != null) {
-                map.put(this._2name, this._2);
-            } // end of if
-
-            this.named = Collections.unmodifiableMap(map);
 
             this.cells = Collections.unmodifiableList(cs);
         } // end of <init>
@@ -180,7 +139,7 @@ public interface Row {
          * No arg constructor, with null cells.
          */
         public Row2() {
-            this(null, null, null, null);
+            this(null, null);
         } // end of <init>
 
         // --- 
@@ -193,34 +152,21 @@ public interface Row {
         } // end of cells
 
         /**
-         * {@inheritDoc}
-         */
-        public Column<Object> cell(final String label) {
-            if (!this.named.containsKey(label)) {
-                return null;
-            } // end of if
-
-            return new Column<Object>(this.named.get(label));
-        } // end of cell
-
-        /**
          * Sets value for cell #1.
          *
-         * @param name Cell name (or null)
          * @return Updated row
          */
-        public Row2<A,B> set1(final A value, final String name) {
-            return new Row2<A,B>(value, name, this._2, this._2name);
+        public Row2<A,B> set1(final A value) {
+            return new Row2<A,B>(value, this._2);
         } // end of set1
 
         /**
          * Sets value for cell #2.
          *
-         * @param name Cell name (or null)
          * @return Updated row
          */
-        public Row2<A,B> set2(final B value, final String name) {
-            return new Row2<A,B>(this._1, this._1name, value, name);
+        public Row2<A,B> set2(final B value) {
+            return new Row2<A,B>(this._1, value);
         } // end of set1
 
         // --- Object support ---
@@ -230,8 +176,8 @@ public interface Row {
          */
         public int hashCode() {
             return new HashCodeBuilder(1, 3).
-                append(this._1).append(this._1name).
-                append(this._2).append(this._2name).
+                append(this._1).
+                append(this._2).
                 toHashCode();
 
         } // end of hashCode
@@ -251,9 +197,7 @@ public interface Row {
             
             return new EqualsBuilder().
                 append(this._1, other._1).
-                append(this._1name, other._1name).
                 append(this._2, other._2).
-                append(this._2name, other._2name).
                 isEquals();
 
         } // end of equals
@@ -274,29 +218,18 @@ public interface Row {
         public final B _2;
         public final C _3;
 
-        public final String _1name;
-        public final String _2name;
-        public final String _3name;
-
         public final List<Object> cells;
-        public final Map<String,Object> named;
 
         // --- Constructors ---
 
         /**
          * Copy constructor.
          */
-        public Row3(final A c1, final String n1,
-                    final B c2, final String n2,
-                    final C c3, final String n3) {
+        public Row3(final A c1, final B c2, final C c3) {
 
             this._1 = c1;
             this._2 = c2;
             this._3 = c3;
-
-            this._1name = n1;
-            this._2name = n2;
-            this._3name = n3;
 
             final ArrayList<Object> cs = new ArrayList<Object>();
 
@@ -304,21 +237,6 @@ public interface Row {
             cs.add(this._2);
             cs.add(this._3);
 
-            final HashMap<String,Object> map = new HashMap<String,Object>();
-
-            if (this._1name != null) {
-                map.put(this._1name, this._1);
-            } // end of if
-
-            if (this._2name != null) {
-                map.put(this._2name, this._2);
-            } // end of if
-
-            if (this._3name != null) {
-                map.put(this._3name, this._3);
-            } // end of if
-
-            this.named = Collections.unmodifiableMap(map);
             this.cells = Collections.unmodifiableList(cs);
         } // end of <init>
 
@@ -326,10 +244,7 @@ public interface Row {
          * No arg constructor, with null cells.
          */
         public Row3() {
-            this(null, null,
-                 null, null,
-                 null, null);
-
+            this(null, null, null);
         } // end of <init>
 
         // --- 
@@ -342,51 +257,30 @@ public interface Row {
         } // end of cells
 
         /**
-         * {@inheritDoc}
-         */
-        public Column<Object> cell(final String label) {
-            if (!this.named.containsKey(label)) {
-                return null;
-            } // end of if
-
-            return new Column<Object>(this.named.get(label));
-        } // end of cell
-
-        /**
          * Sets value for cell #1.
          *
-         * @param name Cell name (or null)
          * @return Updated row
          */
-        public Row3<A,B,C> set1(final A value, final String name) {
-            return new Row3<A,B,C>(value, name, 
-                                   this._2, this._2name,
-                                   this._3, this._3name);
+        public Row3<A,B,C> set1(final A value) {
+            return new Row3<A,B,C>(value, this._2, this._3);
         } // end of set1
 
         /**
          * Sets value for cell #2.
          *
-         * @param name Cell name (or null)
          * @return Updated row
          */
-        public Row3<A,B,C> set2(final B value, final String name) {
-            return new Row3<A,B,C>(this._1, this._1name, 
-                                   value, name,
-                                   this._3, this._3name);
+        public Row3<A,B,C> set2(final B value) {
+            return new Row3<A,B,C>(this._1, value, this._3);
         } // end of set1
 
         /**
          * Sets value for cell #3.
          *
-         * @param name Cell name (or null)
          * @return Updated row
          */
-        public Row3<A,B,C> set3(final C value, final String name) {
-            return new Row3<A,B,C>(this._1, this._1name,
-                                   this._2, this._2name,
-                                   value, name);
-
+        public Row3<A,B,C> set3(final C value) {
+            return new Row3<A,B,C>(this._1, this._2, value);
         } // end of set3
 
         // --- Object support ---
@@ -396,9 +290,9 @@ public interface Row {
          */
         public int hashCode() {
             return new HashCodeBuilder(3, 1).
-                append(this._1).append(this._1name).
-                append(this._2).append(this._2name).
-                append(this._3).append(this._3name).
+                append(this._1).
+                append(this._2).
+                append(this._3).
                 toHashCode();
 
         } // end of hashCode
@@ -418,11 +312,8 @@ public interface Row {
             
             return new EqualsBuilder().
                 append(this._1, other._1).
-                append(this._1name, other._1name).
                 append(this._2, other._2).
-                append(this._2name, other._2name).
                 append(this._3, other._3).
-                append(this._3name, other._3name).
                 isEquals();
 
         } // end of equals
@@ -431,7 +322,9 @@ public interface Row {
          * {@inheritDoc}
          */
         public String toString() {
-            return String.format("Row3(%s, %s, %s)", this._1, this._2, this._3);
+            return String.format("Row3(%s, %s, %s)", 
+                                 this._1, this._2, this._3);
+
         } // end of toString
     } // end of class Row3
 } // end of interface Row
