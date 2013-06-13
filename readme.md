@@ -36,6 +36,19 @@ StatementHandler handler = new RuleStatementHandler().
       // ...
       return count;
     }
+  }).withQueryHandler(new QueryHandler () {
+    public ResultSet apply(String sql, ...) {
+      // ...
+
+      // Prepare list of 2 rows
+      // with 3 columns of types String, Float, Date
+      RowList<Row3<String, Float, Date>> rows = 
+        new RowList<Row3<String, Float, Date>>().
+        append(rows3("str", 1.2f, d1)).
+        append(rows3("val", 2.34f, d2));
+
+      return rows.resultSet();
+    }
   });
 
 Connection con = DriverManager.getConnection("jdbc:acolyte:anything-you-want",
