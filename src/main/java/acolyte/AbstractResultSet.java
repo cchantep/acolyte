@@ -206,16 +206,20 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public InputStream getAsciiStream(final int columnIndex) throws SQLException {
+    public InputStream getAsciiStream(final int columnIndex) 
+        throws SQLException {
+
         throw new RuntimeException("Not implemented");
-    } // end of 
+    } // end of getAsciiStream
 
     /**
      * {@inheritDoc}
      */
-    public InputStream getUnicodeStream(final int columnIndex) throws SQLException {
+    public InputStream getUnicodeStream(final int columnIndex) 
+        throws SQLException {
+
         throw new RuntimeException("Not implemented");
-    } // end of 
+    } // end of getUnicodeStream
 
     /**
      * {@inheritDoc}
@@ -234,56 +238,56 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public boolean getBoolean(final String columnName) throws SQLException {
+    public boolean getBoolean(final String columnLabel) throws SQLException {
+        throw new RuntimeException("Not implemented");
+    } // end of getBoolean
+
+    /**
+     * {@inheritDoc}
+     */
+    public byte getByte(final String columnLabel) throws SQLException {
+        throw new RuntimeException("Not implemented");
+    } // end of getByte
+
+    /**
+     * {@inheritDoc}
+     */
+    public short getShort(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of 
 
     /**
      * {@inheritDoc}
      */
-    public byte getByte(final String columnName) throws SQLException {
+    public int getInt(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of 
 
     /**
      * {@inheritDoc}
      */
-    public short getShort(final String columnName) throws SQLException {
-        throw new RuntimeException("Not implemented");
-    } // end of 
-
-    /**
-     * {@inheritDoc}
-     */
-    public int getInt(final String columnName) throws SQLException {
-        throw new RuntimeException("Not implemented");
-    } // end of 
-
-    /**
-     * {@inheritDoc}
-     */
-    public long getLong(final String columnName) throws SQLException {
+    public long getLong(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of getLong
 
     /**
      * {@inheritDoc}
      */
-    public float getFloat(final String columnName) throws SQLException {
+    public float getFloat(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of getFloat
 
     /**
      * {@inheritDoc}
      */
-    public double getDouble(final String columnName) throws SQLException {
+    public double getDouble(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of getDouble
 
     /**
      * {@inheritDoc}
      */
-    public BigDecimal getBigDecimal(final String columnName, 
+    public BigDecimal getBigDecimal(final String columnLabel, 
                                     final int scale) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of getBigDecimal

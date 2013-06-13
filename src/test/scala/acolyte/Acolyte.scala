@@ -41,9 +41,14 @@ final class ScalaRuleStatementHandler(
 
 final class ScalaResultRow(r: Row) extends Row {
   lazy val cells = r.cells
-  lazy val tuples: List[(Any, String)] =
-    JavaConversions.asScalaIterable(cells).
-      foldLeft(Nil: List[(Any, String)]) { (l, p) ⇒ l :+ (p.left -> p.right) }
+  def cell(n: String) = r.cell(n)
+
+  lazy val list: List[Any] = 
+    JavaConversions.iterableAsScalaIterable(cells).foldLeft(List[Any]()) {
+      (l, v) => l :+ v
+    }
+
+  def opt(n: String): Option[Any] = Option(cell(n)).map(_.value)
 }
 
 final class ScalaRowList[R <: Row](l: RowList[R]) extends RowList[R] {

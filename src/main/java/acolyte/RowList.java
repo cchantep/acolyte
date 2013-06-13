@@ -5,10 +5,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import java.math.BigDecimal;
+
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Date;
+import java.sql.Time;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
+import acolyte.Row.Column;
 import acolyte.Row.Row1;
 
 /**
@@ -132,17 +138,6 @@ public class RowList<R extends Row> {
     // --- Inner classes ---
 
     /**
-     * Column from a row.
-     */
-    public static final class Column<A> {
-        public final A value;
-
-        public Column(final A v) {
-            this.value = v;
-        } // end of <init>
-    } // end of class Column
-
-    /**
      * Result set made from list of row.
      *
      * @param R Row
@@ -198,13 +193,14 @@ public class RowList<R extends Row> {
          * {@inheritDoc}
          */
         public Object getObject(final int columnIndex) throws SQLException {
+            checkClosed();
+
             if (!isOn()) {
                 throw new SQLException("Not on a row");
             } // end of if
 
             final int idx = columnIndex - 1;
-            final List<ImmutablePair<Object,String>> cells = 
-                this.rows.get(this.row-1).cells();
+            final List<Object> cells = this.rows.get(this.row-1).cells();
 
             if (idx < 0 || idx >= cells.size()) {
                 throw new SQLException("Invalid column index: " + columnIndex);
@@ -212,7 +208,7 @@ public class RowList<R extends Row> {
 
             // ---
 
-            final Object val = cells.get(idx).left;
+            final Object val = cells.get(idx);
 
             this.last = new Column<Object>(val);
             
@@ -223,6 +219,8 @@ public class RowList<R extends Row> {
          * {@inheritDoc}
          */
         public Object getObject(final String columnLabel) throws SQLException {
+            checkClosed();
+
             if (!isOn()) {
                 throw new SQLException("Not on a row");
             } // end of if
@@ -233,29 +231,17 @@ public class RowList<R extends Row> {
 
             // ---
 
-            final List<ImmutablePair<Object,String>> cells = 
-                this.rows.get(this.row-1).cells();
+            final Column<?> col = this.rows.get(this.row-1).cell(columnLabel);
 
-            Object val = null;
-            boolean found = false;
-
-            for (final ImmutablePair<Object,String> c: cells) {
-                if (columnLabel.equals(c.right)) {
-                    val = c.left;
-                    found = true;
-                    break;
-                } // end of if
-            } // end of if
-
-            if (!found) {
+            if (col == null) {
                 throw new SQLException("Invalid label: " + columnLabel);
             } // end of if
 
             // ---
 
-            this.last = new Column<Object>(val);
+            this.last = col;
             
-            return val;
+            return col.value;
         } // end of getObject            
 
         /**
@@ -295,5 +281,520 @@ public class RowList<R extends Row> {
 
             return String.valueOf(val);
         } // end of getString
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean getBoolean(final int columnIndex) throws SQLException {
+            final Object val = getObject(columnIndex);
+
+            if (val == null) {
+                return false;
+            } // end of if
+
+            if (val instanceof Boolean) {
+                return (Boolean) val;
+            } // end of if
+
+            return (val.toString().charAt(0) != '0');
+        } // end of getBoolean
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean getBoolean(final String columnLabel) 
+            throws SQLException {
+
+            final Object val = getObject(columnLabel);
+
+            if (val == null) {
+                return false;
+            } // end of if
+
+            if (val instanceof Boolean) {
+                return (Boolean) val;
+            } // end of if
+
+            return (val.toString().charAt(0) != '0');
+        } // end of getBoolean
+
+        /**
+         * {@inheritDoc}
+         */
+        public byte getByte(final int columnIndex) throws SQLException {
+            final Object val = getObject(columnIndex);
+
+            if (val == null) {
+                return 0;
+            } // end of if
+
+            if (val instanceof Number) {
+                return ((Number) val).byteValue();
+            } // end of if
+
+            return -1;
+        } // end of getByte
+
+        /**
+         * {@inheritDoc}
+         */
+        public byte getByte(final String columnLabel) 
+            throws SQLException {
+
+            final Object val = getObject(columnLabel);
+
+            if (val == null) {
+                return 0;
+            } // end of if
+
+            if (val instanceof Number) {
+                return ((Number) val).byteValue();
+            } // end of if
+
+            return -1;
+        } // end of getByte
+
+        /**
+         * {@inheritDoc}
+         */
+        public short getShort(final int columnIndex) throws SQLException {
+            final Object val = getObject(columnIndex);
+
+            if (val == null) {
+                return 0;
+            } // end of if
+
+            if (val instanceof Number) {
+                return ((Number) val).shortValue();
+            } // end of if
+
+            return -1;
+        } // end of getShort
+
+        /**
+         * {@inheritDoc}
+         */
+        public short getShort(final String columnLabel) 
+            throws SQLException {
+
+            final Object val = getObject(columnLabel);
+
+            if (val == null) {
+                return 0;
+            } // end of if
+
+            if (val instanceof Number) {
+                return ((Number) val).shortValue();
+            } // end of if
+
+            return -1;
+        } // end of getShort
+
+        /**
+         * {@inheritDoc}
+         */
+        public int getInt(final int columnIndex) throws SQLException {
+            final Object val = getObject(columnIndex);
+
+            if (val == null) {
+                return 0;
+            } // end of if
+
+            if (val instanceof Number) {
+                return ((Number) val).intValue();
+            } // end of if
+
+            return -1;
+        } // end of getInt
+
+        /**
+         * {@inheritDoc}
+         */
+        public int getInt(final String columnLabel) 
+            throws SQLException {
+
+            final Object val = getObject(columnLabel);
+
+            if (val == null) {
+                return 0;
+            } // end of if
+
+            if (val instanceof Number) {
+                return ((Number) val).intValue();
+            } // end of if
+
+            return -1;
+        } // end of getInt
+
+        /**
+         * {@inheritDoc}
+         */
+        public long getLong(final int columnIndex) throws SQLException {
+            final Object val = getObject(columnIndex);
+
+            if (val == null) {
+                return 0;
+            } // end of if
+
+            if (val instanceof Number) {
+                return ((Number) val).longValue();
+            } // end of if
+
+            return -1;
+        } // end of getLong
+
+        /**
+         * {@inheritDoc}
+         */
+        public long getLong(final String columnLabel) 
+            throws SQLException {
+
+            final Object val = getObject(columnLabel);
+
+            if (val == null) {
+                return 0;
+            } // end of if
+
+            if (val instanceof Number) {
+                return ((Number) val).longValue();
+            } // end of if
+
+            return -1;
+        } // end of getLong
+
+        /**
+         * {@inheritDoc}
+         */
+        public float getFloat(final int columnIndex) throws SQLException {
+            final Object val = getObject(columnIndex);
+
+            if (val == null) {
+                return 0;
+            } // end of if
+
+            if (val instanceof Number) {
+                return ((Number) val).floatValue();
+            } // end of if
+
+            return -1;
+        } // end of getFloat
+
+        /**
+         * {@inheritDoc}
+         */
+        public float getFloat(final String columnLabel) 
+            throws SQLException {
+
+            final Object val = getObject(columnLabel);
+
+            if (val == null) {
+                return 0;
+            } // end of if
+
+            if (val instanceof Number) {
+                return ((Number) val).floatValue();
+            } // end of if
+
+            return -1;
+        } // end of getFloat
+
+        /**
+         * {@inheritDoc}
+         */
+        public double getDouble(final int columnIndex) throws SQLException {
+            final Object val = getObject(columnIndex);
+
+            if (val == null) {
+                return 0;
+            } // end of if
+
+            if (val instanceof Number) {
+                return ((Number) val).doubleValue();
+            } // end of if
+
+            return -1;
+        } // end of getDouble
+
+        /**
+         * {@inheritDoc}
+         */
+        public double getDouble(final String columnLabel) 
+            throws SQLException {
+
+            final Object val = getObject(columnLabel);
+
+            if (val == null) {
+                return 0;
+            } // end of if
+
+            if (val instanceof Number) {
+                return ((Number) val).doubleValue();
+            } // end of if
+
+            return -1;
+        } // end of getDouble
+
+        /**
+         * {@inheritDoc}
+         */
+        public BigDecimal getBigDecimal(final int columnIndex) 
+            throws SQLException {
+
+            final Object val = getObject(columnIndex);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            if (val instanceof BigDecimal) {
+                return (BigDecimal) val;
+            } // end of if
+
+            if (val instanceof Number) {
+                return new BigDecimal(val.toString());
+            } // end of if
+
+            throw new SQLException("Not a BigDecimal: " + columnIndex);
+        } // end of getBigDecimal
+
+        /**
+         * {@inheritDoc}
+         */
+        public BigDecimal getBigDecimal(final String columnLabel) 
+            throws SQLException {
+
+            final Object val = getObject(columnLabel);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            if (val instanceof BigDecimal) {
+                return (BigDecimal) val;
+            } // end of if
+
+            if (val instanceof Number) {
+                return new BigDecimal(val.toString());
+            } // end of if
+
+            throw new SQLException("Not a BigDecimal: " + columnLabel);
+        } // end of getBigDecimal
+
+        /**
+         * {@inheritDoc}
+         */
+        public BigDecimal getBigDecimal(final int columnIndex,
+                                        final int scale) 
+            throws SQLException {
+
+            final Object val = getObject(columnIndex);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            final BigDecimal bd = (val instanceof BigDecimal) 
+                ? (BigDecimal) val
+                : (val instanceof Number) 
+                ? new BigDecimal(val.toString())
+                : null;
+
+            if (bd != null) {
+                return bd.setScale(scale, BigDecimal.ROUND_DOWN);
+            } // end of if
+
+            throw new SQLException("Not a BigDecimal: " + columnIndex);
+        } // end of getBigDecimal
+
+        /**
+         * {@inheritDoc}
+         */
+        public BigDecimal getBigDecimal(final String columnLabel, 
+                                        final int scale) 
+            throws SQLException {
+
+            final Object val = getObject(columnLabel);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            final BigDecimal bd = (val instanceof BigDecimal) 
+                ? (BigDecimal) val
+                : (val instanceof Number) 
+                ? new BigDecimal(val.toString())
+                : null;
+
+            if (bd != null) {
+                return bd.setScale(scale, BigDecimal.ROUND_DOWN);
+            } // end of if
+
+            throw new SQLException("Not a BigDecimal: " + columnLabel);
+        } // end of getBigDecimal
+
+        /**
+         * {@inheritDoc}
+         */
+        public Date getDate(final int columnIndex) throws SQLException {
+            final Object val = getObject(columnIndex);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            // ---
+
+            if (val instanceof Date) {
+                return (Date) val;
+            } // end of if
+
+            if (val instanceof java.util.Date) {
+                return new Date(((java.util.Date) val).getTime());
+            } // end of if
+
+            throw new SQLException("Not a Date: " + columnIndex);
+        } // end of getDate
+
+        /**
+         * {@inheritDoc}
+         */
+        public Date getDate(final String columnLabel) throws SQLException {
+            final Object val = getObject(columnLabel);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            // ---
+
+            if (val instanceof Date) {
+                return (Date) val;
+            } // end of if
+
+            if (val instanceof java.util.Date) {
+                return new Date(((java.util.Date) val).getTime());
+            } // end of if
+
+            throw new SQLException("Not a Date: " + columnLabel);
+        } // end of getDate
+
+        /**
+         * {@inheritDoc}
+        public Date getDate(final int columnIndex, 
+                            final Calendar cal) throws SQLException {
+
+            final Object val = getObject(columnIndex);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            // ---
+
+            final Date date = (val instanceof Date) 
+                ? (Date) val
+                : new Date(((java.util.Date) val).getTime());
+
+            if (date == null) {
+                throw new SQLException("Not a Date: " + columnIndex);
+            } // end of 
+        } // end of getDate
+        */
+
+        /**
+         * {@inheritDoc}
+         */
+        public Time getTime(final int columnIndex) throws SQLException {
+            final Object val = getObject(columnIndex);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            // ---
+
+            if (val instanceof Time) {
+                return (Time) val;
+            } // end of if
+
+            if (val instanceof java.util.Date) {
+                return new Time(((java.util.Date) val).getTime());
+            } // end of if
+
+            throw new SQLException("Not a Time: " + columnIndex);
+        } // end of getTime
+
+        /**
+         * {@inheritDoc}
+         */
+        public Time getTime(final String columnLabel) throws SQLException {
+            final Object val = getObject(columnLabel);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            // ---
+
+            if (val instanceof Time) {
+                return (Time) val;
+            } // end of if
+
+            if (val instanceof java.util.Date) {
+                return new Time(((java.util.Date) val).getTime());
+            } // end of if
+
+            throw new SQLException("Not a Time: " + columnLabel);
+        } // end of getTime
+
+        /**
+         * {@inheritDoc}
+         */
+        public Timestamp getTimestamp(final int columnIndex) 
+            throws SQLException {
+
+            final Object val = getObject(columnIndex);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            // ---
+
+            if (val instanceof Timestamp) {
+                return (Timestamp) val;
+            } // end of if
+
+            if (val instanceof java.util.Date) {
+                return new Timestamp(((java.util.Date) val).getTime());
+            } // end of if
+
+            throw new SQLException("Not a Timestamp: " + columnIndex);
+        } // end of getTimestamp
+
+        /**
+         * {@inheritDoc}
+         */
+        public Timestamp getTimestamp(final String columnLabel) 
+            throws SQLException {
+
+            final Object val = getObject(columnLabel);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            // ---
+
+            if (val instanceof Timestamp) {
+                return (Timestamp) val;
+            } // end of if
+
+            if (val instanceof java.util.Date) {
+                return new Timestamp(((java.util.Date) val).getTime());
+            } // end of if
+
+            throw new SQLException("Not a Timestamp: " + columnLabel);
+        } // end of getTimestamp
     } // end of class RowResultSet
 } // end of class RowList

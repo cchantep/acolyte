@@ -1,13 +1,15 @@
 package acolyte
 
-import java.sql.SQLException
+import java.math.{ BigDecimal ⇒ JBigDec }
+
+import java.sql.{ Date, ResultSet, SQLException, Time, Timestamp }
 
 import org.specs2.mutable.Specification
 
 import acolyte.Row._
 import acolyte.Acolyte._
 
-object RowListSpec extends Specification {
+object RowListSpec extends Specification with RowListTest {
   "Row list" title
 
   "Creation" should {
@@ -132,8 +134,395 @@ object RowListSpec extends Specification {
 
       rs.next
 
-      (rs.getString(1) aka "string" must beNull).
-        and(rs.getString("n") aka "string" must beNull)
+      (rs.getString(1) aka "boolean" must beNull).
+        and(rs.getString("n") aka "boolean" must beNull)
     }
   }
+
+  "Boolean column from result set" should {
+    "not be read by index when not on a row" in {
+      (rowList[Row1[Boolean]].append(row1(true)).resultSet.
+        getBoolean(1) aka "getBoolean" must throwA[SQLException](
+          message = "Not on a row")).
+          and(rowList[Row1[Boolean]].append(row1(false, "n")).resultSet.
+            getBoolean("n") aka "getBoolean" must throwA[SQLException](
+              message = "Not on a row"))
+
+    }
+
+    "be expected one" in {
+      val rs = rowList[Row1[Boolean]].:+(row1(true, "n")).resultSet
+      rs.next
+
+      (rs.getBoolean(1) aka "boolean by index" mustEqual true).
+        and(rs.getBoolean("n") aka "boolean by name" mustEqual true)
+    }
+
+    "be null (false)" in {
+      val rs = rowList[Row1[Boolean]].
+        append(row1(null.asInstanceOf[Boolean], "n")).resultSet
+
+      rs.next
+
+      (rs.getBoolean(1) aka "boolean" must beFalse).
+        and(rs.getBoolean("n") aka "boolean" must beFalse)
+    }
+
+    "converted to false by index" >> {
+      val rs = Seq[(String, ResultSet)](
+        "char" -> (rowList[Row1[Char]] :+ row1('0')).resultSet,
+        "byte" -> (rowList[Row1[Byte]] :+ row1(0.toByte)).resultSet,
+        "short" -> (rowList[Row1[Short]] :+ row1(0.toShort)).resultSet,
+        "int" -> (rowList[Row1[Int]] :+ row1(0)).resultSet,
+        "long" -> (rowList[Row1[Long]] :+ row1(0.toLong)).resultSet)
+
+      rs.foreach(_._2.next)
+
+      rs foreach { r ⇒
+        s"from ${r._1}" in { r._2.getBoolean(1) aka "boolean" must beFalse }
+      }
+    }
+
+    "converted to true by index" >> {
+      val rs = Seq[(String, ResultSet)](
+        "char" -> (rowList[Row1[Char]] :+ row1('1')).resultSet,
+        "byte" -> (rowList[Row1[Byte]] :+ row1(2.toByte)).resultSet,
+        "short" -> (rowList[Row1[Short]] :+ row1(3.toShort)).resultSet,
+        "int" -> (rowList[Row1[Int]] :+ row1(4)).resultSet,
+        "long" -> (rowList[Row1[Long]] :+ row1(5.toLong)).resultSet)
+
+      rs.foreach(_._2.next)
+
+      rs foreach { r ⇒
+        s"from ${r._1}" in { r._2.getBoolean(1) aka "boolean" must beTrue }
+      }
+    }
+
+    "converted to false by label" >> {
+      val rs = Seq[(String, ResultSet)](
+        "char" -> (rowList[Row1[Char]] :+ row1('0', "n")).resultSet,
+        "byte" -> (rowList[Row1[Byte]] :+ row1(0.toByte, "n")).resultSet,
+        "short" -> (rowList[Row1[Short]] :+ row1(0.toShort, "n")).resultSet,
+        "int" -> (rowList[Row1[Int]] :+ row1(0, "n")).resultSet,
+        "long" -> (rowList[Row1[Long]] :+ row1(0.toLong, "n")).resultSet)
+
+      rs.foreach(_._2.next)
+
+      rs foreach { r ⇒
+        s"from ${r._1}" in { r._2.getBoolean("n") aka "boolean" must beFalse }
+      }
+    }
+
+    "converted to true by label" >> {
+      val rs = Seq[(String, ResultSet)](
+        "char" -> (rowList[Row1[Char]] :+ row1('1', "n")).resultSet,
+        "byte" -> (rowList[Row1[Byte]] :+ row1(2.toByte, "n")).resultSet,
+        "short" -> (rowList[Row1[Short]] :+ row1(3.toShort, "n")).resultSet,
+        "int" -> (rowList[Row1[Int]] :+ row1(4, "n")).resultSet,
+        "long" -> (rowList[Row1[Long]] :+ row1(5.toLong, "n")).resultSet)
+
+      rs.foreach(_._2.next)
+
+      rs foreach { r ⇒
+        s"from ${r._1}" in { r._2.getBoolean("n") aka "boolean" must beTrue }
+      }
+    }
+  }
+
+  numberGetterSpec[Byte]("Byte", 1.toByte)
+  numberGetterSpec[Short]("Short", 1.toShort)
+  numberGetterSpec[Int]("Int", 1)
+  numberGetterSpec[Long]("Long", 1.toLong)
+  numberGetterSpec[Float]("Float", 1.toFloat)
+  numberGetterSpec[Double]("Double", 1.toDouble)
+
+  "BigDecimal column from result set" should {
+    val v = new JBigDec("1")
+
+    "not be read by index when not on a row" in {
+      (rowList[Row1[JBigDec]].append(row1(v)).resultSet.
+        getBigDecimal(1) aka "get" must throwA[SQLException](
+          message = "Not on a row")).
+          and(rowList[Row1[JBigDec]].append(row1(v, "n")).resultSet.
+            getBigDecimal("n") aka "get" must throwA[SQLException](
+              message = "Not on a row"))
+
+    }
+
+    "be expected one" in {
+      val rs = rowList[Row1[JBigDec]].:+(row1(v, "n")).resultSet
+      rs.next
+
+      (rs.getBigDecimal(1) aka "big decimal by index" mustEqual v).
+        and(rs.getBigDecimal("n") aka "big decimal by name" mustEqual v)
+    }
+
+    "be scaled one" in {
+      val rs = rowList[Row1[JBigDec]].
+        append(row1(new JBigDec("1.2345"), "n")).resultSet
+
+      rs.next
+
+      (rs.getBigDecimal(1, 2).
+        aka("big decimal by index") mustEqual new JBigDec("1.23")).
+        and(rs.getBigDecimal("n", 3).
+          aka("big decimal by name") mustEqual new JBigDec("1.234"))
+    }
+
+    "be null" in {
+      val rs = (rowList[Row1[JBigDec]] :+ row1(null.asInstanceOf[JBigDec], "n")).resultSet
+      rs.next
+
+      (rs.getBigDecimal(1) aka "big decimal" must beNull).
+        and(rs.getBigDecimal(1, 1) aka "big decimal" must beNull).
+        and(rs.getBigDecimal("n") aka "big decimal" must beNull).
+        and(rs.getBigDecimal("n", 1) aka "big decimal" must beNull)
+    }
+
+    "be undefined" in {
+      val rs = rowList[Row1[String]].append(row1("str", "n")).resultSet
+      rs.next
+
+      (rs.getBigDecimal(1) aka "getBigDecimal" must throwA[SQLException](
+        message = "Not a BigDecimal: 1")).
+        and(rs.getBigDecimal(1, 1) aka "getBigDecimal" must {
+          throwA[SQLException]("Not a BigDecimal: 1")
+        }).
+        and(rs.getBigDecimal("n").aka("getBigDecimal").must {
+          throwA[SQLException]("Not a BigDecimal: n")
+        }).
+        and(rs.getBigDecimal("n", 1).aka("getBigDecimal").must {
+          throwA[SQLException]("Not a BigDecimal: n")
+        })
+
+    }
+
+    "converted by index" >> {
+      val rs = Seq[(String, ResultSet)](
+        "byte" ->
+          (rowList[Row1[Byte]] :+ row1(v.intValue.toByte)).resultSet,
+        "short" -> (rowList[Row1[Short]] :+ row1(v.intValue.toShort)).resultSet,
+        "int" -> (rowList[Row1[Int]] :+ row1(v.intValue)).resultSet,
+        "long" -> (rowList[Row1[Long]] :+ row1(v.longValue)).resultSet,
+        "float" -> (rowList[Row1[Float]] :+ row1(v.floatValue)).resultSet,
+        "double" -> (rowList[Row1[Double]] :+ row1(v.doubleValue)).resultSet)
+
+      rs.foreach(_._2.next)
+
+      rs foreach { r ⇒
+        s"from ${r._1}" in {
+          r._2.getBigDecimal(1).doubleValue.
+            aka("big decimal") mustEqual v.doubleValue
+        }
+      }
+    }
+
+    "converted by label" >> {
+      val rs = Seq[(String, ResultSet)](
+        "byte" ->
+          (rowList[Row1[Byte]] :+ row1(v.intValue.toByte, "n")).resultSet,
+        "short" ->
+          (rowList[Row1[Short]] :+ row1(v.intValue.toShort, "n")).resultSet,
+        "int" -> (rowList[Row1[Int]] :+ row1(v.intValue, "n")).resultSet,
+        "long" -> (rowList[Row1[Long]] :+ row1(v.longValue, "n")).resultSet,
+        "float" -> (rowList[Row1[Float]] :+ row1(v.floatValue, "n")).resultSet,
+        "double" ->
+          (rowList[Row1[Double]] :+ row1(v.doubleValue, "n")).resultSet)
+
+      rs.foreach(_._2.next)
+
+      rs foreach { r ⇒
+        s"from ${r._1}" in {
+          r._2.getBigDecimal("n").doubleValue.
+            aka("big decimal") mustEqual v.doubleValue
+        }
+      }
+    }
+  }
+
+  temporalGetterSpec[Date]("Date", new Date(1, 2, 3))
+  temporalGetterSpec[Time]("Time", new Time(1, 2, 3))
+  temporalGetterSpec[Timestamp]("Timestamp", new Timestamp(1, 2, 3, 5, 6, 7, 8))
+}
+
+sealed trait RowListTest { specs: Specification ⇒
+  implicit def dateByIndex(rs: ResultSet, i: Int): Date = rs.getDate(i)
+  implicit def dateByLabel(rs: ResultSet, n: String): Date = rs.getDate(n)
+  implicit def timeByIndex(rs: ResultSet, i: Int): Time = rs.getTime(i)
+  implicit def timeByLabel(rs: ResultSet, n: String): Time = rs.getTime(n)
+  implicit def timestampByIndex(rs: ResultSet, i: Int): Timestamp =
+    rs.getTimestamp(i)
+  implicit def timestampByLabel(rs: ResultSet, n: String): Timestamp =
+    rs.getTimestamp(n)
+
+  def temporalGetterSpec[D <: java.util.Date](name: String, v: D)(implicit byIndex: (ResultSet, Int) ⇒ D, byLabel: (ResultSet, String) ⇒ D) =
+    s"$name column from result set" should {
+      "not be read by index when not on a row" in {
+        (byIndex(rowList[Row1[D]].append(row1(v)).resultSet, 1).
+          aka("get") must throwA[SQLException](
+            message = "Not on a row")).
+            and(byLabel(rowList[Row1[D]].append(row1(v, "n")).resultSet, "n").
+              aka("get") must throwA[SQLException](
+                message = "Not on a row"))
+
+      }
+
+      "be expected one" in {
+        val rs = rowList[Row1[D]].:+(row1(v, "n")).resultSet
+        rs.next
+
+        (byIndex(rs, 1) aka "big decimal by index" mustEqual v).
+          and(byLabel(rs, "n") aka "big decimal by name" mustEqual v)
+      }
+
+      "be null" in {
+        val rs = (rowList[Row1[D]] :+ row1(null.asInstanceOf[D], "n")).
+          resultSet
+
+        rs.next
+
+        (byIndex(rs, 1) aka "big decimal" must beNull).
+          and(byLabel(rs, "n") aka "big decimal" must beNull)
+      }
+
+      "be undefined" in {
+        val rs = rowList[Row1[String]].append(row1("str", "n")).resultSet
+        rs.next
+
+        (byIndex(rs, 1) aka "getDate" must throwA[SQLException](
+          message = s"Not a $name: 1")).
+          and(byLabel(rs, "n").
+            aka("get") must throwA[SQLException](s"Not a $name: n"))
+
+      }
+
+      "converted by index" >> {
+        val rs = Seq[(String, ResultSet)](
+          "date" ->
+            (rowList[Row1[Date]] :+ row1(new Date(v.getTime))).resultSet,
+          "time" ->
+            (rowList[Row1[Time]] :+ row1(new Time(v.getTime))).resultSet,
+          "ts" -> (rowList[Row1[Timestamp]].
+            append(row1(new Timestamp(v.getTime)))).resultSet)
+
+        rs.foreach(_._2.next)
+
+        rs foreach { r ⇒
+          s"from ${r._1}" in {
+            byIndex(r._2, 1) aka "get" must not(throwA[SQLException])
+          }
+        }
+      }
+
+      "converted by label" >> {
+        val rs = Seq[(String, ResultSet)](
+          "date" ->
+            (rowList[Row1[Date]] :+ row1(new Date(v.getTime), "n")).resultSet,
+          "time" ->
+            (rowList[Row1[Time]] :+ row1(new Time(v.getTime), "n")).resultSet,
+          "ts" -> (rowList[Row1[Timestamp]].
+            append(row1(new Timestamp(v.getTime), "n"))).resultSet)
+
+        rs.foreach(_._2.next)
+
+        rs foreach { r ⇒
+          s"from ${r._1}" in {
+            byLabel(r._2, "n") aka "get" must not(throwA[SQLException])
+          }
+        }
+      }
+    }
+
+  // ---
+
+  implicit def byteByIndex(rs: ResultSet, i: Int): Byte = rs.getByte(i)
+  implicit def byteByLabel(rs: ResultSet, n: String): Byte = rs.getByte(n)
+  implicit def shortByIndex(rs: ResultSet, i: Int): Short = rs.getShort(i)
+  implicit def shortByLabel(rs: ResultSet, n: String): Short = rs.getShort(n)
+  implicit def intByIndex(rs: ResultSet, i: Int): Int = rs.getInt(i)
+  implicit def intByLabel(rs: ResultSet, n: String): Int = rs.getInt(n)
+  implicit def longByIndex(rs: ResultSet, i: Int): Long = rs.getLong(i)
+  implicit def longByLabel(rs: ResultSet, n: String): Long = rs.getLong(n)
+  implicit def floatByIndex(rs: ResultSet, i: Int): Float = rs.getFloat(i)
+  implicit def floatByLabel(rs: ResultSet, n: String): Float = rs.getFloat(n)
+  implicit def doubleByIndex(rs: ResultSet, i: Int): Double = rs.getDouble(i)
+  implicit def doubleByLabel(rs: ResultSet, n: String): Double = rs.getDouble(n)
+
+  def numberGetterSpec[N](name: String, v: N)(implicit num: Numeric[N], byIndex: (ResultSet, Int) ⇒ N, byLabel: (ResultSet, String) ⇒ N) =
+    s"$name column from result set" should {
+      "not be read by index when not on a row" in {
+        (byIndex(rowList[Row1[N]].append(row1(v)).resultSet, 1).
+          aka("get") must throwA[SQLException](
+            message = "Not on a row")).
+            and(byLabel(rowList[Row1[N]].append(row1(v, "n")).resultSet, "n").
+              aka("get") must throwA[SQLException](
+                message = "Not on a row"))
+
+      }
+
+      "be expected one" in {
+        val rs = rowList[Row1[N]].:+(row1(v, "n")).resultSet
+        rs.next
+
+        (byIndex(rs, 1) aka s"$name by index" mustEqual v).
+          and(byLabel(rs, "n") aka s"$name by name" mustEqual v)
+      }
+
+      "be null (0)" in {
+        val rs = (rowList[Row1[N]] :+ row1(null.asInstanceOf[N], "n")).resultSet
+        rs.next
+
+        (byIndex(rs, 1) aka s"$name" mustEqual 0).
+          and(byLabel(rs, "n") aka s"$name" mustEqual 0)
+      }
+
+      "be undefined (-1)" in {
+        val rs = rowList[Row1[String]].append(row1("str", "n")).resultSet
+        rs.next
+
+        (byIndex(rs, 1) aka s"$name" mustEqual -1).
+          and(byLabel(rs, "n") aka s"$name" mustEqual -1)
+
+      }
+
+      "converted by index" >> {
+        val rs = Seq[(String, ResultSet)](
+          "byte" -> (rowList[Row1[Byte]] :+
+            row1(num.toInt(v).toByte)).resultSet,
+          "short" ->
+            (rowList[Row1[Short]] :+ row1(num.toInt(v).toShort)).resultSet,
+          "int" -> (rowList[Row1[Int]] :+ row1(num.toInt(v))).resultSet,
+          "long" -> (rowList[Row1[Long]] :+ row1(num.toLong(v))).resultSet,
+          "float" -> (rowList[Row1[Float]] :+ row1(num.toFloat(v))).resultSet,
+          "double" ->
+            (rowList[Row1[Double]] :+ row1(num.toDouble(v))).resultSet)
+
+        rs.foreach(_._2.next)
+
+        rs foreach { r ⇒
+          s"from ${r._1}" in { byIndex(r._2, 1) aka s"$name" mustEqual 1 }
+        }
+      }
+
+      "converted by label" >> {
+        val rs = Seq[(String, ResultSet)](
+          "byte" ->
+            (rowList[Row1[Byte]] :+ row1(num.toInt(v).toByte, "n")).resultSet,
+          "short" ->
+            (rowList[Row1[Short]] :+ row1(num.toInt(v).toShort, "n")).resultSet,
+          "int" -> (rowList[Row1[Int]] :+ row1(num.toInt(v), "n")).resultSet,
+          "long" -> (rowList[Row1[Long]] :+ row1(num.toLong(v), "n")).resultSet,
+          "float" ->
+            (rowList[Row1[Float]] :+ row1(num.toFloat(v), "n")).resultSet,
+          "double" ->
+            (rowList[Row1[Double]] :+ row1(num.toDouble(v), "n")).resultSet)
+
+        rs.foreach(_._2.next)
+
+        rs foreach { r ⇒
+          s"from ${r._1}" in { byLabel(r._2, "n") aka s"$name" mustEqual 1 }
+        }
+      }
+    }
+
 }
