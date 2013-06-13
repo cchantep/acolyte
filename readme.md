@@ -31,7 +31,8 @@ StatementHandler handler = new RuleStatementHandler().
   withQueryDetection("^SELECT "). // regex test from beginning
   withQueryDetection("EXEC that_proc"). // second detection regex
   withUpdateHandler(new RuleStatementHandler.UpdateHandler() {
-    public int apply(String sql, …) {
+    // Handle execution of update statement (not query)
+    public int apply(String sql, ...) {
       // ...
       return count;
     }
