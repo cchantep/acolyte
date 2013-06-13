@@ -222,12 +222,76 @@ public class RowList<R extends Row> {
         /**
          * {@inheritDoc}
          */
+        public Object getObject(final String columnLabel) throws SQLException {
+            if (!isOn()) {
+                throw new SQLException("Not on a row");
+            } // end of if
+
+            if (columnLabel == null) {
+                throw new SQLException("Invalid label: " + columnLabel);
+            } // end of if
+
+            // ---
+
+            final List<ImmutablePair<Object,String>> cells = 
+                this.rows.get(this.row-1).cells();
+
+            Object val = null;
+            boolean found = false;
+
+            for (final ImmutablePair<Object,String> c: cells) {
+                if (columnLabel.equals(c.right)) {
+                    val = c.left;
+                    found = true;
+                    break;
+                } // end of if
+            } // end of if
+
+            if (!found) {
+                throw new SQLException("Invalid label: " + columnLabel);
+            } // end of if
+
+            // ---
+
+            this.last = new Column<Object>(val);
+            
+            return val;
+        } // end of getObject            
+
+        /**
+         * {@inheritDoc}
+         */
         public String getString(final int columnIndex) throws SQLException {
             final Object val = getObject(columnIndex);
+
+            if (val == null) {
+                return null;
+            } // end of if
 
             if (val instanceof String) {
                 return (String) val;
             } // end of if
+
+            // ---
+
+            return String.valueOf(val);
+        } // end of getString
+
+        /**
+         * {@inheritDoc}
+         */
+        public String getString(final String columnLabel) throws SQLException {
+            final Object val = getObject(columnLabel);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            if (val instanceof String) {
+                return (String) val;
+            } // end of if
+
+            // ---
 
             return String.valueOf(val);
         } // end of getString

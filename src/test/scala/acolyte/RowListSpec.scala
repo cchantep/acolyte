@@ -38,8 +38,8 @@ object RowListSpec extends Specification {
     }
   }
 
-  "Object column from result set" should {
-    "not be read by index when not on a row" in {
+  "Object column by index" should {
+    "not be read when not on a row" in {
       rowList[Row1[String]].append(row1("str")).resultSet.
         getObject(1) aka "getObject" must throwA[SQLException](
           message = "Not on a row")
@@ -47,10 +47,19 @@ object RowListSpec extends Specification {
     }
 
     "be expected one" in {
-      lazy val rs = rowList[Row1[Long]].append(row1(123.toLong)).resultSet
+      lazy val rs = (rowList[Row1[Long]] :+ row1(123.toLong)).resultSet
       rs.next
 
       rs.getObject(1) aka "cell1" mustEqual 123.toLong
+    }
+
+    "be null" in {
+      lazy val rs = rowList[Row1[Float]].
+        append(row1(null.asInstanceOf[Float], "name")).resultSet
+
+      rs.next
+
+      rs.getObject(1) aka "cell1" must beNull
     }
 
     "not be read with invalid index" in {
@@ -63,12 +72,68 @@ object RowListSpec extends Specification {
     }
   }
 
-  "String column from result set" should {
-    "not be read by index when not on a row" in {
-      rowList[Row1[String]].append(row1("str")).resultSet.
-        getString(1) aka "getString" must throwA[SQLException](
+  "Object column by name" should {
+    "not be read when not on a row" in {
+      rowList[Row1[String]].append(row1("str", "n")).resultSet.
+        getObject("n") aka "getObject" must throwA[SQLException](
           message = "Not on a row")
 
+    }
+
+    "be expected one" in {
+      lazy val rs = (rowList[Row1[Long]] :+ row1(123.toLong, "l")).resultSet
+      rs.next
+
+      rs.getObject("l") aka "cell1" mustEqual 123.toLong
+    }
+
+    "be null" in {
+      lazy val rs = rowList[Row1[Float]].
+        append(row1(null.asInstanceOf[Float], "name")).resultSet
+
+      rs.next
+
+      rs.getObject("name") aka "cell1" must beNull
+    }
+
+    "not be read with invalid name" in {
+      lazy val rs = rowList[Row1[Long]].append(row1(123.toLong)).resultSet
+      rs.next
+
+      (rs.getObject(null).
+        aka("getObject") must throwA[SQLException]("Invalid label: null")).
+        and(rs.getObject("label").
+          aka("getObject") must throwA[SQLException]("Invalid label: label"))
+    }
+  }
+
+  "String column from result set" should {
+    "not be read by index when not on a row" in {
+      (rowList[Row1[String]].append(row1("str")).resultSet.
+        getString(1) aka "getString" must throwA[SQLException](
+          message = "Not on a row")).
+          and(rowList[Row1[String]].append(row1("str", "n")).resultSet.
+            getString("n") aka "getString" must throwA[SQLException](
+              message = "Not on a row"))
+
+    }
+
+    "be expected one" in {
+      val rs = rowList[Row1[String]].:+(row1("str", "n")).resultSet
+      rs.next
+
+      (rs.getString(1) aka "string by index" mustEqual "str").
+        and(rs.getString("n") aka "string by name" mustEqual "str")
+    }
+
+    "be null" in {
+      val rs = (rowList[Row1[String]] :+ row1(null.asInstanceOf[String], "n")).
+        resultSet
+
+      rs.next
+
+      (rs.getString(1) aka "string" must beNull).
+        and(rs.getString("n") aka "string" must beNull)
     }
   }
 }

@@ -227,9 +227,9 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public String getString(final String columnName) throws SQLException {
+    public String getString(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
-    } // end of 
+    } // end of getString
 
     /**
      * {@inheritDoc}
@@ -374,7 +374,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public Object getObject(final String columnName) throws SQLException {
+    public Object getObject(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of getObject
 

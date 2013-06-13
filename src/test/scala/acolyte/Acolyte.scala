@@ -1,6 +1,8 @@
 package acolyte
 
 import java.util.{ ArrayList, List ⇒ JList }
+import java.sql.ResultSet
+
 import org.apache.commons.lang3.tuple.{ ImmutablePair ⇒ JTupple }
 
 import scala.language.implicitConversions
@@ -44,6 +46,14 @@ final class ScalaResultRow(r: Row) extends Row {
       foldLeft(Nil: List[(Any, String)]) { (l, p) ⇒ l :+ (p.left -> p.right) }
 }
 
+final class ScalaRowList[R <: Row](l: RowList[R]) extends RowList[R] {
+  override def append(row: R) = l.append(row)
+  override def resultSet = l.resultSet
+
+  // Extension
+  def :+(row: R) = append(row)
+}
+
 // Acolyte DSL
 object Acolyte {
   def handleStatement = new RuleStatementHandler()
@@ -52,6 +62,9 @@ object Acolyte {
 
   implicit def ResultRowAsScala[R <: Row](r: R): ScalaResultRow = 
     new ScalaResultRow(r)
+
+  implicit def RowListAsScala[R <: Row](l: RowList[R]): ScalaRowList[R] =
+    new ScalaRowList(l)
 
   def rowList[R <: Row]: RowList[R] = new RowList[R]
 
