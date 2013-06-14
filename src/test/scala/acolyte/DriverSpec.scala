@@ -54,34 +54,23 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
 
     }
 
-    "not open connection without properties" in {
-      driver.connect(jdbcUrl, null).
-        aka("connect") must throwA[IllegalArgumentException](
-          message = "Invalid properties")
-
-    }
-
     "not open connection without handler" in {
-      directConnect(jdbcUrl).
+      directConnect("jdbc:acolyte:test").
         aka("connection") must throwA[IllegalArgumentException](
-          message = "Invalid properties")
+          message = "Invalid handler ID: null")
 
     }
 
     "not open connection with invalid handler" in {
-      lazy val props = {
-        val p = new java.util.Properties()
-        p.put("connection.handler", "test")
-        p
-      }
-
-      driver.connect(jdbcUrl, props).
+      directConnect("jdbc:acolyte:test?handler=test").
         aka("connection") must throwA[IllegalArgumentException](
-          message = "Invalid handler: ")
+          message = "No matching handler: test")
 
     }
 
     "successfully return connection for valid information" in {
+      acolyte.Driver.register(handlerId, defaultHandler)
+
       directConnect(
         url = jdbcUrl,
         props = null,
@@ -89,36 +78,29 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
     }
   }
 
-  "Properties factory" should {
+  "Handler registry" should {
     "refuse null handler" in {
-      (acolyte.Driver.properties(null.asInstanceOf[ConnectionHandler]).
+      (acolyte.Driver.register("id", null.asInstanceOf[ConnectionHandler]).
         aka("factory") must throwA[IllegalArgumentException]).
-        and(acolyte.Driver.properties(null.asInstanceOf[StatementHandler]).
+        and(acolyte.Driver.register("id", null.asInstanceOf[StatementHandler]).
           aka("factory") must throwA[IllegalArgumentException])
 
     }
 
-    "create expected instance from connection handler" in {
-      lazy val props = acolyte.Driver.properties(defaultHandler)
-
-      (props.size aka "size" mustEqual 1).
-        and(props.get("connection.handler").
-          aka("handler") mustEqual defaultHandler)
-    }
-
-    "create expected instance from statement handler" in {
+    "manage successfully" in {
       val h = new CompositeHandler()
-      lazy val props = acolyte.Driver.properties(h)
+      acolyte.Driver.register("id", h)
 
-      (props.size aka "size" mustEqual 1).
-        and(props.get("connection.handler").asInstanceOf[ConnectionHandler].
-          getStatementHandler aka "handler" mustEqual h)
+      acolyte.Driver.unregister("id").
+        getStatementHandler aka "handler" mustEqual h
+
     }
   }
 }
 
 sealed trait DriverFixtures {
-  val jdbcUrl = "jdbc:acolyte:test"
+  lazy val handlerId = s"test-${System.identityHashCode(this)}"
+  lazy val jdbcUrl = "jdbc:acolyte:test?handler=%s" format handlerId
   val noMetaProps = Array[java.sql.DriverPropertyInfo]()
 }
 

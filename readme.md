@@ -12,11 +12,11 @@ Acolyte is a JDBC driver designed for cases like mockup, testing, or any case yo
 
 Acolyte can be used in SBT projects adding dependency `"cchantep" %% "acolyte" % "VERSION"` (coming on a repository).
 
-### Code
+### Java code
 
 Acolyte driver behaves as any other JDBC driver, that's to say you can get a connection from, by using the well-known `java.sql.DriverManager.getConnection(jdbcUrl)` (and its variants).
 
-JDBC URL should match `"jdbc:acolyte:anything-you-want"`.
+JDBC URL should match `"jdbc:acolyte:anything-you-want?handler=id"` (see after for details about `handler` parameter).
 
 ```java
 import java.sql.DriverManager;
@@ -25,6 +25,12 @@ import java.sql.Connection;
 import acolyte.CompositeHandler;
 import acolyte.ConnectionHandler;
 import acolyte.StatementHandler;
+
+// ...
+
+// Configure in anyway JDBC with following url,
+// declaring handler registered with 'my-unique-id' will be used.
+final String jdbcUrl = "jdbc:acolyte:anything-you-want?handler=my-unique-id"
 
 // Prepare handler
 StatementHandler handler = new CompositeHandler().
@@ -52,8 +58,13 @@ StatementHandler handler = new CompositeHandler().
     }
   });
 
-Connection con = DriverManager.getConnection("jdbc:acolyte:anything-you-want",
-  acolyte.Driver.properties(handler);
+// Register prepared handler with expected ID 'my-unique-id'
+acolyte.Driver.register("my-unique-id", handler);
+
+// then ...
+Connection con = DriverManager.getConnection(jdbcUrl);
+
+// ... Connection |con| is managed through |handler|
 ```
 
 ### Limitations

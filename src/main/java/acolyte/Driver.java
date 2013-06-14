@@ -1,6 +1,7 @@
 package acolyte;
 
 import java.util.Properties;
+import java.util.HashMap;
 
 import java.util.logging.Logger;
 
@@ -27,6 +28,12 @@ public final class Driver implements java.sql.Driver {
      */
     public static final int MINOR_VERSION = 1;
 
+    /**
+     * Handler registry
+     */
+    public static final HashMap<String,ConnectionHandler> handlers =
+        new HashMap<String,ConnectionHandler>();
+
     // --- Shared ---
 
     static {
@@ -51,22 +58,31 @@ public final class Driver implements java.sql.Driver {
             return null;
         } // end of if
 
-        if (info == null || !info.containsKey("connection.handler")) {
-            throw new IllegalArgumentException("Invalid properties");
+        
+        final String[] parts = url.substring(url.lastIndexOf("?")+1).split("&");
+        String h = null;
+
+        for (final String p : parts) {
+            if (p.startsWith("handler=")) {
+                h = p.substring(8);
+                break;
+            } // end of if
+        } // end of for
+
+        if (h == null || h.length() == 0) {
+            throw new IllegalArgumentException("Invalid handler ID: " + h);
+        } // end of if
+
+        final String id = h;
+        final ConnectionHandler handler = handlers.get(id);
+
+        if (handler == null) {
+            throw new IllegalArgumentException("No matching handler: " + id);
         } // end of if
 
         // ---
 
-        try {
-            return new acolyte.
-                Connection(url, info, 
-                           (ConnectionHandler) info.get("connection.handler"));
-
-        } catch (ClassCastException e) {
-            throw new IllegalArgumentException("Invalid handler: " + 
-                                               e.getMessage());
-
-        } // end of catch
+        return new acolyte.Connection(url, info, handler);
     } // end of connect
 
     /**
@@ -117,30 +133,62 @@ public final class Driver implements java.sql.Driver {
     // ---
 
     /**
-     * Properties with handler
+     * Registers a connection handler.
+     *
+     * @param id Handler unique ID
+     * @param handler Connection handler
+     * @return Handler previously registered for |id|, or null if none
+     * @throws IllegalArgumentException if |id| or |handler| is null (or empty)
+     * @see #unregister
      */
-    public static Properties properties(final ConnectionHandler handler) {
+    public static ConnectionHandler register(final String id, 
+                                             final ConnectionHandler handler) {
+
+        if (id == null || id.length() == 0) {
+            throw new IllegalArgumentException("Invalid ID: " + id);
+        } // end of if
+
         if (handler == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Invalid handler: " + handler);
         } // end of if
 
         // ---
 
-        final Properties props = new Properties();
-
-        props.put("connection.handler", handler);
-
-        return props;
-    } // end of properties
+        return handlers.put(id, handler);
+    } // end of register
 
     /**
-     * Properties with handler
+     * Registers a connection handler.
+     *
+     * @param id Handler unique ID
+     * @param handler Connection handler
+     * @return Handler previously registered for |id|, or null if none
+     * @throws IllegalArgumentException if |id| or |handler| is null (or empty)
+     * @see #register(java.lang.String,acolyte.ConnectionHandler)
+     * @see #unregister
      */
-    public static Properties properties(final StatementHandler handler) {
+    public static ConnectionHandler register(final String id, 
+                                             final StatementHandler handler) {
+
         if (handler == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Invalid handler: " + handler);
         } // end of if
 
-        return properties(new ConnectionHandler.Default(handler));
-    } // end of properties
+        return register(id, new ConnectionHandler.Default(handler));
+    } // end of register
+
+    /**
+     * Unregisters specified handler.
+     *
+     * @param id Handler ID
+     * @return Handler, or null if none
+     * @see #register
+     */
+    public static ConnectionHandler unregister(final String id) {
+        if (id == null || id.length() == 0) {
+            return null; // Not possible
+        } // end of if
+
+        return handlers.remove(id);
+    } // end of unregister
 } // end of class Driver
