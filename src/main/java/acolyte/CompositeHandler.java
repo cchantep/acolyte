@@ -63,7 +63,12 @@ public class CompositeHandler implements StatementHandler {
      * {@inheritDoc}
      */
     public ResultSet whenSQLQuery(final String sql, final List<ImmutablePair<Parameter,Object>> parameters) throws SQLException {
-        return null;
+
+        if (this.queryHandler == null) {
+            throw new SQLException("No query handler");
+        } // end of if
+
+        return this.queryHandler.apply(sql, parameters);
     } // end of whenSQLQuery
 
     /**

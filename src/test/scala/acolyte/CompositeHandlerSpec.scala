@@ -4,6 +4,7 @@ import org.specs2.mutable.Specification
 
 import acolyte.AbstractStatement.NO_PARAMS
 import acolyte.CompositeHandler.{ QueryHandler, UpdateHandler }
+import acolyte.Row.Row2
 
 import acolyte.Acolyte._
 
@@ -67,6 +68,22 @@ object CompositeHandlerSpec extends Specification {
     "not be inited" in {
       handleStatement.withQueryHandler(null.asInstanceOf[QueryHandler]).
         aka("init") must throwA[IllegalArgumentException]
+
+    }
+
+    "be successful for empty resultset" in {
+      (handleStatement withQueryHandler { e: Execution ⇒
+        AbstractResultSet.EMPTY
+      }).whenSQLQuery("SELECT *", NO_PARAMS).
+        aka("resultset") mustEqual AbstractResultSet.EMPTY
+    }
+
+    "be successful for not-empty resultset" in {
+      lazy val rs = (rowList[Row2[String, Float]] :+ row2("str", 1.23.toFloat)).
+        resultSet
+
+      (handleStatement withQueryHandler { e: Execution ⇒ rs }).
+        whenSQLQuery("SELECT *", NO_PARAMS) aka "resultset" mustEqual rs
 
     }
   }

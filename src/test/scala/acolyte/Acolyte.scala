@@ -32,6 +32,20 @@ final class ScalaCompositeHandler(
     })
   }
 
+  def withQueryHandler(h: Execution ⇒ ResultSet): CompositeHandler = {
+    super.withQueryHandler(new QueryHandler {
+      def apply(sql: String, p: JList[JTupple[Parameter, Object]]): ResultSet = {
+        val ps: List[(Parameter, AnyRef)] =
+          JavaConversions.asScalaIterable(p).
+            foldLeft(Nil: List[(Parameter, AnyRef)]) { (l, t) ⇒
+              l :+ (t.left -> t.right)
+            }
+
+        h(Execution(sql, ps))
+      }
+    })
+  }
+
   private def getJavaParams(e: Execution): JList[JTupple[Parameter, Object]] =
     e.parameters.foldLeft(new ArrayList[JTupple[Parameter, Object]]()) {
       (l, t) ⇒ l.add(JTupple.of(t._1, t._2)); l

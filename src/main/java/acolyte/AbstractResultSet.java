@@ -36,7 +36,10 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * Empty result set
      */
-    public static final AbstractResultSet EMPTY = new AbstractResultSet() { };
+    public static final AbstractResultSet EMPTY = 
+        new AbstractResultSet() { 
+            public String toString() { return "No result"; }
+        };
 
     // --- Properties ---
 
