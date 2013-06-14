@@ -3,27 +3,26 @@ package acolyte
 import java.util.{ ArrayList, List ⇒ JList }
 import java.sql.ResultSet
 
-import org.apache.commons.lang3.tuple.{ ImmutablePair ⇒ JTupple }
-
 import scala.language.implicitConversions
 import scala.collection.JavaConversions
 
-import acolyte.ParameterMetaData.Parameter
+import acolyte.ParameterMetaData.ParameterDef
+import acolyte.StatementHandler.Parameter
 import acolyte.CompositeHandler.{ QueryHandler, UpdateHandler }
 
 case class Execution(
   sql: String,
-  parameters: List[(Parameter, AnyRef)])
+  parameters: List[(ParameterDef, AnyRef)])
 
 final class ScalaCompositeHandler(
     b: CompositeHandler) extends CompositeHandler {
 
   def withUpdateHandler(h: Execution ⇒ Int): CompositeHandler = {
     super.withUpdateHandler(new UpdateHandler {
-      def apply(sql: String, p: JList[JTupple[Parameter, Object]]): Int = {
-        val ps: List[(Parameter, AnyRef)] =
+      def apply(sql: String, p: JList[Parameter]): Int = {
+        val ps: List[(ParameterDef, AnyRef)] =
           JavaConversions.asScalaIterable(p).
-            foldLeft(Nil: List[(Parameter, AnyRef)]) { (l, t) ⇒
+            foldLeft(Nil: List[(ParameterDef, AnyRef)]) { (l, t) ⇒
               l :+ (t.left -> t.right)
             }
 
@@ -34,10 +33,10 @@ final class ScalaCompositeHandler(
 
   def withQueryHandler(h: Execution ⇒ ResultSet): CompositeHandler = {
     super.withQueryHandler(new QueryHandler {
-      def apply(sql: String, p: JList[JTupple[Parameter, Object]]): ResultSet = {
-        val ps: List[(Parameter, AnyRef)] =
+      def apply(sql: String, p: JList[Parameter]): ResultSet = {
+        val ps: List[(ParameterDef, AnyRef)] =
           JavaConversions.asScalaIterable(p).
-            foldLeft(Nil: List[(Parameter, AnyRef)]) { (l, t) ⇒
+            foldLeft(Nil: List[(ParameterDef, AnyRef)]) { (l, t) ⇒
               l :+ (t.left -> t.right)
             }
 
@@ -45,12 +44,6 @@ final class ScalaCompositeHandler(
       }
     })
   }
-
-  private def getJavaParams(e: Execution): JList[JTupple[Parameter, Object]] =
-    e.parameters.foldLeft(new ArrayList[JTupple[Parameter, Object]]()) {
-      (l, t) ⇒ l.add(JTupple.of(t._1, t._2)); l
-    }
-
 }
 
 final class ScalaResultRow(r: Row) extends Row {

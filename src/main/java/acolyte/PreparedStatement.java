@@ -36,7 +36,8 @@ import java.sql.Ref;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
-import acolyte.ParameterMetaData.Parameter;
+import acolyte.ParameterMetaData.ParameterDef;
+import acolyte.StatementHandler.Parameter;
 
 import static acolyte.ParameterMetaData.Timestamp;
 import static acolyte.ParameterMetaData.Numeric;
@@ -101,7 +102,8 @@ public final class PreparedStatement
     /**
      * Parameters
      */
-    private final TreeMap<Integer,ImmutablePair<Parameter,Object>> parameters = new TreeMap<Integer,ImmutablePair<Parameter,Object>>();
+    private final TreeMap<Integer,Parameter> parameters = 
+        new TreeMap<Integer,Parameter>();
 
     // --- Constructors ---
 
@@ -140,7 +142,8 @@ public final class PreparedStatement
 
         // ---
 
-        final ArrayList<ImmutablePair<Parameter,Object>> params = new ArrayList<ImmutablePair<Parameter,Object>>(this.parameters.values());
+        final ArrayList<Parameter> params = 
+            new ArrayList<Parameter>(this.parameters.values());
 
         final int idx = params.indexOf(null);
 
@@ -167,7 +170,8 @@ public final class PreparedStatement
 
         // ---
 
-        final ArrayList<ImmutablePair<Parameter,Object>> params = new ArrayList<ImmutablePair<Parameter,Object>>(this.parameters.values());
+        final ArrayList<Parameter> params = 
+            new ArrayList<Parameter>(this.parameters.values());
 
         final int idx = params.indexOf(null);
 
@@ -567,10 +571,9 @@ public final class PreparedStatement
      * {@inheritDoc}
      */
     public ParameterMetaData getParameterMetaData() throws SQLException {
-        final ArrayList<Parameter> params = new ArrayList<Parameter>();
-
+        final ArrayList<ParameterDef> params = new ArrayList<ParameterDef>();
         
-        for (final ImmutablePair<Parameter,Object> p : parameters.values()) {
+        for (final Parameter p : parameters.values()) {
             if (p == null) {
                 params.add(null);
             } else {
@@ -825,11 +828,13 @@ public final class PreparedStatement
         setParam(parameterIndex, Real(x), (Object)x);
     } // end of setReal
 
+    // ---
+
     /**
      * Set parameter
      */
     private void setParam(final int index, 
-                          final Parameter meta, 
+                          final ParameterDef meta, 
                           final Object val) {
 
         // Fill gap
@@ -840,6 +845,6 @@ public final class PreparedStatement
             this.parameters.put(i, null);
         } // end of for
 
-        this.parameters.put(index, ImmutablePair.of(meta, val));
+        this.parameters.put(index, Parameter.of(meta, val));
     } // end of setParam
 } // end of PreparedStatement

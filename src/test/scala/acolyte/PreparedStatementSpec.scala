@@ -6,7 +6,8 @@ import java.sql.{ SQLException, SQLFeatureNotSupportedException, Types }
 
 import org.specs2.mutable.Specification
 
-import acolyte.test.{ EmptyConnectionHandler, Params, Param }
+import acolyte.StatementHandler.Parameter
+import acolyte.test.{ EmptyConnectionHandler, Params }
 
 object PreparedStatementSpec extends Specification with Setters {
   "Prepared statement specification" title
@@ -1182,7 +1183,7 @@ object PreparedStatementSpec extends Specification with Setters {
 
   def executeUpdate[A](s: String, t: Int, v: A, c: Connection = defaultCon)(implicit stmt: StatementParam[A]): (String, A) = {
     var sql: String = null
-    var param: Param = null
+    var param: Parameter = null
     lazy val h = new StatementHandler {
       def getGeneratedKeys = null
       def isQuery(s: String) = false
@@ -1201,7 +1202,7 @@ object PreparedStatementSpec extends Specification with Setters {
 
   def executeQuery[A](s: String, t: Int, v: A, c: Connection = defaultCon)(implicit stmt: StatementParam[A]): (String, A) = {
     var sql: String = null
-    var param: Param = null
+    var param: Parameter = null
     lazy val h = new StatementHandler {
       def getGeneratedKeys = null
       def isQuery(s: String) = true
@@ -1230,7 +1231,7 @@ object PreparedStatementSpec extends Specification with Setters {
 
 sealed trait StatementParam[A] {
   def set(s: PreparedStatement, i: Int, p: A, t: Int): PreparedStatement
-  def get(p: Param): A
+  def get(p: Parameter): A
 }
 
 sealed trait Setters {
@@ -1245,7 +1246,7 @@ sealed trait Setters {
       s
     }
 
-    def get(p: Param): Null = null
+    def get(p: Parameter): Null = null
   }
 
   implicit def StmtBool: StatementParam[Boolean] = new StatementParam[Boolean] {
@@ -1254,7 +1255,7 @@ sealed trait Setters {
       s
     }
 
-    def get(p: Param): Boolean = p.right.asInstanceOf[Boolean]
+    def get(p: Parameter): Boolean = p.right.asInstanceOf[Boolean]
   }
 
   implicit def StmtByte: StatementParam[Byte] = new StatementParam[Byte] {
@@ -1263,7 +1264,7 @@ sealed trait Setters {
       s
     }
 
-    def get(p: Param): Byte = p.right.asInstanceOf[Byte]
+    def get(p: Parameter): Byte = p.right.asInstanceOf[Byte]
   }
 
   implicit def StmtShort: StatementParam[Short] = new StatementParam[Short] {
@@ -1272,7 +1273,7 @@ sealed trait Setters {
       s
     }
 
-    def get(p: Param): Short = p.right.asInstanceOf[Short]
+    def get(p: Parameter): Short = p.right.asInstanceOf[Short]
   }
 
   implicit def StmtInt: StatementParam[Int] = new StatementParam[Int] {
@@ -1281,7 +1282,7 @@ sealed trait Setters {
       s
     }
 
-    def get(p: Param): Int = p.right.asInstanceOf[Int]
+    def get(p: Parameter): Int = p.right.asInstanceOf[Int]
   }
 
   implicit def StmtLong: StatementParam[Long] = new StatementParam[Long] {
@@ -1290,7 +1291,7 @@ sealed trait Setters {
       s
     }
 
-    def get(p: Param): Long = p.right.asInstanceOf[Long]
+    def get(p: Parameter): Long = p.right.asInstanceOf[Long]
   }
 
   implicit def StmtFloat: StatementParam[Float] = new StatementParam[Float] {
@@ -1299,7 +1300,7 @@ sealed trait Setters {
       s
     }
 
-    def get(p: Param): Float = p.right.asInstanceOf[Float]
+    def get(p: Parameter): Float = p.right.asInstanceOf[Float]
   }
 
   implicit def StmtDouble: StatementParam[Double] = new StatementParam[Double] {
@@ -1308,7 +1309,7 @@ sealed trait Setters {
       s
     }
 
-    def get(p: Param): Double = p.right.asInstanceOf[Double]
+    def get(p: Parameter): Double = p.right.asInstanceOf[Double]
   }
 
   implicit def StmtBigDecimal: StatementParam[BigDecimal] =
@@ -1318,7 +1319,7 @@ sealed trait Setters {
         s
       }
 
-      def get(p: Param): BigDecimal = p.right.asInstanceOf[BigDecimal]
+      def get(p: Parameter): BigDecimal = p.right.asInstanceOf[BigDecimal]
     }
 
   implicit def StmtString: StatementParam[String] = new StatementParam[String] {
@@ -1327,7 +1328,7 @@ sealed trait Setters {
       s
     }
 
-    def get(p: Param): String = p.right.asInstanceOf[String]
+    def get(p: Parameter): String = p.right.asInstanceOf[String]
   }
 
   implicit def StmtDate: StatementParam[Date] = new StatementParam[Date] {
@@ -1336,7 +1337,7 @@ sealed trait Setters {
       s
     }
 
-    def get(p: Param): Date = p.right.asInstanceOf[Date]
+    def get(p: Parameter): Date = p.right.asInstanceOf[Date]
   }
 
   implicit def StmtDateWithTZ: StatementParam[(Date, TimeZone)] =
@@ -1351,7 +1352,7 @@ sealed trait Setters {
         s
       }
 
-      def get(p: Param): (Date, TimeZone) = {
+      def get(p: Parameter): (Date, TimeZone) = {
         val pair = p.right.asInstanceOf[ImmutablePair[Date, TimeZone]]
         (pair.left -> pair.right)
       }
@@ -1363,7 +1364,7 @@ sealed trait Setters {
       s
     }
 
-    def get(p: Param): Time = p.right.asInstanceOf[Time]
+    def get(p: Parameter): Time = p.right.asInstanceOf[Time]
   }
 
   implicit def StmtTimeWithTZ: StatementParam[(Time, TimeZone)] =
@@ -1378,7 +1379,7 @@ sealed trait Setters {
         s
       }
 
-      def get(p: Param): (Time, TimeZone) = {
+      def get(p: Parameter): (Time, TimeZone) = {
         val pair = p.right.asInstanceOf[ImmutablePair[Time, TimeZone]]
         (pair.left -> pair.right)
       }
@@ -1391,7 +1392,7 @@ sealed trait Setters {
         s
       }
 
-      def get(p: Param): Timestamp = p.right.asInstanceOf[Timestamp]
+      def get(p: Parameter): Timestamp = p.right.asInstanceOf[Timestamp]
     }
 
   implicit def StmtTimestampWithTZ: StatementParam[(Timestamp, TimeZone)] =
@@ -1406,7 +1407,7 @@ sealed trait Setters {
         s
       }
 
-      def get(p: Param): (Timestamp, TimeZone) = {
+      def get(p: Parameter): (Timestamp, TimeZone) = {
         val pair = p.right.asInstanceOf[ImmutablePair[Timestamp, TimeZone]]
         (pair.left -> pair.right)
       }

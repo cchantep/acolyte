@@ -4,13 +4,10 @@ import java.util.{ List ⇒ JList }
 
 import java.sql.ResultSet
 
-import org.apache.commons.lang3.tuple.ImmutablePair
-
-import acolyte.ParameterMetaData.Parameter
+import acolyte.StatementHandler.Parameter
 
 package object test {
-  type Param = ImmutablePair[Parameter, Object]
-  type Params = JList[Param]
+  type Params = JList[Parameter]
 
   object EmptyConnectionHandler extends ConnectionHandler {
     def getStatementHandler = EmptyStatementHandler

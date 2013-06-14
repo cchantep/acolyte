@@ -12,7 +12,7 @@ import java.sql.ParameterMetaData.{
 import org.specs2.mutable.Specification
 
 import acolyte.ParameterMetaData.{
-  Parameter ⇒ Param,
+  ParameterDef ⇒ Param,
   Bool ⇒ BoolP,
   Byte ⇒ ByteP,
   Decimal ⇒ DecimalP,
@@ -362,7 +362,7 @@ object ParameterMetaDataSpec
 
 sealed trait ParameterMetaDataFixtures {
   import scala.collection.JavaConversions
-  import acolyte.ParameterMetaData.Parameter
+  import acolyte.ParameterMetaData.ParameterDef
 
   lazy val jdbcTypeMap = JavaConversions.mapAsScalaMap[Integer, String](
     Defaults.jdbcTypeMappings).foldLeft(Map[Int, String]()) { (m, p) ⇒
@@ -374,9 +374,9 @@ sealed trait ParameterMetaDataFixtures {
   def typePrecision(t: Int): Int = Defaults.jdbcTypePrecisions.get(t)
   def typeScale(t: Int): Int = Defaults.jdbcTypeScales.get(t)
 
-  def param(cn: String, m: Int = IN, st: Int = -1, stn: String, p: Int = -1, s: Int = -1, n: Int = UNKNOWN_NULL, sg: Boolean = false) = new Parameter(cn, m, st, stn, p, s, n, sg)
+  def param(cn: String, m: Int = IN, st: Int = -1, stn: String, p: Int = -1, s: Int = -1, n: Int = UNKNOWN_NULL, sg: Boolean = false) = new ParameterDef(cn, m, st, stn, p, s, n, sg)
 
-  def metadata(p: Seq[Parameter] = Nil) = new ParameterMetaData(JavaConversions seqAsJavaList p)
+  def metadata(p: Seq[ParameterDef] = Nil) = new ParameterMetaData(JavaConversions seqAsJavaList p)
 
   lazy val twoParams = metadata(Seq(
     param(cn = "java.lang.String",

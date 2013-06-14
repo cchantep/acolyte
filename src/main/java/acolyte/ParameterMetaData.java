@@ -24,14 +24,14 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     /**
      * Definitions
      */
-    public final List<Parameter> parameters;
+    public final List<ParameterDef> parameters;
 
     // --- Constructors ---
 
     /**
      * Constructor.
      */
-    public ParameterMetaData(final List<Parameter> parameters) {
+    public ParameterMetaData(final List<ParameterDef> parameters) {
         if (parameters == null) {
             throw new IllegalArgumentException("Missing definition");
         } // end of if
@@ -178,8 +178,8 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     /**
      * Default parameter.
      */
-    public static Parameter Default(final int sqlType) {
-        return new Parameter(jdbcTypeMappings.get(sqlType),
+    public static ParameterDef Default(final int sqlType) {
+        return new ParameterDef(jdbcTypeMappings.get(sqlType),
                              parameterModeIn,
                              sqlType,
                              jdbcTypeNames.get(sqlType),
@@ -192,10 +192,10 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     /**
      * Decimal parameter.
      */
-    public static Parameter Decimal(final int sqlType,
+    public static ParameterDef Decimal(final int sqlType,
                                     final int scale) {
 
-        return new Parameter(jdbcTypeMappings.get(sqlType),
+        return new ParameterDef(jdbcTypeMappings.get(sqlType),
                              parameterModeIn,
                              sqlType,
                              jdbcTypeNames.get(sqlType),
@@ -209,49 +209,49 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     /**
      * Null constructor.
      */
-    public static Parameter Null(final int sqlType) {
+    public static ParameterDef Null(final int sqlType) {
         return Default(sqlType);
     } // end of Null
 
     /**
      * Boolean constructor.
      */
-    public static Parameter Bool() {
+    public static ParameterDef Bool() {
         return Default(Types.BOOLEAN);
     } // end of Bool
 
     /**
      * Byte constructor.
      */
-    public static Parameter Byte() {
+    public static ParameterDef Byte() {
         return Default(Types.TINYINT);
     } // end of Byte
 
     /**
      * Short constructor.
      */
-    public static Parameter Short() {
+    public static ParameterDef Short() {
         return Default(Types.SMALLINT);
     } // end of Short
 
     /**
      * Integer constructor.
      */
-    public static Parameter Int() {
+    public static ParameterDef Int() {
         return Default(Types.INTEGER);
     } // end of Int
 
     /**
      * Long constructor.
      */
-    public static Parameter Long() {
+    public static ParameterDef Long() {
         return Default(Types.BIGINT);
     } // end of Long
 
     /**
      * Float constructor.
      */
-    public static Parameter Float(final float f) {
+    public static ParameterDef Float(final float f) {
         final BigDecimal bd = new BigDecimal(Float.toString(f));
 
         return Decimal(Types.FLOAT, bd.scale());
@@ -260,7 +260,7 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     /**
      * Float constructor (as REAL).
      */
-    public static Parameter Real(final float f) {
+    public static ParameterDef Real(final float f) {
         final BigDecimal bd = new BigDecimal(Float.toString(f));
 
         return Decimal(Types.REAL, bd.scale());
@@ -269,7 +269,7 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     /**
      * Double constructor.
      */
-    public static Parameter Double(final double d) {
+    public static ParameterDef Double(final double d) {
         final BigDecimal bd = new BigDecimal(String.format(Locale.US, "%f", d)).
             stripTrailingZeros();
 
@@ -279,42 +279,42 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     /**
      * BigDecimal constructor.
      */
-    public static Parameter Numeric(final BigDecimal bd) {
+    public static ParameterDef Numeric(final BigDecimal bd) {
         return Decimal(Types.NUMERIC, bd.scale());
     } // end of BigDecimal
 
     /**
      * BigDecimal constructor (as DECIMAL).
      */
-    public static Parameter Decimal(final BigDecimal bd) {
+    public static ParameterDef Decimal(final BigDecimal bd) {
         return Decimal(Types.DECIMAL, bd.scale());
     } // end of Decimal
 
     /**
      * String constructor.
      */
-    public static Parameter Str() {
+    public static ParameterDef Str() {
         return Default(Types.VARCHAR);
     } // end of Str
 
     /**
      * Date constructor.
      */
-    public static Parameter Date() {
+    public static ParameterDef Date() {
         return Default(Types.DATE);
     } // end of Date
 
     /**
      * Time constructor.
      */
-    public static Parameter Time() {
+    public static ParameterDef Time() {
         return Default(Types.TIME);
     } // end of Time
 
     /**
      * Timestamp constructor.
      */
-    public static Parameter Timestamp() {
+    public static ParameterDef Timestamp() {
         return Default(Types.TIMESTAMP);
     } // end of Timestamp
 
@@ -323,7 +323,7 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     /**
      * Single parameter definition.
      */
-    public static final class Parameter {
+    public static final class ParameterDef {
         public final String className;
         public final int mode;
         public final int sqlType;
@@ -338,7 +338,7 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
         /**
          * Bulk constructor
          */
-        public Parameter(final String className,
+        public ParameterDef(final String className,
                          final int mode,
                          final int sqlType,
                          final String sqlTypeName,
@@ -373,7 +373,7 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
          * {@inheritDoc}
          */
         public String toString() {
-            return String.format("Parameter(class = %s, mode = %s, sqlType = %s(%d), precision = %d, scale = %d, nullable = %s, signed = %s)", this.className, this.mode, this.sqlTypeName, this.sqlType, this.precision, this.scale, this.nullable, this.signed);
+            return String.format("ParameterDef(class = %s, mode = %s, sqlType = %s(%d), precision = %d, scale = %d, nullable = %s, signed = %s)", this.className, this.mode, this.sqlTypeName, this.sqlType, this.precision, this.scale, this.nullable, this.signed);
 
         } // end of toString
 
@@ -381,11 +381,11 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
          * {@inheritDoc}
          */
         public boolean equals(Object o) {
-            if (o == null || !(o instanceof Parameter)) {
+            if (o == null || !(o instanceof ParameterDef)) {
                 return false;
             } // end of if
 
-            final Parameter other = (Parameter) o;
+            final ParameterDef other = (ParameterDef) o;
 
             return new EqualsBuilder().
                 append(this.className, other.className).

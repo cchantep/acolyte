@@ -10,9 +10,8 @@ import java.sql.SQLWarning;
 import java.sql.Connection;
 import java.sql.ResultSet;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 
-import acolyte.ParameterMetaData.Parameter;
+import acolyte.StatementHandler.Parameter;
 
 /**
  * Acolyte base statement.
@@ -25,7 +24,8 @@ abstract class AbstractStatement implements java.sql.Statement {
     /**
      * No-parameter list
      */
-    protected static final List<ImmutablePair<Parameter,Object>> NO_PARAMS = Collections.unmodifiableList(new ArrayList<ImmutablePair<Parameter,Object>>(0));
+    protected static final List<Parameter> NO_PARAMS = 
+        Collections.unmodifiableList(new ArrayList<Parameter>());
 
     // --- Properties ---
 

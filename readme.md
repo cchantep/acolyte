@@ -67,6 +67,8 @@ Connection con = DriverManager.getConnection(jdbcUrl);
 // ... Connection |con| is managed through |handler|
 ```
 
+You can see tested/detailed [use cases](./src/test/java/acolyte/JavaUseCases.java).
+
 ### Limitations
 
 - Binary datatype are not currently supported.

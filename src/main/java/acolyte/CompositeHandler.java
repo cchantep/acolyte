@@ -7,9 +7,7 @@ import java.util.regex.Pattern;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-
-import acolyte.ParameterMetaData.Parameter;
+import acolyte.StatementHandler.Parameter;
 
 /**
  * Rule-based (immutable/thread-safe) statement handler.
@@ -49,8 +47,8 @@ public class CompositeHandler implements StatementHandler {
      * Copy constructor.
      */
     public CompositeHandler(final Pattern[] queryDetection,
-                                final QueryHandler queryHandler,
-                                final UpdateHandler updateHandler) {
+                            final QueryHandler queryHandler,
+                            final UpdateHandler updateHandler) {
 
         this.queryDetection = (queryDetection == null) ? null : queryDetection;
         this.queryHandler = queryHandler;
@@ -62,7 +60,9 @@ public class CompositeHandler implements StatementHandler {
     /**
      * {@inheritDoc}
      */
-    public ResultSet whenSQLQuery(final String sql, final List<ImmutablePair<Parameter,Object>> parameters) throws SQLException {
+    public ResultSet whenSQLQuery(final String sql, 
+                                  final List<Parameter> parameters) 
+        throws SQLException {
 
         if (this.queryHandler == null) {
             throw new SQLException("No query handler");
@@ -74,7 +74,8 @@ public class CompositeHandler implements StatementHandler {
     /**
      * {@inheritDoc}
      */
-    public int whenSQLUpdate(final String sql, final List<ImmutablePair<Parameter,Object>> parameters) throws SQLException {
+    public int whenSQLUpdate(final String sql, 
+                             final List<Parameter> parameters) throws SQLException {
 
         if (this.updateHandler == null) {
             throw new SQLException("No update handler");
@@ -144,8 +145,8 @@ public class CompositeHandler implements StatementHandler {
         patterns[patterns.length-1] = pattern;
 
         return new CompositeHandler(patterns, 
-                                        this.queryHandler, 
-                                        this.updateHandler);
+                                    this.queryHandler, 
+                                    this.updateHandler);
 
     } // end of withQueryDetection
 
@@ -164,8 +165,8 @@ public class CompositeHandler implements StatementHandler {
         // ---
 
         return new CompositeHandler(this.queryDetection,
-                                        handler,
-                                        this.updateHandler);
+                                    handler,
+                                    this.updateHandler);
         
     } // end of withQueryHandler
 
@@ -184,8 +185,8 @@ public class CompositeHandler implements StatementHandler {
         // ---
 
         return new CompositeHandler(this.queryDetection,
-                                        this.queryHandler,
-                                        handler);
+                                    this.queryHandler,
+                                    handler);
         
     } // end of withUpdateHandler
 
@@ -195,7 +196,8 @@ public class CompositeHandler implements StatementHandler {
      * Query handler.
      */
     public static interface QueryHandler {
-        public ResultSet apply(String sql, List<ImmutablePair<Parameter,Object>> parameters) throws SQLException;
+        public ResultSet apply(String sql, List<Parameter> parameters) 
+            throws SQLException;
 
     } // end of interfaceQueryHandler
 
@@ -208,7 +210,8 @@ public class CompositeHandler implements StatementHandler {
          *
          * @return Update count
          */
-        public int apply(String sql, List<ImmutablePair<Parameter,Object>> parameters) throws SQLException;
+        public int apply(String sql, List<Parameter> parameters) 
+            throws SQLException;
 
     } // end of interfaceQueryHandler
 } // end of class CompositeHandler
