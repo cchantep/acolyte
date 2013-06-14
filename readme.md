@@ -36,7 +36,7 @@ StatementHandler handler = new RuleStatementHandler().
       // ...
       return count;
     }
-  }).withQueryHandler(new QueryHandler () {
+  }).withQueryHandler(new RuleStatementHandler.QueryHandler () {
     public ResultSet apply(String sql, ...) {
       // ...
 
@@ -44,6 +44,7 @@ StatementHandler handler = new RuleStatementHandler().
       // with 3 columns of types String, Float, Date
       RowList<Row3<String, Float, Date>> rows = 
         new RowList<Row3<String, Float, Date>>().
+        withLabel(1, "String").withLabel(3, "Date"). // Optional: set labels
         append(rows3("str", 1.2f, d1)).
         append(rows3("val", 2.34f, d2));
 
@@ -60,6 +61,7 @@ Connection con = DriverManager.getConnection("jdbc:acolyte:anything-you-want",
 - Binary datatype are not currently supported.
 - Callable statement are not (yet) implemented.
 - `ResultSet.RETURN_GENERATED_KEYS` is not supported.
+- Pseudo-support for transaction.
 
 ## Build
 

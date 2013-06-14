@@ -295,35 +295,35 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public byte[] getBytes(final String columnName) throws SQLException {
+    public byte[] getBytes(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of getBytes
 
     /**
      * {@inheritDoc}
      */
-    public Date getDate(final String columnName) throws SQLException {
+    public Date getDate(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of getDate
 
     /**
      * {@inheritDoc}
      */
-    public Time getTime(final String columnName) throws SQLException {
+    public Time getTime(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of getTime
 
     /**
      * {@inheritDoc}
      */
-    public Timestamp getTimestamp(final String columnName) throws SQLException {
+    public Timestamp getTimestamp(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of getTimestamp
 
     /**
      * {@inheritDoc}
      */
-    public InputStream getAsciiStream(final String columnName) 
+    public InputStream getAsciiStream(final String columnLabel) 
         throws SQLException {
 
         throw new RuntimeException("Not implemented");
@@ -332,7 +332,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public InputStream getUnicodeStream(final String columnName) 
+    public InputStream getUnicodeStream(final String columnLabel) 
         throws SQLException {
 
         throw new RuntimeException("Not implemented");
@@ -341,7 +341,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public InputStream getBinaryStream(final String columnName) 
+    public InputStream getBinaryStream(final String columnLabel) 
         throws SQLException {
 
         throw new RuntimeException("Not implemented");
@@ -385,7 +385,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public int findColumn(final String columnName) throws SQLException {
+    public int findColumn(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of findColumn
 
@@ -401,7 +401,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public Reader getCharacterStream(final String columnName) 
+    public Reader getCharacterStream(final String columnLabel) 
         throws SQLException {
 
         throw new RuntimeException("Not implemented");
@@ -419,7 +419,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public BigDecimal getBigDecimal(final String columnName) 
+    public BigDecimal getBigDecimal(final String columnLabel) 
         throws SQLException {
 
         throw new RuntimeException("Not implemented");
@@ -656,7 +656,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public Object getObject(final String columnName, 
+    public Object getObject(final String columnLabel, 
                             final Map<String, Class<?>> typemap) 
         throws SQLException {
 
@@ -666,28 +666,28 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public Ref getRef(final String columnName) throws SQLException {
+    public Ref getRef(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of getRef
 
     /**
      * {@inheritDoc}
      */
-    public Blob getBlob(final String columnName) throws SQLException {
+    public Blob getBlob(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of getBlob
 
     /**
      * {@inheritDoc}
      */
-    public Clob getClob(final String columnName) throws SQLException {
+    public Clob getClob(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of getClob
 
     /**
      * {@inheritDoc}
      */
-    public Array getArray(final String columnName) throws SQLException {
+    public Array getArray(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of getArray
 
@@ -703,7 +703,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public Date getDate(final String columnName, 
+    public Date getDate(final String columnLabel, 
                         final Calendar calendar) throws SQLException {
 
         throw new RuntimeException("Not implemented");
@@ -721,7 +721,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public Time getTime(final String columnName, 
+    public Time getTime(final String columnLabel, 
                         final Calendar calendar) throws SQLException {
 
         throw new RuntimeException("Not implemented");
@@ -739,7 +739,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public Timestamp getTimestamp(final String columnName, 
+    public Timestamp getTimestamp(final String columnLabel, 
                                   final Calendar calendar) throws SQLException {
 
         throw new RuntimeException("Not implemented");
@@ -755,7 +755,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public URL getURL(final String columnName) throws SQLException {
+    public URL getURL(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of getURL
 
@@ -772,7 +772,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public <T extends Object> T getObject(final String columnName, 
+    public <T extends Object> T getObject(final String columnLabel, 
                                           final Class<T> clazz) 
         throws SQLException {
 
@@ -789,7 +789,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public RowId getRowId(final String columnName) throws SQLException {
+    public RowId getRowId(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of getRowId
 
@@ -803,7 +803,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public NClob getNClob(final String columnName) throws SQLException {
+    public NClob getNClob(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of 
 
@@ -817,7 +817,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public SQLXML getSQLXML(final String columnName) throws SQLException {
+    public SQLXML getSQLXML(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of getSQLXML
 
@@ -831,7 +831,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public String getNString(final String columnName) throws SQLException {
+    public String getNString(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
     } // end of getNString
 
@@ -847,7 +847,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public Reader getNCharacterStream(final String columnName) 
+    public Reader getNCharacterStream(final String columnLabel) 
         throws SQLException {
 
         throw new RuntimeException("Not implemented");
@@ -1043,14 +1043,14 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateNull(final String columnName) throws SQLException {
+    public void updateNull(final String columnLabel) throws SQLException {
         throw new UnsupportedOperationException();
     } // end of updateNull
 
     /**
      * {@inheritDoc}
      */
-    public void updateBoolean(final String columnName, 
+    public void updateBoolean(final String columnLabel, 
                               final boolean b) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1059,7 +1059,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateByte(final String columnName, 
+    public void updateByte(final String columnLabel, 
                            final byte b) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1068,7 +1068,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateShort(final String columnName, 
+    public void updateShort(final String columnLabel, 
                             final short s) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1077,7 +1077,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateInt(final String columnName, 
+    public void updateInt(final String columnLabel, 
                           final int i) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1086,7 +1086,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateLong(final String columnName, 
+    public void updateLong(final String columnLabel, 
                            final long l) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1095,7 +1095,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateFloat(final String columnName, 
+    public void updateFloat(final String columnLabel, 
                             final float f) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1104,7 +1104,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateDouble(final String columnName, 
+    public void updateDouble(final String columnLabel, 
                              final double d) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1113,7 +1113,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateBigDecimal(final String columnName, 
+    public void updateBigDecimal(final String columnLabel, 
                                  final BigDecimal bd) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1122,7 +1122,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateString(final String columnName, 
+    public void updateString(final String columnLabel, 
                              final String str) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1131,7 +1131,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateBytes(final String columnName, 
+    public void updateBytes(final String columnLabel, 
                             final byte[] b) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1140,7 +1140,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateDate(final String columnName, 
+    public void updateDate(final String columnLabel, 
                            final Date d) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1149,7 +1149,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateTime(final String columnName, 
+    public void updateTime(final String columnLabel, 
                            final Time t) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1158,7 +1158,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateTimestamp(final String columnName, 
+    public void updateTimestamp(final String columnLabel, 
                                 final Timestamp ts) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1167,7 +1167,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateAsciiStream(final String columnName, 
+    public void updateAsciiStream(final String columnLabel, 
                                   final InputStream x, 
                                   final int length) 
         throws SQLException {
@@ -1178,7 +1178,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateBinaryStream(final String columnName, 
+    public void updateBinaryStream(final String columnLabel, 
                                    final InputStream x, 
                                    final int length) 
         throws SQLException {
@@ -1189,7 +1189,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateCharacterStream(final String columnName, 
+    public void updateCharacterStream(final String columnLabel, 
                                       final Reader reader, 
                                       final int length) throws SQLException {
 
@@ -1199,7 +1199,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateObject(final String columnName, 
+    public void updateObject(final String columnLabel, 
                              final Object o, 
                              final int scale) throws SQLException {
 
@@ -1209,7 +1209,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateObject(final String columnName, 
+    public void updateObject(final String columnLabel, 
                              final Object o) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1276,7 +1276,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateRef(final String columnName, 
+    public void updateRef(final String columnLabel, 
                           final Ref ref) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1294,7 +1294,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateBlob(final String columnName, 
+    public void updateBlob(final String columnLabel, 
                            final Blob b) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1312,7 +1312,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateClob(final String columnName, 
+    public void updateClob(final String columnLabel, 
                            final Clob c) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1330,7 +1330,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateArray(final String columnName, 
+    public void updateArray(final String columnLabel, 
                             final Array array) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1348,7 +1348,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateRowId(final String columnName, 
+    public void updateRowId(final String columnLabel, 
                             final RowId rid) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1366,7 +1366,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateNString(final String columnName, 
+    public void updateNString(final String columnLabel, 
                               final String str) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1384,7 +1384,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateNClob(final String columnName, 
+    public void updateNClob(final String columnLabel, 
                             final NClob c) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1401,7 +1401,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateSQLXML(final String columnName, 
+    public void updateSQLXML(final String columnLabel, 
                              final SQLXML x) throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1420,7 +1420,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateNCharacterStream(final String columnName, 
+    public void updateNCharacterStream(final String columnLabel, 
                                        final Reader reader, 
                                        final long length) 
         throws SQLException {
@@ -1463,7 +1463,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateAsciiStream(final String columnName,
+    public void updateAsciiStream(final String columnLabel,
                                   final InputStream x,
                                   final long length) 
         throws SQLException {
@@ -1474,7 +1474,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateBinaryStream(final String columnName,
+    public void updateBinaryStream(final String columnLabel,
                                    final InputStream x,
                                    final long length) 
         throws SQLException {
@@ -1485,7 +1485,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateCharacterStream(final String columnName,
+    public void updateCharacterStream(final String columnLabel,
                                       final Reader reader,
                                       final long length) 
         throws SQLException {
@@ -1505,7 +1505,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateBlob(final String columnName,
+    public void updateBlob(final String columnLabel,
                            final InputStream x,
                            final long length) throws SQLException {
         throw new UnsupportedOperationException();
@@ -1523,7 +1523,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateClob(final String columnName,
+    public void updateClob(final String columnLabel,
                            final Reader reader,
                            final long length) throws SQLException {
         throw new UnsupportedOperationException();
@@ -1542,7 +1542,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateNClob(final String columnName,
+    public void updateNClob(final String columnLabel,
                             final Reader reader,
                             final long length) throws SQLException {
 
@@ -1562,7 +1562,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateNCharacterStream(final String columnName, 
+    public void updateNCharacterStream(final String columnLabel, 
                                        final Reader reader) 
         throws SQLException {
 
@@ -1599,7 +1599,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateAsciiStream(final String columnName, final InputStream x)
+    public void updateAsciiStream(final String columnLabel, final InputStream x)
         throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1608,7 +1608,8 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateBinaryStream(final String columnName, final InputStream x)
+    public void updateBinaryStream(final String columnLabel, 
+                                   final InputStream x)
         throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1617,7 +1618,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateCharacterStream(final String columnName, 
+    public void updateCharacterStream(final String columnLabel, 
                                       final Reader reader) throws SQLException {
         throw new UnsupportedOperationException();
 
@@ -1635,7 +1636,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateBlob(final String columnName, final InputStream x) 
+    public void updateBlob(final String columnLabel, final InputStream x) 
         throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1653,7 +1654,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateClob(final String columnName, final Reader reader) 
+    public void updateClob(final String columnLabel, final Reader reader) 
         throws SQLException {
 
         throw new UnsupportedOperationException();
@@ -1671,7 +1672,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public void updateNClob(final String columnName, final Reader reader) 
+    public void updateNClob(final String columnLabel, final Reader reader) 
         throws SQLException {
 
         throw new UnsupportedOperationException();

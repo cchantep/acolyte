@@ -383,16 +383,31 @@ object RowListSpec extends Specification with RowListTest {
 }
 
 sealed trait RowListTest { specs: Specification ⇒
+  import java.util.Calendar
+
   implicit def dateByIndex(rs: ResultSet, i: Int): Date = rs.getDate(i)
   implicit def dateByLabel(rs: ResultSet, n: String): Date = rs.getDate(n)
+  implicit def dateByIndexWithCal(rs: ResultSet, i: Int, c: Calendar): Date =
+    rs.getDate(i, c)
+  implicit def dateByLabelWithCal(rs: ResultSet, n: String, c: Calendar): Date =
+    rs.getDate(n, c)
+
   implicit def timeByIndex(rs: ResultSet, i: Int): Time = rs.getTime(i)
   implicit def timeByLabel(rs: ResultSet, n: String): Time = rs.getTime(n)
-  implicit def timestampByIndex(rs: ResultSet, i: Int): Timestamp =
-    rs.getTimestamp(i)
-  implicit def timestampByLabel(rs: ResultSet, n: String): Timestamp =
-    rs.getTimestamp(n)
+  implicit def timeByIndexWithCal(rs: ResultSet, i: Int, c: Calendar): Time =
+    rs.getTime(i, c)
+  implicit def timeByLabelWithCal(rs: ResultSet, n: String, c: Calendar): Time =
+    rs.getTime(n, c)
 
-  def temporalGetterSpec[D <: java.util.Date](name: String, v: D)(implicit byIndex: (ResultSet, Int) ⇒ D, byLabel: (ResultSet, String) ⇒ D) =
+  implicit def tsByIndex(rs: ResultSet, i: Int): Timestamp =
+    rs.getTimestamp(i)
+  implicit def tsByLabel(rs: ResultSet, n: String): Timestamp =
+    rs.getTimestamp(n)
+  implicit def tsByIndexWithCal(rs: ResultSet, i: Int, c: Calendar): Timestamp =
+    rs.getTimestamp(i, c)
+  implicit def tsByLabelWithCal(rs: ResultSet, n: String, c: Calendar): Timestamp = rs.getTimestamp(n, c)
+
+  def temporalGetterSpec[D <: java.util.Date](name: String, v: D)(implicit byIndex: (ResultSet, Int) ⇒ D, byLabel: (ResultSet, String) ⇒ D, byIndexWithCal: (ResultSet, Int, Calendar) ⇒ D, byLabelWithCal: (ResultSet, String, Calendar) ⇒ D) =
     s"$name column from result set" should {
       "not be read by index when not on a row" in {
         (byIndex(rowList[Row1[D]].append(row1(v)).resultSet, 1).
@@ -405,31 +420,42 @@ sealed trait RowListTest { specs: Specification ⇒
       }
 
       "be expected one" in {
+        val c = Calendar.getInstance
         val rs = rowList[Row1[D]].withLabel(1, "n").:+(row1(v)).resultSet
         rs.next
 
         (byIndex(rs, 1) aka "big decimal by index" mustEqual v).
-          and(byLabel(rs, "n") aka "big decimal by name" mustEqual v)
+          and(byIndexWithCal(rs, 1, c) aka "big decimal by index" mustEqual v).
+          and(byLabel(rs, "n") aka "big decimal by name" mustEqual v).
+          and(byLabelWithCal(rs, "n", c) aka "big decimal by name" mustEqual v)
       }
 
       "be null" in {
+        val c = Calendar.getInstance
         val rs = (rowList[Row1[D]].
           withLabel(1, "n") :+ row1(null.asInstanceOf[D])).resultSet
 
         rs.next
 
-        (byIndex(rs, 1) aka "big decimal" must beNull).
-          and(byLabel(rs, "n") aka "big decimal" must beNull)
+        (byIndex(rs, 1) aka "time" must beNull).
+          and(byIndexWithCal(rs, 1, c) aka "time" must beNull).
+          and(byLabel(rs, "n") aka "time" must beNull).
+          and(byLabelWithCal(rs, "n", c) aka "time" must beNull)
       }
 
       "be undefined" in {
+        val c = Calendar.getInstance
         val rs = rowList[Row1[String]].withLabel(1, "n").
           append(row1("str")).resultSet
         rs.next
 
-        (byIndex(rs, 1) aka "getDate" must throwA[SQLException](
+        (byIndex(rs, 1) aka "get" must throwA[SQLException](
           message = s"Not a $name: 1")).
+          and(byIndexWithCal(rs, 1, c) aka "get" must throwA[SQLException](
+            message = s"Not a $name: 1")).
           and(byLabel(rs, "n").
+            aka("get") must throwA[SQLException](s"Not a $name: n")).
+          and(byLabelWithCal(rs, "n", c).
             aka("get") must throwA[SQLException](s"Not a $name: n"))
 
       }

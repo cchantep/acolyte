@@ -1,8 +1,10 @@
 package acolyte;
 
+import java.util.GregorianCalendar;
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -684,26 +686,21 @@ public class RowList<R extends Row> {
 
         /**
          * {@inheritDoc}
+         */
         public Date getDate(final int columnIndex, 
                             final Calendar cal) throws SQLException {
 
-            final Object val = getObject(columnIndex);
-
-            if (val == null) {
-                return null;
-            } // end of if
-
-            // ---
-
-            final Date date = (val instanceof Date) 
-                ? (Date) val
-                : new Date(((java.util.Date) val).getTime());
-
-            if (date == null) {
-                throw new SQLException("Not a Date: " + columnIndex);
-            } // end of 
+            return getDate(columnIndex);
         } // end of getDate
-        */
+
+        /**
+         * {@inheritDoc}
+         */
+        public Date getDate(final String columnLabel, 
+                            final Calendar cal) throws SQLException {
+
+            return getDate(columnLabel);
+        } // end of getDate
 
         /**
          * {@inheritDoc}
@@ -754,6 +751,24 @@ public class RowList<R extends Row> {
         /**
          * {@inheritDoc}
          */
+        public Time getTime(final int columnIndex, 
+                            final Calendar cal) throws SQLException {
+
+            return getTime(columnIndex);
+        } // end of getTime
+
+        /**
+         * {@inheritDoc}
+         */
+        public Time getTime(final String columnLabel, 
+                            final Calendar cal) throws SQLException {
+
+            return getTime(columnLabel);
+        } // end of getTime
+
+        /**
+         * {@inheritDoc}
+         */
         public Timestamp getTimestamp(final int columnIndex) 
             throws SQLException {
 
@@ -799,6 +814,24 @@ public class RowList<R extends Row> {
             } // end of if
 
             throw new SQLException("Not a Timestamp: " + columnLabel);
+        } // end of getTimestamp
+
+        /**
+         * {@inheritDoc}
+         */
+        public Timestamp getTimestamp(final int columnIndex, 
+                                      final Calendar cal) throws SQLException {
+            
+            return getTimestamp(columnIndex);
+        } // end of getTimestamp
+
+        /**
+         * {@inheritDoc}
+         */
+        public Timestamp getTimestamp(final String columnLabel, 
+                                      final Calendar cal) throws SQLException {
+            
+            return getTimestamp(columnLabel);
         } // end of getTimestamp
     } // end of class RowResultSet
 } // end of class RowList
