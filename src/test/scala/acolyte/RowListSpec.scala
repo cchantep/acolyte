@@ -26,6 +26,27 @@ object RowListSpec extends Specification with RowListTest {
     }
   }
 
+  "Result set statement" should {
+    "be null" in {
+      (rowList[Row.Row1[String]].resultSet.
+        getStatement aka "statement" must beNull).
+        and(rowList[Row.Row1[String]].resultSet.withStatement(null).
+          getStatement aka "statement" must beNull)
+
+    }
+
+    "be expected one" in {
+      val url = "jdbc:acolyte:test"
+      val ch = test.EmptyConnectionHandler
+      lazy val con = new acolyte.Connection(url, null, ch)
+      lazy val s = new AbstractStatement(con, ch.getStatementHandler) {}
+
+      rowList[Row.Row1[String]].resultSet.withStatement(s).
+        getStatement aka "statement" mustEqual s
+
+    }
+  }
+
   "Result set fetch size" should {
     "be immutable" in {
       rowList[Row.Row1[String]].resultSet.setFetchSize(1).
@@ -50,9 +71,22 @@ object RowListSpec extends Specification with RowListTest {
 
   "Object column by index" should {
     "not be read when not on a row" in {
-      rowList[Row1[String]].append(row1("str")).resultSet.
-        getObject(1) aka "getObject" must throwA[SQLException](
-          message = "Not on a row")
+      lazy val typemap = null.asInstanceOf[java.util.Map[String, Class[_]]]
+      lazy val rs = rowList[Row1[String]].
+        withLabel(1, "n").append(row1("str")).resultSet
+
+      (rs.getObject(1) aka "getObject" must throwA[SQLException](
+        message = "Not on a row")).
+        and(rs.getObject("n") aka "getObject" must throwA[SQLException](
+          message = "Not on a row")).
+        and(rs.getObject(1, typemap) aka "getObject" must throwA[SQLException](
+          message = "Not on a row")).
+        and(rs.getObject("n", typemap).
+          aka("getObject") must throwA[SQLException]("Not on a row")).
+        and(rs.getObject(1, classOf[String]).
+          aka("getObject") must throwA[SQLException]("Not on a row")).
+        and(rs.getObject("n", classOf[String]).
+          aka("getObject") must throwA[SQLException]("Not on a row"))
 
     }
 
@@ -64,12 +98,16 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "be null" in {
-      lazy val rs = rowList[Row1[Float]].
+      lazy val rs = rowList[Row1[Float]].withLabel(1, "n").
         append(row1(null.asInstanceOf[Float])).resultSet
 
       rs.next
 
-      rs.getObject(1) aka "cell1" must beNull
+      (rs.getObject(1) aka "cell1" must beNull).
+        and(rs.getObject("n") aka "cell1" must beNull).
+        and(rs.getObject(1, classOf[String]) aka "cell1" must beNull).
+        and(rs.getObject("n", classOf[Float]) aka "cell1" mustEqual 0.0.toFloat)
+
     }
 
     "not be read with invalid index" in {
@@ -78,6 +116,68 @@ object RowListSpec extends Specification with RowListTest {
 
       rs.getObject(2) aka "getObject" must throwA[SQLException](
         message = "Invalid column index: 2")
+
+    }
+
+    "not convert without type" in {
+      lazy val rs = rowList[Row1[String]].withLabel(1, "n").
+        append(row1("str")).resultSet
+      rs.next
+
+      (rs.getObject(1, null.asInstanceOf[Class[Object]]).
+        aka("byIndex") must throwA[SQLException]("Invalid type")).
+        and(rs.getObject("n", null.asInstanceOf[Class[Object]]).
+          aka("byLabel") must throwA[SQLException]("Invalid type"))
+
+    }
+
+    "not convert incompatible type" in {
+      lazy val rs = rowList[Row1[String]].withLabel(1, "n").
+        append(row1("str")).resultSet
+      rs.next
+
+      (rs.getObject(1, classOf[java.sql.Date]).
+        aka("byIndex") must throwA[SQLException]("Incompatible type")).
+        and(rs.getObject("n", classOf[java.sql.Date]).
+          aka("byLabel") must throwA[SQLException]("Incompatible type"))
+
+    }
+
+    "convert compatible type" in {
+      val d = new Date(1, 2, 3)
+      lazy val rs = rowList[Row1[Date]].withLabel(1, "n").
+        append(row1(d)).resultSet
+      rs.next
+
+      (rs.getObject(1, classOf[java.util.Date]) aka "byIndex" mustEqual d).
+        and(rs.getObject("n", classOf[java.util.Date]).
+          aka("byLabel") mustEqual d)
+
+    }
+
+    "convert compatible temporal type" in {
+      val d = new Date(1, 2, 3)
+      lazy val t = new Time(d.getTime)
+      lazy val ts = new Timestamp(d.getTime)
+      lazy val rs = rowList[Row1[Date]].withLabel(1, "n").
+        append(row1(d)).resultSet
+      rs.next
+
+      (rs.getObject(1, classOf[Time]) aka "byIndex" mustEqual t).
+        and(rs.getObject("n", classOf[Timestamp]).
+          aka("byLabel") mustEqual ts)
+
+    }
+
+    "convert compatible numeric type" in {
+      lazy val rs = rowList[Row1[Int]].withLabel(1, "n").
+        append(row1(1)).resultSet
+      rs.next
+
+      (rs.getObject(1, classOf[java.lang.Float]).
+        aka("byIndex") mustEqual 1.toFloat).
+        and(rs.getObject("n", classOf[java.lang.Double]).
+          aka("byLabel") mustEqual 1.toDouble)
 
     }
   }

@@ -763,7 +763,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
      * {@inheritDoc}
      */
     public <T extends Object> T getObject(final int columnIndex, 
-                                          final Class<T> clazz) 
+                                          final Class<T> type) 
         throws SQLException {
 
         throw new RuntimeException("Not implemented");

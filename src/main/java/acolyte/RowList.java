@@ -12,6 +12,7 @@ import java.util.Map;
 import java.math.BigDecimal;
 
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Date;
 import java.sql.Time;
@@ -107,7 +108,7 @@ public class RowList<R extends Row> {
     /**
      * Returns result set from these rows.
      */
-    public AbstractResultSet resultSet() {
+    public RowResultSet<R> resultSet() {
         return new RowResultSet<R>(this.rows);
     } // end of resultSet
 
@@ -144,9 +145,10 @@ public class RowList<R extends Row> {
      *
      * @param R Row
      */
-    private final class RowResultSet<R extends Row> extends AbstractResultSet {
+    public final class RowResultSet<R extends Row> extends AbstractResultSet {
         final List<R> rows;
-        private Column<? extends Object> last;
+        final Statement statement;
+        private Column<?> last;
 
         // --- Constructors ---
 
@@ -159,12 +161,47 @@ public class RowList<R extends Row> {
                 throw new IllegalArgumentException();
             } // end of if
 
-            this.rows = rows;
+            this.rows = Collections.unmodifiableList(rows);
+            this.statement = null; // dettached
             this.last = null;
             super.fetchSize = rows.size();
         } // end of <init>
 
+        /**
+         * Copy constructor.
+         */
+        private RowResultSet(final List<R> rows,
+                             final Column<?> last,
+                             final Statement statement) {
+
+            if (rows == null) {
+                // Impossible
+                throw new IllegalArgumentException();
+            } // end of if
+
+            this.rows = Collections.unmodifiableList(rows);
+            this.statement = statement;
+            this.last = null;
+            super.fetchSize = rows.size();
+        } // end of <init>
+
+        // --- 
+
+        /**
+         * Returns updated resultset, attached with given |statement|.
+         */
+        public RowResultSet<R> withStatement(final Statement statement) {
+            return new RowResultSet<R>(this.rows, this.last, statement);
+        } // end of withStatement
+
         // --- ResultSet implementation ---
+
+        /**
+         * {@inheritDoc}
+         */
+        public Statement getStatement() {
+            return this.statement;
+        } // end of getStatement
         
         /**
          * {@inheritDoc}
@@ -233,7 +270,7 @@ public class RowList<R extends Row> {
 
             // ---
 
-            final int columnIndex = colNames.get(columnLabel);
+            final int columnIndex = findColumn(columnLabel);
             final int idx = columnIndex - 1;
             final List<Object> cells = this.rows.get(this.row-1).cells();
 
@@ -249,6 +286,72 @@ public class RowList<R extends Row> {
             
             return val;
         } // end of getObject            
+
+        /**
+         * {@inheritDoc}
+         */
+        public Object getObject(final int columnIndex, 
+                                final Map<String, Class<?>> typemap) 
+            throws SQLException {
+
+            return getObject(columnIndex);
+        } // end of getObject
+
+        /**
+         * {@inheritDoc}
+         */
+        public Object getObject(final String columnLabel, 
+                                final Map<String, Class<?>> typemap) 
+            throws SQLException {
+            
+            return getObject(columnLabel);
+        } // end of getObject
+
+        /**
+         * {@inheritDoc}
+         */
+        public <T extends Object> T getObject(final int columnIndex, 
+                                              final Class<T> type) 
+            throws SQLException {
+            
+            if (type == null) {
+                throw new SQLException("Invalid type");
+            } // end of if
+
+            // ---
+
+            final Object val = getObject(columnIndex);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            // ---
+
+            return convert(val, type);
+        } // end of getObject
+
+        /**
+         * {@inheritDoc}
+         */
+        public <T extends Object> T getObject(final String columnLabel,
+                                              final Class<T> type) 
+            throws SQLException {
+            
+            if (type == null) {
+                throw new SQLException("Invalid type");
+            } // end of if
+
+            // ---
+
+            final Object val = getObject(columnLabel);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            return convert(val, type);
+        } // end of getObject
 
         /**
          * {@inheritDoc}
@@ -833,5 +936,74 @@ public class RowList<R extends Row> {
             
             return getTimestamp(columnLabel);
         } // end of getTimestamp
+
+        /**
+         * {@inheritDoc}
+         */
+        public int findColumn(final String columnLabel) throws SQLException {
+            return colNames.get(columnLabel);
+        } // end of findColumn
+
+        /**
+         * Convert not null value.
+         */
+        private <T extends Object> T convert(final Object val, 
+                                             final Class<T> type) 
+            throws SQLException {
+
+            final Class clazz = val.getClass();
+
+            if (type.isAssignableFrom(clazz)) {
+                return type.cast(val);
+            } // end of if
+
+            if (java.util.Date.class.isAssignableFrom(type) &&
+                java.util.Date.class.isAssignableFrom(clazz)) {
+
+                @SuppressWarnings("unchecked")
+                final Class<? extends java.util.Date> origType = 
+                    (Class<? extends java.util.Date>) clazz;
+                
+                final java.util.Date orig = origType.cast(val);
+
+                if (Date.class.isAssignableFrom(type)) {
+                    return type.cast(new Date(orig.getTime()));
+                } else if (Time.class.isAssignableFrom(type)) {
+                    return type.cast(new Time(orig.getTime()));
+                } else if (Timestamp.class.isAssignableFrom(type)) {
+                    return type.cast(new Timestamp(orig.getTime()));
+                } // end of else if
+                
+                throw new SQLException("Fails to convert temporal type");
+            } // end of if
+
+            if (Number.class.isAssignableFrom(type) &&
+                Number.class.isAssignableFrom(clazz)) {
+
+                @SuppressWarnings("unchecked")
+                final Class<? extends Number> origType = 
+                    (Class<? extends Number>) clazz;
+                
+                final Number num = origType.cast(val);
+
+                if (Byte.class.isAssignableFrom(type)) {
+                    return type.cast(new Byte(num.toString()));
+                } else if (Double.class.isAssignableFrom(type)) {
+                    return type.cast(new Double(num.toString()));
+                } else if (Float.class.isAssignableFrom(type)) {
+                    return type.cast(new Float(num.toString()));
+                } else if (Integer.class.isAssignableFrom(type)) {
+                    return type.cast(new Integer(num.toString()));
+                } else if (Long.class.isAssignableFrom(type)) {
+                    return type.cast(new Long(num.toString()));
+                } else if (Short.class.isAssignableFrom(type)) {
+                    return type.cast(new Short(num.toString()));
+                } // end of if
+
+                throw new SQLException("Fails to convert numeric type");
+            } // end of if
+
+            throw new SQLException("Incompatible type: " + type + ", " + clazz);
+        } // end of convert
     } // end of class RowResultSet
 } // end of class RowList
