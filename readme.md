@@ -19,12 +19,21 @@ Acolyte driver behaves as any other JDBC driver, that's to say you can get a con
 JDBC URL should match `"jdbc:acolyte:anything-you-want?handler=id"` (see after for details about `handler` parameter).
 
 ```java
+import java.util.List;
+
 import java.sql.DriverManager;
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Date;
 
 import acolyte.CompositeHandler;
 import acolyte.ConnectionHandler;
 import acolyte.StatementHandler;
+
+import acolyte.StatementHandler.Parameter;
+import acolyte.Row.Row3;
+
+import static acolyte.RowList.row3;
 
 // ...
 
@@ -38,12 +47,12 @@ StatementHandler handler = new CompositeHandler().
   withQueryDetection("EXEC that_proc"). // second detection regex
   withUpdateHandler(new CompositeHandler.UpdateHandler() {
     // Handle execution of update statement (not query)
-    public int apply(String sql, ...) {
+    public int apply(String sql, List<Parameter> parameters) {
       // ...
       return count;
     }
   }).withQueryHandler(new CompositeHandler.QueryHandler () {
-    public ResultSet apply(String sql, ...) {
+    public ResultSet apply(String sql, List<Parameter> parameters) {
       // ...
 
       // Prepare list of 2 rows
@@ -51,8 +60,8 @@ StatementHandler handler = new CompositeHandler().
       RowList<Row3<String, Float, Date>> rows = 
         new RowList<Row3<String, Float, Date>>().
         withLabel(1, "String").withLabel(3, "Date"). // Optional: set labels
-        append(rows3("str", 1.2f, d1)).
-        append(rows3("val", 2.34f, d2));
+        append(row3("str", 1.2f, new Date(1, 2, 3))).
+        append(row3("val", 2.34f, new Date(4, 5, 6)));
 
       return rows.resultSet();
     }
@@ -67,10 +76,11 @@ Connection con = DriverManager.getConnection(jdbcUrl);
 // ... Connection |con| is managed through |handler|
 ```
 
-You can see tested/detailed [use cases](./src/test/java/acolyte/JavaUseCases.java).
+You can see detailed [use cases](./src/test/java/acolyte/JavaUseCases.java) whose expectations are visible in [specifications](./src/test/scala/acolyte/AcolyteSpec.scala).
 
 ### Limitations
 
+- Limited datatype conversions.
 - Binary datatype are not currently supported.
 - Callable statement are not (yet) implemented.
 - `ResultSet.RETURN_GENERATED_KEYS` is not supported.
