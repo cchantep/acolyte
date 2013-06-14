@@ -107,7 +107,7 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
     }
 
     "create expected instance from statement handler" in {
-      val h = new RuleStatementHandler()
+      val h = new CompositeHandler()
       lazy val props = acolyte.Driver.properties(h)
 
       (props.size aka "size" mustEqual 1).

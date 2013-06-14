@@ -22,21 +22,21 @@ JDBC URL should match `"jdbc:acolyte:anything-you-want"`.
 import java.sql.DriverManager;
 import java.sql.Connection;
 
-import acolyte.RuleStatementHandler;
+import acolyte.CompositeHandler;
 import acolyte.ConnectionHandler;
 import acolyte.StatementHandler;
 
 // Prepare handler
-StatementHandler handler = new RuleStatementHandler().
+StatementHandler handler = new CompositeHandler().
   withQueryDetection("^SELECT "). // regex test from beginning
   withQueryDetection("EXEC that_proc"). // second detection regex
-  withUpdateHandler(new RuleStatementHandler.UpdateHandler() {
+  withUpdateHandler(new CompositeHandler.UpdateHandler() {
     // Handle execution of update statement (not query)
     public int apply(String sql, ...) {
       // ...
       return count;
     }
-  }).withQueryHandler(new RuleStatementHandler.QueryHandler () {
+  }).withQueryHandler(new CompositeHandler.QueryHandler () {
     public ResultSet apply(String sql, ...) {
       // ...
 

@@ -3,12 +3,12 @@ package acolyte
 import org.specs2.mutable.Specification
 
 import acolyte.AbstractStatement.NO_PARAMS
-import acolyte.RuleStatementHandler.{ QueryHandler, UpdateHandler }
+import acolyte.CompositeHandler.{ QueryHandler, UpdateHandler }
 
 import acolyte.Acolyte._
 
-object RuleStatementHandlerSpec extends Specification {
-  "Rule-based statement handler" title
+object CompositeHandlerSpec extends Specification {
+  "Composite statement handler" title
 
   "Query detection" should {
     "not be inited" in {

@@ -9,16 +9,16 @@ import scala.language.implicitConversions
 import scala.collection.JavaConversions
 
 import acolyte.ParameterMetaData.Parameter
-import acolyte.RuleStatementHandler.{ QueryHandler, UpdateHandler }
+import acolyte.CompositeHandler.{ QueryHandler, UpdateHandler }
 
 case class Execution(
   sql: String,
   parameters: List[(Parameter, AnyRef)])
 
-final class ScalaRuleStatementHandler(
-    b: RuleStatementHandler) extends RuleStatementHandler {
+final class ScalaCompositeHandler(
+    b: CompositeHandler) extends CompositeHandler {
 
-  def withUpdateHandler(h: Execution ⇒ Int): RuleStatementHandler = {
+  def withUpdateHandler(h: Execution ⇒ Int): CompositeHandler = {
     super.withUpdateHandler(new UpdateHandler {
       def apply(sql: String, p: JList[JTupple[Parameter, Object]]): Int = {
         val ps: List[(Parameter, AnyRef)] =
@@ -62,9 +62,9 @@ final class ScalaRowList[R <: Row](l: RowList[R]) extends RowList[R] {
 
 // Acolyte DSL
 object Acolyte {
-  def handleStatement = new RuleStatementHandler()
+  def handleStatement = new CompositeHandler()
 
-  implicit def RuleStatementHandlerAsScala(h: RuleStatementHandler): ScalaRuleStatementHandler = new ScalaRuleStatementHandler(h)
+  implicit def CompositeHandlerAsScala(h: CompositeHandler): ScalaCompositeHandler = new ScalaCompositeHandler(h)
 
   implicit def ResultRowAsScala[R <: Row](r: R): ScalaResultRow =
     new ScalaResultRow(r)

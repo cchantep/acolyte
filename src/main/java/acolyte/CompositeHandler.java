@@ -16,7 +16,7 @@ import acolyte.ParameterMetaData.Parameter;
  *
  * @author Cedric Chantepie
  */
-public class RuleStatementHandler implements StatementHandler {
+public class CompositeHandler implements StatementHandler {
     // --- Properties ---
 
     /**
@@ -39,7 +39,7 @@ public class RuleStatementHandler implements StatementHandler {
     /**
      * Constructor
      */
-    public RuleStatementHandler() {
+    public CompositeHandler() {
         this.queryDetection = new Pattern[0];
         this.queryHandler = null;
         this.updateHandler = null;
@@ -48,7 +48,7 @@ public class RuleStatementHandler implements StatementHandler {
     /**
      * Copy constructor.
      */
-    public RuleStatementHandler(final Pattern[] queryDetection,
+    public CompositeHandler(final Pattern[] queryDetection,
                                 final QueryHandler queryHandler,
                                 final UpdateHandler updateHandler) {
 
@@ -110,7 +110,7 @@ public class RuleStatementHandler implements StatementHandler {
      * @throws java.util.regex.PatternSyntaxException If |pattern| is invalid
      * @see #withQueryDetection(java.util.regex.Pattern)
      */
-    public RuleStatementHandler withQueryDetection(final String pattern) {
+    public CompositeHandler withQueryDetection(final String pattern) {
         return withQueryDetection(Pattern.compile(pattern));
     } // end of withQueryDetection
 
@@ -122,7 +122,7 @@ public class RuleStatementHandler implements StatementHandler {
      * @param queryDetection Query detection pattern
      * @throws IllegalArgumentException if pattern is null
      */
-    public RuleStatementHandler withQueryDetection(final Pattern pattern) {
+    public CompositeHandler withQueryDetection(final Pattern pattern) {
         if (pattern == null) {
             throw new IllegalArgumentException();
         } // end of if
@@ -138,7 +138,7 @@ public class RuleStatementHandler implements StatementHandler {
 
         patterns[patterns.length-1] = pattern;
 
-        return new RuleStatementHandler(patterns, 
+        return new CompositeHandler(patterns, 
                                         this.queryHandler, 
                                         this.updateHandler);
 
@@ -151,14 +151,14 @@ public class RuleStatementHandler implements StatementHandler {
      * @param handler Query handler
      * @throws IllegalArgumentException if handler is null
      */
-    public RuleStatementHandler withQueryHandler(final QueryHandler handler) {
+    public CompositeHandler withQueryHandler(final QueryHandler handler) {
         if (handler == null) {
             throw new IllegalArgumentException();
         } // end of if
 
         // ---
 
-        return new RuleStatementHandler(this.queryDetection,
+        return new CompositeHandler(this.queryDetection,
                                         handler,
                                         this.updateHandler);
         
@@ -171,14 +171,14 @@ public class RuleStatementHandler implements StatementHandler {
      * @param handler Update handler
      * @throws IllegalArgumentException if handler is null
      */
-    public RuleStatementHandler withUpdateHandler(final UpdateHandler handler) {
+    public CompositeHandler withUpdateHandler(final UpdateHandler handler) {
         if (handler == null) {
             throw new IllegalArgumentException();
         } // end of if
 
         // ---
 
-        return new RuleStatementHandler(this.queryDetection,
+        return new CompositeHandler(this.queryDetection,
                                         this.queryHandler,
                                         handler);
         
@@ -206,4 +206,4 @@ public class RuleStatementHandler implements StatementHandler {
         public int apply(String sql, List<ImmutablePair<Parameter,Object>> parameters) throws SQLException;
 
     } // end of interfaceQueryHandler
-} // end of class RuleStatementHandler
+} // end of class CompositeHandler
