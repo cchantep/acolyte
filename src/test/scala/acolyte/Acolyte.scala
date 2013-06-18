@@ -9,6 +9,7 @@ import scala.collection.JavaConversions
 import acolyte.ParameterMetaData.ParameterDef
 import acolyte.StatementHandler.Parameter
 import acolyte.CompositeHandler.{ QueryHandler, UpdateHandler }
+import acolyte.Row.Row1
 
 case class Execution(
   sql: String,
@@ -81,9 +82,9 @@ object Acolyte {
 
   def rowList[R <: Row]: RowList[R] = new RowList[R]
 
-  def row1[A](c1: A): Row.Row1[A] = RowList.row1(c1)
-  def row2[A, B](c1: A, c2: B): Row.Row2[A, B] = RowList.row2(c1, c2)
-  def row3[A, B, C](c1: A, c2: B, c3: C): Row.Row3[A, B, C] =
+  def row1[A](c1: A): Row1[A] = RowList.row1(c1)
+  def row2[A, B](c1: A, c2: B): Row2[A, B] = RowList.row2(c1, c2)
+  def row3[A, B, C](c1: A, c2: B, c3: C): Row3[A, B, C] =
     RowList.row3(c1, c2, c3)
 
 }

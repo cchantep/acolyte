@@ -114,25 +114,25 @@ public class RowList<R extends Row> {
     /**
      * Creates a row with 1 unnamed cell.
      */
-    public static <A> Row.Row1<A> row1(final A c1) {
-        return new Row.Row1<A>(c1);
+    public static <A> Row1<A> row1(final A c1) {
+        return new Row1<A>(c1);
     } // end of row1
 
     /**
      * Creates a row with 2 unnamed cells.
      */
-    public static <A,B> Row.Row2<A,B> row2(final A c1, final B c2) {
-        return new Row.Row2<A,B>(c1, c2);
+    public static <A,B> Row2<A,B> row2(final A c1, final B c2) {
+        return new Row2<A,B>(c1, c2);
     } // end of row2
 
     /**
      * Creates a row with 3 unnamed cells.
      */
-    public static <A,B,C> Row.Row3<A,B,C> row3(final A c1, 
-                                               final B c2, 
-                                               final C c3) {
-
-        return new Row.Row3<A,B,C>(c1, c2, c3);
+    public static <A,B,C> Row3<A,B,C> row3(final A c1, 
+                                           final B c2, 
+                                           final C c3) {
+        
+        return new Row3<A,B,C>(c1, c2, c3);
     } // end of row3
 
     // --- Inner classes ---

@@ -1,0 +1,88 @@
+package acolyte;
+
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
+/**
+ * Row with #N# cells.
+ */
+public final class Row#N#<#CP#> implements Row {
+    #PS#
+
+    public final List<Object> cells;
+
+    // --- Constructors ---
+
+    /**
+     * Copy constructor.
+     */
+    public Row#N#(#IP#) {
+        #AS#
+
+        final ArrayList<Object> cs = new ArrayList<Object>();
+
+        #RP#
+
+        this.cells = Collections.unmodifiableList(cs);
+    } // end of <init>
+
+    /**
+     * No arg constructor, with null cells.
+     */
+    public Row#N#() {
+        this(#NA#);
+    } // end of <init>
+
+    // --- 
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<Object> cells() {
+        return this.cells;
+    } // end of cells
+
+    #SP#
+
+    // --- Object support ---
+
+    /**
+     * {@inheritDoc}
+     */
+    public int hashCode() {
+        return new HashCodeBuilder(1, 3).
+            #HC#
+            .toHashCode();
+
+    } // end of hashCode
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean equals(final Object o) {
+        if (o == null || !(o instanceof Row#N#)) {
+            return false;
+        } // end of if
+
+        // --- 
+
+        @SuppressWarnings("unchecked")
+        final Row#N#<#CP#> other = (Row#N#<#CP#>) o;
+            
+        return new EqualsBuilder().
+            #EQ#
+            .isEquals();
+
+    } // end of equals
+
+    /**
+     * {@inheritDoc}
+     */
+    public String toString() {
+        return String.format("Row#N#(%s)", this.cells.toString());
+    } // end of toString
+} // end of class Row#N#

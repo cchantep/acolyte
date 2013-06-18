@@ -4,7 +4,6 @@ import org.specs2.mutable.Specification
 
 import acolyte.AbstractStatement.NO_PARAMS
 import acolyte.CompositeHandler.{ QueryHandler, UpdateHandler }
-import acolyte.Row.Row2
 
 import acolyte.Acolyte._
 

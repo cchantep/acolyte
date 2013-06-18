@@ -76,7 +76,7 @@ Connection con = DriverManager.getConnection(jdbcUrl);
 // ... Connection |con| is managed through |handler|
 ```
 
-You can see detailed [use cases](./src/test/java/acolyte/JavaUseCases.java) whose expectations are visible in [specifications](./src/test/scala/acolyte/AcolyteSpec.scala).
+You can see detailed [use cases](./src/test/java/usecase/JavaUseCases.java) whose expectations are visible in [specifications](./src/test/scala/acolyte/AcolyteSpec.scala).
 
 ### Limitations
 
