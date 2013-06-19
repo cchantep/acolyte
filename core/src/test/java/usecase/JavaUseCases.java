@@ -17,7 +17,7 @@ import acolyte.RowList;
 import acolyte.StatementHandler.Parameter;
 import acolyte.Row3;
 
-import static acolyte.RowList.row3;
+import static acolyte.Rows.row3;
 
 /**
  * Use cases for testing.

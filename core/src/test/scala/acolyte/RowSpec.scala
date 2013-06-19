@@ -1,20 +1,23 @@
 package acolyte
 
-import org.specs2.mutable.Specification
+import java.util.{ArrayList=>JList}
 
-import acolyte.Row._
-import acolyte.Acolyte._
+import org.specs2.mutable.Specification
 
 object RowSpec extends Specification {
   "Row" title
 
   "Cell(s)" should {
     "be expected one for unnamed Row1[String]" in {
-      row1("str").list aka "cells" mustEqual List("str")
+      lazy val ls = { val l = new JList[String](); l.add("str"); l }
+
+      Rows.row1("str").cells aka "cells" mustEqual ls
     }
 
     "be expected one for unnamed Row2[String, Int]" in {
-      row2("str", 4).list aka "cells" mustEqual List("str", 4)
+      lazy val ls = { val l = new JList[Any](); l.add("str"); l.add(4); l }
+
+      Rows.row2("str", 4).cells aka "cells" mustEqual ls
     }
   }
 }
