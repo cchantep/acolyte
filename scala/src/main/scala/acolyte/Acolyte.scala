@@ -11,15 +11,36 @@ import acolyte.StatementHandler.Parameter
 import acolyte.CompositeHandler.{ QueryHandler, UpdateHandler }
 import acolyte.Row.Row1
 
+// Acolyte DSL
+object Acolyte {
+  def handleStatement = new CompositeHandler()
+
+  implicit def CompositeHandlerAsScala(h: CompositeHandler): ScalaCompositeHandler = new ScalaCompositeHandler(h)
+
+  implicit def ResultRowAsScala[R <: Row](r: R): ScalaResultRow =
+    new ScalaResultRow(r)
+
+  implicit def RowListAsScala[R <: Row](l: RowList[R]): ScalaRowList[R] =
+    new ScalaRowList(l)
+
+  def rowList[R <: Row]: RowList[R] = new RowList[R]
+
+  // Rows creation
+  def row1[A](c1: A): Row1[A] = Rows.row1(c1)
+  def row2[A, B](c1: A, c2: B): Row2[A, B] = Rows.row2(c1, c2)
+  def row3[A, B, C](c1: A, c2: B, c3: C): Row3[A, B, C] = Rows.row3(c1, c2, c3)
+
+}
+
 case class Execution(
   sql: String,
   parameters: List[(ParameterDef, AnyRef)])
 
 final class ScalaCompositeHandler(
-    b: CompositeHandler) extends CompositeHandler {
+  b: CompositeHandler) extends CompositeHandler {
 
   def withUpdateHandler(h: Execution ⇒ Int): CompositeHandler = {
-    super.withUpdateHandler(new UpdateHandler {
+    b.withUpdateHandler(new UpdateHandler {
       def apply(sql: String, p: JList[Parameter]): Int = {
         val ps: List[(ParameterDef, AnyRef)] =
           JavaConversions.asScalaIterable(p).
@@ -33,7 +54,7 @@ final class ScalaCompositeHandler(
   }
 
   def withQueryHandler(h: Execution ⇒ ResultSet): CompositeHandler = {
-    super.withQueryHandler(new QueryHandler {
+    b.withQueryHandler(new QueryHandler {
       def apply(sql: String, p: JList[Parameter]): ResultSet = {
         val ps: List[(ParameterDef, AnyRef)] =
           JavaConversions.asScalaIterable(p).
@@ -66,25 +87,4 @@ final class ScalaRowList[R <: Row](l: RowList[R]) extends RowList[R] {
 
   def withLabels(labels: (Int, String)*): RowList[R] =
     labels.foldLeft[RowList[R]](this) { (l, t) ⇒ l.withLabel(t._1, t._2) }
-}
-
-// Acolyte DSL
-object Acolyte {
-  def handleStatement = new CompositeHandler()
-
-  implicit def CompositeHandlerAsScala(h: CompositeHandler): ScalaCompositeHandler = new ScalaCompositeHandler(h)
-
-  implicit def ResultRowAsScala[R <: Row](r: R): ScalaResultRow =
-    new ScalaResultRow(r)
-
-  implicit def RowListAsScala[R <: Row](l: RowList[R]): ScalaRowList[R] =
-    new ScalaRowList(l)
-
-  def rowList[R <: Row]: RowList[R] = new RowList[R]
-
-  def row1[A](c1: A): Row1[A] = RowList.row1(c1)
-  def row2[A, B](c1: A, c2: B): Row2[A, B] = RowList.row2(c1, c2)
-  def row3[A, B, C](c1: A, c2: B, c3: C): Row3[A, B, C] =
-    RowList.row3(c1, c2, c3)
-
 }
