@@ -26,7 +26,7 @@ sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in
   // ---
   val lim = 26
   val fs: Seq[java.io.File] = for (n <- 2 to lim) yield {
-    val f = managed / "Row%d.java".format(n)
+    val f = managed / "acolyte" / "Row%d.java".format(n)
     IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w =>
       val cp = for (i <- 0 until n) yield letter(i)
       val ps = for (i <- 0 until n) yield "public final %s _%d;".format(letter(i), i)
@@ -52,7 +52,32 @@ sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in
       f
     }
   }
-  fs
+  val factory = {
+    val f = managed / "acolyte" / "Rows.java"
+    IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w =>
+      w.append("package acolyte;\r\n").
+        append("\r\nimport acolyte.Row.Row1;\r\n").
+        append("\r\n/**\r\n * Rows utility/factory\r\n */\r\n").
+        append("public final class Rows {")
+      for (n <- 1 to lim) yield {
+        val g = for (i <- 0 until n) yield letter(i)
+        val p = for (i <- 0 until n) yield "final %s c%d".format(letter(i), i+1)
+        val a = for (i <- 0 until n) yield "c%d".format(i+1)
+        val gd = g.mkString(",")
+        w.append("\r\n" + """
+    /**
+     * Creates a row with %d %s.
+     */
+    public static <%s> Row%d<%s> row%d(%s) {
+        return new Row%d<%s>(%s);
+    }""".format(n, (if (n == 1) "cell" else "cells"), gd, n, gd, n, 
+      p.mkString(", "), n, gd, a.mkString(", ")))
+      }
+      w.append("\r\n}")
+      f
+    }
+  }
+  fs :+ factory
 }
 
 publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))

@@ -1,6 +1,6 @@
 package acolyte
 
-import java.util.{ArrayList=>JList}
+import java.util.{ ArrayList ⇒ JList }
 
 import org.specs2.mutable.Specification
 
