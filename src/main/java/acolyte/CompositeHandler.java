@@ -112,7 +112,7 @@ public class CompositeHandler implements StatementHandler {
      * query detection |pattern|. If there is already existing pattern,
      * the new one will be used after.
      *
-     * @param queryDetection Query detection pattern
+     * @param pattern Query detection pattern
      * @throws java.util.regex.PatternSyntaxException If |pattern| is invalid
      * @see #withQueryDetection(java.util.regex.Pattern)
      */
@@ -125,7 +125,7 @@ public class CompositeHandler implements StatementHandler {
      * query detection |pattern|. If there is already existing pattern,
      * the new one will be used after.
      *
-     * @param queryDetection Query detection pattern
+     * @param pattern Query detection pattern
      * @throws IllegalArgumentException if pattern is null
      */
     public CompositeHandler withQueryDetection(final Pattern pattern) {

@@ -8,6 +8,8 @@ scalaVersion := "2.10.0"
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
 
+autoScalaLibrary := false
+
 scalacOptions += "-feature"
 
 resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
@@ -15,6 +17,8 @@ resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshot
 libraryDependencies += "org.apache.commons" % "commons-lang3" % "3.1"
 
 libraryDependencies += "org.specs2" %% "specs2" % "1.14" % "test"
+
+crossPaths := false
 
 sourceGenerators in Compile <+= sourceManaged in Compile map { dir =>
   val tmpl = new java.io.File(".") / "src" / "main" / "templates" / "Row.tmpl"

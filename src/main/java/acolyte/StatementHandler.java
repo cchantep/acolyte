@@ -72,7 +72,7 @@ public interface StatementHandler {
         // ---
 
         /**
-         * {@inheritDoc}
+         * Returns parameter made of |left| and |right| datas.
          */
         public static Parameter of(final ParameterDef left, 
                                    final Object right) {
@@ -109,7 +109,7 @@ public interface StatementHandler {
         } // end of setValue
 
         /**
-         * {@inheritDoc}
+         * Compares this parameter with an|other| one.
          */
         public int compareTo(final Parameter other) {
             return super.compareTo(other);
