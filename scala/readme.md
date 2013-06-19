@@ -1,10 +1,12 @@
-# Acolyte core
+# Acolyte Scala
 
-Core (Java) module.
+Scala module/DSL for Acolyte.
 
 ## Build
 
 This module can be built from these sources using SBT (0.12.2+): `sbt publish`
+
+It depends on core module.
 
 ## Test
 
