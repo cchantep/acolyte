@@ -78,6 +78,12 @@ Connection con = DriverManager.getConnection(jdbcUrl);
 
 You can see detailed [use cases](./src/test/java/usecase/JavaUseCases.java) whose expectations are visible in [specifications](./src/test/scala/acolyte/AcolyteSpec.scala).
 
+If you just need/want to directly get connection from `acolyte.Driver`, without using JDBC driver registry, you can use Acolyte direct connection:
+
+```java
+Connection con = new acolyte.Driver().connection(yourHandlerInstance);
+```
+
 ### Limitations
 
 - Limited datatype conversions.

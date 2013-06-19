@@ -55,9 +55,13 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
     }
 
     "not open connection without handler" in {
-      directConnect("jdbc:acolyte:test").
+      (directConnect("jdbc:acolyte:test").
         aka("connection") must throwA[IllegalArgumentException](
-          message = "Invalid handler ID: null")
+          message = "Invalid handler ID: null")).
+        and(driver.connect(null.asInstanceOf[ConnectionHandler]).
+          aka("direct connection 1") must throwA[IllegalArgumentException]).
+        and(driver.connect(null.asInstanceOf[StatementHandler]).
+          aka("direct connection 1") must throwA[IllegalArgumentException])
 
     }
 

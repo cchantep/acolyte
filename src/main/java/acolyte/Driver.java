@@ -57,7 +57,6 @@ public final class Driver implements java.sql.Driver {
         if (!acceptsURL(url)) {
             return null;
         } // end of if
-
         
         final String[] parts = url.substring(url.lastIndexOf("?")+1).split("&");
         String h = null;
@@ -129,6 +128,42 @@ public final class Driver implements java.sql.Driver {
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         throw new SQLFeatureNotSupportedException();
     } // end of getParentLogger
+
+    /**
+     * Direct connection, with given |handler| and random URL.
+     *
+     * @throws IllegalArgumentException if handler is null
+     */
+    public Connection connect(final ConnectionHandler handler) {
+        if (handler == null) {
+            throw new IllegalArgumentException();
+        } // end of if
+
+        final String url = String.
+            format("jdbc:acolyte:direct-%d",
+                   System.identityHashCode(handler));
+
+        return new acolyte.Connection(url, null, handler);
+    } // end of connect
+
+    /**
+     * Direct connection, with given |handler| and random URL.
+     *
+     * @throws IllegalArgumentException if handler is null
+     */
+    public Connection connect(final StatementHandler handler) {
+        if (handler == null) {
+            throw new IllegalArgumentException();
+        } // end of if
+
+        final String url = String.
+            format("jdbc:acolyte:direct-%d",
+                   System.identityHashCode(handler));
+
+        final ConnectionHandler ch = new ConnectionHandler.Default(handler);
+
+        return new acolyte.Connection(url, null, ch);
+    } // end of connect
 
     // ---
 
