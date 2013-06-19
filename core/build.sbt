@@ -1,12 +1,12 @@
-name := "acolyte"
+name := "acolyte-core"
 
-organization := "cchantep"
+organization := "acolyte"
 
-version := "1.0.0"
+version := "1.0.0-SNAPSHOT"
 
 scalaVersion := "2.10.0"
 
-javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
+javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
 
 autoScalaLibrary := false
 
@@ -14,19 +14,19 @@ scalacOptions += "-feature"
 
 resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
 
-libraryDependencies += "org.apache.commons" % "commons-lang3" % "3.1"
-
-libraryDependencies += "org.specs2" %% "specs2" % "1.14" % "test"
+libraryDependencies ++= Seq("org.apache.commons" % "commons-lang3" % "3.1",
+  "org.specs2" %% "specs2" % "1.14" % "test")
 
 crossPaths := false
 
-sourceGenerators in Compile <+= sourceManaged in Compile map { dir =>
-  val tmpl = new java.io.File(".") / "src" / "main" / "templates" / "Row.tmpl"
+sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map { dirs =>
+  val (base, managed) = dirs
+  val tmpl = base / "src" / "main" / "templates" / "Row.tmpl"
   val letter = 'A' to 'Z'
   // ---
   val lim = 26
   val fs: Seq[java.io.File] = for (n <- 2 to lim) yield {
-    val f = dir / "Row%d.java".format(n)
+    val f = managed / "Row%d.java".format(n)
     IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w =>
       val cp = for (i <- 0 until n) yield letter(i)
       val ps = for (i <- 0 until n) yield "public final %s _%d;".format(letter(i), i)
