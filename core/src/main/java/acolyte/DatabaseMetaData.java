@@ -933,28 +933,51 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                final String tableNamePattern, 
                                final String[] types) throws SQLException {
 
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList10(String.class, String.class, String.class, 
+                                  String.class, String.class, String.class,
+                                  String.class, String.class, String.class,
+                                  String.class).
+            withLabel(1, "TABLE_CAT").
+            withLabel(2, "TABLE_SCHEM").
+            withLabel(3, "TABLE_NAME").
+            withLabel(4, "TABLE_TYPE").
+            withLabel(5, "REMARKS").
+            withLabel(6, "TYPE_CAT").
+            withLabel(7, "TYPE_SCHEM").
+            withLabel(8, "TYPE_NAME").
+            withLabel(9, "SELF_REFERENCING_COL_NAME").
+            withLabel(10, "REF_GENERATION").
+            resultSet();
+
     } // end of getTables
 
     /**
      * {@inheritDoc}
      */
     public ResultSet getSchemas() throws SQLException {
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList2(String.class, String.class).
+            withLabel(1, "TABLE_SCHEM").
+            withLabel(2, "TABLE_CATALOG").
+            resultSet();
+
     } // end of getSchemas
 
     /**
      * {@inheritDoc}
      */
     public ResultSet getCatalogs() throws SQLException {
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList1(String.class).
+            withLabel(1, "TABLE_CAT").resultSet();
+
     } // end of getCatalogs
 
     /**
      * {@inheritDoc}
      */
     public ResultSet getTableTypes() throws SQLException {
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList1(String.class).
+            withLabel(1, "TABLE_TYPE").resultSet();
+
     } // end of getTableTypes
 
     /**
@@ -966,7 +989,36 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                 final String columnNamePattern)
         throws SQLException {
 
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList21(String.class, String.class, String.class,
+                                  String.class, Integer.class, String.class,
+                                  Integer.class, Integer.class, Integer.class,
+                                  Integer.class, String.class, String.class,
+                                  Integer.class, Integer.class, Integer.class, 
+                                  Integer.class, String.class, String.class, 
+                                  String.class, String.class, Short.class).
+            withLabel(1, "TABLE_CAT").
+            withLabel(2, "TABLE_SCHEM").
+            withLabel(3, "TABLE_NAME").
+            withLabel(4, "COLUMN_NAME").
+            withLabel(5, "DATA_TYPE").
+            withLabel(6, "TYPE_NAME").
+            withLabel(7, "BUFFER_LENGTH").
+            withLabel(8, "DECIMAL_DIGITS").
+            withLabel(9, "NUM_PREC_RADIX").
+            withLabel(10, "NULLABLE").
+            withLabel(11, "REMARKS").
+            withLabel(12, "COLUMN_DEF").
+            withLabel(13, "SQL_DATA_TYPE").
+            withLabel(14, "SQL_DATETIME_SUB").
+            withLabel(15, "CHAR_OCTET_LENGTH").
+            withLabel(16, "ORDINAL_POSITION").
+            withLabel(17, "IS_NULLABLE").
+            withLabel(18, "SCOPE_CATLOG").
+            withLabel(19, "SCOPE_SCHEMA").
+            withLabel(20, "SCOPE_TABLE").
+            withLabel(21, "SOURCE_DATA_TYPE").
+            resultSet();
+
     } // end of getColumns
 
     /**
@@ -978,7 +1030,19 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                          final String columnNamePattern)
         throws SQLException {
 
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList8(String.class, String.class, String.class,
+                                 String.class, String.class, String.class,
+                                 String.class, String.class).
+            withLabel(1, "TABLE_CAT").
+            withLabel(2, "TABLE_SCHEM").
+            withLabel(3, "TABLE_NAME").
+            withLabel(4, "COLUMN_NAME").
+            withLabel(5, "GRANTOR").
+            withLabel(6, "GRANTEE").
+            withLabel(7, "PRIVILEGE").
+            withLabel(8, "IS_GRANTABLE").
+            resultSet();
+
     } // end of getColumnPrivileges
 
     /**
@@ -989,7 +1053,18 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                         final String tableNamePattern) 
         throws SQLException {
 
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList7(String.class, String.class, String.class,
+                                 String.class, String.class, String.class,
+                                 String.class).
+            withLabel(1, "TABLE_CAT").
+            withLabel(2, "TABLE_SCHEM").
+            withLabel(3, "TABLE_NAME").
+            withLabel(4, "GRANTOR").
+            withLabel(5, "GRANTEE").
+            withLabel(6, "PRIVILEGE").
+            withLabel(7, "IS_GRANTABLE").
+            resultSet();
+
     } // end of getTablePrivileges
 
     /**
@@ -1002,7 +1077,19 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                           final boolean nullable)
         throws SQLException {
 
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList8(Short.class, String.class, Integer.class,
+                                 String.class, Integer.class, Integer.class,
+                                 Short.class, Short.class).
+            withLabel(1, "SCOPE").
+            withLabel(2, "COLUMN_NAME").
+            withLabel(3, "DATA_TYPE").
+            withLabel(4, "TYPE_NAME").
+            withLabel(5, "COLUMN_SIZE").
+            withLabel(6, "BUFFER_LENGTH").
+            withLabel(7, "DECIMAL_DIGITS").
+            withLabel(8, "PSEUDO_COLUMN").
+            resultSet();
+
     } // end of getBestRowIdentifier
 
     /**
@@ -1013,7 +1100,19 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                        final String table)
         throws SQLException {
 
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList8(Short.class, String.class, Integer.class,
+                                 String.class, Integer.class, Integer.class,
+                                 Short.class, Short.class).
+            withLabel(1, "SCOPE").
+            withLabel(2, "COLUMN_NAME").
+            withLabel(3, "DATA_TYPE").
+            withLabel(4, "TYPE_NAME").
+            withLabel(5, "COLUMN_SIZE").
+            withLabel(6, "BUFFER_LENGTH").
+            withLabel(7, "DECIMAL_DIGITS").
+            withLabel(8, "PSEUDO_COLUMN").
+            resultSet();
+
     } // end of getVersionColumns
 
     /**
@@ -1024,7 +1123,16 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                     final String table)
         throws SQLException {
 
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList6(String.class, String.class, String.class, 
+                                 String.class, Short.class, String.class).
+            withLabel(1, "TABLE_CAT").
+            withLabel(2, "TABLE_SCHEM").
+            withLabel(3, "TABLE_NAME").
+            withLabel(4, "COLUMN_NAME").
+            withLabel(5, "KEY_SEQ").
+            withLabel(6, "PK_NAME").
+            resultSet();
+
     } // end of getPrimaryKey
 
     /**
@@ -1035,7 +1143,27 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                      final String table)
         throws SQLException {
 
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList14(String.class, String.class, String.class, 
+                                  String.class, String.class, String.class, 
+                                  String.class, String.class, Short.class, 
+                                  Short.class, Short.class, String.class, 
+                                  String.class, Short.class).
+            withLabel(1, "PKTABLE_CAT").
+            withLabel(2, "PKTABLE_SCHEM").
+            withLabel(3, "PKTABLE_NAME").
+            withLabel(4, "PKCOLUMN_NAME").
+            withLabel(5, "FKTABLE_CAT").
+            withLabel(6, "FKTABLE_SCHEM").
+            withLabel(7, "FKTABLE_NAME").
+            withLabel(8, "FKCOLUMN_NAME").
+            withLabel(9, "KEY_SEQ").
+            withLabel(10, "UPDATE_RULE").
+            withLabel(11, "DELETE_RULE").
+            withLabel(12, "FK_NAME").
+            withLabel(13, "PK_NAME").
+            withLabel(14, "DEFERRABILITY").
+            resultSet();
+            
     } // end of getImportedKeys
 
     /**
@@ -1046,7 +1174,27 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                      final String table)
         throws SQLException {
 
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList14(String.class, String.class, String.class, 
+                                  String.class, String.class, String.class, 
+                                  String.class, String.class, Short.class, 
+                                  Short.class, Short.class, String.class, 
+                                  String.class, Short.class).
+            withLabel(1, "PKTABLE_CAT").
+            withLabel(2, "PKTABLE_SCHEM").
+            withLabel(3, "PKTABLE_NAME").
+            withLabel(4, "PKCOLUMN_NAME").
+            withLabel(5, "FKTABLE_CAT").
+            withLabel(6, "FKTABLE_SCHEM").
+            withLabel(7, "FKTABLE_NAME").
+            withLabel(8, "FKCOLUMN_NAME").
+            withLabel(9, "KEY_SEQ").
+            withLabel(10, "UPDATE_RULE").
+            withLabel(11, "DELETE_RULE").
+            withLabel(12, "FK_NAME").
+            withLabel(13, "PK_NAME").
+            withLabel(14, "DEFERRABILITY").
+            resultSet();
+
     } // end of getExportedKeys
 
     /**
@@ -1060,14 +1208,59 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                        final String foreignTable)
         throws SQLException {
 
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList14(String.class, String.class, String.class, 
+                                  String.class, String.class, String.class, 
+                                  String.class, String.class, Short.class, 
+                                  Short.class, Short.class, String.class, 
+                                  String.class, Short.class).
+            withLabel(1, "PKTABLE_CAT").
+            withLabel(2, "PKTABLE_SCHEM").
+            withLabel(3, "PKTABLE_NAME").
+            withLabel(4, "PKCOLUMN_NAME").
+            withLabel(5, "FKTABLE_CAT").
+            withLabel(6, "FKTABLE_SCHEM").
+            withLabel(7, "FKTABLE_NAME").
+            withLabel(8, "FKCOLUMN_NAME").
+            withLabel(9, "KEY_SEQ").
+            withLabel(10, "UPDATE_RULE").
+            withLabel(11, "DELETE_RULE").
+            withLabel(12, "FK_NAME").
+            withLabel(13, "PK_NAME").
+            withLabel(14, "DEFERRABILITY").
+            resultSet();
+
     } // end of getCrossReference
 
     /**
      * {@inheritDoc}
      */
     public ResultSet getTypeInfo() throws SQLException {
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList18(String.class, Integer.class, Integer.class,
+                                  String.class, String.class, String.class,
+                                  Short.class, Boolean.class, Short.class,
+                                  Boolean.class, Boolean.class, Boolean.class,
+                                  String.class, Short.class, Short.class, 
+                                  Integer.class, Integer.class, Integer.class).
+            withLabel(1, "TYPE_NAME").
+            withLabel(2, "DATA_TYPE").
+            withLabel(3, "PRECISION").
+            withLabel(4, "LITERAL_PREFIX").
+            withLabel(5, "LITERAL_SUFFIX").
+            withLabel(6, "CREATE_PARAMS").
+            withLabel(7, "NULLABLE").
+            withLabel(8, "CASE_SENSITIVE").
+            withLabel(9, "SEARCHABLE").
+            withLabel(10, "UNSIGNED_ATTRIBUTE").
+            withLabel(11, "FIXED_PREC_SCALE").
+            withLabel(12, "AUTO_INCREMENT").
+            withLabel(13, "LOCAL_TYPE_NAME").
+            withLabel(14, "MINIMUM_SCALE").
+            withLabel(15, "MAXIMUM_SCALE").
+            withLabel(16, "SQL_DATA_TYPE").
+            withLabel(17, "SQL_DATETIME_SUB").
+            withLabel(18, "NUM_PREC_RADIX").
+            resultSet();
+
     } // end of getTypeInfo
 
     /**
@@ -1080,7 +1273,26 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                   final boolean approximate)
         throws SQLException {
 
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList13(String.class, String.class, String.class, 
+                                  Boolean.class, String.class, String.class, 
+                                  Short.class, Short.class, String.class, 
+                                  String.class, Integer.class, Integer.class, 
+                                  String.class).
+            withLabel(1, "TABLE_CAT").
+            withLabel(2, "TABLE_SCHEM").
+            withLabel(3, "TABLE_NAME").
+            withLabel(4, "NON_UNIQUE").
+            withLabel(5, "INDEX_QUALIFIER").
+            withLabel(6, "INDEX_NAME").
+            withLabel(7, "TYPE").
+            withLabel(8, "ORDINAL_POSITION").
+            withLabel(9, "COLUMN_NAME").
+            withLabel(10, "ASC_OR_DESC").
+            withLabel(11, "CARDINALITY").
+            withLabel(12, "PAGES").
+            withLabel(13, "FILTER_CONDITION").
+            resultSet();
+
     } // end of getIndexInfo
 
     /**
@@ -1179,7 +1391,18 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                              int[] types)
         throws SQLException {
 
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList7(String.class, String.class, String.class,
+                                 String.class, Integer.class, String.class,
+                                 Short.class).
+            withLabel(1, "TYPE_CAT").
+            withLabel(2, "TYPE_SCHEM").
+            withLabel(3, "TYPE_NAME").
+            withLabel(4, "CLASS_NAME").
+            withLabel(5, "DATA_TYPE").
+            withLabel(6, "REMARKS").
+            withLabel(7, "BASE_TYPE").
+            resultSet();
+
     } // end of getUDTs
 
     /**
@@ -1225,7 +1448,16 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                    final String typeNamePattern)
         throws SQLException {
 
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList6(String.class, String.class, String.class, 
+                                 String.class, String.class, String.class).
+            withLabel(1, "TYPE_CAT").
+            withLabel(2, "TYPE_SCHEM").
+            withLabel(3, "TYPE_NAME").
+            withLabel(4, "SUPERTYPE_CAT").
+            withLabel(5, "SUPERTYPE_SCHEM").
+            withLabel(6, "SUPERTYPE_NAME").
+            resultSet();
+
     } // end of getSuperTypes
 
     /**
@@ -1236,7 +1468,14 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                     final String tableNamePattern)
         throws SQLException {
 
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList4(String.class, String.class,
+                                 String.class, String.class).
+            withLabel(1, "TABLE_CAT").
+            withLabel(2, "TABLE_SCHEM").
+            withLabel(3, "TABLE_NAME").
+            withLabel(4, "SUPERTABLE_NAME").
+            resultSet();
+
     } // end of getSuperTables
 
     /**
@@ -1248,7 +1487,36 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                    final String attributeNamePattern)
         throws SQLException {
 
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList21(String.class, String.class, String.class,
+                                  String.class, Integer.class, String.class,
+                                  Integer.class, Integer.class, Integer.class,
+                                  Integer.class, String.class, String.class,
+                                  Integer.class, Integer.class, Integer.class, 
+                                  Integer.class, String.class, String.class, 
+                                  String.class, String.class, Short.class).
+            withLabel(1, "TYPE_CAT").
+            withLabel(2, "TYPE_SCHEM").
+            withLabel(3, "TYPE_NAME").
+            withLabel(4, "ATTR_NAME").
+            withLabel(5, "DATA_TYPE").
+            withLabel(6, "ATTR_TYPE_NAME").
+            withLabel(7, "ATTR_SIZE").
+            withLabel(8, "DECIMAL_DIGITS").
+            withLabel(9, "NUM_PREC_RADIX").
+            withLabel(10, "NULLABLE").
+            withLabel(11, "REMARKS").
+            withLabel(12, "ATTR_DEF").
+            withLabel(13, "SQL_DATA_TYPE").
+            withLabel(14, "SQL_DATETIME_SUB").
+            withLabel(15, "CHAR_OCTET_LENGTH").
+            withLabel(16, "ORDINAL_POSITION").
+            withLabel(17, "IS_NULLABLE").
+            withLabel(18, "SCOPE_CATLOG").
+            withLabel(19, "SCOPE_SCHEMA").
+            withLabel(20, "SCOPE_TABLE").
+            withLabel(21, "SOURCE_DATA_TYPE").
+            resultSet();
+
     } // end of getAttributes
 
     /**
@@ -1330,7 +1598,11 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                 final String schemaPattern) 
         throws SQLException {
 
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList2(String.class, String.class).
+            withLabel(1, "TABLE_SCHEM").
+            withLabel(2, "TABLE_CATALOG").
+            resultSet();
+
     } // end of getSchemas
 
     /**
@@ -1353,7 +1625,14 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
      * {@inheritDoc}
      */
     public ResultSet getClientInfoProperties() throws SQLException {
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList4(String.class, Integer.class,
+                                 String.class, String.class).
+            withLabel(1, "NAME").
+            withLabel(2, "MAX_LEN").
+            withLabel(3, "DEFAULT_VALUE").
+            withLabel(4, "DESCRIPTION").
+            resultSet();
+
     } // end of getClientInfoProperties
 
     /**
@@ -1364,7 +1643,16 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                   final String functionNamePattern) 
         throws SQLException {
 
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList6(String.class, String.class, String.class, 
+                                 String.class, Short.class, String.class).
+            withLabel(1, "FUNCTION_CAT").
+            withLabel(2, "FUNCTION_SCHEM").
+            withLabel(3, "FUNCTION_NAME").
+            withLabel(4, "REMARKS").
+            withLabel(5, "FUNCTION_TYPE").
+            withLabel(6, "SPECIFIC_NAME").
+            resultSet();
+
     } // end of getFunctions
 
     /**
@@ -1376,7 +1664,31 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                         final String columnNamePattern)
         throws SQLException {
 
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList17(String.class, String.class, String.class,
+                                  String.class, Short.class, Integer.class,
+                                  String.class, Integer.class, Integer.class,
+                                  Short.class, Short.class, Short.class,
+                                  String.class, Integer.class, Integer.class, 
+                                  String.class, String.class).
+            withLabel(1, "FUNCTION_CAT").
+            withLabel(2, "FUNCTION_SCHEM").
+            withLabel(3, "FUNCTION_NAME").
+            withLabel(4, "COLUMN_NAME").
+            withLabel(5, "COLUMN_TYPE").
+            withLabel(6, "DATA_TYPE").
+            withLabel(7, "TYPE_NAME").
+            withLabel(8, "PRECISION").
+            withLabel(9, "LENGTH").
+            withLabel(10, "SCALE").
+            withLabel(11, "RADIX").
+            withLabel(12, "NULLABLE").
+            withLabel(13, "REMARKS").
+            withLabel(14, "CHAR_OCTET_LENGTH").
+            withLabel(15, "ORDINAL_POSITION").
+            withLabel(16, "IS_NULLABLE").
+            withLabel(17, "SPECIFIC_NAME").
+            resultSet();
+
     } // end of getFunctionColumns
 
     /**
@@ -1388,7 +1700,19 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                       final String columnNamePattern)
         throws SQLException {
 
-        return RowLists.rowList1(String.class).resultSet();
+        return RowLists.rowList8(String.class, String.class, String.class,
+                                 String.class, String.class, String.class,
+                                 String.class, String.class).
+            withLabel(1, "TABLE_CAT").
+            withLabel(2, "TABLE_SCHEM").
+            withLabel(3, "TABLE_NAME").
+            withLabel(4, "COLUMN_NAME").
+            withLabel(5, "GRANTOR").
+            withLabel(6, "GRANTEE").
+            withLabel(7, "PRIVILEGE").
+            withLabel(8, "IS_GRANTABLE").
+            resultSet();
+
     } // end of getPseudoColumns
 
     /**

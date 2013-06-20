@@ -498,9 +498,31 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
   }
 
   "Procedures" should {
-    "not be listed" in {
-      lazy val procs = metadata().getProcedures("catalog", "schema", "proc")
+    lazy val procs = metadata().getProcedures("catalog", "schema", "proc")
 
+    "have expected columns" in {
+      lazy val meta = procs.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 8).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(7).
+          aka("class #7") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(8).
+          aka("class #8") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "PROCEDURE_CAT").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "PROCEDURE_SCHEM").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "PROCEDURE_NAME").
+        and(meta.getColumnName(7) aka "name #7" mustEqual "REMARKS").
+        and(meta.getColumnName(8) aka "name #8" mustEqual "PROCEDURE_TYPE")
+
+    }
+
+    "not be listed" in {
       (procs.getFetchSize aka "procedures" mustEqual 0).
         and(procs.next aka "next proc" must beFalse)
 
@@ -508,10 +530,56 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
   }
 
   "Procedure" should {
-    "not be described" in {
-      lazy val proc = metadata().
-        getProcedureColumns("catalog", "schema", "proc", "cols")
+    lazy val proc = metadata().
+      getProcedureColumns("catalog", "schema", "proc", "cols")
 
+    "have expected columns" in {
+      lazy val meta = proc.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 13).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(5).
+          aka("class #5") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(6).
+          aka("class #6") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(7).
+          aka("class #7") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(8).
+          aka("class #8") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(9).
+          aka("class #9") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(10).
+          aka("class #10") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(11).
+          aka("class #11") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(12).
+          aka("class #12") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(13).
+          aka("class #13") mustEqual classOf[String].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "PROCEDURE_CAT").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "PROCEDURE_SCHEM").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "PROCEDURE_NAME").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "COLUMN_NAME").
+        and(meta.getColumnName(5) aka "name #5" mustEqual "COLUMN_TYPE").
+        and(meta.getColumnName(6) aka "name #6" mustEqual "DATA_TYPE").
+        and(meta.getColumnName(7) aka "name #7" mustEqual "TYPE_NAME").
+        and(meta.getColumnName(8) aka "name #8" mustEqual "PRECISION").
+        and(meta.getColumnName(9) aka "name #9" mustEqual "LENGTH").
+        and(meta.getColumnName(10) aka "name #10" mustEqual "SCALE").
+        and(meta.getColumnName(11) aka "name #11" mustEqual "RADIX").
+        and(meta.getColumnName(12) aka "name #12" mustEqual "NULLABLE").
+        and(meta.getColumnName(13) aka "name #13" mustEqual "REMARKS")
+
+    }
+
+    "not be described" in {
       (proc.getFetchSize aka "procedure" mustEqual 0).
         and(proc.next aka "next col" must beFalse)
 
@@ -519,10 +587,48 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
   }
 
   "Tables" should {
-    "not be listed" in {
-      lazy val tables = metadata().
-        getTables("catalog", "schema", "table", null)
+    lazy val tables = metadata().
+      getTables("catalog", "schema", "table", null)
 
+    "have expected columns" in {
+      lazy val meta = tables.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 10).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(5).
+          aka("class #5") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(6).
+          aka("class #6") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(7).
+          aka("class #7") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(8).
+          aka("class #8") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(9).
+          aka("class #9") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(10).
+          aka("class #10") mustEqual classOf[String].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "TABLE_CAT").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "TABLE_SCHEM").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "TABLE_NAME").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "TABLE_TYPE").
+        and(meta.getColumnName(5) aka "name #5" mustEqual "REMARKS").
+        and(meta.getColumnName(6) aka "name #6" mustEqual "TYPE_CAT").
+        and(meta.getColumnName(7) aka "name #7" mustEqual "TYPE_SCHEM").
+        and(meta.getColumnName(8) aka "name #8" mustEqual "TYPE_NAME").
+        and(meta.getColumnName(9).
+          aka("name #9") mustEqual "SELF_REFERENCING_COL_NAME").
+        and(meta.getColumnName(10) aka "name #10" mustEqual "REF_GENERATION")
+
+    }
+
+    "not be listed" in {
       (tables.getFetchSize aka "tables" mustEqual 0).
         and(tables.next aka "next table" must beFalse)
 
@@ -530,126 +636,567 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
   }
 
   "Schemas" should {
-    "not be listed" in {
-      lazy val schemas = metadata().getSchemas
+    lazy val schemas = metadata().getSchemas
 
+    "have expected columns" in {
+      lazy val meta = schemas.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 2).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "TABLE_SCHEM").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "TABLE_CATALOG")
+
+    }
+
+    "not be listed" in {
       (schemas.getFetchSize aka "schemas" mustEqual 0).
         and(schemas.next aka "next schema" must beFalse)
 
     }
   }
 
-  "Schemas" should {
-    "not be listed" in {
-      lazy val catalogs = metadata().getSchemas
+  "Catalogs" should {
+    lazy val catalogs = metadata().getCatalogs
 
-      (catalogs.getFetchSize aka "schemas" mustEqual 0).
-        and(catalogs.next aka "next schema" must beFalse)
+    "have expected columns" in {
+      lazy val meta = catalogs.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 1).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "TABLE_CAT")
+
+    }
+
+    "not be listed" in {
+      (catalogs.getFetchSize aka "catalog" mustEqual 0).
+        and(catalogs.next aka "next catalog" must beFalse)
 
     }
   }
 
   "Table types" should {
-    "not be listed" in {
-      lazy val catalogs = metadata().getTableTypes
+    lazy val types = metadata().getTableTypes
 
-      (catalogs.getFetchSize aka "table types" mustEqual 0).
-        and(catalogs.next aka "next type" must beFalse)
+    "have expected columns" in {
+      lazy val meta = types.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 1).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "TABLE_TYPE")
+
+    }
+
+    "not be listed" in {
+      (types.getFetchSize aka "table types" mustEqual 0).
+        and(types.next aka "next type" must beFalse)
 
     }
   }
 
   "Table" should {
-    "not have known columns" in {
-      lazy val cols = metadata().
-        getColumns("catalog", "schema", "table", "cols")
+    lazy val cols = metadata().
+      getColumns("catalog", "schema", "table", "cols")
 
+    lazy val pcols = metadata().
+      getPseudoColumns("catalog", "schema", "table", "col")
+
+    lazy val cprivs = metadata().
+      getColumnPrivileges("catalog", "schema", "table", "cols")
+
+    lazy val supr = metadata().getSuperTables("catalog", "schema", "table")
+
+    lazy val tprivs = metadata().
+      getTablePrivileges("catalog", "schema", "table")
+
+    lazy val bestRowId = metadata().
+      getBestRowIdentifier("catalog", "schema", "table", -1, false)
+
+    lazy val verCols = metadata().
+      getVersionColumns("catalog", "schema", "table")
+
+    lazy val pkey = metadata().getPrimaryKeys("catalog", "schema", "table")
+    lazy val ikeys = metadata().getImportedKeys("catalog", "schema", "table")
+    lazy val ekeys = metadata().getExportedKeys("catalog", "schema", "table")
+    lazy val index = metadata().
+      getIndexInfo("catalog", "schema", "table", true, true)
+
+    "have expected columns" in {
+      lazy val meta = cols.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 21).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(5).
+          aka("class #5") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(6).
+          aka("class #6") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(7).
+          aka("class #7") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(8).
+          aka("class #8") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(9).
+          aka("class #9") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(10).
+          aka("class #10") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(11).
+          aka("class #11") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(12).
+          aka("class #12") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(13).
+          aka("class #13") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(14).
+          aka("class #14") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(15).
+          aka("class #15") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(16).
+          aka("class #16") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(17).
+          aka("class #17") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(18).
+          aka("class #18") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(19).
+          aka("class #19") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(20).
+          aka("class #20") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(21).
+          aka("class #21") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "TABLE_CAT").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "TABLE_SCHEM").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "TABLE_NAME").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "COLUMN_NAME").
+        and(meta.getColumnName(5) aka "name #5" mustEqual "DATA_TYPE").
+        and(meta.getColumnName(6) aka "name #6" mustEqual "TYPE_NAME").
+        and(meta.getColumnName(7) aka "name #7" mustEqual "BUFFER_LENGTH").
+        and(meta.getColumnName(8) aka "name #8" mustEqual "DECIMAL_DIGITS").
+        and(meta.getColumnName(9) aka "name #9" mustEqual "NUM_PREC_RADIX").
+        and(meta.getColumnName(10) aka "name #10" mustEqual "NULLABLE").
+        and(meta.getColumnName(11) aka "name #11" mustEqual "REMARKS").
+        and(meta.getColumnName(12) aka "name #12" mustEqual "COLUMN_DEF").
+        and(meta.getColumnName(13) aka "name #13" mustEqual "SQL_DATA_TYPE").
+        and(meta.getColumnName(14) aka "name #14" mustEqual "SQL_DATETIME_SUB").
+        and(meta.getColumnName(15).
+          aka("name #15") mustEqual "CHAR_OCTET_LENGTH").
+        and(meta.getColumnName(16) aka "name #16" mustEqual "ORDINAL_POSITION").
+        and(meta.getColumnName(17) aka "name #17" mustEqual "IS_NULLABLE").
+        and(meta.getColumnName(18) aka "name #18" mustEqual "SCOPE_CATLOG").
+        and(meta.getColumnName(19) aka "name #19" mustEqual "SCOPE_SCHEMA").
+        and(meta.getColumnName(20) aka "name #20" mustEqual "SCOPE_TABLE").
+        and(meta.getColumnName(21) aka "name #21" mustEqual "SOURCE_DATA_TYPE")
+
+    }
+
+    "not have known columns" in {
       (cols.getFetchSize aka "table cols" mustEqual 0).
         and(cols.next aka "next col" must beFalse)
 
     }
 
     "not have pseudo columns" in {
-      lazy val cols = metadata().
-        getPseudoColumns("catalog", "schema", "table", "col")
+      (pcols.getFetchSize aka "table cols" mustEqual 0).
+        and(pcols.next aka "next col" must beFalse)
 
-      (cols.getFetchSize aka "table cols" mustEqual 0).
-        and(cols.next aka "next col" must beFalse)
+    }
+
+    "have expected pseudo-columns" in {
+      lazy val meta = pcols.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 8).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(5).
+          aka("class #5") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(6).
+          aka("class #6") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(7).
+          aka("class #7") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(8).
+          aka("class #8") mustEqual classOf[String].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "TABLE_CAT").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "TABLE_SCHEM").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "TABLE_NAME").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "COLUMN_NAME").
+        and(meta.getColumnName(5) aka "name #5" mustEqual "GRANTOR").
+        and(meta.getColumnName(6) aka "name #6" mustEqual "GRANTEE").
+        and(meta.getColumnName(7) aka "name #7" mustEqual "PRIVILEGE").
+        and(meta.getColumnName(8) aka "name #8" mustEqual "IS_GRANTABLE")
 
     }
 
     "not have column privileges" in {
-      lazy val privs = metadata().
-        getColumnPrivileges("catalog", "schema", "table", "cols")
+      (cprivs.getFetchSize aka "col privileges" mustEqual 0).
+        and(cprivs.next aka "next priv" must beFalse)
 
-      (privs.getFetchSize aka "col privileges" mustEqual 0).
-        and(privs.next aka "next priv" must beFalse)
+    }
+
+    "have expected privileges columns" in {
+      lazy val meta = cprivs.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 8).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(5).
+          aka("class #5") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(6).
+          aka("class #6") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(7).
+          aka("class #7") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(8).
+          aka("class #8") mustEqual classOf[String].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "TABLE_CAT").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "TABLE_SCHEM").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "TABLE_NAME").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "COLUMN_NAME").
+        and(meta.getColumnName(5) aka "name #5" mustEqual "GRANTOR").
+        and(meta.getColumnName(6) aka "name #6" mustEqual "GRANTEE").
+        and(meta.getColumnName(7) aka "name #7" mustEqual "PRIVILEGE").
+        and(meta.getColumnName(8) aka "name #8" mustEqual "IS_GRANTABLE")
+
+    }
+
+    "have expected super tables columns" in {
+      lazy val meta = supr.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 4).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "TABLE_CAT").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "TABLE_SCHEM").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "TABLE_NAME").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "SUPERTABLE_NAME")
 
     }
 
     "not have super definitions" in {
-      lazy val supr = metadata().getSuperTables("catalog", "schema", "table")
-
       (supr.getFetchSize aka "definitions" mustEqual 0).
         and(supr.next aka "next table" must beFalse)
 
     }
 
-    "not have privileges" in {
-      lazy val privs = metadata().
-        getTablePrivileges("catalog", "schema", "table")
+    "have expected table privileges columns" in {
+      lazy val meta = tprivs.getMetaData
 
-      (privs.getFetchSize aka "col privileges" mustEqual 0).
-        and(privs.next aka "next priv" must beFalse)
+      (meta.getColumnCount aka "count" mustEqual 7).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(5).
+          aka("class #5") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(6).
+          aka("class #6") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(7).
+          aka("class #7") mustEqual classOf[String].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "TABLE_CAT").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "TABLE_SCHEM").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "TABLE_NAME").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "GRANTOR").
+        and(meta.getColumnName(5) aka "name #5" mustEqual "GRANTEE").
+        and(meta.getColumnName(6) aka "name #6" mustEqual "PRIVILEGE").
+        and(meta.getColumnName(7) aka "name #7" mustEqual "IS_GRANTABLE")
+
+    }
+
+    "not have privileges" in {
+      (tprivs.getFetchSize aka "col privileges" mustEqual 0).
+        and(tprivs.next aka "next priv" must beFalse)
+
+    }
+
+    "have expected best row ID columns" in {
+      lazy val meta = bestRowId.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 8).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(5).
+          aka("class #5") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(6).
+          aka("class #6") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(7).
+          aka("class #7") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(8).
+          aka("class #8") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "SCOPE").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "COLUMN_NAME").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "DATA_TYPE").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "TYPE_NAME").
+        and(meta.getColumnName(5) aka "name #5" mustEqual "COLUMN_SIZE").
+        and(meta.getColumnName(6) aka "name #6" mustEqual "BUFFER_LENGTH").
+        and(meta.getColumnName(7) aka "name #7" mustEqual "DECIMAL_DIGITS").
+        and(meta.getColumnName(8) aka "name #8" mustEqual "PSEUDO_COLUMN")
 
     }
 
     "not have best row identifier" in {
-      lazy val bestRowId = metadata().
-        getBestRowIdentifier("catalog", "schema", "table", -1, false)
-
       (bestRowId.getFetchSize aka "best rowid" mustEqual 0).
         and(bestRowId.next aka "next rowid" must beFalse)
 
     }
 
-    "not have version columns" in {
-      lazy val verCols = metadata().
-        getVersionColumns("catalog", "schema", "table")
+    "have expected version columns" in {
+      lazy val meta = verCols.getMetaData
 
+      (meta.getColumnCount aka "count" mustEqual 8).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(5).
+          aka("class #5") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(6).
+          aka("class #6") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(7).
+          aka("class #7") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(8).
+          aka("class #8") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "SCOPE").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "COLUMN_NAME").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "DATA_TYPE").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "TYPE_NAME").
+        and(meta.getColumnName(5) aka "name #5" mustEqual "COLUMN_SIZE").
+        and(meta.getColumnName(6) aka "name #6" mustEqual "BUFFER_LENGTH").
+        and(meta.getColumnName(7) aka "name #7" mustEqual "DECIMAL_DIGITS").
+        and(meta.getColumnName(8) aka "name #8" mustEqual "PSEUDO_COLUMN")
+
+    }
+
+    "not have version columns" in {
       (verCols.getFetchSize aka "version columns" mustEqual 0).
         and(verCols.next aka "next column" must beFalse)
 
     }
 
-    "not have primary key" in {
-      lazy val pkey = metadata().getPrimaryKeys("catalog", "schema", "table")
+    "have expected pkey columns" in {
+      lazy val meta = pkey.getMetaData
 
+      (meta.getColumnCount aka "count" mustEqual 6).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(5).
+          aka("class #5") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(6).
+          aka("class #6") mustEqual classOf[String].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "TABLE_CAT").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "TABLE_SCHEM").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "TABLE_NAME").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "COLUMN_NAME").
+        and(meta.getColumnName(5) aka "name #5" mustEqual "KEY_SEQ").
+        and(meta.getColumnName(6) aka "name #6" mustEqual "PK_NAME")
+
+    }
+
+    "not have primary key" in {
       (pkey.getFetchSize aka "primary keys" mustEqual 0).
         and(pkey.next aka "next key" must beFalse)
 
     }
 
-    "not have imported key" in {
-      lazy val keys = metadata().getImportedKeys("catalog", "schema", "table")
+    "have expected import key columns" in {
+      lazy val meta = ikeys.getMetaData
 
-      (keys.getFetchSize aka "imported keys" mustEqual 0).
-        and(keys.next aka "next key" must beFalse)
+      (meta.getColumnCount aka "count" mustEqual 14).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(5).
+          aka("class #5") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(6).
+          aka("class #6") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(7).
+          aka("class #7") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(8).
+          aka("class #8") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(9).
+          aka("class #9") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(10).
+          aka("class #10") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(11).
+          aka("class #11") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(12).
+          aka("class #12") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(13).
+          aka("class #13") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(14).
+          aka("class #14") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "PKTABLE_CAT").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "PKTABLE_SCHEM").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "PKTABLE_NAME").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "PKCOLUMN_NAME").
+        and(meta.getColumnName(5) aka "name #5" mustEqual "FKTABLE_CAT").
+        and(meta.getColumnName(6) aka "name #6" mustEqual "FKTABLE_SCHEM").
+        and(meta.getColumnName(7) aka "name #7" mustEqual "FKTABLE_NAME").
+        and(meta.getColumnName(8) aka "name #8" mustEqual "FKCOLUMN_NAME").
+        and(meta.getColumnName(9) aka "name #9" mustEqual "KEY_SEQ").
+        and(meta.getColumnName(10) aka "name #10" mustEqual "UPDATE_RULE").
+        and(meta.getColumnName(11) aka "name #11" mustEqual "DELETE_RULE").
+        and(meta.getColumnName(12) aka "name #12" mustEqual "FK_NAME").
+        and(meta.getColumnName(13) aka "name #13" mustEqual "PK_NAME").
+        and(meta.getColumnName(14) aka "name #14" mustEqual "DEFERRABILITY")
+
+    }
+
+    "not have imported key" in {
+      (ikeys.getFetchSize aka "imported keys" mustEqual 0).
+        and(ikeys.next aka "next key" must beFalse)
+
+    }
+
+    "have expected export key columns" in {
+      lazy val meta = ekeys.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 14).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(5).
+          aka("class #5") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(6).
+          aka("class #6") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(7).
+          aka("class #7") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(8).
+          aka("class #8") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(9).
+          aka("class #9") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(10).
+          aka("class #10") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(11).
+          aka("class #11") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(12).
+          aka("class #12") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(13).
+          aka("class #13") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(14).
+          aka("class #14") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "PKTABLE_CAT").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "PKTABLE_SCHEM").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "PKTABLE_NAME").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "PKCOLUMN_NAME").
+        and(meta.getColumnName(5) aka "name #5" mustEqual "FKTABLE_CAT").
+        and(meta.getColumnName(6) aka "name #6" mustEqual "FKTABLE_SCHEM").
+        and(meta.getColumnName(7) aka "name #7" mustEqual "FKTABLE_NAME").
+        and(meta.getColumnName(8) aka "name #8" mustEqual "FKCOLUMN_NAME").
+        and(meta.getColumnName(9) aka "name #9" mustEqual "KEY_SEQ").
+        and(meta.getColumnName(10) aka "name #10" mustEqual "UPDATE_RULE").
+        and(meta.getColumnName(11) aka "name #11" mustEqual "DELETE_RULE").
+        and(meta.getColumnName(12) aka "name #12" mustEqual "FK_NAME").
+        and(meta.getColumnName(13) aka "name #13" mustEqual "PK_NAME").
+        and(meta.getColumnName(14) aka "name #14" mustEqual "DEFERRABILITY")
 
     }
 
     "not have exported key" in {
-      lazy val keys = metadata().getExportedKeys("catalog", "schema", "table")
+      (ekeys.getFetchSize aka "exported keys" mustEqual 0).
+        and(ekeys.next aka "next key" must beFalse)
 
-      (keys.getFetchSize aka "exported keys" mustEqual 0).
-        and(keys.next aka "next key" must beFalse)
+    }
+
+    "have expected index columns" in {
+      lazy val meta = index.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 13).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[java.lang.Boolean].getName).
+        and(meta.getColumnClassName(5).
+          aka("class #5") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(6).
+          aka("class #6") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(7).
+          aka("class #7") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(8).
+          aka("class #8") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(9).
+          aka("class #9") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(10).
+          aka("class #10") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(11).
+          aka("class #11") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(12).
+          aka("class #12") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(13).
+          aka("class #13") mustEqual classOf[String].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "TABLE_CAT").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "TABLE_SCHEM").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "TABLE_NAME").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "NON_UNIQUE").
+        and(meta.getColumnName(5) aka "name #5" mustEqual "INDEX_QUALIFIER").
+        and(meta.getColumnName(6) aka "name #6" mustEqual "INDEX_NAME").
+        and(meta.getColumnName(7) aka "name #7" mustEqual "TYPE").
+        and(meta.getColumnName(8) aka "name #8" mustEqual "ORDINAL_POSITION").
+        and(meta.getColumnName(9) aka "name #9" mustEqual "COLUMN_NAME").
+        and(meta.getColumnName(10) aka "name #10" mustEqual "ASC_OR_DESC").
+        and(meta.getColumnName(11) aka "name #11" mustEqual "CARDINALITY").
+        and(meta.getColumnName(12) aka "name #12" mustEqual "PAGES").
+        and(meta.getColumnName(13) aka "name #13" mustEqual "FILTER_CONDITION")
 
     }
 
     "not have index info" in {
-      lazy val index = metadata().
-        getIndexInfo("catalog", "schema", "table", true, true)
-
       (index.getFetchSize aka "index info" mustEqual 0).
         and(index.next aka "next info" must beFalse)
 
@@ -657,11 +1204,60 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
   }
 
   "Cross reference" should {
-    "not be known" in {
-      lazy val xref = metadata().getCrossReference(
-        "pcat", "pschem", "ptable",
-        "fcat", "fschem", "ftable")
+    lazy val xref = metadata().getCrossReference(
+      "pcat", "pschem", "ptable",
+      "fcat", "fschem", "ftable")
 
+    "have expected export key columns" in {
+      lazy val meta = xref.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 14).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(5).
+          aka("class #5") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(6).
+          aka("class #6") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(7).
+          aka("class #7") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(8).
+          aka("class #8") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(9).
+          aka("class #9") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(10).
+          aka("class #10") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(11).
+          aka("class #11") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(12).
+          aka("class #12") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(13).
+          aka("class #13") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(14).
+          aka("class #14") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "PKTABLE_CAT").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "PKTABLE_SCHEM").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "PKTABLE_NAME").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "PKCOLUMN_NAME").
+        and(meta.getColumnName(5) aka "name #5" mustEqual "FKTABLE_CAT").
+        and(meta.getColumnName(6) aka "name #6" mustEqual "FKTABLE_SCHEM").
+        and(meta.getColumnName(7) aka "name #7" mustEqual "FKTABLE_NAME").
+        and(meta.getColumnName(8) aka "name #8" mustEqual "FKCOLUMN_NAME").
+        and(meta.getColumnName(9) aka "name #9" mustEqual "KEY_SEQ").
+        and(meta.getColumnName(10) aka "name #10" mustEqual "UPDATE_RULE").
+        and(meta.getColumnName(11) aka "name #11" mustEqual "DELETE_RULE").
+        and(meta.getColumnName(12) aka "name #12" mustEqual "FK_NAME").
+        and(meta.getColumnName(13) aka "name #13" mustEqual "PK_NAME").
+        and(meta.getColumnName(14) aka "name #14" mustEqual "DEFERRABILITY")
+
+    }
+
+    "not be known" in {
       (xref.getFetchSize aka "cross reference" mustEqual 0).
         and(xref.next aka "next ref" must beFalse)
 
@@ -669,9 +1265,72 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
   }
 
   "Type information" should {
-    "not be known" in {
-      lazy val info = metadata().getTypeInfo
+    lazy val info = metadata().getTypeInfo
 
+    "have expected columns" in {
+      lazy val meta = info.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 18).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(5).
+          aka("class #5") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(6).
+          aka("class #6") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(7).
+          aka("class #7") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(8).
+          aka("class #8") mustEqual classOf[java.lang.Boolean].getName).
+        and(meta.getColumnClassName(9).
+          aka("class #9") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(10).
+          aka("class #10") mustEqual classOf[java.lang.Boolean].getName).
+        and(meta.getColumnClassName(11).
+          aka("class #11") mustEqual classOf[java.lang.Boolean].getName).
+        and(meta.getColumnClassName(12).
+          aka("class #12") mustEqual classOf[java.lang.Boolean].getName).
+        and(meta.getColumnClassName(13).
+          aka("class #13") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(14).
+          aka("class #14") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(15).
+          aka("class #15") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(16).
+          aka("class #16") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(17).
+          aka("class #17") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(18).
+          aka("class #18") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "TYPE_NAME").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "DATA_TYPE").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "PRECISION").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "LITERAL_PREFIX").
+        and(meta.getColumnName(5) aka "name #5" mustEqual "LITERAL_SUFFIX").
+        and(meta.getColumnName(6) aka "name #6" mustEqual "CREATE_PARAMS").
+        and(meta.getColumnName(7) aka "name #7" mustEqual "NULLABLE").
+        and(meta.getColumnName(8) aka "name #8" mustEqual "CASE_SENSITIVE").
+        and(meta.getColumnName(9) aka "name #9" mustEqual "SEARCHABLE").
+        and(meta.getColumnName(10).
+          aka("name #10") mustEqual "UNSIGNED_ATTRIBUTE").
+        and(meta.getColumnName(11) aka "name #11" mustEqual "FIXED_PREC_SCALE").
+        and(meta.getColumnName(12) aka "name #12" mustEqual "AUTO_INCREMENT").
+        and(meta.getColumnName(13) aka "name #13" mustEqual "LOCAL_TYPE_NAME").
+        and(meta.getColumnName(14) aka "name #14" mustEqual "MINIMUM_SCALE").
+        and(meta.getColumnName(15) aka "name #15" mustEqual "MAXIMUM_SCALE").
+        and(meta.getColumnName(16).
+          aka("name #15") mustEqual "SQL_DATA_TYPE").
+        and(meta.getColumnName(17) aka "name #16" mustEqual "SQL_DATETIME_SUB").
+        and(meta.getColumnName(18) aka "name #18" mustEqual "NUM_PREC_RADIX")
+
+    }
+
+    "not be known" in {
       (info.getFetchSize aka "type info" mustEqual 0).
         and(info.next aka "next info" must beFalse)
 
@@ -735,17 +1394,69 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
   }
 
   "Types" should {
-    "known from user definitions" in {
-      lazy val udts = metadata().getUDTs("catalog", "schema", "type", null)
+    lazy val udts = metadata().getUDTs("catalog", "schema", "type", null)
+    lazy val supr = metadata().getSuperTypes("catalog", "schema", "type")
 
+    "have expected UDTs columns" in {
+      lazy val meta = udts.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 7).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(5).
+          aka("class #5") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(6).
+          aka("class #6") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(7).
+          aka("class #7") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "TYPE_CAT").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "TYPE_SCHEM").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "TYPE_NAME").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "CLASS_NAME").
+        and(meta.getColumnName(5) aka "name #5" mustEqual "DATA_TYPE").
+        and(meta.getColumnName(6) aka "name #6" mustEqual "REMARKS").
+        and(meta.getColumnName(7) aka "name #7" mustEqual "BASE_TYPE")
+
+    }
+
+    "known from user definitions" in {
       (udts.getFetchSize aka "UDTs" mustEqual 0).
         and(udts.next aka "next type" must beFalse)
 
     }
 
-    "known from super definitions" in {
-      lazy val supr = metadata().getSuperTypes("catalog", "schema", "type")
+    "have expected pkey columns" in {
+      lazy val meta = supr.getMetaData
 
+      (meta.getColumnCount aka "count" mustEqual 6).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(5).
+          aka("class #5") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(6).
+          aka("class #6") mustEqual classOf[String].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "TYPE_CAT").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "TYPE_SCHEM").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "TYPE_NAME").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "SUPERTYPE_CAT").
+        and(meta.getColumnName(5) aka "name #5" mustEqual "SUPERTYPE_SCHEM").
+        and(meta.getColumnName(6) aka "name #6" mustEqual "SUPERTYPE_NAME")
+
+    }
+
+    "known from super definitions" in {
       (supr.getFetchSize aka "types" mustEqual 0).
         and(supr.next aka "next type" must beFalse)
 
@@ -753,9 +1464,28 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
   }
 
   "Supported client info properties" should {
-    "be expected one" in {
-      lazy val clientInfo = metadata().getClientInfoProperties
+    lazy val clientInfo = metadata().getClientInfoProperties
 
+    "have expected super tables columns" in {
+      lazy val meta = clientInfo.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 4).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "NAME").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "MAX_LEN").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "DEFAULT_VALUE").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "DESCRIPTION")
+
+    }
+
+    "be expected one" in {
       (clientInfo.getFetchSize aka "client info" mustEqual 0).
         and(clientInfo.next aka "next property" must beFalse)
 
@@ -763,10 +1493,81 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
   }
 
   "Attributes" should {
-    "be expected one" in {
-      lazy val attrs = metadata().
-        getAttributes("catalog", "schema", "type", "attr")
+    lazy val attrs = metadata().
+      getAttributes("catalog", "schema", "type", "attr")
 
+    "have expected attributes columns" in {
+      lazy val meta = attrs.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 21).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(5).
+          aka("class #5") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(6).
+          aka("class #6") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(7).
+          aka("class #7") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(8).
+          aka("class #8") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(9).
+          aka("class #9") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(10).
+          aka("class #10") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(11).
+          aka("class #11") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(12).
+          aka("class #12") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(13).
+          aka("class #13") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(14).
+          aka("class #14") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(15).
+          aka("class #15") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(16).
+          aka("class #16") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(17).
+          aka("class #17") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(18).
+          aka("class #18") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(19).
+          aka("class #19") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(20).
+          aka("class #20") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(21).
+          aka("class #21") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "TYPE_CAT").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "TYPE_SCHEM").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "TYPE_NAME").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "ATTR_NAME").
+        and(meta.getColumnName(5) aka "name #5" mustEqual "DATA_TYPE").
+        and(meta.getColumnName(6) aka "name #6" mustEqual "ATTR_TYPE_NAME").
+        and(meta.getColumnName(7) aka "name #7" mustEqual "ATTR_SIZE").
+        and(meta.getColumnName(8) aka "name #8" mustEqual "DECIMAL_DIGITS").
+        and(meta.getColumnName(9) aka "name #9" mustEqual "NUM_PREC_RADIX").
+        and(meta.getColumnName(10) aka "name #10" mustEqual "NULLABLE").
+        and(meta.getColumnName(11) aka "name #11" mustEqual "REMARKS").
+        and(meta.getColumnName(12) aka "name #12" mustEqual "ATTR_DEF").
+        and(meta.getColumnName(13) aka "name #13" mustEqual "SQL_DATA_TYPE").
+        and(meta.getColumnName(14) aka "name #14" mustEqual "SQL_DATETIME_SUB").
+        and(meta.getColumnName(15).
+          aka("name #15") mustEqual "CHAR_OCTET_LENGTH").
+        and(meta.getColumnName(16) aka "name #16" mustEqual "ORDINAL_POSITION").
+        and(meta.getColumnName(17) aka "name #17" mustEqual "IS_NULLABLE").
+        and(meta.getColumnName(18) aka "name #18" mustEqual "SCOPE_CATLOG").
+        and(meta.getColumnName(19) aka "name #19" mustEqual "SCOPE_SCHEMA").
+        and(meta.getColumnName(20) aka "name #20" mustEqual "SCOPE_TABLE").
+        and(meta.getColumnName(21) aka "name #21" mustEqual "SOURCE_DATA_TYPE")
+
+    }
+
+    "be expected one" in {
       (attrs.getFetchSize aka "attributes" mustEqual 0).
         and(attrs.next aka "next attr" must beFalse)
 
@@ -774,9 +1575,22 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
   }
 
   "Schemas" should {
-    "not be known" in {
-      lazy val schemas = metadata().getSchemas("catalog", "schema")
+    lazy val schemas = metadata().getSchemas("catalog", "schema")
 
+    "have expected columns" in {
+      lazy val meta = schemas.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 2).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "TABLE_SCHEM").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "TABLE_CATALOG")
+
+    }
+
+    "not be known" in {
       (schemas.getFetchSize aka "schemas" mustEqual 0).
         and(schemas.next aka "next schema" must beFalse)
 
@@ -784,18 +1598,102 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
   }
 
   "Functions" should {
-    "not be listed" in {
-      lazy val funcs = metadata().getFunctions("catalog", "schema", "func")
+    lazy val funcs = metadata().getFunctions("catalog", "schema", "func")
+    lazy val cols = metadata().
+      getFunctionColumns("catalog", "schema", "func", "col")
 
+    "have expected function columns" in {
+      lazy val meta = funcs.getMetaData
+
+      (meta.getColumnCount aka "count" mustEqual 6).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(5).
+          aka("class #5") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(6).
+          aka("class #6") mustEqual classOf[String].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "FUNCTION_CAT").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "FUNCTION_SCHEM").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "FUNCTION_NAME").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "REMARKS").
+        and(meta.getColumnName(5) aka "name #5" mustEqual "FUNCTION_TYPE").
+        and(meta.getColumnName(6) aka "name #6" mustEqual "SPECIFIC_NAME")
+
+    }
+
+    "not be listed" in {
       (funcs.getFetchSize aka "functions" mustEqual 0).
         and(funcs.next aka "next function" must beFalse)
 
     }
 
-    "not be described" in {
-      lazy val cols = metadata().
-        getFunctionColumns("catalog", "schema", "func", "col")
+    "have expected columns" in {
+      lazy val meta = cols.getMetaData
 
+      (meta.getColumnCount aka "count" mustEqual 17).
+        and(meta.getColumnClassName(1).
+          aka("class #1") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(2).
+          aka("class #2") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(3).
+          aka("class #3") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(4).
+          aka("class #4") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(5).
+          aka("class #5") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(6).
+          aka("class #6") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(7).
+          aka("class #7") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(8).
+          aka("class #8") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(9).
+          aka("class #9") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(10).
+          aka("class #10") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(11).
+          aka("class #11") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(12).
+          aka("class #12") mustEqual classOf[java.lang.Short].getName).
+        and(meta.getColumnClassName(13).
+          aka("class #13") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(14).
+          aka("class #14") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(15).
+          aka("class #15") mustEqual classOf[java.lang.Integer].getName).
+        and(meta.getColumnClassName(16).
+          aka("class #16") mustEqual classOf[String].getName).
+        and(meta.getColumnClassName(17).
+          aka("class #17") mustEqual classOf[String].getName).
+        and(meta.getColumnName(1) aka "name #1" mustEqual "FUNCTION_CAT").
+        and(meta.getColumnName(2) aka "name #2" mustEqual "FUNCTION_SCHEM").
+        and(meta.getColumnName(3) aka "name #3" mustEqual "FUNCTION_NAME").
+        and(meta.getColumnName(4) aka "name #4" mustEqual "COLUMN_NAME").
+        and(meta.getColumnName(5) aka "name #5" mustEqual "COLUMN_TYPE").
+        and(meta.getColumnName(6) aka "name #6" mustEqual "DATA_TYPE").
+        and(meta.getColumnName(7) aka "name #7" mustEqual "TYPE_NAME").
+        and(meta.getColumnName(8) aka "name #8" mustEqual "PRECISION").
+        and(meta.getColumnName(9) aka "name #9" mustEqual "LENGTH").
+        and(meta.getColumnName(10) aka "name #10" mustEqual "SCALE").
+        and(meta.getColumnName(11) aka "name #11" mustEqual "RADIX").
+        and(meta.getColumnName(12) aka "name #12" mustEqual "NULLABLE").
+        and(meta.getColumnName(13) aka "name #13" mustEqual "REMARKS").
+        and(meta.getColumnName(14).
+          aka("name #14") mustEqual "CHAR_OCTET_LENGTH").
+        and(meta.getColumnName(15) aka "name #15" mustEqual "ORDINAL_POSITION").
+        and(meta.getColumnName(16).
+          aka("name #16") mustEqual "IS_NULLABLE").
+        and(meta.getColumnName(17) aka "name #17" mustEqual "SPECIFIC_NAME")
+
+    }
+
+    "not be described" in {
       (cols.getFetchSize aka "function cols" mustEqual 0).
         and(cols.next aka "next col" must beFalse)
 
