@@ -10,6 +10,8 @@ import org.specs2.mutable.Specification
 
 import acolyte.test.EmptyConnectionHandler
 
+import org.apache.commons.lang3.reflect.TypeUtils
+
 object DriverSpec extends Specification with DriverUtils with DriverFixtures {
   "Acolyte driver" title
 

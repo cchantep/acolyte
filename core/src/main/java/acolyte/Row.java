@@ -7,12 +7,10 @@ import java.util.List;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-
 /**
  * Row marker interface
  */
 public interface Row {
-
     /**
      * Returns information for cell(s) of row.
      * Each cell is decribed with a value (left) and an optional value (right).

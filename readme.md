@@ -56,7 +56,7 @@ import acolyte.ConnectionHandler;
 import acolyte.StatementHandler;
 
 import acolyte.StatementHandler.Parameter;
-import acolyte.Row.Row3;
+import acolyte.RowList3;
 
 import static acolyte.RowList.row3;
 
@@ -82,7 +82,7 @@ StatementHandler handler = new CompositeHandler().
 
       // Prepare list of 2 rows
       // with 3 columns of types String, Float, Date
-      RowList<Row3<String, Float, Date>> rows = 
+      RowList3<String, Float, Date> rows = 
         new RowList<Row3<String, Float, Date>>().
         withLabel(1, "String").withLabel(3, "Date"). // Optional: set labels
         append(row3("str", 1.2f, new Date(1, 2, 3))).
@@ -126,7 +126,8 @@ Then code could be:
 
 ```scala
 import java.sql.{ Connection ⇒ SqlConnection, Date, DriverManager }
-import acolyte.{ AbstractResultSet, Driver ⇒ AcolyteDriver, Execution, Row3 }
+import acolyte.{ AbstractResultSet, Driver ⇒ AcolyteDriver, Execution }
+import acolyte.Rows.row3
 import Acolyte._ // import DSL
 
 // ...
@@ -152,7 +153,7 @@ val handler: CompositeHandler = handleStatement.
 
       // Prepare list of 2 rows
       // with 3 columns of types String, Float, Date
-          (rowList[Row3[String, Float, Date]].
+          (rowList3[String, Float, Date].
             withLabels( // Optional: set labels
               1 -> "String",
               3 -> "Date")
@@ -178,6 +179,7 @@ You can see detailed [use cases](./scala/src/test/scala/ScalaUseCases.java) whos
 - Callable statement are not (yet) implemented.
 - `ResultSet.RETURN_GENERATED_KEYS` is not supported.
 - Pseudo-support for transaction.
+- Currency types.
 
 ## Build
 

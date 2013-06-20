@@ -23,12 +23,10 @@ object Acolyte {
   implicit def RowListAsScala[R <: Row](l: RowList[R]): ScalaRowList[R] =
     new ScalaRowList(l)
 
-  def rowList[R <: Row]: RowList[R] = new RowList[R]
-
-  // Rows creation
-  def row1[A](c1: A): Row1[A] = Rows.row1(c1)
-  def row2[A, B](c1: A, c2: B): Row2[A, B] = Rows.row2(c1, c2)
-  def row3[A, B, C](c1: A, c2: B, c3: C): Row3[A, B, C] = Rows.row3(c1, c2, c3)
+  // Row lists creation @todo import RowLists._
+  def rowList1[A]: RowList1[A] = new RowList1[A]()
+  def rowList2[A, B]: RowList2[A, B] = new RowList2[A, B]()
+  def rowList3[A, B, C]: RowList3[A, B, C] = new RowList3[A, B, C]()
 
 }
 
@@ -37,7 +35,7 @@ case class Execution(
   parameters: List[(ParameterDef, AnyRef)])
 
 final class ScalaCompositeHandler(
-  b: CompositeHandler) extends CompositeHandler {
+    b: CompositeHandler) extends CompositeHandler {
 
   def withUpdateHandler(h: Execution ⇒ Int): CompositeHandler = {
     b.withUpdateHandler(new UpdateHandler {
@@ -81,6 +79,12 @@ final class ScalaResultRow(r: Row) extends Row {
 final class ScalaRowList[R <: Row](l: RowList[R]) extends RowList[R] {
   override def append(row: R) = l.append(row)
   override def resultSet = l.resultSet
+
+  def getColumnClasses = l.getColumnClasses
+  def getColumnLabels = l.getColumnLabels
+  def getRows = l.getRows
+
+  def withLabel(i: Int, label: String): RowList[R] = l.withLabel(i, label)
 
   // Extension
   def :+(row: R) = append(row)

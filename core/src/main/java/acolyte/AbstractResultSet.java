@@ -35,11 +35,148 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
 
     /**
      * Empty result set
+     * @todo Replace with empty(x)
      */
-    public static final AbstractResultSet EMPTY = 
-        new AbstractResultSet() { 
+    public static final AbstractResultSet EMPTY = empty(0);
+
+    public static final AbstractResultSet empty(final int n) {
+        return new AbstractResultSet() { 
             public String toString() { return "No result"; }
+
+            public Statement getStatement() throws SQLException {
+                return new AbstractStatement() { };
+            }
+
+            public ResultSetMetaData getMetaData() throws SQLException {
+                return new ResultSetMetaData() {
+                    public String getCatalogName(int column) 
+                        throws SQLException {
+                        return "";
+                    } 
+                    
+                    public String getSchemaName(int column) 
+                        throws SQLException {
+                        return "public";
+                    }
+
+                    public String getTableName(int column) throws SQLException {
+                        return "table";
+                    }
+                    
+                    public int getColumnCount() throws SQLException {
+                        return n;
+                    } // end of getColumnCount
+
+                    public String getColumnClassName(int column) 
+                        throws SQLException {
+
+                        return String.class.getName();
+                    } // end of getColumnClassName
+
+                    public int getColumnDisplaySize(int column) 
+                        throws SQLException {
+
+                        return Integer.MAX_VALUE;
+                    } 
+
+                    public String getColumnName(int column) 
+                        throws SQLException {
+
+                        return "name";
+                    }
+
+                    public String getColumnLabel(int column) 
+                        throws SQLException {
+                        return getColumnName(column);
+                    }
+
+                    public boolean isSigned(int column) throws SQLException {
+                        return true; // @todo
+                    }
+                    
+                    public int isNullable(int column) throws SQLException {
+                        return ResultSetMetaData.columnNullableUnknown;
+                    }
+
+                    public boolean isCurrency(int column) throws SQLException {
+                        return false;
+                    }
+
+                    public int getPrecision(int column) throws SQLException {
+                        return 0; // @todo
+                    }
+
+                    public int getScale(int column) throws SQLException {
+                        return 0; // @todo
+                    }
+
+                    public int getColumnType(int column) throws SQLException {
+                        return -1;
+                    } // end of getColumnType
+                    
+                    public String getColumnTypeName(int column) 
+                        throws SQLException {
+
+                        return "";
+                    } // end of getColumnTypeName
+
+                    public boolean isSearchable(int column) 
+                        throws SQLException {
+                        return true;
+                    }
+                    
+                    public boolean isCaseSensitive(int column) 
+                        throws SQLException {
+                        return true;
+                    }
+                    
+                    public boolean isAutoIncrement(int column) 
+                        throws SQLException {
+                        return false;
+                    }
+                    
+                    public boolean isReadOnly(int column) throws SQLException {
+                        return true;
+                    } // end of isReadOnly
+                    
+                    public boolean isWritable(int column) throws SQLException {
+                        return false;
+                    } // end of isWritable
+                    
+                    public boolean isDefinitelyWritable(int column) 
+                        throws SQLException {
+                        
+                        return false;
+                    } // end of isDefinitelyWritable
+
+                    /**
+                     * {@inheritDoc}
+                     */
+                    public boolean isWrapperFor(final Class<?> iface) 
+                        throws SQLException {
+                        
+                        return iface.isAssignableFrom(this.getClass());
+                    } // end of isWrapperFor
+                    
+                    /**
+                     * {@inheritDoc}
+                     */
+                    public <T> T unwrap(final Class<T> iface) 
+                        throws SQLException {
+
+                        if (!isWrapperFor(iface)) {
+                            throw new SQLException();
+                        } // end of if
+                        
+                        @SuppressWarnings("unchecked")
+                        final T proxy = (T) this;
+                        
+                        return proxy;
+                    } // end of unwrap
+                };
+            } // end of getMetaData
         };
+    }
 
     // --- Properties ---
 

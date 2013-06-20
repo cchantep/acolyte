@@ -92,6 +92,15 @@ abstract class AbstractStatement implements java.sql.Statement {
     // --- Constructors ---
 
     /**
+     * No-arg constructor.
+     * @todo Remove when AbstractResultSet.empty is ok
+     */
+    protected AbstractStatement() {
+        this.connection = null;
+        this.handler = null;
+    } // end of <init>
+
+    /**
      * Acolyte constructor.
      *
      * @param handler Statement handler (not null)
