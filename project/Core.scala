@@ -173,8 +173,11 @@ public final class RowLists {""");
           val gp = g.mkString(",")
 
           w.append("""
+    /**
+     * Returns list of row with %d column(s).
+     */
     public static <%s> RowList%d<%s> rowList%d(%s) { return new RowList%d<%s>(%s); }
-""".format(gp, n, gp, n, ps.mkString(", "), n, gp, as.mkString(", ")))
+""".format(n, gp, n, gp, n, ps.mkString(", "), n, gp, as.mkString(", ")))
         }
 
         w.append("\r\n}")

@@ -946,136 +946,282 @@ public abstract class RowList<R extends Row> {
                 labels.put(kv.getValue(), kv.getKey());
             } // end of for
                 
-            return new ResultSetMetaData() {
-                public String getCatalogName(int column) throws SQLException {
-                    return "";
-                } 
-
-                public String getSchemaName(int column) throws SQLException {
-                    return "public";
-                }
-
-                public String getTableName(int column) throws SQLException {
-                    return "table";
-                }
-
-                public int getColumnCount() throws SQLException {
-                    return colNames.size(); // @todo Fix it
-                } // end of getColumnCount
-
-                public String getColumnClassName(int column) 
-                    throws SQLException {
-
-                    final Object v = getObject(column);
-
-                    if (v == null) {
-                        return String.class.getName(); // @todo Fix it
-                    } else {
-                        return v.getClass().getName();
-                    } // end of else
-                } // end of getColumnClassName
-
-                public int getColumnDisplaySize(int column) 
-                    throws SQLException {
-
-                    return Integer.MAX_VALUE;
-                } 
-
-                public String getColumnName(int column) throws SQLException {
-                    return labels.get(column);
-                } // end of getColumnName
-
-                public String getColumnLabel(int column) throws SQLException {
-                    return getColumnName(column);
-                }
-
-                public boolean isSigned(int column) throws SQLException {
-                    return true; // @todo
-                }
-
-                public int isNullable(int column) throws SQLException {
-                    return ResultSetMetaData.columnNullableUnknown;
-                }
-
-                public boolean isCurrency(int column) throws SQLException {
-                    return false;
-                }
-
-                public int getPrecision(int column) throws SQLException {
-                    return 0; // @todo
-                }
-
-                public int getScale(int column) throws SQLException {
-                    return 0; // @todo
-                }
-
-                public int getColumnType(int column) throws SQLException {
-                    final String clazz = getColumnClassName(column);
-
-                    for (final Map.Entry<Integer,String> kv : Defaults.jdbcTypeMappings.entrySet()) {
-                        if (kv.getValue().equals(clazz)) {
-                            return kv.getKey();
-                        } // end of if
-                    } // end of for
-
-                    return -1;
-                } // end of getColumnType
-                    
-                public String getColumnTypeName(int column) 
-                    throws SQLException {
-
-                    return Defaults.jdbcTypeNames.get(getColumnType(column));
-                } // end of getColumnTypeName
-
-                public boolean isSearchable(int column) throws SQLException {
-                    return true;
-                }
-
-                public boolean isCaseSensitive(int column) throws SQLException {
-                    return true;
-                }
-
-                public boolean isAutoIncrement(int column) throws SQLException {
-                    return false;
-                }
-
-                public boolean isReadOnly(int column) throws SQLException {
-                    return true;
-                } // end of isReadOnly
-
-                public boolean isWritable(int column) throws SQLException {
-                    return false;
-                } // end of isWritable
-
-                public boolean isDefinitelyWritable(int column) 
-                    throws SQLException {
-
-                    return false;
-                } // end of isDefinitelyWritable
-
-                /**
-                 * {@inheritDoc}
-                 */
-                public boolean isWrapperFor(final Class<?> iface) 
-                    throws SQLException {
-
-                    return iface.isAssignableFrom(this.getClass());
-                } // end of isWrapperFor
-
-                /**
-                 * {@inheritDoc}
-                 */
-                public <T> T unwrap(final Class<T> iface) throws SQLException {
-                    if (!isWrapperFor(iface)) {
-                        throw new SQLException();
-                    } // end of if
-
-                    @SuppressWarnings("unchecked")
-                    final T proxy = (T) this;
-
-                    return proxy;
-                } // end of unwrap
-            };
+            return new RowListMetaData();
         } // end of getMetaData
     } // end of class RowResultSet
+
+    /**
+     * Result set metadata for RowList.
+     */
+    public final class RowListMetaData implements ResultSetMetaData {
+        /**
+         * {@inheritDoc}
+         */
+        public String getCatalogName(final int column) throws SQLException {
+            return "";
+        } // end of getCatalogName
+
+        /**
+         * {@inheritDoc}
+         */
+        public String getSchemaName(final int column) throws SQLException {
+            return "";
+        } // end of getSchemaName
+
+        /**
+         * {@inheritDoc}
+         */
+        public String getTableName(final int column) throws SQLException {
+            return "";
+        } // end of getTableName
+
+        /**
+         * {@inheritDoc}
+         */
+        public int getColumnCount() throws SQLException {
+            return getColumnClasses().size();
+        } // end of getColumnCount
+
+        /**
+         * {@inheritDoc}
+         */
+        public String getColumnClassName(final int column) throws SQLException {
+            return getColumnClasses().get(column-1).getName();
+        } // end of getColumnClassName
+
+        /**
+         * {@inheritDoc}
+         */
+        public int getColumnDisplaySize(final int column) 
+            throws SQLException {
+
+            return Integer.MAX_VALUE;
+        } // end of getColumnDisplaySize
+
+        /**
+         * {@inheritDoc}
+         */
+        public String getColumnName(final int column) throws SQLException {
+            for (final Map.Entry<String,Integer> vk : getColumnLabels().
+                     entrySet()) {
+
+                if (vk.getValue().intValue() == column) {
+                    return vk.getKey();
+                } // end of if
+            } // end of for
+
+            return null;
+        } // end of getColumnName
+
+        /**
+         * {@inheritDoc}
+         */
+        public String getColumnLabel(final int column) throws SQLException {
+            return getColumnName(column);
+        } // end of getColumnLabel
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean isSigned(final int column) throws SQLException {
+            final int type = getColumnType(column);
+
+            if (type == -1) {
+                return false;
+            } // end of if
+
+            final Boolean s = Defaults.jdbcTypeSigns.get(type);
+
+            return (s == null) ? false : s;
+        } // end of isSigned
+
+        /**
+         * {@inheritDoc}
+         */
+        public int isNullable(final int column) throws SQLException {
+            return ResultSetMetaData.columnNullableUnknown;
+        } // end of isNullable
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean isCurrency(final int column) throws SQLException {
+            return false;
+        } // end of isCurrency
+
+        /**
+         * {@inheritDoc}
+         */
+        public int getPrecision(final int column) throws SQLException {
+            final int type = getColumnType(column);
+            
+            if (type == -1) {
+                return 0;
+            } // end of if
+
+            final Integer p = Defaults.jdbcTypePrecisions.get(type);
+
+            return (p == null) ? 0 : p;
+        } // end of getPrecision
+
+        /**
+         * {@inheritDoc}
+         */
+        public int getScale(final int column) throws SQLException {
+            final int type = getColumnType(column);
+            
+            if (type == -1) {
+                return 0;
+            } // end of if
+
+            final Integer s = Defaults.jdbcTypeScales.get(type);
+
+            return (s == null) ? 0 : s;
+        } // end of getScale
+
+        /**
+         * {@inheritDoc}
+         */
+        public int getColumnType(final int column) throws SQLException {
+            final Class<?> clazz = getColumnClasses().get(column-1);
+
+            if (clazz == null) {
+                return -1;
+            } // end of if
+
+            // ---
+
+            String cn = null;
+
+            if (clazz.isPrimitive()) {
+                if (clazz.equals(Boolean.TYPE)) { 
+                    cn = Boolean.class.getName();
+                } // end of if
+
+                if (clazz.equals(Character.TYPE)) {
+                    cn = Character.class.getName();
+                } // end of if
+
+                if (clazz.equals(Byte.TYPE)) {
+                    cn = Byte.class.getName();
+                } // end of if
+
+                if (clazz.equals(Short.TYPE)) {
+                    cn = Short.class.getName();
+                } // end of if
+
+                if (clazz.equals(Integer.TYPE)) {
+                    cn = Integer.class.getName();
+                } // end of if
+
+                if (clazz.equals(Long.TYPE)) {
+                    cn = Long.class.getName();
+                } // end of if
+
+                if (clazz.equals(Float.TYPE)) {
+                    cn = Float.class.getName();
+                } // end of if
+
+                if (clazz.equals(Double.TYPE)) {
+                    cn = Double.class.getName();
+                } // end of if
+            } else {
+                cn = clazz.getName();
+            } // end of else
+
+            final String className = cn;
+
+            if (className == null) {
+                return -1;
+            } // end of if
+
+            // ---
+
+            for (final Map.Entry<Integer,String> kv : Defaults.
+                     jdbcTypeMappings.entrySet()) {
+
+                if (kv.getValue().equals(className)) {
+                    return kv.getKey();
+                } // end of if
+            } // end of for
+
+            return -1;
+        } // end of getColumnType
+                    
+        /**
+         * {@inheritDoc}
+         */
+        public String getColumnTypeName(final int column) 
+            throws SQLException {
+
+            return Defaults.jdbcTypeNames.get(getColumnType(column));
+        } // end of getColumnTypeName
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean isSearchable(final int column) throws SQLException {
+            return true;
+        } // end of isSearchable
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean isCaseSensitive(final int column) throws SQLException {
+            return true;
+        } // end of isCaseSensitive
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean isAutoIncrement(final int column) throws SQLException {
+            return false;
+        } // end of isAutoIncrement
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean isReadOnly(final int column) throws SQLException {
+            return true;
+        } // end of isReadOnly
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean isWritable(final int column) throws SQLException {
+            return false;
+        } // end of isWritable
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean isDefinitelyWritable(final int column) 
+            throws SQLException {
+
+            return false;
+        } // end of isDefinitelyWritable
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean isWrapperFor(final Class<?> iface) 
+            throws SQLException {
+
+            return iface.isAssignableFrom(this.getClass());
+        } // end of isWrapperFor
+
+        /**
+         * {@inheritDoc}
+         */
+        public <T> T unwrap(final Class<T> iface) throws SQLException {
+            if (!isWrapperFor(iface)) {
+                throw new SQLException();
+            } // end of if
+
+            @SuppressWarnings("unchecked")
+                final T proxy = (T) this;
+
+            return proxy;
+        } // end of unwrap
+    } // end of RowListMetaData
 } // end of class RowList

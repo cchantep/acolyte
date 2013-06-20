@@ -140,19 +140,19 @@ final class Defaults {
         precisions.put(Types.BIT, 1);
         precisions.put(Types.BOOLEAN, 1);
         precisions.put(Types.CHAR, 16);
-        precisions.put(Types.DATE, -1);
-        precisions.put(Types.DECIMAL, -1);
+        precisions.put(Types.DATE, 0/*-1*/);
+        precisions.put(Types.DECIMAL, 0/*-1*/);
         precisions.put(Types.DOUBLE, 64);
         precisions.put(Types.FLOAT, 32);
         precisions.put(Types.INTEGER, 32);
-        precisions.put(Types.LONGVARCHAR, -1);
-        precisions.put(Types.NUMERIC, -1);
+        precisions.put(Types.LONGVARCHAR, 0/*-1*/);
+        precisions.put(Types.NUMERIC, 0/*-1*/);
         precisions.put(Types.REAL, 32);
         precisions.put(Types.SMALLINT, 16);
         precisions.put(Types.TINYINT, 16);
-        precisions.put(Types.TIME, -1);
-        precisions.put(Types.TIMESTAMP, -1);
-        precisions.put(Types.VARCHAR, -1);
+        precisions.put(Types.TIME, 0/*-1*/);
+        precisions.put(Types.TIMESTAMP, 0/*-1*/);
+        precisions.put(Types.VARCHAR, 0/*-1*/);
 
         jdbcTypePrecisions = Collections.unmodifiableMap(precisions);        
 
@@ -160,22 +160,22 @@ final class Defaults {
         final HashMap<Integer,Integer> scales = new HashMap<Integer,Integer>();
 
         scales.put(Types.BIGINT, 0);
-        scales.put(Types.BIT, -1);
-        scales.put(Types.BOOLEAN, -1);
-        scales.put(Types.CHAR, -1);
-        scales.put(Types.DATE, -1);
+        scales.put(Types.BIT, 0/*-1*/);
+        scales.put(Types.BOOLEAN, 0/*-1*/);
+        scales.put(Types.CHAR, 0/*-1*/);
+        scales.put(Types.DATE, 0/*-1*/);
         scales.put(Types.DECIMAL, 2);
         scales.put(Types.DOUBLE, 2);
         scales.put(Types.FLOAT, 2);
         scales.put(Types.INTEGER, 0);
-        scales.put(Types.LONGVARCHAR, -1);
+        scales.put(Types.LONGVARCHAR, 0/*-1*/);
         scales.put(Types.NUMERIC, 2);
         scales.put(Types.REAL, 2);
         scales.put(Types.SMALLINT, 0);
         scales.put(Types.TINYINT, 0);
-        scales.put(Types.TIME, -1);
-        scales.put(Types.TIMESTAMP, -1);
-        scales.put(Types.VARCHAR, -1);
+        scales.put(Types.TIME, 0/*-1*/);
+        scales.put(Types.TIMESTAMP, 0/*-1*/);
+        scales.put(Types.VARCHAR, 0/*-1*/);
 
         jdbcTypeScales = Collections.unmodifiableMap(scales);
     } // end of <cinit>

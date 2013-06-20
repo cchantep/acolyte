@@ -2,7 +2,15 @@ package acolyte
 
 import java.math.{ BigDecimal ⇒ JBigDec }
 
-import java.sql.{ Date, ResultSet, SQLException, Time, Timestamp }
+import java.sql.{
+  Date,
+  ResultSet,
+  ResultSetMetaData,
+  SQLException,
+  Time,
+  Timestamp,
+  Types
+}
 
 import org.specs2.mutable.Specification
 
@@ -24,6 +32,177 @@ object RowListSpec extends Specification with RowListTest {
       new RowList2(classOf[String], classOf[Float], new java.util.ArrayList[Row2[String, Float]](), null).
         aka("ctor") must throwA[IllegalArgumentException](
           message = "Invalid names")
+    }
+  }
+
+  "Result set metadata" should {
+    lazy val meta = RowLists.rowList3(
+      classOf[Float], classOf[String], classOf[Time]).
+      withLabel(2, "title").
+      append(Rows.row3(1.23f, "str", new Time(1, 2, 3))).
+      resultSet.getMetaData
+
+    "have expected column catalog" in {
+      meta.getCatalogName(1) aka "catalog" mustEqual ""
+    }
+
+    "have expected column schema" in {
+      meta.getSchemaName(1) aka "schema" mustEqual ""
+    }
+
+    "have expected column table" in {
+      meta.getTableName(1) aka "table" mustEqual ""
+    }
+
+    "have expected column count" in {
+      meta.getColumnCount aka "count" mustEqual 3
+    }
+
+    "have expected class" >> {
+      "for column #1" in {
+        meta.getColumnClassName(1) aka "class" mustEqual classOf[Float].getName
+      }
+
+      "for column #2" in {
+        meta.getColumnClassName(2) aka "class" mustEqual classOf[String].getName
+      }
+
+      "for column #3" in {
+        meta.getColumnClassName(3) aka "class" mustEqual classOf[Time].getName
+      }
+    }
+
+    "have expected display size" in {
+      meta.getColumnDisplaySize(1) aka "size" mustEqual Integer.MAX_VALUE
+    }
+
+    "have expected label" >> {
+      "for column #1" in {
+        (meta.getColumnName(1) aka "name" must beNull).
+          and(meta.getColumnLabel(1) aka "label" must beNull)
+
+      }
+
+      "for column #2" in {
+        (meta.getColumnName(2) aka "name" mustEqual "title").
+          and(meta.getColumnLabel(2) aka "label" mustEqual "title")
+      }
+
+      "for column #3" in {
+        (meta.getColumnName(3) aka "name" must beNull).
+          and(meta.getColumnLabel(3) aka "label" must beNull)
+
+      }
+    }
+
+    "have expected column sign" >> {
+      "for column #1" in {
+        meta.isSigned(1) aka "signed" must beTrue
+      }
+
+      "for column #2" in {
+        meta.isSigned(2) aka "signed" must beFalse
+      }
+
+      "for column #3" in {
+        meta.isSigned(3) aka "signed" must beFalse
+      }
+    }
+
+    "have expected nullable flag" in {
+      meta.isNullable(1).
+        aka("nullable") mustEqual ResultSetMetaData.columnNullableUnknown
+
+    }
+
+    "not support currency" in {
+      meta.isCurrency(1) aka "currency" must beFalse
+    }
+
+    "have expected precision" >> {
+      "for column #1" in {
+        meta.getPrecision(1) aka "precision" mustEqual 32
+      }
+
+      "for column #2" in {
+        meta.getPrecision(2) aka "precision" mustEqual 0
+      }
+
+      "for column #3" in {
+        meta.getPrecision(3) aka "precision" mustEqual 0
+      }
+    }
+
+    "have expected scale" >> {
+      "for column #1" in {
+        meta.getScale(1) aka "scale" mustEqual 2
+      }
+
+      "for column #2" in {
+        meta.getScale(2) aka "scale" mustEqual 0
+      }
+
+      "for column #3" in {
+        meta.getScale(3) aka "scale" mustEqual 0
+      }
+    }
+
+    "have expected type" >> {
+      "for column #1" in {
+        (meta.getColumnType(1) aka "type" mustEqual Types.FLOAT).
+          and(meta.getColumnTypeName(1) aka "type name" mustEqual "FLOAT")
+      }
+
+      "for column #2" in {
+        (meta.getColumnType(2) aka "type" mustEqual Types.VARCHAR).
+          and(meta.getColumnTypeName(2) aka "type name" mustEqual "VARCHAR")
+      }
+
+      "for column #3" in {
+        (meta.getColumnType(3) aka "type" mustEqual Types.TIME).
+          and(meta.getColumnTypeName(3) aka "type name" mustEqual "TIME")
+      }
+    }
+
+    "have expected flags" in {
+      (meta.isSearchable(1) aka "searchable" must beTrue).
+        and(meta.isCaseSensitive(1) aka "case sensitive" must beTrue).
+        and(meta.isAutoIncrement(1) aka "auto-increment" must beFalse).
+        and(meta.isReadOnly(1) aka "read-only" must beTrue).
+        and(meta.isWritable(1) aka "writable" must beFalse).
+        and(meta.isDefinitelyWritable(1).
+          aka("definitely writable") must beFalse)
+
+    }
+  }
+
+  "Column classes" should {
+    "be String" in {
+      val cs = {
+        val l = new java.util.ArrayList[Class[_]]
+        l.add(classOf[String])
+        l
+      }
+
+      RowLists.rowList1(classOf[String]).
+        getColumnClasses() aka "columns" mustEqual cs
+
+    }
+
+    "be String, Double, Date" in {
+      val cs = {
+        val l = new java.util.ArrayList[Class[_]]
+        l.add(classOf[String])
+        l.add(classOf[Double])
+        l.add(classOf[java.util.Date])
+        l
+      }
+
+      RowLists.rowList3(
+        classOf[String],
+        classOf[Double],
+        classOf[java.util.Date]).getColumnClasses() aka "columns" mustEqual cs
+
     }
   }
 
