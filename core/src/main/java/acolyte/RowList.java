@@ -9,12 +9,12 @@ import java.util.Map;
 
 import java.math.BigDecimal;
 
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Date;
 import java.sql.Time;
-
 
 import acolyte.Row.Column;
 import acolyte.Row.Row1;
@@ -24,90 +24,45 @@ import acolyte.Row.Row1;
  *
  * @author Cedric Chantepie
  */
-public class RowList<R extends Row> {
-    // --- Properties ---
-
+public abstract class RowList<R extends Row> {
     /**
-     * Rows
+     * Returns unmodifiable rows list.
      */
-    private final List<R> rows;
-
-    /**
-     * Column names
-     */
-    private final Map<String,Integer> colNames;
-
-    // --- Constructors ---
-
-    /**
-     * Bulk constructor.
-     *
-     * @throws IllegalArgumentException if rows is null
-     */
-    protected RowList(final List<R> rows,
-                      final Map<String,Integer> colNames) {
-
-        if (rows == null) {
-            throw new IllegalArgumentException("Invalid rows");
-        } // end of if
-
-        if (colNames == null) {
-            throw new IllegalArgumentException("Invalid names");
-        } // end of if
-
-        this.rows = Collections.unmodifiableList(rows);
-        this.colNames = Collections.unmodifiableMap(colNames);
-    } // end of <init>
-
-    /**
-     * No-arg constructor.
-     */
-    public RowList() {
-        this(new ArrayList<R>(), new HashMap<String,Integer>());
-    } // end of <init>
-
-    // ---
+    public abstract List<R> getRows();
 
     /**
      * Appends |row|.
      *
-     * @return Update row list
+     * @return Updated row list
      */
-    public RowList<R> append(final R row) {
-        final ArrayList<R> copy = new ArrayList<R>(this.rows);
-
-        copy.add(row);
-
-        return new RowList<R>(copy, this.colNames);
-    } // end of append
+    public abstract RowList<R> append(R row);
 
     /**
-     * Returns copy of row list with updated column names.
+     * Returns copy of row list with updated column names/labels.
      *
      * @param columnIndex Index of column (first index is 1)
      * @param label Column name/label
      */
-    public RowList<R> withLabel(final int columnIndex, final String label) {
-        if (label == null) {
-            throw new IllegalArgumentException("Invalid label");
-        } // end of if
-
-        // ---
-
-        final HashMap<String,Integer> cols = 
-            new HashMap<String,Integer>(this.colNames);
-
-        cols.put(label, (Integer) columnIndex);
-
-        return new RowList<R>(this.rows, cols);
-    } // end of withLabel
+    public abstract RowList<R> withLabel(int columnIndex, String label);
 
     /**
      * Returns result set from these rows.
      */
     public RowResultSet<R> resultSet() {
-        return new RowResultSet<R>(this.rows);
+        return new RowResultSet<R>(getRows());
     } // end of resultSet
+
+    /**
+     * Returns ordered classes of columns.
+     */
+    public abstract List<Class<?>> getColumnClasses();
+
+    /**
+     * Gets column mappings, from index to label.
+     *
+     * @return Column mappings, or empty map (not null) if none
+     */
+    public abstract Map<String,Integer> getColumnLabels();
 
     // --- Inner classes ---
 
@@ -235,7 +190,9 @@ public class RowList<R extends Row> {
                 throw new SQLException("Not on a row");
             } // end of if
 
-            if (columnLabel == null || !colNames.containsKey(columnLabel)) {
+            if (columnLabel == null || 
+                !getColumnLabels().containsKey(columnLabel)) {
+
                 throw new SQLException("Invalid label: " + columnLabel);
             } // end of if
 
@@ -912,7 +869,7 @@ public class RowList<R extends Row> {
          * {@inheritDoc}
          */
         public int findColumn(final String columnLabel) throws SQLException {
-            return colNames.get(columnLabel);
+            return getColumnLabels().get(columnLabel);
         } // end of findColumn
 
         /**
@@ -976,5 +933,149 @@ public class RowList<R extends Row> {
 
             throw new SQLException("Incompatible type: " + type + ", " + clazz);
         } // end of convert
+
+        /**
+         * {@inheritDoc}
+         */
+        public ResultSetMetaData getMetaData() throws SQLException {
+            final Map<String,Integer> colNames = getColumnLabels();
+            final HashMap<Integer,String> labels =
+                new HashMap<Integer,String>(colNames.size());
+
+            for (final Map.Entry<String,Integer> kv : colNames.entrySet()) {
+                labels.put(kv.getValue(), kv.getKey());
+            } // end of for
+                
+            return new ResultSetMetaData() {
+                public String getCatalogName(int column) throws SQLException {
+                    return "";
+                } 
+
+                public String getSchemaName(int column) throws SQLException {
+                    return "public";
+                }
+
+                public String getTableName(int column) throws SQLException {
+                    return "table";
+                }
+
+                public int getColumnCount() throws SQLException {
+                    return colNames.size(); // @todo Fix it
+                } // end of getColumnCount
+
+                public String getColumnClassName(int column) 
+                    throws SQLException {
+
+                    final Object v = getObject(column);
+
+                    if (v == null) {
+                        return String.class.getName(); // @todo Fix it
+                    } else {
+                        return v.getClass().getName();
+                    } // end of else
+                } // end of getColumnClassName
+
+                public int getColumnDisplaySize(int column) 
+                    throws SQLException {
+
+                    return Integer.MAX_VALUE;
+                } 
+
+                public String getColumnName(int column) throws SQLException {
+                    return labels.get(column);
+                } // end of getColumnName
+
+                public String getColumnLabel(int column) throws SQLException {
+                    return getColumnName(column);
+                }
+
+                public boolean isSigned(int column) throws SQLException {
+                    return true; // @todo
+                }
+
+                public int isNullable(int column) throws SQLException {
+                    return ResultSetMetaData.columnNullableUnknown;
+                }
+
+                public boolean isCurrency(int column) throws SQLException {
+                    return false;
+                }
+
+                public int getPrecision(int column) throws SQLException {
+                    return 0; // @todo
+                }
+
+                public int getScale(int column) throws SQLException {
+                    return 0; // @todo
+                }
+
+                public int getColumnType(int column) throws SQLException {
+                    final String clazz = getColumnClassName(column);
+
+                    for (final Map.Entry<Integer,String> kv : Defaults.jdbcTypeMappings.entrySet()) {
+                        if (kv.getValue().equals(clazz)) {
+                            return kv.getKey();
+                        } // end of if
+                    } // end of for
+
+                    return -1;
+                } // end of getColumnType
+                    
+                public String getColumnTypeName(int column) 
+                    throws SQLException {
+
+                    return Defaults.jdbcTypeNames.get(getColumnType(column));
+                } // end of getColumnTypeName
+
+                public boolean isSearchable(int column) throws SQLException {
+                    return true;
+                }
+
+                public boolean isCaseSensitive(int column) throws SQLException {
+                    return true;
+                }
+
+                public boolean isAutoIncrement(int column) throws SQLException {
+                    return false;
+                }
+
+                public boolean isReadOnly(int column) throws SQLException {
+                    return true;
+                } // end of isReadOnly
+
+                public boolean isWritable(int column) throws SQLException {
+                    return false;
+                } // end of isWritable
+
+                public boolean isDefinitelyWritable(int column) 
+                    throws SQLException {
+
+                    return false;
+                } // end of isDefinitelyWritable
+
+                /**
+                 * {@inheritDoc}
+                 */
+                public boolean isWrapperFor(final Class<?> iface) 
+                    throws SQLException {
+
+                    return iface.isAssignableFrom(this.getClass());
+                } // end of isWrapperFor
+
+                /**
+                 * {@inheritDoc}
+                 */
+                public <T> T unwrap(final Class<T> iface) throws SQLException {
+                    if (!isWrapperFor(iface)) {
+                        throw new SQLException();
+                    } // end of if
+
+                    @SuppressWarnings("unchecked")
+                    final T proxy = (T) this;
+
+                    return proxy;
+                } // end of unwrap
+            };
+        } // end of getMetaData
     } // end of class RowResultSet
 } // end of class RowList

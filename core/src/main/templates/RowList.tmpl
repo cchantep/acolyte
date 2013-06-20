@@ -1,0 +1,103 @@
+package acolyte;
+
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Row list of row with #N# cells.
+ */
+public final class RowList#N#<#CP#> extends RowList<Row#N#<#CP#>> {
+    // --- Properties ---
+        
+    /**
+     * Rows
+     */
+    private final List<Row#N#<#CP#>> rows;
+        
+    /**
+     * Column names
+     */
+    private final Map<String,Integer> colNames;
+
+    // --- Constructors ---
+
+    /**
+     * Bulk constructor.
+     *
+     * @throws IllegalArgumentException if rows is null
+     */
+    protected RowList#N#(final List<Row#N#<#CP#>> rows,
+                         final Map<String,Integer> colNames) {
+
+        if (rows == null) {
+            throw new IllegalArgumentException("Invalid rows");
+        } // end of if
+
+        if (colNames == null) {
+            throw new IllegalArgumentException("Invalid names");
+        } // end of if
+
+        this.rows = Collections.unmodifiableList(rows);
+        this.colNames = Collections.unmodifiableMap(colNames);
+    } // end of <init>
+
+    /**
+     * No-arg constructor.
+     */
+    public RowList#N#() {
+        this(new ArrayList<Row#N#<#CP#>>(), new HashMap<String,Integer>());
+    } // end of <init>
+
+    // ---
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<Row#N#<#CP#>> getRows() { return this.rows; }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Map<String,Integer> getColumnLabels() { return this.colNames; }
+
+    /**
+     * {@inheritDoc}
+     */
+    public RowList<Row#N#<#CP#>> append(final Row#N#<#CP#> row) {
+        final ArrayList<Row#N#<#CP#>> copy = new ArrayList<Row#N#<#CP#>>(this.rows);
+            
+        copy.add(row);
+            
+        return new RowList#N#<#CP#>(copy, this.colNames);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public RowList<Row#N#<#CP#>> withLabel(final int columnIndex, 
+                                           final String label) {
+
+        if (label == null) {
+            throw new IllegalArgumentException("Invalid label");
+        } // end of if
+
+        // ---
+
+        final HashMap<String,Integer> cols = 
+            new HashMap<String,Integer>(this.colNames);
+
+        cols.put(label, (Integer) columnIndex);
+
+        return new RowList#N#<#CP#>(this.rows, cols);
+    }
+        
+    /**
+     * {@inheritDoc}
+     */
+    public List<Class<?>> getColumnClasses() {
+        return null;
+    }
+}
