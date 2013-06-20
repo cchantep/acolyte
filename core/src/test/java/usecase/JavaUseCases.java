@@ -15,6 +15,7 @@ import acolyte.StatementHandler;
 
 import acolyte.StatementHandler.Parameter;
 
+import static acolyte.RowLists.rowList1;
 import static acolyte.RowLists.rowList3;
 import static acolyte.Rows.row3;
 
@@ -54,7 +55,7 @@ public final class JavaUseCases {
             withQueryHandler(new CompositeHandler.QueryHandler () {
                     public ResultSet apply(String sql, List<Parameter> parameters) {
                         if (sql.startsWith("SELECT ")) {
-                            return AbstractResultSet.EMPTY;
+                            return rowList1(String.class).resultSet();
                         }
 
                         // ... EXEC that_proc (see previous withQueryDetection)

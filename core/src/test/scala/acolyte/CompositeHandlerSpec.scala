@@ -75,10 +75,10 @@ object CompositeHandlerSpec extends Specification {
     "be successful for empty resultset" in {
       new CompositeHandler().withQueryHandler(new QueryHandler {
         def apply(s: String, p: java.util.List[Parameter]) =
-          AbstractResultSet.EMPTY
+          RowLists.rowList1(classOf[String]).resultSet
 
       }).whenSQLQuery("SELECT *", NO_PARAMS).
-        aka("resultset") mustEqual AbstractResultSet.EMPTY
+        aka("resultset") mustEqual RowLists.rowList1(classOf[String]).resultSet
     }
 
     "be successful for not-empty resultset" in {

@@ -882,7 +882,16 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                    final String procedureNamePattern) 
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList8(String.class, String.class, String.class,
+                                 Object.class, Object.class, Object.class,
+                                 String.class, Short.class).
+            withLabel(1, "PROCEDURE_CAT").
+            withLabel(2, "PROCEDURE_SCHEM").
+            withLabel(3, "PROCEDURE_NAME").
+            withLabel(7, "REMARKS").
+            withLabel(8, "PROCEDURE_TYPE").
+            resultSet();
+
     } // end of getProcedures
 
     /**
@@ -894,7 +903,26 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                          final String columnNamePattern)
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList13(String.class, String.class, String.class,
+                                  String.class, Short.class, Integer.class,
+                                  String.class, Integer.class, Integer.class,
+                                  Short.class, Short.class, Short.class, 
+                                  String.class).
+            withLabel(1, "PROCEDURE_CAT").
+            withLabel(2, "PROCEDURE_SCHEM").
+            withLabel(3, "PROCEDURE_NAME").
+            withLabel(4, "COLUMN_NAME").
+            withLabel(5, "COLUMN_TYPE").
+            withLabel(6, "DATA_TYPE").
+            withLabel(7, "TYPE_NAME").
+            withLabel(8, "PRECISION").
+            withLabel(9, "LENGTH").
+            withLabel(10, "SCALE").
+            withLabel(11, "RADIX").
+            withLabel(12, "NULLABLE").
+            withLabel(13, "REMARKS").
+            resultSet();
+
     } // end of getProcedureColumns
 
     /**
@@ -905,28 +933,28 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                final String tableNamePattern, 
                                final String[] types) throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getTables
 
     /**
      * {@inheritDoc}
      */
     public ResultSet getSchemas() throws SQLException {
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getSchemas
 
     /**
      * {@inheritDoc}
      */
     public ResultSet getCatalogs() throws SQLException {
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getCatalogs
 
     /**
      * {@inheritDoc}
      */
     public ResultSet getTableTypes() throws SQLException {
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getTableTypes
 
     /**
@@ -938,7 +966,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                 final String columnNamePattern)
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getColumns
 
     /**
@@ -950,7 +978,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                          final String columnNamePattern)
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getColumnPrivileges
 
     /**
@@ -961,7 +989,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                         final String tableNamePattern) 
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getTablePrivileges
 
     /**
@@ -974,7 +1002,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                           final boolean nullable)
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getBestRowIdentifier
 
     /**
@@ -985,7 +1013,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                        final String table)
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getVersionColumns
 
     /**
@@ -996,7 +1024,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                     final String table)
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getPrimaryKey
 
     /**
@@ -1007,7 +1035,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                      final String table)
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getImportedKeys
 
     /**
@@ -1018,7 +1046,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                      final String table)
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getExportedKeys
 
     /**
@@ -1032,14 +1060,14 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                        final String foreignTable)
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getCrossReference
 
     /**
      * {@inheritDoc}
      */
     public ResultSet getTypeInfo() throws SQLException {
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getTypeInfo
 
     /**
@@ -1052,7 +1080,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                   final boolean approximate)
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getIndexInfo
 
     /**
@@ -1151,7 +1179,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                              int[] types)
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getUDTs
 
     /**
@@ -1197,7 +1225,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                    final String typeNamePattern)
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getSuperTypes
 
     /**
@@ -1208,7 +1236,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                     final String tableNamePattern)
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getSuperTables
 
     /**
@@ -1220,7 +1248,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                    final String attributeNamePattern)
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getAttributes
 
     /**
@@ -1302,7 +1330,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                 final String schemaPattern) 
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getSchemas
 
     /**
@@ -1325,7 +1353,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
      * {@inheritDoc}
      */
     public ResultSet getClientInfoProperties() throws SQLException {
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getClientInfoProperties
 
     /**
@@ -1336,7 +1364,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                   final String functionNamePattern) 
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getFunctions
 
     /**
@@ -1348,7 +1376,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                         final String columnNamePattern)
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getFunctionColumns
 
     /**
@@ -1360,7 +1388,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
                                       final String columnNamePattern)
         throws SQLException {
 
-        return AbstractResultSet.EMPTY;
+        return RowLists.rowList1(String.class).resultSet();
     } // end of getPseudoColumns
 
     /**

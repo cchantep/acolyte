@@ -110,6 +110,56 @@ If you just need/want to directly get connection from `acolyte.Driver`, without 
 Connection con = new acolyte.Driver().connection(yourHandlerInstance);
 ```
 
+#### ResultSet creation
+
+Acolyte provides `Row` and `RowList` classes (and their sub-classes) to allow easy and typesafe creation of resultset (`java.sql.ResultSet`).
+
+Row lists can be built as following:
+
+```java
+import acolyte.RowList1;
+import acolyte.RowList3;
+
+import static acolyte.RowLists.rowList1;
+import static acolyte.RowLists.rowList3; 
+
+// ...
+
+RowList1<String> list1 = RowLists.rowList1(String.class);
+
+RowList3<Integer, Float, Character> list2 = RowLists.
+  rowList3(Integer.class, Float.class, Character.class)
+```
+
+In previous example, `list1` is a list of row with 1 column whose class is `String` (`VARCHAR` as for JDBC/SQL type).
+Considering `list2`, it is a list of row with 3 columns, whose classes are `Integer`, `Float` and `Character`.
+
+Once you have declared your row list, and before turning it as result set, you can either add rows to it, or leave it empty.
+
+```java
+import java.sql.ResultSet;
+
+import static acolyte.Rows.row1;
+
+// ...
+
+// we have declared list1 and list2 (see previous example)
+
+list1 = list1.append(row1("str"));
+
+ResultSet rs1 = list1.resultSet();
+ResultSet rs2 = list2.resultSet();
+```
+
+From previous example, result set `rs1` will contain 1 row, whereas `rs2` is empty.
+
+Take care to `list1 = list1.append(row1("str"));`. As provider `RowList` classes are immutable, you should get updated instance from `append` to work on the list containing added row. This is more safe, and allow to rewrite previous example like:
+
+```java
+ResultSet rs1 = list1.append(row1("str")).resultSet();
+ResultSet rs2 = list2.resultSet();
+```
+
 ### Scala
 
 Module `acolyte-scala` provide a Scala DSL to use more friendly Acolyte features.
@@ -128,7 +178,7 @@ Then code could be:
 ```scala
 import java.sql.{ Connection ⇒ SqlConnection, Date, DriverManager }
 import acolyte.{ AbstractResultSet, Driver ⇒ AcolyteDriver, Execution }
-import acolyte.RowLists.rowList3
+import acolyte.RowLists.{ rowList1, rowList3 }
 import acolyte.Rows.row3
 import Acolyte._ // import DSL
 
@@ -148,20 +198,22 @@ val handler: CompositeHandler = handleStatement.
     }
   }).withQueryHandler({ e: Execution ⇒
     if (e.sql.startsWith("SELECT ")) {
-      AbstractResultSet.EMPTY;
+      // Empty resultset with 1 text column declared
+      rowList1(String.class).resultSet()
     } else {
       // ... EXEC that_proc
       // (see previous withQueryDetection)
 
       // Prepare list of 2 rows
       // with 3 columns of types String, Float, Date
-          (rowList3(classOf[String], classOf[Float], classOf[Date]).
-            withLabels( // Optional: set labels
-              1 -> "String",
-              3 -> "Date")
-            :+ row3("str", 1.2f, new Date(1l))
-            :+ row3("val", 2.34f, new Date(2l))).
-            resultSet // convert to JDBC ResultSet
+      rowList3(classOf[String], classOf[Float], classOf[Date]).
+        withLabels( // Optional: set labels
+          1 -> "String",
+          3 -> "Date")
+        :+ row3("str", 1.2f, new Date(1l))
+        :+ row3("val", 2.34f, new Date(2l))).
+        resultSet // convert to JDBC ResultSet
+
     }
   })
 

@@ -49,7 +49,7 @@ object AbstractStatementSpec extends Specification {
       def whenSQLUpdate(s: String, p: Params) = -1
       def whenSQLQuery(s: String, p: Params) = {
         sql = s
-        AbstractResultSet.EMPTY
+        RowLists.rowList1(classOf[String]).resultSet
       }
     }
 
@@ -57,8 +57,8 @@ object AbstractStatementSpec extends Specification {
       lazy val s = statement(h = h)
 
       (s.executeQuery("QUERY").
-        aka("result") mustEqual AbstractResultSet.EMPTY).
-        and(s.getResultSet aka "resultset" mustEqual AbstractResultSet.EMPTY).
+        aka("result") mustEqual RowLists.rowList1(classOf[String]).resultSet).
+        and(s.getResultSet aka "resultset" mustEqual RowLists.rowList1(classOf[String]).resultSet).
         and(s.getUpdateCount aka "update count" mustEqual -1).
         and(sql aka "executed SQL" mustEqual "QUERY")
 
@@ -77,7 +77,7 @@ object AbstractStatementSpec extends Specification {
       lazy val s = statement(h = h)
 
       (s.execute("QUERY") aka "flag" must beTrue).
-        and(s.getResultSet aka "resultset" mustEqual AbstractResultSet.EMPTY).
+        and(s.getResultSet aka "resultset" mustEqual RowLists.rowList1(classOf[String]).resultSet).
         and(s.getUpdateCount aka "update count" mustEqual -1).
         and(sql aka "executed SQL" mustEqual "QUERY")
 
@@ -88,15 +88,15 @@ object AbstractStatementSpec extends Specification {
 
       ((s.execute("QUERY", Statement.RETURN_GENERATED_KEYS).
         aka("flag") must beTrue).
-        and(s.getResultSet aka "resultset" mustEqual AbstractResultSet.EMPTY).
+        and(s.getResultSet aka "resultset" mustEqual RowLists.rowList1(classOf[String]).resultSet).
         and(s.getUpdateCount aka "update count" mustEqual -1).
         and(sql aka "executed SQL" mustEqual "QUERY")).
         /*2*/ and((s.execute("QUERY", Array[Int]()) aka "flag" must beTrue).
-          and(s.getResultSet aka "resultset" mustEqual AbstractResultSet.EMPTY).
+          and(s.getResultSet aka "resultset" mustEqual RowLists.rowList1(classOf[String]).resultSet).
           and(s.getUpdateCount aka "update count" mustEqual -1).
           and(sql aka "executed SQL" mustEqual "QUERY")).
         /*3*/ and((s.execute("QUERY", Array[String]()) aka "flag" must beTrue).
-          and(s.getResultSet aka "resultset" mustEqual AbstractResultSet.EMPTY).
+          and(s.getResultSet aka "resultset" mustEqual RowLists.rowList1(classOf[String]).resultSet).
           and(s.getUpdateCount aka "update count" mustEqual -1).
           and(sql aka "executed SQL" mustEqual "QUERY"))
 
@@ -107,7 +107,7 @@ object AbstractStatementSpec extends Specification {
 
       (s.execute("QUERY", Statement.NO_GENERATED_KEYS).
         aka("flag") must beTrue).
-        and(s.getResultSet aka "resultset" mustEqual AbstractResultSet.EMPTY).
+        and(s.getResultSet aka "resultset" mustEqual RowLists.rowList1(classOf[String]).resultSet).
         and(s.getUpdateCount aka "update count" mustEqual -1).
         and(sql aka "executed SQL" mustEqual "QUERY")
 
@@ -281,7 +281,7 @@ object AbstractStatementSpec extends Specification {
   "Generated keys" should {
     "be empty when null is returned by handler" in {
       statement().getGeneratedKeys.
-        aka("keys") mustEqual AbstractResultSet.EMPTY
+        aka("keys") mustEqual RowLists.rowList1(classOf[String]).resultSet
 
     }
 

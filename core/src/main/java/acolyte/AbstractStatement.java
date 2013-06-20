@@ -399,7 +399,9 @@ abstract class AbstractStatement implements java.sql.Statement {
 
         final ResultSet keys = this.handler.getGeneratedKeys();
 
-        return (keys == null) ? AbstractResultSet.EMPTY : keys;
+        return (keys != null) ? keys 
+            : RowLists.rowList1(String.class).resultSet();
+
     } // end of getGeneratedKeys
 
     /**

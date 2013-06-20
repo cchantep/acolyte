@@ -1082,7 +1082,7 @@ object PreparedStatementSpec extends Specification with Setters {
       def isQuery(s: String) = true
       def whenSQLUpdate(s: String, p: Params) = -1
       def whenSQLQuery(s: String, p: Params) = {
-        AbstractResultSet.EMPTY
+        RowLists.rowList1(classOf[String]).resultSet
       }
     }
 
@@ -1119,7 +1119,7 @@ object PreparedStatementSpec extends Specification with Setters {
         def isQuery(s: String) = true
         def whenSQLUpdate(s: String, p: Params) = -1
         def whenSQLQuery(s: String, p: Params) = {
-          AbstractResultSet.EMPTY
+          RowLists.rowList1(classOf[String]).resultSet
         }
       }
 
@@ -1135,7 +1135,7 @@ object PreparedStatementSpec extends Specification with Setters {
       def isQuery(s: String) = true
       def whenSQLUpdate(s: String, p: Params) = -1
       def whenSQLQuery(s: String, p: Params) = {
-        AbstractResultSet.EMPTY
+        RowLists.rowList1(classOf[String]).resultSet
       }
     }
 
@@ -1190,7 +1190,8 @@ object PreparedStatementSpec extends Specification with Setters {
       def whenSQLUpdate(s: String, p: Params) = {
         sql = s; param = p.get(0); 1
       }
-      def whenSQLQuery(s: String, p: Params) = AbstractResultSet.EMPTY
+      def whenSQLQuery(s: String, p: Params) = 
+        RowLists.rowList1(classOf[String]).resultSet
     }
     val st = statement(c, s, h)
 
@@ -1208,7 +1209,7 @@ object PreparedStatementSpec extends Specification with Setters {
       def isQuery(s: String) = true
       def whenSQLUpdate(s: String, p: Params) = -1
       def whenSQLQuery(s: String, p: Params) = {
-        sql = s; param = p.get(0); AbstractResultSet.EMPTY
+        sql = s; param = p.get(0); RowLists.rowList1(classOf[String]).resultSet
       }
     }
     val st = statement(c, s, h)

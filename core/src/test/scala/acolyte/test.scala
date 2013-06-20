@@ -14,9 +14,13 @@ package object test {
   }
 
   object EmptyStatementHandler extends StatementHandler {
-    def getGeneratedKeys(): ResultSet = acolyte.AbstractResultSet.EMPTY
+    def getGeneratedKeys(): ResultSet = 
+      RowLists.rowList1(classOf[String]).resultSet
+
     def isQuery(sql: String): Boolean = false
-    def whenSQLQuery(sql: String, params: Params): ResultSet = AbstractResultSet.EMPTY
+    def whenSQLQuery(sql: String, params: Params): ResultSet = 
+      RowLists.rowList1(classOf[String]).resultSet
+
     def whenSQLUpdate(sql: String, params: Params): Int = -1
   }
 }
