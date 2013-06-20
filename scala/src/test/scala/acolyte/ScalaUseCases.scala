@@ -3,7 +3,8 @@ package acolyte
 import java.sql.{ Connection ⇒ SqlConnection, Date, DriverManager }
 
 import acolyte.{ Driver ⇒ AcolyteDriver }
-import Rows.row3
+import acolyte.RowLists.rowList3
+import acolyte.Rows.row3
 import Acolyte._ // import DSL
 
 /**
@@ -42,7 +43,7 @@ object ScalaUseCases {
 
           // Prepare list of 2 rows
           // with 3 columns of types String, Float, Date
-          (rowList3[String, Float, Date].
+          (rowList3(classOf[String], classOf[Float], classOf[Date]).
             withLabels( // Optional: set labels
               1 -> "String",
               3 -> "Date")

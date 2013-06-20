@@ -9,7 +9,6 @@ import scala.collection.JavaConversions
 import acolyte.ParameterMetaData.ParameterDef
 import acolyte.StatementHandler.Parameter
 import acolyte.CompositeHandler.{ QueryHandler, UpdateHandler }
-import acolyte.Row.Row1
 
 // Acolyte DSL
 object Acolyte {
@@ -22,11 +21,6 @@ object Acolyte {
 
   implicit def RowListAsScala[R <: Row](l: RowList[R]): ScalaRowList[R] =
     new ScalaRowList(l)
-
-  // Row lists creation @todo import RowLists._
-  def rowList1[A]: RowList1[A] = new RowList1[A]()
-  def rowList2[A, B]: RowList2[A, B] = new RowList2[A, B]()
-  def rowList3[A, B, C]: RowList3[A, B, C] = new RowList3[A, B, C]()
 
 }
 

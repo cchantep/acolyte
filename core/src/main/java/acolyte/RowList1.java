@@ -26,6 +26,16 @@ public final class RowList1<A> extends RowList<Row1<A>> {
      */
     private final Map<String,Integer> colNames;
 
+    /**
+     * Class of column #1
+     */
+    private final Class<A> c1;
+
+    /**
+     * Column classes
+     */
+    private final ArrayList<Class<?>> colClasses;
+
     // --- Constructors ---
 
     /**
@@ -33,8 +43,13 @@ public final class RowList1<A> extends RowList<Row1<A>> {
      *
      * @throws IllegalArgumentException if rows is null
      */
-    protected RowList1(final List<Row1<A>> rows,
+    protected RowList1(final Class<A> c1,
+                       final List<Row1<A>> rows,
                        final Map<String,Integer> colNames) {
+
+        if (c1 == null) {
+            throw new IllegalArgumentException("Invalid class for column #1");
+        } // end of if
 
         if (rows == null) {
             throw new IllegalArgumentException("Invalid rows");
@@ -46,13 +61,21 @@ public final class RowList1<A> extends RowList<Row1<A>> {
 
         this.rows = Collections.unmodifiableList(rows);
         this.colNames = Collections.unmodifiableMap(colNames);
+
+        // Column classes
+        final ArrayList<Class<?>> colClasses = new ArrayList<Class<?>>();
+
+        this.c1 = c1;
+        colClasses.add(c1);
+
+        this.colClasses = colClasses;
     } // end of <init>
 
     /**
      * No-arg constructor.
      */
-    public RowList1() {
-        this(new ArrayList<Row1<A>>(), new HashMap<String,Integer>());
+    public RowList1(final Class<A> c1) {
+        this(c1, new ArrayList<Row1<A>>(), new HashMap<String,Integer>());
     } // end of <init>
 
     // ---
@@ -70,20 +93,18 @@ public final class RowList1<A> extends RowList<Row1<A>> {
     /**
      * {@inheritDoc}
      */
-    public RowList<Row1<A>> append(final Row1<A> row) {
+    public RowList1<A> append(final Row1<A> row) {
         final ArrayList<Row1<A>> copy = new ArrayList<Row1<A>>(this.rows);
             
         copy.add(row);
             
-        return new RowList1<A>(copy, this.colNames);
+        return new RowList1<A>(this.c1, copy, this.colNames);
     } // end of append
 
     /**
      * {@inheritDoc}
      */
-    public RowList<Row1<A>> withLabel(final int columnIndex, 
-                                      final String label) {
-
+    public RowList1<A> withLabel(final int columnIndex, final String label) {
         if (label == null) {
             throw new IllegalArgumentException("Invalid label");
         } // end of if
@@ -95,13 +116,13 @@ public final class RowList1<A> extends RowList<Row1<A>> {
 
         cols.put(label, (Integer) columnIndex);
 
-        return new RowList1<A>(this.rows, cols);
+        return new RowList1<A>(this.c1, this.rows, cols);
     } // end of withLabel
         
     /**
      * {@inheritDoc}
      */
     public List<Class<?>> getColumnClasses() {
-        return null;
+        return this.colClasses;
     } // end of getColumnClasses
 } // end of class RowList1

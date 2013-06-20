@@ -12,10 +12,10 @@ import acolyte.AbstractResultSet;
 import acolyte.ConnectionHandler;
 import acolyte.CompositeHandler;
 import acolyte.StatementHandler;
-import acolyte.RowList3;
 
 import acolyte.StatementHandler.Parameter;
 
+import static acolyte.RowLists.rowList3;
 import static acolyte.Rows.row3;
 
 /**
@@ -61,7 +61,7 @@ public final class JavaUseCases {
 
                         // Prepare list of 2 rows
                         // with 3 columns of types String, Float, Date
-                        return new RowList3<String, Float, Date>().
+                        return rowList3(String.class, Float.class, Date.class).
                             withLabel(1, "String"). // Optional: set labels
                             withLabel(3, "Date"). 
                             append(row3("str", 1.2f, new Date(1l))).

@@ -8,6 +8,8 @@ import java.util.Map;
 
 /**
  * Row list of row with #N# cells.
+ *
+ * @author Cedric Chantepie
  */
 public final class RowList#N#<#CP#> extends RowList<Row#N#<#CP#>> {
     // --- Properties ---
@@ -22,6 +24,13 @@ public final class RowList#N#<#CP#> extends RowList<Row#N#<#CP#>> {
      */
     private final Map<String,Integer> colNames;
 
+    #PS#
+
+    /**
+     * Column classes
+     */
+    private final ArrayList<Class<?>> colClasses;
+
     // --- Constructors ---
 
     /**
@@ -29,8 +38,9 @@ public final class RowList#N#<#CP#> extends RowList<Row#N#<#CP#>> {
      *
      * @throws IllegalArgumentException if rows is null
      */
-    protected RowList#N#(final List<Row#N#<#CP#>> rows,
-                         final Map<String,Integer> colNames) {
+    protected RowList#N#(#CS#, final List<Row#N#<#CP#>> rows, final Map<String,Integer> colNames) {
+
+        #IC#
 
         if (rows == null) {
             throw new IllegalArgumentException("Invalid rows");
@@ -42,13 +52,20 @@ public final class RowList#N#<#CP#> extends RowList<Row#N#<#CP#>> {
 
         this.rows = Collections.unmodifiableList(rows);
         this.colNames = Collections.unmodifiableMap(colNames);
+
+        // Column classes
+        final ArrayList<Class<?>> colClasses = new ArrayList<Class<?>>();
+
+        #AC#
+
+        this.colClasses = colClasses;
     } // end of <init>
 
     /**
      * No-arg constructor.
      */
-    public RowList#N#() {
-        this(new ArrayList<Row#N#<#CP#>>(), new HashMap<String,Integer>());
+    public RowList#N#(#CS#) {
+        this(#CA#, new ArrayList<Row#N#<#CP#>>(), new HashMap<String,Integer>());
     } // end of <init>
 
     // ---
@@ -66,19 +83,18 @@ public final class RowList#N#<#CP#> extends RowList<Row#N#<#CP#>> {
     /**
      * {@inheritDoc}
      */
-    public RowList<Row#N#<#CP#>> append(final Row#N#<#CP#> row) {
+    public RowList#N#<#CP#> append(final Row#N#<#CP#> row) {
         final ArrayList<Row#N#<#CP#>> copy = new ArrayList<Row#N#<#CP#>>(this.rows);
             
         copy.add(row);
             
-        return new RowList#N#<#CP#>(copy, this.colNames);
-    }
+        return new RowList#N#<#CP#>(#CA#, copy, this.colNames);
+    } // end of append
 
     /**
      * {@inheritDoc}
      */
-    public RowList<Row#N#<#CP#>> withLabel(final int columnIndex, 
-                                           final String label) {
+    public RowList#N#<#CP#> withLabel(final int columnIndex, final String label) {
 
         if (label == null) {
             throw new IllegalArgumentException("Invalid label");
@@ -91,13 +107,13 @@ public final class RowList#N#<#CP#> extends RowList<Row#N#<#CP#>> {
 
         cols.put(label, (Integer) columnIndex);
 
-        return new RowList#N#<#CP#>(this.rows, cols);
-    }
+        return new RowList#N#<#CP#>(#CA#, this.rows, cols);
+    } // end of withLabel
         
     /**
      * {@inheritDoc}
      */
     public List<Class<?>> getColumnClasses() {
-        return null;
-    }
-}
+        return this.colClasses;
+    } // end of getColumnClasses
+} // end of class RowList#N#
