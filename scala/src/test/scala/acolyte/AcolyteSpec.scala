@@ -30,7 +30,7 @@ object AcolyteSpec extends Specification {
 
     "return empty resultset for SELECT query" in {
       con.createStatement().executeQuery("SELECT * FROM table").
-        aka("resultset") mustEqual AbstractResultSet.EMPTY
+        aka("resultset") mustEqual RowLists.rowList1(classOf[String]).resultSet
 
     }
 

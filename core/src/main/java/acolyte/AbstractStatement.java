@@ -130,7 +130,9 @@ abstract class AbstractStatement implements java.sql.Statement {
 
         this.updateCount = -1;
 
-        return (this.result = this.handler.whenSQLQuery(sql, NO_PARAMS));
+        return (this.result = this.handler.whenSQLQuery(sql, NO_PARAMS).
+                getRowList().resultSet().withStatement(this));
+
     } // end of executeQuery
 
     /**

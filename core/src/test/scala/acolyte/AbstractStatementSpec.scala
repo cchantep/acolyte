@@ -49,16 +49,17 @@ object AbstractStatementSpec extends Specification {
       def whenSQLUpdate(s: String, p: Params) = -1
       def whenSQLQuery(s: String, p: Params) = {
         sql = s
-        RowLists.rowList1(classOf[String]).resultSet
+        RowLists.rowList1(classOf[String]).asResult
       }
     }
 
     "return empty resultset" in {
       lazy val s = statement(h = h)
+      lazy val rows = RowLists.rowList1(classOf[String])
 
-      (s.executeQuery("QUERY").
-        aka("result") mustEqual RowLists.rowList1(classOf[String]).resultSet).
-        and(s.getResultSet aka "resultset" mustEqual RowLists.rowList1(classOf[String]).resultSet).
+      (s.executeQuery("QUERY") aka "result" mustEqual rows.resultSet).
+        and(s.getResultSet aka "resultset" mustEqual rows.resultSet).
+        and(s.getResultSet.getStatement aka "statement" mustEqual s).
         and(s.getUpdateCount aka "update count" mustEqual -1).
         and(sql aka "executed SQL" mustEqual "QUERY")
 
@@ -120,7 +121,7 @@ object AbstractStatementSpec extends Specification {
       def getGeneratedKeys = null
       def isQuery(s: String) = false
       def whenSQLUpdate(s: String, p: Params) = { sql = s; 5 }
-      def whenSQLQuery(s: String, p: Params): ResultSet = sys.error("TEST")
+      def whenSQLQuery(s: String, p: Params) = sys.error("TEST")
     }
 
     "return expected row count" in {

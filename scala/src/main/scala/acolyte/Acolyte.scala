@@ -1,7 +1,7 @@
 package acolyte
 
 import java.util.{ ArrayList, List ⇒ JList }
-import java.sql.ResultSet
+import java.sql.Statement
 
 import scala.language.implicitConversions
 import scala.collection.JavaConversions
@@ -45,9 +45,9 @@ final class ScalaCompositeHandler(
     })
   }
 
-  def withQueryHandler(h: Execution ⇒ ResultSet): CompositeHandler = {
+  def withQueryHandler(h: Execution ⇒ Result): CompositeHandler = {
     b.withQueryHandler(new QueryHandler {
-      def apply(sql: String, p: JList[Parameter]): ResultSet = {
+      def apply(sql: String, p: JList[Parameter]): Result = {
         val ps: List[(ParameterDef, AnyRef)] =
           JavaConversions.asScalaIterable(p).
             foldLeft(Nil: List[(ParameterDef, AnyRef)]) { (l, t) ⇒

@@ -60,9 +60,7 @@ public class CompositeHandler implements StatementHandler {
     /**
      * {@inheritDoc}
      */
-    public ResultSet whenSQLQuery(final String sql, 
-                                  final List<Parameter> parameters) 
-        throws SQLException {
+    public Result whenSQLQuery(final String sql, final List<Parameter> parameters) throws SQLException {
 
         if (this.queryHandler == null) {
             throw new SQLException("No query handler");
@@ -196,8 +194,7 @@ public class CompositeHandler implements StatementHandler {
      * Query handler.
      */
     public static interface QueryHandler {
-        public ResultSet apply(String sql, List<Parameter> parameters) 
-            throws SQLException;
+        public Result apply(String sql, List<Parameter> parameters) throws SQLException;
 
     } // end of interfaceQueryHandler
 

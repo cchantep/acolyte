@@ -48,13 +48,13 @@ import java.util.List;
 
 import java.sql.DriverManager;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.Date;
 
 import acolyte.ConnectionHandler;
 import acolyte.StatementHandler;
 import acolyte.CompositeHandler;
 import acolyte.RowList3;
+import acolyte.Result;
 
 import acolyte.StatementHandler.Parameter;
 
@@ -78,7 +78,7 @@ StatementHandler handler = new CompositeHandler().
       return count;
     }
   }).withQueryHandler(new CompositeHandler.QueryHandler () {
-    public ResultSet apply(String sql, List<Parameter> parameters) {
+    public Result apply(String sql, List<Parameter> parameters) {
       // ...
 
       // Prepare list of 2 rows
@@ -89,7 +89,7 @@ StatementHandler handler = new CompositeHandler().
         append(row3("str", 1.2f, new Date(1, 2, 3))).
         append(row3("val", 2.34f, new Date(4, 5, 6)));
 
-      return rows.resultSet();
+      return rows.asResult();
     }
   });
 
@@ -110,9 +110,9 @@ If you just need/want to directly get connection from `acolyte.Driver`, without 
 Connection con = new acolyte.Driver().connection(yourHandlerInstance);
 ```
 
-#### ResultSet creation
+#### Result creation
 
-Acolyte provides `Row` and `RowList` classes (and their sub-classes) to allow easy and typesafe creation of resultset (`java.sql.ResultSet`).
+Acolyte provides `Row` and `RowList` classes (and their sub-classes) to allow easy and typesafe creation of result.
 
 Row lists can be built as following:
 
@@ -177,7 +177,7 @@ Then code could be:
 
 ```scala
 import java.sql.{ Connection ⇒ SqlConnection, Date, DriverManager }
-import acolyte.{ AbstractResultSet, Driver ⇒ AcolyteDriver, Execution }
+import acolyte.{ Driver ⇒ AcolyteDriver, Execution }
 import acolyte.RowLists.{ rowList1, rowList3 }
 import acolyte.Rows.row3
 import Acolyte._ // import DSL
@@ -199,7 +199,7 @@ val handler: CompositeHandler = handleStatement.
   }).withQueryHandler({ e: Execution ⇒
     if (e.sql.startsWith("SELECT ")) {
       // Empty resultset with 1 text column declared
-      rowList1(String.class).resultSet()
+      rowList1(String.class).asResult
     } else {
       // ... EXEC that_proc
       // (see previous withQueryDetection)
@@ -212,7 +212,7 @@ val handler: CompositeHandler = handleStatement.
           3 -> "Date")
         :+ row3("str", 1.2f, new Date(1l))
         :+ row3("val", 2.34f, new Date(2l))).
-        resultSet // convert to JDBC ResultSet
+        asResult
 
     }
   })

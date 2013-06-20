@@ -16,6 +16,9 @@ import java.sql.Timestamp;
 import java.sql.Date;
 import java.sql.Time;
 
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import acolyte.Row.Column;
 import acolyte.Row.Row1;
 
@@ -25,6 +28,7 @@ import acolyte.Row.Row1;
  * @author Cedric Chantepie
  */
 public abstract class RowList<R extends Row> {
+
     /**
      * Returns unmodifiable rows list.
      */
@@ -53,6 +57,13 @@ public abstract class RowList<R extends Row> {
     } // end of resultSet
 
     /**
+     * Returns this row list wrapped as handler result.
+     */
+    public Result asResult() {
+        return new ResultImpl(this);
+    } // end of asResult
+
+    /**
      * Returns ordered classes of columns.
      */
     public abstract List<Class<?>> getColumnClasses();
@@ -72,6 +83,8 @@ public abstract class RowList<R extends Row> {
      * @param R Row
      */
     public final class RowResultSet<R extends Row> extends AbstractResultSet {
+        final List<Class<?>> columnClasses;
+        final Map<String,Integer> columnLabels;
         final List<R> rows;
         final Statement statement;
         private Column<?> last;
@@ -87,6 +100,8 @@ public abstract class RowList<R extends Row> {
                 throw new IllegalArgumentException();
             } // end of if
 
+            this.columnClasses = getColumnClasses();
+            this.columnLabels = getColumnLabels();
             this.rows = Collections.unmodifiableList(rows);
             this.statement = null; // dettached
             this.last = null;
@@ -105,6 +120,8 @@ public abstract class RowList<R extends Row> {
                 throw new IllegalArgumentException();
             } // end of if
 
+            this.columnClasses = getColumnClasses();
+            this.columnLabels = getColumnLabels();
             this.rows = Collections.unmodifiableList(rows);
             this.statement = statement;
             this.last = null;
@@ -119,6 +136,41 @@ public abstract class RowList<R extends Row> {
         public RowResultSet<R> withStatement(final Statement statement) {
             return new RowResultSet<R>(this.rows, this.last, statement);
         } // end of withStatement
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean equals(final Object o) {
+            if (o == null || !(o instanceof RowResultSet)) {
+                return false;
+            } // end of if
+
+            // ---
+
+            @SuppressWarnings("unchecked")
+            final RowResultSet<R> other = (RowResultSet<R>) o;
+
+            return new EqualsBuilder().
+                append(this.rows, other.rows).
+                append(this.last, other.last).
+                append(this.columnClasses, other.columnClasses).
+                append(this.columnLabels, other.columnLabels).
+                isEquals();
+
+        } // end of equals
+
+        /**
+         * {@inheritDoc}
+         */
+        public int hashCode() {
+            return new HashCodeBuilder(11, 9).
+                append(this.rows).
+                append(this.last).
+                append(this.columnClasses).
+                append(this.columnLabels).
+                toHashCode();
+
+        } // end of hashCode
 
         // --- ResultSet implementation ---
 
@@ -191,7 +243,7 @@ public abstract class RowList<R extends Row> {
             } // end of if
 
             if (columnLabel == null || 
-                !getColumnLabels().containsKey(columnLabel)) {
+                !this.columnLabels.containsKey(columnLabel)) {
 
                 throw new SQLException("Invalid label: " + columnLabel);
             } // end of if
@@ -869,7 +921,7 @@ public abstract class RowList<R extends Row> {
          * {@inheritDoc}
          */
         public int findColumn(final String columnLabel) throws SQLException {
-            return getColumnLabels().get(columnLabel);
+            return this.columnLabels.get(columnLabel);
         } // end of findColumn
 
         /**
@@ -938,7 +990,7 @@ public abstract class RowList<R extends Row> {
          * {@inheritDoc}
          */
         public ResultSetMetaData getMetaData() throws SQLException {
-            final Map<String,Integer> colNames = getColumnLabels();
+            final Map<String,Integer> colNames = this.columnLabels;
             final HashMap<Integer,String> labels =
                 new HashMap<Integer,String>(colNames.size());
 
@@ -954,6 +1006,21 @@ public abstract class RowList<R extends Row> {
      * Result set metadata for RowList.
      */
     public final class RowListMetaData implements ResultSetMetaData {
+        final List<Class<?>> columnClasses;
+        final Map<String,Integer> columnLabels;
+
+        // --- Constructors ---
+
+        /**
+         * No-arg constructor.
+         */
+        private RowListMetaData() {
+            this.columnClasses = getColumnClasses();
+            this.columnLabels = getColumnLabels();
+        } // end of <init>
+
+        // ---
+
         /**
          * {@inheritDoc}
          */
@@ -979,14 +1046,14 @@ public abstract class RowList<R extends Row> {
          * {@inheritDoc}
          */
         public int getColumnCount() throws SQLException {
-            return getColumnClasses().size();
+            return this.columnClasses.size();
         } // end of getColumnCount
 
         /**
          * {@inheritDoc}
          */
         public String getColumnClassName(final int column) throws SQLException {
-            return getColumnClasses().get(column-1).getName();
+            return this.columnClasses.get(column-1).getName();
         } // end of getColumnClassName
 
         /**
@@ -1002,7 +1069,7 @@ public abstract class RowList<R extends Row> {
          * {@inheritDoc}
          */
         public String getColumnName(final int column) throws SQLException {
-            for (final Map.Entry<String,Integer> vk : getColumnLabels().
+            for (final Map.Entry<String,Integer> vk : this.columnLabels.
                      entrySet()) {
 
                 if (vk.getValue().intValue() == column) {
@@ -1083,7 +1150,7 @@ public abstract class RowList<R extends Row> {
          * {@inheritDoc}
          */
         public int getColumnType(final int column) throws SQLException {
-            final Class<?> clazz = getColumnClasses().get(column-1);
+            final Class<?> clazz = this.columnClasses.get(column-1);
 
             if (clazz == null) {
                 return -1;
@@ -1224,4 +1291,48 @@ public abstract class RowList<R extends Row> {
             return proxy;
         } // end of unwrap
     } // end of RowListMetaData
+
+    /**
+     * Handler result impl.
+     */
+    private final class ResultImpl implements Result {
+        final RowList<?> rowList;
+
+        /**
+         * Bulk constructor.
+         */
+        public ResultImpl(final RowList<?> list) {
+            this.rowList = list;
+        } // end of <init>
+
+        // ---
+
+        /**
+         * {@inheritDoc}
+         */
+        public RowList<?> getRowList() { return this.rowList; }
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean equals(final Object o) {
+            if (o == null || !(o instanceof RowList.ResultImpl)) {
+                return false;
+            } // end of if
+
+            final ResultImpl other = (ResultImpl) o;
+
+            return ((this.rowList == null && other.rowList == null) ||
+                    (this.rowList != null && 
+                     this.rowList.equals(other.rowList)));
+
+        } // end of equals
+
+        /**
+         * {@inheritDoc}
+         */
+        public int hashCode() {
+            return (this.rowList == null) ? -1 : this.rowList.hashCode();
+        } // end of hashCode
+    } // end of class ResultImpl
 } // end of class RowList

@@ -22,7 +22,7 @@ public interface StatementHandler {
      * @param parameters Parameters (or empty map if none)
      * @return Query result set
      */
-    public ResultSet whenSQLQuery(String sql, List<Parameter> parameters) 
+    public Result whenSQLQuery(String sql, List<Parameter> parameters) 
         throws SQLException;
 
     /**

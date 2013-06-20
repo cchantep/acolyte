@@ -36,7 +36,7 @@ object ScalaUseCases {
         }
       }).withQueryHandler({ e: Execution ⇒
         if (e.sql.startsWith("SELECT ")) {
-          AbstractResultSet.EMPTY;
+          RowLists.rowList1(classOf[String]).asResult
         } else {
           // ... EXEC that_proc 
           // (see previous withQueryDetection)
@@ -48,8 +48,7 @@ object ScalaUseCases {
               1 -> "String",
               3 -> "Date")
               :+ row3("str", 1.2f, new Date(1l))
-              :+ row3("val", 2.34f, new Date(2l))).
-              resultSet // convert to JDBC ResultSet
+              :+ row3("val", 2.34f, new Date(2l))).asResult
         }
       })
 

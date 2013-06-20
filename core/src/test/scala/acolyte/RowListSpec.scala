@@ -29,7 +29,8 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "not accept null map" in {
-      new RowList2(classOf[String], classOf[Float], new java.util.ArrayList[Row2[String, Float]](), null).
+      new RowList2(classOf[String], classOf[Float], 
+        new java.util.ArrayList[Row2[String, Float]](), null).
         aka("ctor") must throwA[IllegalArgumentException](
           message = "Invalid names")
     }

@@ -5,13 +5,12 @@ import java.util.List;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.Date;
 
-import acolyte.AbstractResultSet;
 import acolyte.ConnectionHandler;
 import acolyte.CompositeHandler;
 import acolyte.StatementHandler;
+import acolyte.Result;
 
 import acolyte.StatementHandler.Parameter;
 
@@ -53,9 +52,9 @@ public final class JavaUseCases {
                     }
                 }).
             withQueryHandler(new CompositeHandler.QueryHandler () {
-                    public ResultSet apply(String sql, List<Parameter> parameters) {
+                    public Result apply(String sql, List<Parameter> params) {
                         if (sql.startsWith("SELECT ")) {
-                            return rowList1(String.class).resultSet();
+                            return rowList1(String.class).asResult();
                         }
 
                         // ... EXEC that_proc (see previous withQueryDetection)
@@ -67,7 +66,7 @@ public final class JavaUseCases {
                             withLabel(3, "Date"). 
                             append(row3("str", 1.2f, new Date(1l))).
                             append(row3("val", 2.34f, new Date(2l))).
-                            resultSet(); // convert to JDBC ResultSet
+                            asResult();
                     }
                 });
 

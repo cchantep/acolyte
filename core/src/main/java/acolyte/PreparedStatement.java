@@ -155,7 +155,9 @@ public final class PreparedStatement
 
         this.updateCount = -1;
 
-        return (this.result = this.handler.whenSQLQuery(sql, params));
+        return (this.result = this.handler.whenSQLQuery(sql, params).
+                getRowList().resultSet().withStatement(this));
+
     } // end of executeQuery
 
     /**

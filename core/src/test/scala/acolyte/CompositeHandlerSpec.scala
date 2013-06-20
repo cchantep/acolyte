@@ -73,24 +73,25 @@ object CompositeHandlerSpec extends Specification {
     }
 
     "be successful for empty resultset" in {
-      new CompositeHandler().withQueryHandler(new QueryHandler {
-        def apply(s: String, p: java.util.List[Parameter]) =
-          RowLists.rowList1(classOf[String]).resultSet
+      lazy val rows = RowLists.rowList1(classOf[String])
+      lazy val res =
+        new CompositeHandler().withQueryHandler(new QueryHandler {
+          def apply(s: String, p: java.util.List[Parameter]) = rows.asResult
+        }).whenSQLQuery("SELECT *", NO_PARAMS)
 
-      }).whenSQLQuery("SELECT *", NO_PARAMS).
-        aka("resultset") mustEqual RowLists.rowList1(classOf[String]).resultSet
+      res.aka("resultset") mustEqual rows.asResult
     }
 
     "be successful for not-empty resultset" in {
-      lazy val x: RowList2[String,Float] = new RowList2(
-        classOf[String], classOf[Float]).
+      lazy val rows = new RowList2(classOf[String], classOf[Float]).
         append(Rows.row2("str", 1.23.toFloat))
 
-      lazy val rs = x.resultSet
+      lazy val res =
+        new CompositeHandler().withQueryHandler(new QueryHandler {
+          def apply(s: String, p: java.util.List[Parameter]) = rows.asResult
+        }).whenSQLQuery("SELECT *", NO_PARAMS)
 
-      new CompositeHandler().withQueryHandler(new QueryHandler {
-        def apply(s: String, p: java.util.List[Parameter]) = rs
-      }).whenSQLQuery("SELECT *", NO_PARAMS) aka "resultset" mustEqual rs
+      res.aka("resultset") mustEqual rows.asResult
     }
   }
 }
