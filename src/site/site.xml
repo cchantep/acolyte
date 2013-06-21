@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="acolyte">
+  <body>
+    <links>
+      <item name="GitHub project" href="http://github.com/cchantep/acolyte" />
+    </links>
+
+    <menu name="Overall">
+      <item name="User guide" href="./index.html" />
+      <item name="Javadoc" href="./apidocs/index.html" />
+    </menu>
+
+    <menu ref="reports" />
+  </body>
+
+  <skin>
+    <groupId>org.apache.maven.skins</groupId>
+    <artifactId>maven-fluido-skin</artifactId>
+    <version>1.3.0</version>
+  </skin>
+</project>

@@ -1,7 +1,6 @@
 package acolyte;
 
 import java.util.Collections;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +19,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import acolyte.Row.Column;
-import acolyte.Row.Row1;
 
 /**
  * Type-safe list of row.

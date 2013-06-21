@@ -4,6 +4,8 @@ Acolyte is a JDBC driver designed for cases like mockup, testing, or any case yo
 
 [![Build Status](https://secure.travis-ci.org/cchantep/acolyte.png?branch=master)](http://travis-ci.org/cchantep/acolyte)
 
+This documentation can be read [online](http://cchantep.github.io/acolyte/).
+
 ## Requirements
 
 * Java 1.6+
@@ -102,7 +104,7 @@ Connection con = DriverManager.getConnection(jdbcUrl);
 // ... Connection |con| is managed through |handler|
 ```
 
-You can see detailed [use cases](./core/src/test/java/usecase/JavaUseCases.java) whose expectations are visible in [specifications](./core/src/test/scala/acolyte/AcolyteSpec.scala).
+You can see detailed [use cases](https://github.com/cchantep/acolyte/blob/master/core/src/test/java/usecase/JavaUseCases.java) whose expectations are visible in [specifications](https://github.com/cchantep/acolyte/blob/master/core/src/test/scala/acolyte/AcolyteSpec.scala).
 
 If you just need/want to directly get connection from `acolyte.Driver`, without using JDBC driver registry, you can use Acolyte direct connection:
 
@@ -224,7 +226,7 @@ AcolyteDriver.register("my-handler-id", handler)
 DriverManager.getConnection(jdbcUrl)
 ```
 
-You can see detailed [use cases](./scala/src/test/scala/ScalaUseCases.java) whose expectations are visible in [specifications](./scala/src/test/scala/acolyte/AcolyteSpec.scala).
+You can see detailed [use cases](https://github.com/cchantep/acolyte/blob/master/scala/src/test/scala/acolyte/ScalaUseCases.scala) whose expectations are visible in [specifications](https://github.com/cchantep/acolyte/blob/master/scala/src/test/scala/acolyte/AcolyteSpec.scala).
 
 ### Limitations
 
@@ -238,3 +240,7 @@ You can see detailed [use cases](./scala/src/test/scala/ScalaUseCases.java) whos
 ## Build
 
 Acolyte can be built from these sources using SBT (0.12.2+): `sbt publish`
+
+## Documentation
+
+Documentation is generated using Maven 3: `mvn -f site.xml site`
