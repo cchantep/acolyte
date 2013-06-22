@@ -203,7 +203,7 @@ Connection con = DriverManager.getConnection(jdbcUrl);
 
 // ... Connection |con| is managed through |handler|
 </pre></div>
-<p>You can see detailed <a class="externalLink" href="https://github.com/cchantep/acolyte/blob/master/core/src/test/java/usecase/JavaUseCases.java">use cases</a> whose expectations are visible in <a class="externalLink" href="https://github.com/cchantep/acolyte/blob/master/core/src/test/scala/acolyte/AcolyteSpec.scala">specifications</a>.</p>
+<p>You can see more <a class="externalLink" href="https://github.com/cchantep/acolyte/blob/master/core/src/test/java/usecase/JavaUseCases.java">use cases</a> whose expectations are visible in <a class="externalLink" href="https://github.com/cchantep/acolyte/blob/master/core/src/test/scala/acolyte/AcolyteSpec.scala">specifications</a>.</p>
 <p>If you just need/want to directly get connection from <tt>acolyte.Driver</tt>, without using JDBC driver registry, you can use Acolyte direct connection:</p>
 
 <div class="source">
@@ -211,8 +211,8 @@ Connection con = DriverManager.getConnection(jdbcUrl);
 </pre></div>
 <div class="section">
 <h4>Result creation<a name="Result_creation"></a></h4>
-<p>Acolyte provides <tt>Row</tt> and <tt>RowList</tt> classes (and their sub-classes) to allow easy and typesafe creation of result.</p>
-<p>Row lists can be built as following:</p>
+<p>Acolyte provides <a class="externalLink" href="http://cchantep.github.io/acolyte/apidocs/acolyte/Row.html">Row</a> and <a class="externalLink" href="http://cchantep.github.io/acolyte/apidocs/acolyte/RowList.html">RowList</a> classes (and their sub-classes) to allow easy and typesafe creation of result.</p>
+<p>Row lists can be built as following using <a class="externalLink" href="http://cchantep.github.io/acolyte/apidocs/acolyte/RowLists.html">RowLists factory</a>.</p>
 
 <div class="source">
 <pre>import acolyte.RowList1;
@@ -238,7 +238,7 @@ list1 = list1.withLabel(1, &quot;first label&quot;);
 
 list2 = list2.withLabel(2, &quot;first label&quot;).withLabel(3, &quot;third name&quot;);
 </pre></div>
-<p>Both column classes and names can be declared in bulk way:</p>
+<p>Both column classes and names can be declared in bulk way, using <a class="externalLink" href="http://cchantep.github.io/acolyte/apidocs/acolyte/RowList.Column.html">definition class</a>:</p>
 
 <div class="source">
 <pre>import static acolyte.RowList.Column.defineCol;
@@ -270,7 +270,7 @@ ResultSet rs1 = list1.resultSet();
 ResultSet rs2 = list2.resultSet();
 </pre></div>
 <p>From previous example, result set <tt>rs1</tt> will contain 1 row, whereas <tt>rs2</tt> is empty.</p>
-<p>Take care to <tt>list1 = list1.append(row1(&quot;str&quot;));</tt>. As provider <tt>RowList</tt> classes are immutable, you should get updated instance from <tt>append</tt> to work on the list containing added row. This is more safe, and allow to rewrite previous example like:</p>
+<p>Take care to <tt>list1 = list1.append(row1(&quot;str&quot;));</tt>. As provided <tt>RowList</tt> classes are immutable, you should get updated instance from <tt>append</tt> to work on the list containing added row. This is more safe, and allow to rewrite previous example like:</p>
 
 <div class="source">
 <pre>ResultSet rs1 = list1.append(row1(&quot;str&quot;)).resultSet();
@@ -337,7 +337,57 @@ AcolyteDriver.register(&quot;my-handler-id&quot;, handler)
 // ... then connection is managed through |handler|
 DriverManager.getConnection(jdbcUrl)
 </pre></div>
-<p>You can see detailed <a class="externalLink" href="https://github.com/cchantep/acolyte/blob/master/scala/src/test/scala/acolyte/ScalaUseCases.scala">use cases</a> whose expectations are visible in <a class="externalLink" href="https://github.com/cchantep/acolyte/blob/master/scala/src/test/scala/acolyte/AcolyteSpec.scala">specifications</a>.</p></div>
+<p>You can see detailed <a class="externalLink" href="https://github.com/cchantep/acolyte/blob/master/scala/src/test/scala/acolyte/ScalaUseCases.scala">use cases</a> whose expectations are visible in <a class="externalLink" href="https://github.com/cchantep/acolyte/blob/master/scala/src/test/scala/acolyte/AcolyteSpec.scala">specifications</a>.</p>
+<div class="section">
+<h4>Result creation<a name="Result_creation"></a></h4>
+<p>Row lists can be built in the following way:</p>
+
+<div class="source">
+<pre>import acolyte.{ RowList1, RowList3 }
+import acolyte.RowLists.{ rowList1, rowList3 }
+
+// ...
+
+val list1: RowList1[String] = RowLists.rowList1(String.class)
+
+val list2: RowList3[Int, Float, Char] = RowLists.
+  rowList3(classOf[Int], classOf[Float], classOf[Char])
+</pre></div>
+<p>Column names/labels can also be setup (column first index is 1):</p>
+
+<div class="source">
+<pre>// ...
+
+val list1up = list1.withLabel(1, &quot;first label&quot;)
+val list2up = list2.withLabel(2, &quot;first label&quot;).withLabel(3, &quot;third name&quot;)
+</pre></div>
+<p>Both column classes and names can be declared in bulk way:</p>
+
+<div class="source">
+<pre>import acolyte.RowList.Column.defineCol
+
+// ...
+
+val list1: RowList1[String] = RowLists.rowList1(
+  classOf[String] -&gt; &quot;first label&quot;)
+
+val list2: RowList3[Int, Float, Char] = RowLists.rowList3(
+  classOf[Int] -&gt; &quot;1st&quot;,
+  classOf[Float] -&gt; &quot;2nd&quot;,
+  classOf[Char] -&gt; &quot;3rd&quot;)
+</pre></div>
+<p>Once you have declared your row list, and before turning it as result set, you can either add rows to it, or leave it empty.</p>
+
+<div class="source">
+<pre>import java.sql.ResultSet
+
+import acolyte.Rows.row1
+
+// ...
+
+val rs1: ResultSet = list1.append(row1(&quot;str&quot;)).resultSet()
+val rs2: ResultSet = list2.resultSet()
+</pre></div></div></div>
 <div class="section">
 <h3>Limitations<a name="Limitations"></a></h3>
 
