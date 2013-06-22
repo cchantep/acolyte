@@ -13,15 +13,15 @@ import Acolyte._ // import DSL
  * @author Cedric Chantepie
  */
 object ScalaUseCases {
-  // Configure in anyway JDBC with following url,
-  // declaring handler registered with 'my-handler-id' will be used.
-  val jdbcUrl =
-    "jdbc:acolyte:anything-you-want?handler=my-handler-id";
-
   /**
    * Use case #1
    */
-  def useCase1(): SqlConnection = {
+  def useCase1: SqlConnection = {
+    // Configure in anyway JDBC with following url,
+    // declaring handler registered with 'handler1' will be used.
+    val jdbcUrl =
+      "jdbc:acolyte:anything-you-want?handler=handler1";
+
     // Prepare handler
     val handler: CompositeHandler = handleStatement.
       withQueryDetection("^SELECT "). // regex test from beginning
@@ -52,10 +52,34 @@ object ScalaUseCases {
         }
       })
 
-    // Register prepared handler with expected ID 'my-handler-id'
-    AcolyteDriver.register("my-handler-id", handler)
+    // Register prepared handler with expected ID 'handler1'
+    AcolyteDriver.register("handler1", handler)
 
     // ... then connection is managed through |handler|
     DriverManager.getConnection(jdbcUrl)
   } // end of useCase1
+
+  /**
+   * Use case #2
+   */
+  def useCase2: SqlConnection = {
+    val jdbcUrl = "jdbc:acolyte:anything-you-want?handler=handler2";
+
+    val handler: CompositeHandler = handleStatement.
+      withQueryDetection("^SELECT ").
+      withQueryHandler({ e: Execution ⇒
+        rowList3(classOf[String] -> "str",
+          classOf[Float] -> "f",
+          classOf[Date] -> "date").
+          append(row3("text", 2.3f, new Date(3l))).
+          append(row3("label", 4.56f, new Date(4l))).
+          asResult()
+      })
+
+    // Register prepared handler with expected ID 'handler2'
+    acolyte.Driver.register("handler2", handler)
+
+    // ... then connection is managed through |handler|
+    return DriverManager.getConnection(jdbcUrl);
+  } // end of useCase2
 } // end of class ScalaUseCases

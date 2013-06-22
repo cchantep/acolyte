@@ -1,6 +1,6 @@
 package acolyte
 
-import java.sql.Date
+import java.sql.{ Date, SQLException }
 
 import org.specs2.mutable.Specification
 
@@ -10,7 +10,7 @@ object AcolyteSpec extends Specification {
   sequential
 
   "Scala use case #1" should {
-    val con = ScalaUseCases.useCase1()
+    val con = ScalaUseCases.useCase1
 
     "return 2 for DELETE statement" in {
       con.prepareStatement("DELETE * FROM table").
@@ -55,6 +55,64 @@ object AcolyteSpec extends Specification {
           and(rs.getString(1) aka "2nd row/1st col" mustEqual "val").
           and(rs.getFloat(2) aka "2nd row/2nd col" mustEqual 2.34f).
           and(rs.getDate(3) aka "2nd row/2rd col" mustEqual new Date(2l))
+
+      }
+
+      "no third row" in {
+        rs.next aka "has third row" must beFalse
+      }
+    }
+  }
+
+  "Java use case #2" should {
+    val con = ScalaUseCases.useCase2
+
+    "throw exception for update statement" in {
+      con.prepareStatement("DELETE * FROM table").
+        executeUpdate aka "update" must throwA[SQLException](
+          message = "No update handler")
+
+    }
+
+    "return empty resultset for SELECT query" in {
+      lazy val s = {
+        val st = con.prepareStatement("SELECT * FROM table")
+        st.setString(1, "test")
+        st
+      }
+      lazy val rs = s.executeQuery
+
+      "with expected 3 columns on first row" in {
+        (rs.next aka "has first row" must beTrue).
+          and(rs.getString(1).
+            aka("1st row/1st col (by index)") mustEqual "text").
+          and(rs.getFloat(2).
+            aka("1st row/2nd col (by index)") mustEqual 2.3f).
+          and(rs.getDate(3).
+            aka("1st row/2rd col (by index)") mustEqual new Date(3l)).
+          and(rs.getString("str").
+            aka("1st row/1st col (by label)") mustEqual "text").
+          and(rs.getFloat("f").
+            aka("1st row/2nd col (by label)") mustEqual 2.3f).
+          and(rs.getDate("date").
+            aka("1st row/2rd col (by label)") mustEqual new Date(3l))
+
+      }
+
+      "with expected 3 columns on second row" in {
+        (rs.next aka "has second row" must beTrue).
+          and(rs.getString(1).
+            aka("2nd row/1st col (by index)") mustEqual "label").
+          and(rs.getFloat(2).
+            aka("2nd row/2nd col (by index)") mustEqual 4.56f).
+          and(rs.getDate(3).
+            aka("2nd row/2rd col (by index)") mustEqual new Date(4l)).
+          and(rs.getString("str").
+            aka("2nd row/1st col (by label)") mustEqual "label").
+          and(rs.getFloat("f").
+            aka("2nd row/2nd col (by label)") mustEqual 4.56f).
+          and(rs.getDate("date").
+            aka("2nd row/2rd col (by label)") mustEqual new Date(4l))
 
       }
 

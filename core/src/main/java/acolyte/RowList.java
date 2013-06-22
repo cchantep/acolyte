@@ -112,8 +112,8 @@ public abstract class RowList<R extends Row> {
          * or |name| is empty.
          * @todo Test
          */
-        static <T> Column<T> defineCol(final Class<T> columnClass,
-                                       final String name) {
+        public static <T> Column<T> defineCol(final Class<T> columnClass,
+                                              final String name) {
 
             return new Column<T>(columnClass, name);
         } // end of column

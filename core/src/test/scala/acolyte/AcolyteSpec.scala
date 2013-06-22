@@ -1,6 +1,6 @@
 package acolyte
 
-import java.sql.Date
+import java.sql.{ Date, SQLException }
 
 import org.specs2.mutable.Specification
 
@@ -45,17 +45,85 @@ object AcolyteSpec extends Specification {
 
       "with expected 3 columns on first row" in {
         (rs.next aka "has first row" must beTrue).
-          and(rs.getString(1) aka "1st row/1st col" mustEqual "str").
+          and(rs.getString(1) aka "1st row/1st col (by index)" mustEqual "str").
+          and(rs.getString("String").
+            aka("1st row/1st col (by label)") mustEqual "str").
           and(rs.getFloat(2) aka "1st row/2nd col" mustEqual 1.2f).
-          and(rs.getDate(3) aka "1st row/2rd col" mustEqual new Date(1l))
+          and(rs.getDate(3).
+            aka("1st row/2rd col (by index)") mustEqual new Date(1l)).
+          and(rs.getDate("Date").
+            aka("1st row/2rd col (by label)") mustEqual new Date(1l))
 
       }
 
       "with expected 3 columns on second row" in {
         (rs.next aka "has second row" must beTrue).
-          and(rs.getString(1) aka "2nd row/1st col" mustEqual "val").
+          and(rs.getString(1) aka "2nd row/1st col (by index)" mustEqual "val").
+          and(rs.getString("String").
+            aka("2nd row/1st col (by label)") mustEqual "val").
           and(rs.getFloat(2) aka "2nd row/2nd col" mustEqual 2.34f).
-          and(rs.getDate(3) aka "2nd row/2rd col" mustEqual new Date(2l))
+          and(rs.getDate(3).
+            aka("2nd row/2rd col (by index)") mustEqual new Date(2l)).
+          and(rs.getDate("Date").
+            aka("2nd row/2rd col (by label)") mustEqual new Date(2l))
+
+      }
+
+      "no third row" in {
+        rs.next aka "has third row" must beFalse
+      }
+    }
+  }
+
+  "Java use case #2" should {
+    val con = usecase.JavaUseCases.useCase2()
+
+    "throw exception for update statement" in {
+      con.prepareStatement("DELETE * FROM table").
+        executeUpdate aka "update" must throwA[SQLException](
+          message = "No update handler")
+
+    }
+
+    "return empty resultset for SELECT query" in {
+      lazy val s = {
+        val st = con.prepareStatement("SELECT * FROM table")
+        st.setString(1, "test")
+        st
+      }
+      lazy val rs = s.executeQuery
+
+      "with expected 3 columns on first row" in {
+        (rs.next aka "has first row" must beTrue).
+          and(rs.getString(1).
+            aka("1st row/1st col (by index)") mustEqual "text").
+          and(rs.getFloat(2).
+            aka("1st row/2nd col (by index)") mustEqual 2.3f).
+          and(rs.getDate(3).
+            aka("1st row/2rd col (by index)") mustEqual new Date(3l)).
+          and(rs.getString("str").
+            aka("1st row/1st col (by label)") mustEqual "text").
+          and(rs.getFloat("f").
+            aka("1st row/2nd col (by label)") mustEqual 2.3f).
+          and(rs.getDate("date").
+            aka("1st row/2rd col (by label)") mustEqual new Date(3l))
+
+      }
+
+      "with expected 3 columns on second row" in {
+        (rs.next aka "has second row" must beTrue).
+          and(rs.getString(1).
+            aka("2nd row/1st col (by index)") mustEqual "label").
+          and(rs.getFloat(2).
+            aka("2nd row/2nd col (by index)") mustEqual 4.56f).
+          and(rs.getDate(3).
+            aka("2nd row/2rd col (by index)") mustEqual new Date(4l)).
+          and(rs.getString("str").
+            aka("2nd row/1st col (by label)") mustEqual "label").
+          and(rs.getFloat("f").
+            aka("2nd row/2nd col (by label)") mustEqual 4.56f).
+          and(rs.getDate("date").
+            aka("2nd row/2rd col (by label)") mustEqual new Date(4l))
 
       }
 

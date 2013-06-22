@@ -9,6 +9,7 @@ import scala.collection.JavaConversions
 import acolyte.ParameterMetaData.ParameterDef
 import acolyte.StatementHandler.Parameter
 import acolyte.CompositeHandler.{ QueryHandler, UpdateHandler }
+import acolyte.RowList.Column
 
 // Acolyte DSL
 object Acolyte {
@@ -21,6 +22,9 @@ object Acolyte {
 
   implicit def RowListAsScala[R <: Row](l: RowList[R]): ScalaRowList[R] =
     new ScalaRowList(l)
+
+  implicit def PairAsColumn[T](c: (Class[T], String)): Column[T] = 
+    Column.defineCol(c._1, c._2)
 
 }
 

@@ -14,6 +14,7 @@ import acolyte.Result;
 
 import acolyte.StatementHandler.Parameter;
 
+import static acolyte.RowList.Column.defineCol;
 import static acolyte.RowLists.rowList1;
 import static acolyte.RowLists.rowList3;
 import static acolyte.Rows.row3;
@@ -76,4 +77,30 @@ public final class JavaUseCases {
         // ... then connection is managed through |handler|
         return DriverManager.getConnection(jdbcUrl);
     } // end of useCase1
+
+    /**
+     * Use case #2
+     */
+    public static Connection useCase2() throws SQLException {
+        final StatementHandler handler = new CompositeHandler().
+            withQueryDetection("^SELECT ").
+            withQueryHandler(new CompositeHandler.QueryHandler () {
+                    public Result apply(String sql, List<Parameter> params) {
+                        // Prepare list of 2 rows
+                        // with 3 columns of types String, Float, Date
+                        return rowList3(defineCol(String.class, "str"),
+                                        defineCol(Float.class, "f"), 
+                                        defineCol(Date.class, "date")).
+                            append(row3("text", 2.3f, new Date(3l))).
+                            append(row3("label", 4.56f, new Date(4l))).
+                            asResult();
+                    }
+                });
+
+        // Register prepared handler with expected ID 'my-handler-id'
+        acolyte.Driver.register("my-handler-id", handler);
+
+        // ... then connection is managed through |handler|
+        return DriverManager.getConnection(jdbcUrl);
+    } // end of useCase2
 } // end of class JavaUseCases

@@ -104,7 +104,7 @@ Connection con = DriverManager.getConnection(jdbcUrl);
 // ... Connection |con| is managed through |handler|
 ```
 
-You can see detailed [use cases](https://github.com/cchantep/acolyte/blob/master/core/src/test/java/usecase/JavaUseCases.java) whose expectations are visible in [specifications](https://github.com/cchantep/acolyte/blob/master/core/src/test/scala/acolyte/AcolyteSpec.scala).
+You can see more [use cases](https://github.com/cchantep/acolyte/blob/master/core/src/test/java/usecase/JavaUseCases.java) whose expectations are visible in [specifications](https://github.com/cchantep/acolyte/blob/master/core/src/test/scala/acolyte/AcolyteSpec.scala).
 
 If you just need/want to directly get connection from `acolyte.Driver`, without using JDBC driver registry, you can use Acolyte direct connection:
 
@@ -114,9 +114,9 @@ Connection con = new acolyte.Driver().connection(yourHandlerInstance);
 
 #### Result creation
 
-Acolyte provides `Row` and `RowList` classes (and their sub-classes) to allow easy and typesafe creation of result.
+Acolyte provides [Row](http://cchantep.github.io/acolyte/apidocs/acolyte/Row.html) and [RowList](http://cchantep.github.io/acolyte/apidocs/acolyte/RowList.html) classes (and their sub-classes) to allow easy and typesafe creation of result.
 
-Row lists can be built as following:
+Row lists can be built as following using [RowLists factory](http://cchantep.github.io/acolyte/apidocs/acolyte/RowLists.html).
 
 ```java
 import acolyte.RowList1;
@@ -146,7 +146,7 @@ list1 = list1.withLabel(1, "first label");
 list2 = list2.withLabel(2, "first label").withLabel(3, "third name");
 ```
 
-Both column classes and names can be declared in bulk way:
+Both column classes and names can be declared in bulk way, using [definition class](http://cchantep.github.io/acolyte/apidocs/acolyte/RowList.Column.html):
 
 ```java
 import static acolyte.RowList.Column.defineCol;
@@ -181,7 +181,7 @@ ResultSet rs2 = list2.resultSet();
 
 From previous example, result set `rs1` will contain 1 row, whereas `rs2` is empty.
 
-Take care to `list1 = list1.append(row1("str"));`. As provider `RowList` classes are immutable, you should get updated instance from `append` to work on the list containing added row. This is more safe, and allow to rewrite previous example like:
+Take care to `list1 = list1.append(row1("str"));`. As provided `RowList` classes are immutable, you should get updated instance from `append` to work on the list containing added row. This is more safe, and allow to rewrite previous example like:
 
 ```java
 ResultSet rs1 = list1.append(row1("str")).resultSet();
@@ -253,6 +253,60 @@ DriverManager.getConnection(jdbcUrl)
 ```
 
 You can see detailed [use cases](https://github.com/cchantep/acolyte/blob/master/scala/src/test/scala/acolyte/ScalaUseCases.scala) whose expectations are visible in [specifications](https://github.com/cchantep/acolyte/blob/master/scala/src/test/scala/acolyte/AcolyteSpec.scala).
+
+#### Result creation
+
+Row lists can be built in the following way:
+
+```scala
+import acolyte.{ RowList1, RowList3 }
+import acolyte.RowLists.{ rowList1, rowList3 }
+
+// ...
+
+val list1: RowList1[String] = RowLists.rowList1(String.class)
+
+val list2: RowList3[Int, Float, Char] = RowLists.
+  rowList3(classOf[Int], classOf[Float], classOf[Char])
+```
+
+Column names/labels can also be setup (column first index is 1):
+
+```scala
+// ...
+
+val list1up = list1.withLabel(1, "first label")
+val list2up = list2.withLabel(2, "first label").withLabel(3, "third name")
+```
+
+Both column classes and names can be declared in bulk way:
+
+```scala
+import acolyte.RowList.Column.defineCol
+
+// ...
+
+val list1: RowList1[String] = RowLists.rowList1(
+  classOf[String] -> "first label")
+
+val list2: RowList3[Int, Float, Char] = RowLists.rowList3(
+  classOf[Int] -> "1st",
+  classOf[Float] -> "2nd",
+  classOf[Char] -> "3rd")
+```
+
+Once you have declared your row list, and before turning it as result set, you can either add rows to it, or leave it empty.
+
+```scala
+import java.sql.ResultSet
+
+import acolyte.Rows.row1
+
+// ...
+
+val rs1: ResultSet = list1.append(row1("str")).resultSet()
+val rs2: ResultSet = list2.resultSet()
+```
 
 ### Limitations
 
