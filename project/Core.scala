@@ -5,7 +5,7 @@ trait Core {
   lazy val core = Project(id = "core", base = file("core")).settings(
     name := "acolyte-core",
     organization := "acolyte",
-    version := "1.0.0",
+    version := "1.0.1",
     scalaVersion := "2.10.0",
     javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
     autoScalaLibrary := false,
@@ -169,7 +169,13 @@ public final class RowLists {""");
           val ps = for (i <- 0 until n) yield {
             "final Class<%s> c%d".format(letter(i), i)
           }
+          val cs = for (i <- 0 until n) yield {
+            "final RowList.Column<%s> c%d".format(letter(i), i)
+          }
           val as = for (i <- 0 until n) yield "c%d".format(i)
+          val ls = for (i <- 0 until n) yield {
+            "withLabel(%d, c%d.name)".format(i+1, i)
+          }
           val gp = g.mkString(",")
 
           w.append("""
@@ -178,6 +184,14 @@ public final class RowLists {""");
      */
     public static <%s> RowList%d<%s> rowList%d(%s) { return new RowList%d<%s>(%s); }
 """.format(n, gp, n, gp, n, ps.mkString(", "), n, gp, as.mkString(", ")))
+
+          w.append("""
+    /**
+     * Returns list of row with %d column(s).
+     */
+    public static <%s> RowList%d<%s> rowList%d(%s) { return new RowList%d<%s>(%s.columnClass).%s; }
+""".format(n, gp, n, gp, n, cs.mkString(", "), n, gp, as.mkString(".columnClass, "), ls.mkString(".")))
+
         }
 
         w.append("\r\n}")

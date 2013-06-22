@@ -14,7 +14,7 @@ This documentation can be read [online](http://cchantep.github.io/acolyte/).
 
 Acolyte driver behaves as any other JDBC driver, that's to say you can get a connection from, by using the well-known `java.sql.DriverManager.getConnection(jdbcUrl)` (and its variants).
 
-JDBC URL should match `"jdbc:acolyte:anything-you-want?handler=id"` (see after for details about `handler` parameter).
+JDBC URL should match `jdbc:acolyte:anything-you-want?handler=id` (see after for details about `handler` parameter).
 
 ### Java
 
@@ -135,6 +135,32 @@ RowList3<Integer, Float, Character> list2 = RowLists.
 
 In previous example, `list1` is a list of row with 1 column whose class is `String` (`VARCHAR` as for JDBC/SQL type).
 Considering `list2`, it is a list of row with 3 columns, whose classes are `Integer`, `Float` and `Character`.
+
+Column names/labels can also be setup (column first index is 1):
+
+```java
+// ...
+
+list1 = list1.withLabel(1, "first label");
+
+list2 = list2.withLabel(2, "first label").withLabel(3, "third name");
+```
+
+Both column classes and names can be declared in bulk way:
+
+```java
+import static acolyte.RowList.Column.defineCol;
+
+// ...
+
+RowList1<String> list1 = RowLists.
+  rowList1(defineCol(String.class, "first label"));
+
+RowList3<Integer, Float, Character> list2 = RowLists.
+  rowList3(defineCol(Integer.class, "1st"), 
+           defineCol(Float.class, "2nd"), 
+           defineCol(Character.class, "3rd"));
+```
 
 Once you have declared your row list, and before turning it as result set, you can either add rows to it, or leave it empty.
 

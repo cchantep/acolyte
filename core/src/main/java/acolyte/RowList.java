@@ -18,8 +18,6 @@ import java.sql.Time;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-import acolyte.Row.Column;
-
 /**
  * Type-safe list of row.
  *
@@ -76,6 +74,63 @@ public abstract class RowList<R extends Row> {
     // --- Inner classes ---
 
     /**
+     * Column definition.
+     */
+    public static final class Column<T> {
+        /**
+         * Column class
+         */
+        public final Class<T> columnClass;
+
+        /**
+         * Column name/label
+         */
+        public final String name;
+
+        /**
+         * Bulk constructor.
+         */
+        private Column(final Class<T> columnClass, final String name) {
+            if (columnClass == null) {
+                throw new IllegalArgumentException("No column class");
+            } // end of if
+
+            if (name == null || name.length() == 0) {
+                throw new IllegalArgumentException("Invalid column name: " + 
+                                                   name);
+
+            } // end of if
+
+            this.columnClass = columnClass;
+            this.name = name;
+        } // end of <init>
+
+        /**
+         * Creates column definition.
+         *
+         * @throws IllegalArgumentException if |columnClass| is null, 
+         * or |name| is empty.
+         * @todo Test
+         */
+        static <T> Column<T> defineCol(final Class<T> columnClass,
+                                       final String name) {
+
+            return new Column<T>(columnClass, name);
+        } // end of column
+    } // end of Column
+
+    /**
+     * Cell on a row.
+     */
+    private static final class Cell<C> {
+        public final C value;
+
+        public Cell(final C v) {
+            this.value = v;
+        } // end of <init>
+    } // end of class Cell
+
+    /**
      * Result set made from list of row.
      *
      * @param R Row
@@ -85,7 +140,7 @@ public abstract class RowList<R extends Row> {
         final Map<String,Integer> columnLabels;
         final List<R> rows;
         final Statement statement;
-        private Column<?> last;
+        private Cell<?> last;
 
         // --- Constructors ---
 
@@ -110,7 +165,7 @@ public abstract class RowList<R extends Row> {
          * Copy constructor.
          */
         private RowResultSet(final List<R> rows,
-                             final Column<?> last,
+                             final Cell<?> last,
                              final Statement statement) {
 
             if (rows == null) {
@@ -225,7 +280,7 @@ public abstract class RowList<R extends Row> {
 
             final Object val = cells.get(idx);
 
-            this.last = new Column<Object>(val);
+            this.last = new Cell<Object>(val);
             
             return val;
         } // end of getObject
@@ -260,7 +315,7 @@ public abstract class RowList<R extends Row> {
 
             final Object val = cells.get(idx);
 
-            this.last = new Column<Object>(val);
+            this.last = new Cell<Object>(val);
             
             return val;
         } // end of getObject            

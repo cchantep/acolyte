@@ -17,18 +17,7 @@ public interface Row {
      */
     public List<Object> cells();
     
-    // ---
-
-    /**
-     * Column from a row.
-     */
-    public static final class Column<A> {
-        public final A value;
-
-        public Column(final A v) {
-            this.value = v;
-        } // end of <init>
-    } // end of class Column
+    // --- Inner classes ---
 
     /**
      * Row with 1 cell.
