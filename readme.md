@@ -254,6 +254,14 @@ DriverManager.getConnection(jdbcUrl)
 
 You can see detailed [use cases](https://github.com/cchantep/acolyte/blob/master/scala/src/test/scala/acolyte/ScalaUseCases.scala) whose expectations are visible in [specifications](https://github.com/cchantep/acolyte/blob/master/scala/src/test/scala/acolyte/AcolyteSpec.scala).
 
+It's also possible to get directly get an Acolyte connection, without using JDBC driver registry:
+
+```java
+import acolyte.Acolyte.connection
+
+val con = connection(handler)
+```
+
 #### Result creation
 
 Row lists can be built in the following way:

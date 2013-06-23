@@ -15,6 +15,9 @@ import acolyte.RowList.Column
 object Acolyte {
   def handleStatement = new CompositeHandler()
 
+  def connection(h: ConnectionHandler) = new Driver().connect(h)
+  def connection(h: StatementHandler) = new Driver().connect(h)
+
   implicit def CompositeHandlerAsScala(h: CompositeHandler): ScalaCompositeHandler = new ScalaCompositeHandler(h)
 
   implicit def ResultRowAsScala[R <: Row](r: R): ScalaResultRow =
