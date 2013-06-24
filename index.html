@@ -359,7 +359,25 @@ DriverManager.getConnection(jdbcUrl)
 <pre>import acolyte.Acolyte.connection
 
 val con = connection(handler)
-</pre></div></div>
+</pre></div>
+<div class="section">
+<h4>Query handler<a name="Query_handler"></a></h4>
+<p>In Scala query handler, pattern matching can be use to easily describe result case:</p>
+
+<div class="source">
+<pre>import acolyte.ExecutedParameter
+
+handleStatement.withQueryDetection(&quot;^SELECT&quot;).
+  withQueryHandler({ e: acolyte.Execution =&gt; e.parameters.match {
+      case ExecutedParameter(&quot;str&quot;, _) :: Nil =&gt;
+        // result when there is only 1 parameter with &quot;str&quot; value
+
+      case ExecutedParameter(_, _) :: ExecutedParameter(2, _) :: _ =&gt;
+        // result when there is at least 2 parameters 
+        // with the second having integer value 2
+    }
+  })
+</pre></div></div></div>
 <div class="section">
 <h3>Playframework<a name="Playframework"></a></h3>
 <p>Acolyte can be easily used with Play test helpers.</p>
