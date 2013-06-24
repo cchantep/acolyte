@@ -5,8 +5,13 @@
       <item name="GitHub project" href="http://github.com/cchantep/acolyte" />
     </links>
 
-    <menu name="Overall">
-      <item name="User guide" href="./index.html" />
+    <menu name="User guide">
+      <item name="Java" href="./index.html#Java" />
+      <item name="Scala" href="./index.html#Scala" />
+      <item name="Playframework" href="./index.html#Playframework" />
+    </menu>
+
+    <menu name="Reference">
       <item name="Javadoc" href="./apidocs/index.html" />
     </menu>
 

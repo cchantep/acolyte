@@ -16,6 +16,10 @@ Acolyte driver behaves as any other JDBC driver, that's to say you can get a con
 
 JDBC URL should match `jdbc:acolyte:anything-you-want?handler=id` (see after for details about `handler` parameter).
 
+Projects using Acolyte:
+
+- [Cielago](https://github.com/cchantep/cielago-tracker) ([DispatchReportSpec](https://github.com/cchantep/cielago-tracker/blob/master/test/models/DispatchReportSpec.scala), [ListInfoSpec](https://github.com/cchantep/cielago-tracker/blob/master/test/models/ListInfoSpec.scala), [MainSpec](https://github.com/cchantep/cielago-tracker/blob/master/test/controllers/MainSpec.scala), …)
+
 ### Java
 
 Using Maven 2/3+, Acolyte dependency can be resolved as following from your POM:
@@ -260,6 +264,64 @@ It's also possible to get directly get an Acolyte connection, without using JDBC
 import acolyte.Acolyte.connection
 
 val con = connection(handler)
+```
+
+#### Query handler
+
+In Scala query handler, pattern matching can be use to easily describe result case:
+
+```scala
+import acolyte.ExecutedParameter
+
+handleStatement.withQueryDetection("^SELECT").
+  withQueryHandler({ e: acolyte.Execution => e.parameters.match {
+      case ExecutedParameter("str", _) :: Nil =>
+        // result when there is only 1 parameter with "str" value
+
+      case ExecutedParameter(_, _) :: ExecutedParameter(2, _) :: _ =>
+        // result when there is at least 2 parameters 
+        // with the second having integer value 2
+    }
+  })
+```
+
+### Playframework
+
+Acolyte can be easily used with Play test helpers.
+
+First step is to create a Play fake application:
+
+```scala
+import play.api.test.FakeApplication
+import acolyte.{ StatementHandler }
+
+def fakeApp(h: Option[StatementHandler] = None): FakeApplication =
+  FakeApplication(additionalConfiguration = Map(
+    "application.secret" -> "test",
+    "evolutionplugin" -> "disabled") ++ h.fold(Map[String, String]())(
+      handler ⇒ {
+        val id = System.identityHashCode(this).toString
+        acolyte.Driver.register(id, handler)
+
+        Map("db.default.driver" -> "acolyte.Driver",
+          "db.default.url" -> "jdbc:acolyte:test?handler=%s".format(id))
+      }))
+```
+
+Then Play/DB test can be performed as following:
+
+```scala
+lazy val handler = Some(handleStatement.
+  withQueryDetection("^SELECT").withQueryHandler({ e: acolyte.Execution ⇒
+    // Any Acolyte result
+  }))
+
+Helpers.running(fakeApp(handler)) {
+  DB withConnection { con ⇒
+    // Connection |con| will use provided |handler|
+    // So any DB related test can be done there
+  }
+}
 ```
 
 #### Result creation

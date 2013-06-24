@@ -110,7 +110,6 @@ public abstract class RowList<R extends Row> {
          *
          * @throws IllegalArgumentException if |columnClass| is null, 
          * or |name| is empty.
-         * @todo Test
          */
         public static <T> Column<T> defineCol(final Class<T> columnClass,
                                               final String name) {
@@ -1373,7 +1372,7 @@ public abstract class RowList<R extends Row> {
                 return false;
             } // end of if
 
-            final ResultImpl other = (ResultImpl) o;
+            final RowList.ResultImpl other = (RowList.ResultImpl) o;
 
             return ((this.rowList == null && other.rowList == null) ||
                     (this.rowList != null && 
