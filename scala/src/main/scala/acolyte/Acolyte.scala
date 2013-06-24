@@ -26,14 +26,18 @@ object Acolyte {
   implicit def RowListAsScala[R <: Row](l: RowList[R]): ScalaRowList[R] =
     new ScalaRowList(l)
 
-  implicit def PairAsColumn[T](c: (Class[T], String)): Column[T] = 
+  implicit def PairAsColumn[T](c: (Class[T], String)): Column[T] =
     Column.defineCol(c._1, c._2)
 
 }
 
 case class Execution(
   sql: String,
-  parameters: List[(ParameterDef, AnyRef)])
+  parameters: List[ExecutedParameter])
+
+case class ExecutedParameter(
+  value: AnyRef,
+  definition: ParameterDef)
 
 final class ScalaCompositeHandler(
     b: CompositeHandler) extends CompositeHandler {
@@ -41,11 +45,10 @@ final class ScalaCompositeHandler(
   def withUpdateHandler(h: Execution ⇒ Int): CompositeHandler = {
     b.withUpdateHandler(new UpdateHandler {
       def apply(sql: String, p: JList[Parameter]): Int = {
-        val ps: List[(ParameterDef, AnyRef)] =
-          JavaConversions.asScalaIterable(p).
-            foldLeft(Nil: List[(ParameterDef, AnyRef)]) { (l, t) ⇒
-              l :+ (t.left -> t.right)
-            }
+        val ps = JavaConversions.asScalaIterable(p).
+          foldLeft(Nil: List[ExecutedParameter]) { (l, t) ⇒
+            l :+ ExecutedParameter(t.right, t.left)
+          }
 
         h(Execution(sql, ps))
       }
@@ -55,11 +58,10 @@ final class ScalaCompositeHandler(
   def withQueryHandler(h: Execution ⇒ Result): CompositeHandler = {
     b.withQueryHandler(new QueryHandler {
       def apply(sql: String, p: JList[Parameter]): Result = {
-        val ps: List[(ParameterDef, AnyRef)] =
-          JavaConversions.asScalaIterable(p).
-            foldLeft(Nil: List[(ParameterDef, AnyRef)]) { (l, t) ⇒
-              l :+ (t.left -> t.right)
-            }
+        val ps = JavaConversions.asScalaIterable(p).
+          foldLeft(Nil: List[ExecutedParameter]) { (l, t) ⇒
+            l :+ ExecutedParameter(t.right, t.left)
+          }
 
         h(Execution(sql, ps))
       }
