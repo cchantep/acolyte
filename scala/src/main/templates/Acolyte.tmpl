@@ -23,8 +23,11 @@ object Acolyte {
   implicit def ResultRowAsScala[R <: Row](r: R): ScalaResultRow =
     new ScalaResultRow(r)
 
-  implicit def RowListAsScala[R <: Row](l: RowList[R]): ScalaRowList[R] =
-    new ScalaRowList(l)
+  import Row.Row1
+  #SRL#
+
+  // If no specific convertion found, default to this one
+  implicit def RowListAsScala[R <: Row](l: RowList[R]): ScalaRowList[RowList[R], R] = new ScalaRowList(l)
 
   implicit def PairAsColumn[T](c: (Class[T], String)): Column[T] =
     Column.defineCol(c._1, c._2)
@@ -45,7 +48,7 @@ final class ScalaCompositeHandler(
   def withUpdateHandler(h: Execution ⇒ Int): CompositeHandler = {
     b.withUpdateHandler(new UpdateHandler {
       def apply(sql: String, p: JList[Parameter]): Int = {
-        val ps = JavaConversions.asScalaIterable(p).
+        val ps = JavaConversions.collectionAsScalaIterable(p).
           foldLeft(Nil: List[ExecutedParameter]) { (l, t) ⇒
             l :+ ExecutedParameter(t.right, t.left)
           }
@@ -58,7 +61,7 @@ final class ScalaCompositeHandler(
   def withQueryHandler(h: Execution ⇒ Result): CompositeHandler = {
     b.withQueryHandler(new QueryHandler {
       def apply(sql: String, p: JList[Parameter]): Result = {
-        val ps = JavaConversions.asScalaIterable(p).
+        val ps = JavaConversions.collectionAsScalaIterable(p).
           foldLeft(Nil: List[ExecutedParameter]) { (l, t) ⇒
             l :+ ExecutedParameter(t.right, t.left)
           }
@@ -79,19 +82,10 @@ final class ScalaResultRow(r: Row) extends Row {
 
 }
 
-final class ScalaRowList[R <: Row](l: RowList[R]) extends RowList[R] {
-  override def append(row: R) = l.append(row)
-  override def resultSet = l.resultSet
+final class ScalaRowList[L <: RowList[R], R <: Row](l: L) {
+  def :+(row: R): L = l.append(row).asInstanceOf[L]
 
-  def getColumnClasses = l.getColumnClasses
-  def getColumnLabels = l.getColumnLabels
-  def getRows = l.getRows
+  def withLabels(labels: (Int, String)*): L =
+    labels.foldLeft(l) { (l, t) ⇒ l.withLabel(t._1, t._2).asInstanceOf[L] }
 
-  def withLabel(i: Int, label: String): RowList[R] = l.withLabel(i, label)
-
-  // Extension
-  def :+(row: R) = append(row)
-
-  def withLabels(labels: (Int, String)*): RowList[R] =
-    labels.foldLeft[RowList[R]](this) { (l, t) ⇒ l.withLabel(t._1, t._2) }
 }
