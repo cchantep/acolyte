@@ -43,12 +43,15 @@ object ScalaUseCases {
 
           // Prepare list of 2 rows
           // with 3 columns of types String, Float, Date
-          (rowList3(classOf[String], classOf[Float], classOf[Date]).
-            withLabels( // Optional: set labels
-              1 -> "String",
-              3 -> "Date")
-              :+ row3("str", 1.2f, new Date(1l))
-              :+ row3("val", 2.34f, new Date(2l))).asResult
+          val rows: RowList3[String, Float, Date] =
+            rowList3(classOf[String], classOf[Float], classOf[Date]).
+              withLabels( // Optional: set labels
+                1 -> "String",
+                3 -> "Date") :+
+                row3("str", 1.2f, new Date(1l)) :+
+                row3("val", 2.34f, new Date(2l))
+
+          rows.asResult
         }
       })
 
