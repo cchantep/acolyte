@@ -1,3 +1,4 @@
+// -*- mode: scala -*-
 package acolyte
 
 import java.util.{ ArrayList, List ⇒ JList }
@@ -15,8 +16,8 @@ import acolyte.RowList.Column
 object Acolyte {
   def handleStatement = new CompositeHandler()
 
-  def connection(h: ConnectionHandler) = new Driver().connect(h)
-  def connection(h: StatementHandler) = new Driver().connect(h)
+  def connection(h: ConnectionHandler) = Driver.connection(h)
+  def connection(h: StatementHandler) = Driver.connection(h)
 
   implicit def CompositeHandlerAsScala(h: CompositeHandler): ScalaCompositeHandler = new ScalaCompositeHandler(h)
 

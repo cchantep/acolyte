@@ -134,7 +134,7 @@ public final class Driver implements java.sql.Driver {
      *
      * @throws IllegalArgumentException if handler is null
      */
-    public Connection connect(final ConnectionHandler handler) {
+    public static Connection connection(final ConnectionHandler handler) {
         if (handler == null) {
             throw new IllegalArgumentException();
         } // end of if
@@ -144,14 +144,14 @@ public final class Driver implements java.sql.Driver {
                    System.identityHashCode(handler));
 
         return new acolyte.Connection(url, null, handler);
-    } // end of connect
+    } // end of connection
 
     /**
      * Direct connection, with given |handler| and random URL.
      *
      * @throws IllegalArgumentException if handler is null
      */
-    public Connection connect(final StatementHandler handler) {
+    public static Connection connection(final StatementHandler handler) {
         if (handler == null) {
             throw new IllegalArgumentException();
         } // end of if
@@ -163,7 +163,7 @@ public final class Driver implements java.sql.Driver {
         final ConnectionHandler ch = new ConnectionHandler.Default(handler);
 
         return new acolyte.Connection(url, null, ch);
-    } // end of connect
+    } // end of connection
 
     // ---
 
