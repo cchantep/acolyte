@@ -160,7 +160,9 @@ public final class Connection implements java.sql.Connection {
     public CallableStatement prepareCall(String sql) throws SQLException {
         checkClosed();
 
-        throw new RuntimeException("Not yet implemented");
+        return new acolyte.
+            CallableStatement(this, sql, this.handler.getStatementHandler());
+
     } // end of prepareCall
 
     /**

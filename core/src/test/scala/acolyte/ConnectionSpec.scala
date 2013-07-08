@@ -588,6 +588,23 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
   }
 
   "Callable statement" should {
+    "be owned by connection" in {
+      lazy val c = defaultCon
+
+      c.prepareCall("TEST").getConnection.
+        aka("statement connection") mustEqual c
+
+    }
+
+    "not be created from a closed connection" in {
+      lazy val c = defaultCon
+      c.close()
+
+      c.prepareCall("TEST") aka "creation" must throwA[SQLException](
+        message = "Connection is closed")
+
+    }
+
     "not be created with specific resultset type and/or concurrency" in {
       (defaultCon.prepareCall("TEST", 1, 2).
         aka("creation") must throwA[SQLFeatureNotSupportedException]).

@@ -1,5 +1,7 @@
 package acolyte
 
+import java.sql.SQLException
+
 import org.specs2.mutable.Specification
 
 import acolyte.AbstractStatement.NO_PARAMS
@@ -62,6 +64,14 @@ object CompositeHandlerSpec extends Specification {
           def apply(s: String, p: java.util.List[Parameter]) = 10
         }).whenSQLUpdate("TEST", NO_PARAMS) aka "count" mustEqual 10)
 
+    }
+
+    "throw exception for update statement" in {
+      new CompositeHandler().whenSQLUpdate("DELETE * FROM table", NO_PARAMS).
+        aka("update") must throwA[SQLException].like {
+          case e => e.getMessage.
+              aka("message") mustEqual "No update handler: DELETE * FROM table"
+        }
     }
   }
 

@@ -76,7 +76,7 @@ public class CompositeHandler implements StatementHandler {
                              final List<Parameter> parameters) throws SQLException {
 
         if (this.updateHandler == null) {
-            throw new SQLException("No update handler");
+            throw new SQLException("No update handler: " + sql);
         } // end of if
 
         return this.updateHandler.apply(sql, parameters);

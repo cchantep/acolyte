@@ -78,13 +78,6 @@ object AcolyteSpec extends Specification {
   "Java use case #2" should {
     val con = usecase.JavaUseCases.useCase2()
 
-    "throw exception for update statement" in {
-      con.prepareStatement("DELETE * FROM table").
-        executeUpdate aka "update" must throwA[SQLException](
-          message = "No update handler")
-
-    }
-
     "return empty resultset for SELECT query" in {
       lazy val s = {
         val st = con.prepareStatement("SELECT * FROM table")

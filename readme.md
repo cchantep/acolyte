@@ -271,15 +271,17 @@ val con = connection(handler)
 In Scala query handler, pattern matching can be use to easily describe result case:
 
 ```scala
-import acolyte.ExecutedParameter
+import acolyte.{ Execution, ExecutedParameter }
 
 handleStatement.withQueryDetection("^SELECT").
-  withQueryHandler({ e: acolyte.Execution => e.parameters.match {
-      case ExecutedParameter("str", _) :: Nil =>
-        // result when there is only 1 parameter with "str" value
+  withQueryHandler({ e: Execution => e match {
+      case Execution(sql, ExecutedParameter("str", _) :: Nil)
+        if sql.startsWith("SELECT") =>
+        // result when sql starts with SQL 
+        // and there is only 1 parameter with "str" value
 
-      case ExecutedParameter(_, _) :: ExecutedParameter(2, _) :: _ =>
-        // result when there is at least 2 parameters 
+      case Execution(_, ExecutedParameter(_, _) :: ExecutedParameter(2, _) :: _) =>
+        // result when there is at least 2 parameters for any sql
         // with the second having integer value 2
     }
   })

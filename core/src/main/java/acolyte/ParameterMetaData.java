@@ -337,14 +337,14 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
          * Bulk constructor
          */
         public ParameterDef(final String className,
-                         final int mode,
-                         final int sqlType,
-                         final String sqlTypeName,
-                         final int precision,
-                         final int scale,
-                         final int nullable,
-                         final boolean signed) {
-
+                            final int mode,
+                            final int sqlType,
+                            final String sqlTypeName,
+                            final int precision,
+                            final int scale,
+                            final int nullable,
+                            final boolean signed) {
+            
             if (className == null) {
                 throw new IllegalArgumentException("Missing class name");
             } // end of if

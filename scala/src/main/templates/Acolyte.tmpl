@@ -40,8 +40,11 @@ case class Execution(
   parameters: List[ExecutedParameter])
 
 case class ExecutedParameter(
-  value: AnyRef,
-  definition: ParameterDef)
+  value: Any,
+  definition: ParameterDef) {
+
+  override lazy val toString = s"Param($value, ${definition.sqlTypeName})"
+}
 
 final class ScalaCompositeHandler(
     b: CompositeHandler) extends CompositeHandler {
