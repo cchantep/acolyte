@@ -9,8 +9,17 @@ import org.specs2.mutable.Specification
 import acolyte.StatementHandler.Parameter
 import acolyte.test.{ EmptyConnectionHandler, Params }
 
-object PreparedStatementSpec extends Specification with Setters {
+object PreparedStatementSpec
+    extends Specification with StatementSpecification[PreparedStatement] {
+
   "Prepared statement specification" title
+
+  def statement(c: Connection = defaultCon, s: String = "TEST", h: StatementHandler = defaultHandler.getStatementHandler) = new PreparedStatement(c, s, h)
+
+}
+
+trait StatementSpecification[S <: PreparedStatement] extends Setters {
+  specs: Specification ⇒
 
   "Test time zone" should {
     "be UTC" in {
@@ -1179,8 +1188,6 @@ object PreparedStatementSpec extends Specification with Setters {
 
   // ---
 
-  def statement(c: Connection = defaultCon, s: String = "TEST", h: StatementHandler = defaultHandler.getStatementHandler) = new PreparedStatement(c, s, h)
-
   def executeUpdate[A](s: String, t: Int, v: A, c: Connection = defaultCon)(implicit stmt: StatementParam[A]): (String, A) = {
     var sql: String = null
     var param: Parameter = null
@@ -1190,7 +1197,7 @@ object PreparedStatementSpec extends Specification with Setters {
       def whenSQLUpdate(s: String, p: Params) = {
         sql = s; param = p.get(0); 1
       }
-      def whenSQLQuery(s: String, p: Params) = 
+      def whenSQLQuery(s: String, p: Params) =
         RowLists.rowList1(classOf[String]).asResult
     }
     val st = statement(c, s, h)
@@ -1225,6 +1232,8 @@ object PreparedStatementSpec extends Specification with Setters {
 
     "jdbc:acolyte:test"
   }
+
+  def statement(c: Connection = defaultCon, s: String = "TEST", h: StatementHandler = defaultHandler.getStatementHandler): S
 
   lazy val defaultCon = new acolyte.Connection(jdbcUrl, null, defaultHandler)
   lazy val defaultHandler = EmptyConnectionHandler
