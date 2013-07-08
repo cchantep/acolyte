@@ -28,7 +28,8 @@ import acolyte.ParameterMetaData.{
   Date ⇒ DateP,
   Time ⇒ TimeP,
   Timestamp ⇒ TimestampP,
-  Real ⇒ RealP
+  Real ⇒ RealP,
+  Scaled ⇒ ScaledP
 }
 
 object ParameterMetaDataSpec
@@ -209,8 +210,7 @@ object ParameterMetaDataSpec
   "Decimal" should {
     Seq(Types.DECIMAL, Types.DOUBLE, Types.FLOAT, Types.REAL) foreach { t ⇒
       (1 to 32) foreach { s ⇒
-
-        DecimalP(t, s) aka "decimal parameter" mustEqual param(jdbcTypeMap(t),
+        ScaledP(t, s) aka "decimal parameter" mustEqual param(jdbcTypeMap(t),
           IN, t, typeName(t), typePrecision(t), s, UNKNOWN_NULL, typeSign(t))
 
       }
@@ -257,40 +257,40 @@ object ParameterMetaDataSpec
 
   "Float parameter" should {
     "have scale 1" in {
-      (FloatP(1.2f) aka "float parameter" mustEqual DecimalP(Types.FLOAT, 1)).
-        and(RealP(1.2f) aka "real parameter" mustEqual DecimalP(Types.REAL, 1))
+      (FloatP(1.2f) aka "float parameter" mustEqual ScaledP(Types.FLOAT, 1)).
+        and(RealP(1.2f) aka "real parameter" mustEqual ScaledP(Types.REAL, 1))
     }
 
     "have scale 2" in {
-      (FloatP(1.23f) aka "float parameter" mustEqual DecimalP(Types.FLOAT, 2)).
-        and(RealP(1.23f) aka "real parameter" mustEqual DecimalP(Types.REAL, 2))
+      (FloatP(1.23f) aka "float parameter" mustEqual ScaledP(Types.FLOAT, 2)).
+        and(RealP(1.23f) aka "real parameter" mustEqual ScaledP(Types.REAL, 2))
     }
 
     "have scale 6" in {
       (FloatP(1.234567f).
-        aka("float parameter") mustEqual DecimalP(Types.FLOAT, 6)).
+        aka("float parameter") mustEqual ScaledP(Types.FLOAT, 6)).
         and(RealP(1.234567f).
-          aka("real parameter") mustEqual DecimalP(Types.REAL, 6))
+          aka("real parameter") mustEqual ScaledP(Types.REAL, 6))
     }
   }
 
   "Double parameter" should {
     "have scale 1" in {
-      DoubleP(1.2f) aka "double parameter" mustEqual DecimalP(Types.DOUBLE, 1)
+      DoubleP(1.2f) aka "double parameter" mustEqual ScaledP(Types.DOUBLE, 1)
     }
 
     "have scale 5" in {
       DoubleP(1.23456f).
-        aka("double parameter") mustEqual DecimalP(Types.DOUBLE, 5)
+        aka("double parameter") mustEqual ScaledP(Types.DOUBLE, 5)
     }
   }
 
   "BigDecimal parameter" should {
     "have scale 3" in {
       (NumericP(new java.math.BigDecimal("1.234")).
-        aka("numeric parameter") mustEqual DecimalP(Types.NUMERIC, 3)).
+        aka("numeric parameter") mustEqual ScaledP(Types.NUMERIC, 3)).
         and(DecimalP(new java.math.BigDecimal("1.234")).
-          aka("decimal parameter") mustEqual DecimalP(Types.DECIMAL, 3))
+          aka("decimal parameter") mustEqual ScaledP(Types.DECIMAL, 3))
 
     }
   }

@@ -379,13 +379,6 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * {@inheritDoc}
      */
-    public int findColumn(final String columnLabel) throws SQLException {
-        throw new RuntimeException("Not implemented");
-    } // end of findColumn
-
-    /**
-     * {@inheritDoc}
-     */
     public Reader getCharacterStream(final int columnIndex) 
         throws SQLException {
 
@@ -418,6 +411,13 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
 
         throw new RuntimeException("Not implemented");
     } // end of getBigDecimal
+
+    /**
+     * {@inheritDoc}
+     */
+    public int findColumn(final String columnLabel) throws SQLException {
+        throw new RuntimeException("Not implemented");
+    } // end of findColumn
 
     /**
      * {@inheritDoc}
@@ -792,14 +792,14 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
      */
     public NClob getNClob(final int columnIndex) throws SQLException {
         throw new RuntimeException("Not implemented");
-    } // end of 
+    } // end of getNClob
 
     /**
      * {@inheritDoc}
      */
     public NClob getNClob(final String columnLabel) throws SQLException {
         throw new RuntimeException("Not implemented");
-    } // end of 
+    } // end of getNClob
 
     /**
      * {@inheritDoc}

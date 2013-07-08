@@ -180,29 +180,27 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
      */
     public static ParameterDef Default(final int sqlType) {
         return new ParameterDef(jdbcTypeMappings.get(sqlType),
-                             parameterModeIn,
-                             sqlType,
-                             jdbcTypeNames.get(sqlType),
-                             jdbcTypePrecisions.get(sqlType),
-                             jdbcTypeScales.get(sqlType),
-                             parameterNullableUnknown,
-                             jdbcTypeSigns.get(sqlType));
+                                parameterModeIn,
+                                sqlType,
+                                jdbcTypeNames.get(sqlType),
+                                jdbcTypePrecisions.get(sqlType),
+                                jdbcTypeScales.get(sqlType),
+                                parameterNullableUnknown,
+                                jdbcTypeSigns.get(sqlType));
     } // end of Default
 
     /**
      * Decimal parameter.
      */
-    public static ParameterDef Decimal(final int sqlType,
-                                    final int scale) {
-
+    public static ParameterDef Scaled(final int sqlType, final int scale) {
         return new ParameterDef(jdbcTypeMappings.get(sqlType),
-                             parameterModeIn,
-                             sqlType,
-                             jdbcTypeNames.get(sqlType),
-                             jdbcTypePrecisions.get(sqlType),
-                             scale,
-                             parameterNullableUnknown,
-                             jdbcTypeSigns.get(sqlType));
+                                parameterModeIn,
+                                sqlType,
+                                jdbcTypeNames.get(sqlType),
+                                jdbcTypePrecisions.get(sqlType),
+                                scale,
+                                parameterNullableUnknown,
+                                jdbcTypeSigns.get(sqlType));
 
     } // end of Decimal
 
@@ -254,7 +252,7 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     public static ParameterDef Float(final float f) {
         final BigDecimal bd = new BigDecimal(Float.toString(f));
 
-        return Decimal(Types.FLOAT, bd.scale());
+        return Scaled(Types.FLOAT, bd.scale());
     } // end of Float
 
     /**
@@ -263,7 +261,7 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     public static ParameterDef Real(final float f) {
         final BigDecimal bd = new BigDecimal(Float.toString(f));
 
-        return Decimal(Types.REAL, bd.scale());
+        return Scaled(Types.REAL, bd.scale());
     } // end of Real
 
     /**
@@ -273,21 +271,21 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
         final BigDecimal bd = new BigDecimal(String.format(Locale.US, "%f", d)).
             stripTrailingZeros();
 
-        return Decimal(Types.DOUBLE, bd.scale());
+        return Scaled(Types.DOUBLE, bd.scale());
     } // end of Double
 
     /**
      * BigDecimal constructor.
      */
     public static ParameterDef Numeric(final BigDecimal bd) {
-        return Decimal(Types.NUMERIC, bd.scale());
+        return Scaled(Types.NUMERIC, bd.scale());
     } // end of BigDecimal
 
     /**
      * BigDecimal constructor (as DECIMAL).
      */
     public static ParameterDef Decimal(final BigDecimal bd) {
-        return Decimal(Types.DECIMAL, bd.scale());
+        return Scaled(Types.DECIMAL, bd.scale());
     } // end of Decimal
 
     /**

@@ -40,9 +40,10 @@ import acolyte.ParameterMetaData.ParameterDef;
 import acolyte.StatementHandler.Parameter;
 
 import static acolyte.ParameterMetaData.Timestamp;
-import static acolyte.ParameterMetaData.Numeric;
 import static acolyte.ParameterMetaData.Decimal;
+import static acolyte.ParameterMetaData.Numeric;
 import static acolyte.ParameterMetaData.Default;
+import static acolyte.ParameterMetaData.Scaled;
 import static acolyte.ParameterMetaData.Double;
 import static acolyte.ParameterMetaData.Float;
 import static acolyte.ParameterMetaData.Short;
@@ -61,7 +62,7 @@ import static acolyte.ParameterMetaData.Str;
  *
  * @author Cedric Chantepie
  */
-public final class PreparedStatement 
+public class PreparedStatement 
     extends AbstractStatement implements java.sql.PreparedStatement {
 
     // --- Shared ---
@@ -289,33 +290,6 @@ public final class PreparedStatement
 
     /**
      * {@inheritDoc}
-     */
-    public void setDate(final int parameterIndex, 
-                        final Date x) throws SQLException {
-
-        setParam(parameterIndex, Date(), (Object)x);
-    } // end of setDate
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setTime(final int parameterIndex, 
-                        final Time x) throws SQLException {
-
-        setParam(parameterIndex, Time(), (Object)x);
-    } // end of setTime
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setTimestamp(final int parameterIndex, final Timestamp x) 
-        throws SQLException {
-
-        setParam(parameterIndex, Timestamp(), (Object)x);
-    } // end of setTimestamp
-
-    /**
-     * {@inheritDoc}
      * @see java.sql.SQLFeatureNotSupportedException
      */
     public void setAsciiStream(final int parameterIndex, 
@@ -455,17 +429,6 @@ public final class PreparedStatement
 
     /**
      * {@inheritDoc}
-     */
-    public void setCharacterStream(final int parameterIndex, 
-                                   final Reader reader, 
-                                   final int length) 
-        throws SQLException {
-
-        throw new SQLFeatureNotSupportedException();
-    } // end of setCharacterStream
-
-    /**
-     * {@inheritDoc}
      * @throws java.sql.SQLFeatureNotSupportedException
      */
     public void setRef(final int parameterIndex, final Ref x) 
@@ -516,6 +479,15 @@ public final class PreparedStatement
      * {@inheritDoc}
      */
     public void setDate(final int parameterIndex, 
+                        final Date x) throws SQLException {
+
+        setParam(parameterIndex, Date(), (Object)x);
+    } // end of setDate
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setDate(final int parameterIndex, 
                         final Date x, 
                         final Calendar cal) throws SQLException {
 
@@ -528,6 +500,15 @@ public final class PreparedStatement
      * {@inheritDoc}
      */
     public void setTime(final int parameterIndex, 
+                        final Time x) throws SQLException {
+
+        setParam(parameterIndex, Time(), (Object)x);
+    } // end of setTime
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setTime(final int parameterIndex, 
                         final Time x, 
                         final Calendar cal) throws SQLException {
 
@@ -535,6 +516,15 @@ public final class PreparedStatement
                  (Object)ImmutablePair.of(x, cal.getTimeZone()));
 
     } // end of setTime
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setTimestamp(final int parameterIndex, final Timestamp x) 
+        throws SQLException {
+
+        setParam(parameterIndex, Timestamp(), (Object)x);
+    } // end of setTimestamp
 
     /**
      * {@inheritDoc}
@@ -697,7 +687,7 @@ public final class PreparedStatement
         case Types.FLOAT:
         case Types.NUMERIC: 
         case Types.DECIMAL: 
-            setParam(parameterIndex, Decimal(targetSqlType, scaleOrLength), x);
+            setParam(parameterIndex, Scaled(targetSqlType, scaleOrLength), x);
             break;
 
         default:
@@ -733,17 +723,6 @@ public final class PreparedStatement
      * {@inheritDoc}
      * @see java.sql.SQLFeatureNotSupportedException
      */
-    public void setCharacterStream(final int parameterIndex, 
-                                   final Reader x, 
-                                   final long length) throws SQLException {
-
-        throw new SQLFeatureNotSupportedException();
-    } // end of setCharacterStream
-
-    /**
-     * {@inheritDoc}
-     * @see java.sql.SQLFeatureNotSupportedException
-     */
     public void setAsciiStream(final int parameterIndex, final InputStream x) 
         throws SQLException {
 
@@ -760,6 +739,28 @@ public final class PreparedStatement
 
         throw new SQLFeatureNotSupportedException();
     } // end of setBinaryStream
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setCharacterStream(final int parameterIndex, 
+                                   final Reader reader, 
+                                   final int length) 
+        throws SQLException {
+
+        throw new SQLFeatureNotSupportedException();
+    } // end of setCharacterStream
+
+    /**
+     * {@inheritDoc}
+     * @see java.sql.SQLFeatureNotSupportedException
+     */
+    public void setCharacterStream(final int parameterIndex, 
+                                   final Reader x, 
+                                   final long length) throws SQLException {
+
+        throw new SQLFeatureNotSupportedException();
+    } // end of setCharacterStream
 
     /**
      * {@inheritDoc}
