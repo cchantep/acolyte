@@ -12,8 +12,8 @@ scalacOptions ++= Seq("-feature", "-deprecation")
 
 sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
   val (base, managed) = dirs
-  val tmpl = base / "src" / "main" / "templates" / "Acolyte.tmpl"
-  val f = managed / "acolyte" / "Acolyte.scala"
+  val tmpl = base / "src" / "main" / "templates" / "RowLists.tmpl"
+  val f = managed / "acolyte" / "RowLists.scala"
   IO.writer[Seq[java.io.File]](f, "", IO.defaultCharset, false) { w ⇒
     val letter = 'A' to 'Z'
     val lim = letter.size
