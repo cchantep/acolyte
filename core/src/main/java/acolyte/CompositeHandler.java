@@ -60,7 +60,9 @@ public class CompositeHandler implements StatementHandler {
     /**
      * {@inheritDoc}
      */
-    public Result whenSQLQuery(final String sql, final List<Parameter> parameters) throws SQLException {
+    public QueryResult whenSQLQuery(final String sql, 
+                                    final List<Parameter> parameters) 
+        throws SQLException {
 
         if (this.queryHandler == null) {
             throw new SQLException("No query handler");
@@ -72,8 +74,9 @@ public class CompositeHandler implements StatementHandler {
     /**
      * {@inheritDoc}
      */
-    public int whenSQLUpdate(final String sql, 
-                             final List<Parameter> parameters) throws SQLException {
+    public UpdateResult whenSQLUpdate(final String sql, 
+                                      final List<Parameter> parameters) 
+        throws SQLException {
 
         if (this.updateHandler == null) {
             throw new SQLException("No update handler: " + sql);
@@ -194,7 +197,7 @@ public class CompositeHandler implements StatementHandler {
      * Query handler.
      */
     public static interface QueryHandler {
-        public Result apply(String sql, List<Parameter> parameters) throws SQLException;
+        public QueryResult apply(String sql, List<Parameter> parameters) throws SQLException;
 
     } // end of interfaceQueryHandler
 
@@ -207,7 +210,7 @@ public class CompositeHandler implements StatementHandler {
          *
          * @return Update count
          */
-        public int apply(String sql, List<Parameter> parameters) 
+        public UpdateResult apply(String sql, List<Parameter> parameters) 
             throws SQLException;
 
     } // end of interfaceQueryHandler

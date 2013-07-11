@@ -55,22 +55,28 @@ object CompositeHandlerSpec extends Specification {
 
     "be successful" in {
       (new CompositeHandler().withUpdateHandler(new UpdateHandler {
-        def apply(s: String, p: java.util.List[Parameter]) = 1
-      }).whenSQLUpdate("TEST", NO_PARAMS) aka "count" mustEqual 1).
+        def apply(s: String, p: java.util.List[Parameter]) =
+          new UpdateResult(1)
+      }).whenSQLUpdate("TEST", NO_PARAMS).getUpdateCount.
+        aka("count") mustEqual 1).
         and(new CompositeHandler().withUpdateHandler(new UpdateHandler {
-          def apply(s: String, p: java.util.List[Parameter]) = 3
-        }).whenSQLUpdate("TEST", NO_PARAMS) aka "count" mustEqual 3).
+          def apply(s: String, p: java.util.List[Parameter]) =
+            new UpdateResult(3)
+        }).whenSQLUpdate("TEST", NO_PARAMS).getUpdateCount().
+          aka("count") mustEqual 3).
         and(new CompositeHandler().withUpdateHandler(new UpdateHandler {
-          def apply(s: String, p: java.util.List[Parameter]) = 10
-        }).whenSQLUpdate("TEST", NO_PARAMS) aka "count" mustEqual 10)
+          def apply(s: String, p: java.util.List[Parameter]) =
+            new UpdateResult(10)
+        }).whenSQLUpdate("TEST", NO_PARAMS).getUpdateCount.
+          aka("count") mustEqual 10)
 
     }
 
     "throw exception for update statement" in {
       new CompositeHandler().whenSQLUpdate("DELETE * FROM table", NO_PARAMS).
         aka("update") must throwA[SQLException].like {
-          case e => e.getMessage.
-              aka("message") mustEqual "No update handler: DELETE * FROM table"
+          case e ⇒ e.getMessage.
+            aka("message") mustEqual "No update handler: DELETE * FROM table"
         }
     }
   }
@@ -102,6 +108,30 @@ object CompositeHandlerSpec extends Specification {
         }).whenSQLQuery("SELECT *", NO_PARAMS)
 
       res.aka("resultset") mustEqual rows.asResult
+    }
+  }
+
+  "Warning" should {
+    lazy val warning = new java.sql.SQLWarning("TEST")
+
+    "be found for query" in {
+      lazy val res =
+        new CompositeHandler().withQueryHandler(new QueryHandler {
+          def apply(s: String, p: java.util.List[Parameter]) =
+            RowLists.rowList1(classOf[String]).asResult.withWarning(warning)
+        }).whenSQLQuery("SELECT *", NO_PARAMS)
+
+      res.getWarning aka "warning" mustEqual warning
+    }
+
+    "be found for update" in {
+      lazy val res =
+        new CompositeHandler().withUpdateHandler(new UpdateHandler {
+          def apply(s: String, p: java.util.List[Parameter]) =
+            UpdateResult.Nothing.withWarning(warning)
+        }).whenSQLUpdate("UPDATE", NO_PARAMS)
+
+      res.getWarning aka "warning" mustEqual warning
     }
   }
 }

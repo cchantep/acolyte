@@ -21,6 +21,6 @@ package object test {
     def whenSQLQuery(sql: String, params: Params) = 
       RowLists.rowList1(classOf[String]).asResult
 
-    def whenSQLUpdate(sql: String, params: Params): Int = -1
+    def whenSQLUpdate(sql: String, params: Params) = UpdateResult.Nothing
   }
 }

@@ -10,7 +10,8 @@ import java.sql.Date;
 import acolyte.ConnectionHandler;
 import acolyte.CompositeHandler;
 import acolyte.StatementHandler;
-import acolyte.Result;
+import acolyte.UpdateResult;
+import acolyte.QueryResult;
 
 import acolyte.StatementHandler.Parameter;
 
@@ -40,20 +41,24 @@ public final class JavaUseCases {
             withQueryDetection("EXEC that_proc"). // second detection regex
             withUpdateHandler(new CompositeHandler.UpdateHandler() {
                     // Handle execution of update statement (not query)
-                    public int apply(String sql, List<Parameter> parameter) {
+                    public UpdateResult apply(String sql, 
+                                              List<Parameter> parameter) {
+
                         if (sql.startsWith("DELETE ")) {
                             // Process deletion ...
 
-                            return /* deleted = */2;
+                            return /* deleted = */new UpdateResult(2);
                         }
 
                         // ... Process ...
 
-                        return /* count = */1;
+                        return /* count = */UpdateResult.One;
                     }
                 }).
             withQueryHandler(new CompositeHandler.QueryHandler () {
-                    public Result apply(String sql, List<Parameter> params) {
+                    public QueryResult apply(String sql, 
+                                             List<Parameter> params) {
+
                         if (sql.startsWith("SELECT ")) {
                             return rowList1(String.class).asResult();
                         }
@@ -85,7 +90,9 @@ public final class JavaUseCases {
         final StatementHandler handler = new CompositeHandler().
             withQueryDetection("^SELECT ").
             withQueryHandler(new CompositeHandler.QueryHandler () {
-                    public Result apply(String sql, List<Parameter> params) {
+                    public QueryResult apply(String sql, 
+                                             List<Parameter> params) {
+
                         // Prepare list of 2 rows
                         // with 3 columns of types String, Float, Date
                         return rowList3(defineCol(String.class, "str"),

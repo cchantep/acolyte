@@ -56,7 +56,7 @@ public abstract class RowList<R extends Row> {
     /**
      * Returns this row list wrapped as handler result.
      */
-    public Result asResult() {
+    public QueryResult asResult() {
         return new ResultImpl(this);
     } // end of asResult
 
@@ -1348,7 +1348,7 @@ public abstract class RowList<R extends Row> {
     /**
      * Handler result impl.
      */
-    private final class ResultImpl implements Result {
+    private final class ResultImpl implements QueryResult {
         final RowList<?> rowList;
         final SQLWarning warning;
 
@@ -1379,9 +1379,16 @@ public abstract class RowList<R extends Row> {
         /**
          * {@inheritDoc}
          */
-        public ResultImpl withWarning(final SQLWarning warning) {
+        public QueryResult withWarning(final SQLWarning warning) {
             return new ResultImpl(this.rowList, warning);
         } // end of withWarning
+
+        /**
+         * {@inheritDoc}
+         */
+        public SQLWarning getWarning() {
+            return this.warning;
+        } // end of getWarning
 
         /**
          * {@inheritDoc}

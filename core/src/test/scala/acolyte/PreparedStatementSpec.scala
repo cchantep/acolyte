@@ -1089,7 +1089,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
     lazy val h = new StatementHandler {
       def getGeneratedKeys = null
       def isQuery(s: String) = true
-      def whenSQLUpdate(s: String, p: Params) = -1
+      def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
       def whenSQLQuery(s: String, p: Params) = {
         RowLists.rowList1(classOf[String]).asResult
       }
@@ -1126,7 +1126,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       lazy val h = new StatementHandler {
         def getGeneratedKeys = null
         def isQuery(s: String) = true
-        def whenSQLUpdate(s: String, p: Params) = -1
+        def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
         def whenSQLQuery(s: String, p: Params) = {
           RowLists.rowList1(classOf[String]).asResult
         }
@@ -1142,7 +1142,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
     lazy val h = new StatementHandler {
       def getGeneratedKeys = null
       def isQuery(s: String) = true
-      def whenSQLUpdate(s: String, p: Params) = -1
+      def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
       def whenSQLQuery(s: String, p: Params) = {
         RowLists.rowList1(classOf[String]).asResult
       }
@@ -1186,6 +1186,42 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
     }
   }
 
+  "Warning" should {
+    lazy val warning = new java.sql.SQLWarning("TEST")
+
+    "be found for query" in {
+      lazy val h = new StatementHandler {
+        def getGeneratedKeys = null
+        def isQuery(s: String) = true
+        def whenSQLUpdate(s: String, p: Params) = sys.error("Not")
+        def whenSQLQuery(s: String, p: Params) =
+          RowLists.rowList1(classOf[String]).asResult.withWarning(warning)
+
+      }
+
+      lazy val s = statement(h = h)
+      s.executeQuery("TEST")
+
+      s.getWarnings aka "warning" mustEqual warning
+    }
+
+    "be found for update" in {
+      lazy val h = new StatementHandler {
+        def getGeneratedKeys = null
+        def isQuery(s: String) = false
+        def whenSQLQuery(s: String, p: Params) = sys.error("Not")
+        def whenSQLUpdate(s: String, p: Params) =
+          UpdateResult.Nothing.withWarning(warning)
+
+      }
+
+      lazy val s = statement(h = h)
+      s.executeUpdate()
+
+      s.getWarnings aka "warning" mustEqual warning
+    }
+  }
+
   // ---
 
   def executeUpdate[A](s: String, t: Int, v: A, c: Connection = defaultCon)(implicit stmt: StatementParam[A]): (String, A) = {
@@ -1195,7 +1231,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       def getGeneratedKeys = null
       def isQuery(s: String) = false
       def whenSQLUpdate(s: String, p: Params) = {
-        sql = s; param = p.get(0); 1
+        sql = s; param = p.get(0); new UpdateResult(1)
       }
       def whenSQLQuery(s: String, p: Params) =
         RowLists.rowList1(classOf[String]).asResult
@@ -1214,7 +1250,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
     lazy val h = new StatementHandler {
       def getGeneratedKeys = null
       def isQuery(s: String) = true
-      def whenSQLUpdate(s: String, p: Params) = -1
+      def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
       def whenSQLQuery(s: String, p: Params) = {
         sql = s; param = p.get(0); RowLists.rowList1(classOf[String]).asResult
       }
