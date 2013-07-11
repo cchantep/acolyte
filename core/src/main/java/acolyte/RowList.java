@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Date;
@@ -1349,12 +1350,23 @@ public abstract class RowList<R extends Row> {
      */
     private final class ResultImpl implements Result {
         final RowList<?> rowList;
+        final SQLWarning warning;
 
         /**
-         * Bulk constructor.
+         * Rows constructor.
          */
         public ResultImpl(final RowList<?> list) {
+            this(list, null);
+        } // end of <init>
+
+        /**
+         * Bulk constructor
+         */
+        private ResultImpl(final RowList<?> list,
+                           final SQLWarning warning) {
+
             this.rowList = list;
+            this.warning = warning;
         } // end of <init>
 
         // ---
@@ -1363,6 +1375,13 @@ public abstract class RowList<R extends Row> {
          * {@inheritDoc}
          */
         public RowList<?> getRowList() { return this.rowList; }
+
+        /**
+         * {@inheritDoc}
+         */
+        public ResultImpl withWarning(final SQLWarning warning) {
+            return new ResultImpl(this.rowList, warning);
+        } // end of withWarning
 
         /**
          * {@inheritDoc}
