@@ -119,9 +119,7 @@ public final class CallableStatement
         checkClosed();
 
         if (parameterName == null || parameterName.length() == 0) {
-            throw new SQLException("Invalid parameter name: " +
-                                   parameterName);
-
+            throw new SQLException("Invalid name: " + parameterName);
         } // end of if
 
         this.namedOut.put(parameterName, Default(sqlType));
@@ -137,9 +135,7 @@ public final class CallableStatement
         checkClosed();
 
         if (parameterName == null || parameterName.length() == 0) {
-            throw new SQLException("Invalid parameter name: " +
-                                   parameterName);
-
+            throw new SQLException("Invalid name: " +parameterName);
         } // end of if
 
         this.namedOut.put(parameterName, Scaled(sqlType, scale));
@@ -265,11 +261,12 @@ public final class CallableStatement
 
     /**
      * {@inheritDoc}
+     * @throws java.sql.SQLFeatureNotSupportedException
      */
     public void setBytes(final String parameterName, final byte[] x) 
         throws SQLException {
 
-        throw new SQLException("Not supported");
+        throw new SQLFeatureNotSupportedException();
     } // end of setBytes
 
     /**
@@ -640,7 +637,7 @@ public final class CallableStatement
     public boolean wasNull() throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -649,59 +646,83 @@ public final class CallableStatement
 
     /**
      * {@inheritDoc}
+     * @see java.sql.SQLFeatureNotSupportedException
      */
     public Array getArray(final int parameterIndex) throws SQLException {
-        throw new RuntimeException("Not implemented");
+        throw new SQLFeatureNotSupportedException();
     } // end of getArray
 
     /**
      * {@inheritDoc}
+     * @see java.sql.SQLFeatureNotSupportedException
      */
     public Array getArray(final String parameterName) throws SQLException {
-        throw new RuntimeException("Not implemented");
+        throw new SQLFeatureNotSupportedException();
     } // end of getArray
 
     /**
      * {@inheritDoc}
+     * @see java.sql.SQLFeatureNotSupportedException
      */
     public Ref getRef(final int parameterIndex) throws SQLException {
-        throw new RuntimeException("Not implemented");
+        throw new SQLFeatureNotSupportedException();
     } // end of getRef
 
     /**
      * {@inheritDoc}
+     * @see java.sql.SQLFeatureNotSupportedException
      */
     public Ref getRef(final String parameterName) throws SQLException {
-        throw new RuntimeException("Not implemented");
+        throw new SQLFeatureNotSupportedException();
     } // end of getRef
 
     /**
      * {@inheritDoc}
+     * @see java.sql.SQLFeatureNotSupportedException
      */
     public Blob getBlob(final int parameterIndex) throws SQLException {
-        throw new RuntimeException("Not implemented");
+        throw new SQLFeatureNotSupportedException();
     } // end of getBlob
 
     /**
      * {@inheritDoc}
+     * @see java.sql.SQLFeatureNotSupportedException
      */
     public Blob getBlob(final String parameterName) throws SQLException {
-        throw new RuntimeException("Not implemented");
+        throw new SQLFeatureNotSupportedException();
     } // end of getBlob
 
     /**
      * {@inheritDoc}
+     * @see java.sql.SQLFeatureNotSupportedException
      */
     public Clob getClob(final int parameterIndex) throws SQLException {
-        throw new RuntimeException("Not implemented");
+        throw new SQLFeatureNotSupportedException();
     } // end of getClob
 
     /**
      * {@inheritDoc}
+     * @see java.sql.SQLFeatureNotSupportedException
      */
     public Clob getClob(final String parameterName) throws SQLException {
-        throw new RuntimeException("Not implemented");
+        throw new SQLFeatureNotSupportedException();
     } // end of getClob
+
+    /**
+     * {@inheritDoc}
+     * @see java.sql.SQLFeatureNotSupportedException
+     */
+    public byte[] getBytes(final int parameterIndex) throws SQLException {
+        throw new SQLFeatureNotSupportedException();
+    } // end of getBytes
+
+    /**
+     * {@inheritDoc}
+     * @see java.sql.SQLFeatureNotSupportedException
+     */
+    public byte[] getBytes(final String parameterName) throws SQLException {
+        throw new SQLFeatureNotSupportedException();
+    } // end of getBytes
 
     /**
      * {@inheritDoc}
@@ -709,7 +730,7 @@ public final class CallableStatement
     public Object getObject(final int parameterIndex) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
             
@@ -722,7 +743,7 @@ public final class CallableStatement
     public Object getObject(final String parameterName) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -738,7 +759,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -754,7 +775,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -770,7 +791,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -786,7 +807,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -799,7 +820,7 @@ public final class CallableStatement
     public String getString(final int parameterIndex) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -812,7 +833,7 @@ public final class CallableStatement
     public String getString(final String parameterName) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -825,7 +846,7 @@ public final class CallableStatement
     public boolean getBoolean(final int parameterIndex) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -840,7 +861,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -853,7 +874,7 @@ public final class CallableStatement
     public byte getByte(final int parameterIndex) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -868,7 +889,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -881,7 +902,7 @@ public final class CallableStatement
     public short getShort(final int parameterIndex) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -896,7 +917,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -909,7 +930,7 @@ public final class CallableStatement
     public int getInt(final int parameterIndex) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -924,7 +945,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -937,7 +958,7 @@ public final class CallableStatement
     public long getLong(final int parameterIndex) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -952,7 +973,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -967,7 +988,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -982,7 +1003,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -995,7 +1016,7 @@ public final class CallableStatement
     public double getDouble(final int parameterIndex) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1010,7 +1031,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1025,7 +1046,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1040,7 +1061,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1056,7 +1077,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1072,7 +1093,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1082,24 +1103,10 @@ public final class CallableStatement
     /**
      * {@inheritDoc}
      */
-    public byte[] getBytes(final int parameterIndex) throws SQLException {
-        throw new RuntimeException("Not implemented");
-    } // end of getBytes
-
-    /**
-     * {@inheritDoc}
-     */
-    public byte[] getBytes(final String parameterName) throws SQLException {
-        throw new RuntimeException("Not implemented");
-    } // end of getBytes
-
-    /**
-     * {@inheritDoc}
-     */
     public Date getDate(final int parameterIndex) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1112,7 +1119,7 @@ public final class CallableStatement
     public Date getDate(final String parameterName) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1127,7 +1134,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1142,7 +1149,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1155,7 +1162,7 @@ public final class CallableStatement
     public Time getTime(final int parameterIndex) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1168,7 +1175,7 @@ public final class CallableStatement
     public Time getTime(final String parameterName) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1201,7 +1208,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1216,7 +1223,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1249,7 +1256,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1264,7 +1271,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1279,7 +1286,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1294,7 +1301,7 @@ public final class CallableStatement
 
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1307,7 +1314,7 @@ public final class CallableStatement
     public RowId getRowId(final int parameterIndex) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1320,7 +1327,7 @@ public final class CallableStatement
     public RowId getRowId(final String parameterName) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1333,7 +1340,7 @@ public final class CallableStatement
     public URL getURL(final int parameterIndex) throws SQLException {
         checkClosed();
         
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
         
@@ -1346,7 +1353,7 @@ public final class CallableStatement
     public URL getURL(final String parameterName) throws SQLException {
         checkClosed();
         
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
         
@@ -1359,7 +1366,7 @@ public final class CallableStatement
     public NClob getNClob(final int parameterIndex) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
         
@@ -1372,7 +1379,7 @@ public final class CallableStatement
     public NClob getNClob(final String parameterName) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
         
@@ -1385,7 +1392,7 @@ public final class CallableStatement
     public String getNString(final int parameterIndex) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1398,7 +1405,7 @@ public final class CallableStatement
     public String getNString(final String parameterName) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1411,7 +1418,7 @@ public final class CallableStatement
     public SQLXML getSQLXML(final int parameterIndex) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
@@ -1424,7 +1431,7 @@ public final class CallableStatement
     public SQLXML getSQLXML(final String parameterName) throws SQLException {
         checkClosed();
 
-        if (this.result != null) {
+        if (this.result == null) {
             throw new SQLException("No result");
         } // end of if
 
