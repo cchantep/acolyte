@@ -79,12 +79,12 @@ StatementHandler handler = new CompositeHandler().
   withQueryDetection("EXEC that_proc"). // second detection regex
   withUpdateHandler(new CompositeHandler.UpdateHandler() {
     // Handle execution of update statement (not query)
-    public int apply(String sql, List<Parameter> parameters) {
+    public UpdateResult apply(String sql, List<Parameter> parameters) {
       // ...
-      return count;
+      return UpdateResult.Nothing;
     }
   }).withQueryHandler(new CompositeHandler.QueryHandler () {
-    public Result apply(String sql, List<Parameter> parameters) {
+    public QueryResult apply(String sql, List<Parameter> parameters) {
       // ...
 
       // Prepare list of 2 rows
