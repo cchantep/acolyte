@@ -2,7 +2,7 @@
 package acolyte
 
 import java.util.{ ArrayList, List ⇒ JList }
-import java.sql.Statement
+import java.sql.{ Statement, SQLWarning }
 
 import scala.language.implicitConversions
 import scala.collection.JavaConversions
@@ -27,6 +27,26 @@ object Acolyte extends ScalaRowLists {
   implicit def PairAsColumn[T](c: (Class[T], String)): Column[T] =
     Column.defineCol(c._1, c._2)
 
+  implicit def IntUpdateHandler(h: Execution ⇒ Int): UpdateHandler =
+    new UpdateHandler {
+      def apply(sql: String, p: JList[Parameter]): UpdateResult = {
+        new UpdateResult(h(Execution(sql, scalaParameters(p))))
+      }
+    }
+
+  implicit def WarningUpdateHandler(h: Execution ⇒ SQLWarning): UpdateHandler =
+    new UpdateHandler {
+      def apply(sql: String, p: JList[Parameter]): UpdateResult = {
+        UpdateResult.Nothing.withWarning(h(Execution(sql, scalaParameters(p))))
+      }
+    }
+
+  private def scalaParameters(p: JList[Parameter]): List[ExecutedParameter] =
+    JavaConversions.collectionAsScalaIterable(p).
+      foldLeft(Nil: List[ExecutedParameter]) { (l, t) ⇒
+        l :+ ExecutedParameter(t.right, t.left)
+      }
+
 }
 
 case class Execution(
@@ -34,8 +54,8 @@ case class Execution(
   parameters: List[ExecutedParameter])
 
 case class ExecutedParameter(
-  value: Any,
-  definition: ParameterDef) {
+    value: Any,
+    definition: ParameterDef) {
 
   override lazy val toString = s"Param($value, ${definition.sqlTypeName})"
 }
@@ -43,22 +63,9 @@ case class ExecutedParameter(
 final class ScalaCompositeHandler(
     b: CompositeHandler) extends CompositeHandler {
 
-  def withUpdateHandler(h: Execution ⇒ Int): CompositeHandler = {
-    b.withUpdateHandler(new UpdateHandler {
-      def apply(sql: String, p: JList[Parameter]): Int = {
-        val ps = JavaConversions.collectionAsScalaIterable(p).
-          foldLeft(Nil: List[ExecutedParameter]) { (l, t) ⇒
-            l :+ ExecutedParameter(t.right, t.left)
-          }
-
-        h(Execution(sql, ps))
-      }
-    })
-  }
-
-  def withQueryHandler(h: Execution ⇒ Result): CompositeHandler = {
+  def withQueryHandler(h: Execution ⇒ QueryResult): CompositeHandler = {
     b.withQueryHandler(new QueryHandler {
-      def apply(sql: String, p: JList[Parameter]): Result = {
+      def apply(sql: String, p: JList[Parameter]): QueryResult = {
         val ps = JavaConversions.collectionAsScalaIterable(p).
           foldLeft(Nil: List[ExecutedParameter]) { (l, t) ⇒
             l :+ ExecutedParameter(t.right, t.left)
