@@ -7,16 +7,16 @@ import java.sql.SQLWarning;
  *
  * @author Cedric Chantepie
  */
-public interface Result {
+public interface Result<SELF extends Result> {
     
-    /**
-     * Returns underlying row list.
-     */
-    public RowList<?> getRowList();
-
     /**
      * Returns result with given |warning|.
      */
-    public Result withWarning(SQLWarning warning);
-    
+    public SELF withWarning(SQLWarning warning);
+
+    /**
+     * Returns associated warning.
+     */
+    public SQLWarning getWarning();
+
 } // end class Result

@@ -130,8 +130,12 @@ abstract class AbstractStatement implements java.sql.Statement {
 
         this.updateCount = -1;
 
-        return (this.result = this.handler.whenSQLQuery(sql, NO_PARAMS).
-                getRowList().resultSet().withStatement(this));
+        final QueryResult res = this.handler.whenSQLQuery(sql, NO_PARAMS);
+
+        this.warning = res.getWarning();
+
+        return (this.result = 
+                res.getRowList().resultSet().withStatement(this));
 
     } // end of executeQuery
 
@@ -143,7 +147,11 @@ abstract class AbstractStatement implements java.sql.Statement {
 
         this.result = null;
 
-        return (this.updateCount = this.handler.whenSQLUpdate(sql, NO_PARAMS));
+        final UpdateResult res = this.handler.whenSQLUpdate(sql, NO_PARAMS);
+
+        this.warning = res.getWarning();
+
+        return (this.updateCount = res.getUpdateCount());
     } // end of executeUpdate
 
     /**

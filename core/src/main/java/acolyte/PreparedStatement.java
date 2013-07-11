@@ -154,10 +154,13 @@ public class PreparedStatement
         
         // ---
 
-        this.updateCount = -1;
+        final QueryResult res = this.handler.whenSQLQuery(sql, params);
 
-        return (this.result = this.handler.whenSQLQuery(sql, params).
-                getRowList().resultSet().withStatement(this));
+        this.updateCount = -1;
+        this.warning = res.getWarning();
+
+        return (this.result = 
+                res.getRowList().resultSet().withStatement(this));
 
     } // end of executeQuery
 
@@ -184,9 +187,12 @@ public class PreparedStatement
 
         // ---
 
-        this.result = null;
+        final UpdateResult res = this.handler.whenSQLUpdate(sql, params);
 
-        return (this.updateCount = this.handler.whenSQLUpdate(sql, params));
+        this.result = null;
+        this.warning = res.getWarning();
+
+        return (this.updateCount = res.getUpdateCount());
     } // end of executeUpdate
 
     /**

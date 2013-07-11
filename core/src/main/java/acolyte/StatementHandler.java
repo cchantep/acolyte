@@ -22,7 +22,7 @@ public interface StatementHandler {
      * @param parameters Parameters (or empty map if none)
      * @return Query result set
      */
-    public Result whenSQLQuery(String sql, List<Parameter> parameters) 
+    public QueryResult whenSQLQuery(String sql, List<Parameter> parameters) 
         throws SQLException;
 
     /**
@@ -32,7 +32,7 @@ public interface StatementHandler {
      * @param parameters Parameters (or empty map if none)
      * @return Row count
      */
-    public int whenSQLUpdate(String sql, List<Parameter> parameters) 
+    public UpdateResult whenSQLUpdate(String sql, List<Parameter> parameters) 
         throws SQLException;
 
     /**
