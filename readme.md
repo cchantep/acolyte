@@ -116,7 +116,7 @@ If you just need/want to directly get connection from `acolyte.Driver`, without 
 Connection con = new acolyte.Driver().connection(yourHandlerInstance);
 ```
 
-#### Result creation
+#### Query result creation
 
 Acolyte provides [Row](http://cchantep.github.io/acolyte/apidocs/acolyte/Row.html) and [RowList](http://cchantep.github.io/acolyte/apidocs/acolyte/RowList.html) classes (and their sub-classes) to allow easy and typesafe creation of result.
 
@@ -190,6 +190,28 @@ Take care to `list1 = list1.append(row1("str"));`. As provided `RowList` classes
 ```java
 ResultSet rs1 = list1.append(row1("str")).resultSet();
 ResultSet rs2 = list2.resultSet();
+```
+
+#### SQL Warnings
+
+Acolyte can also mock up SQL warnings, on update or query, so that `java.sql.Statement.getWarnings()` will returned expected instance.
+
+```java
+import acolute.UpdateResult;
+import acolyte.QueryResult;
+
+// ...
+
+// Update results to be returned from an acolyte.UpdateHandler
+UpdateResult upNothingWarn = UpdateResult.Nothing.withWarning("Nothing");
+UpdateResult up1ResWithWarn = UpdateResult.One.withWarning("Warning 1");
+UpdateResult up10ResWithWarn = new UpdateResult(10).
+  withWarning("updateCount = 10 with warning");
+
+// Query result (wrapping row list) to be returned from acolyte.QueryHandler
+QueryResult nilWithWarning = QueryResult.Nil.withWarning("Nil with warning");
+QueryResult resWithWarning = aRowList.asResult().
+  withWarning("Row list result with warning");
 ```
 
 ### Scala
@@ -384,7 +406,6 @@ val rs2: ResultSet = list2.resultSet()
 
 - Limited datatype conversions.
 - Binary datatype are not currently supported.
-- Callable statement are not (yet) implemented.
 - `ResultSet.RETURN_GENERATED_KEYS` is not supported.
 - Pseudo-support for transaction.
 - Currency types.

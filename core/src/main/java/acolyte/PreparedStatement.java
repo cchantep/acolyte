@@ -159,9 +159,7 @@ public class PreparedStatement
         this.updateCount = -1;
         this.warning = res.getWarning();
 
-        return (this.result = 
-                res.getRowList().resultSet().withStatement(this));
-
+        return (this.result = res.getRowList().resultSet().withStatement(this));
     } // end of executeQuery
 
     /**

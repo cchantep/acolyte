@@ -4,10 +4,10 @@ import java.util.List;
 
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.SQLWarning;
 import java.sql.Connection;
 import java.sql.Date;
 
-import acolyte.ConnectionHandler;
 import acolyte.CompositeHandler;
 import acolyte.StatementHandler;
 import acolyte.UpdateResult;
@@ -32,7 +32,7 @@ public final class JavaUseCases {
         "jdbc:acolyte:anything-you-want?handler=my-handler-id";
 
     /**
-     * Use case #1
+     * Use case #1 - Quick start
      */
     public static Connection useCase1() throws SQLException {
         // Prepare handler
@@ -84,12 +84,12 @@ public final class JavaUseCases {
     } // end of useCase1
 
     /**
-     * Use case #2
+     * Use case #2 - Column definitions
      */
     public static Connection useCase2() throws SQLException {
         final StatementHandler handler = new CompositeHandler().
             withQueryDetection("^SELECT ").
-            withQueryHandler(new CompositeHandler.QueryHandler () {
+            withQueryHandler(new CompositeHandler.QueryHandler() {
                     public QueryResult apply(String sql, 
                                              List<Parameter> params) {
 
@@ -110,4 +110,46 @@ public final class JavaUseCases {
         // ... then connection is managed through |handler|
         return DriverManager.getConnection(jdbcUrl);
     } // end of useCase2
+
+    /**
+     * Use case #3 - Warnings
+     */
+    public static Connection useCase3() throws SQLException {
+        final StatementHandler handler = new CompositeHandler().
+            withQueryDetection("^SELECT ").
+            withQueryDetection("^EXEC ").
+            withQueryHandler(new CompositeHandler.QueryHandler() {
+                    public QueryResult apply(String sql, 
+                                             List<Parameter> params) {
+
+                        if (sql.startsWith("EXEC ")) {
+                            return QueryResult.
+                                Nil.withWarning(new SQLWarning("Warn"));
+
+                        } // end of if
+
+                        return QueryResult.Nil;
+                    }
+                }).
+            withUpdateHandler(new CompositeHandler.UpdateHandler() {
+                    // Handle execution of update statement (not query)
+                    public UpdateResult apply(String sql, 
+                                              List<Parameter> parameter) {
+
+                        if (sql.startsWith("DELETE ")) {
+                            return UpdateResult.
+                                Nothing.withWarning(new SQLWarning("Warn"));
+
+                        } // end of if
+
+                        return UpdateResult.Nothing;
+                    }
+                });
+
+        // Register prepared handler with expected ID 'my-handler-id'
+        acolyte.Driver.register("my-handler-id", handler);
+
+        // ... then connection is managed through |handler|
+        return DriverManager.getConnection(jdbcUrl);
+    } // end of useCase3
 } // end of class JavaUseCases

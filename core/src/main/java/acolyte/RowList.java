@@ -1,6 +1,7 @@
 package acolyte;
 
 import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +11,6 @@ import java.math.BigDecimal;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Date;
@@ -57,7 +57,7 @@ public abstract class RowList<R extends Row> {
      * Returns this row list wrapped as handler result.
      */
     public QueryResult asResult() {
-        return new ResultImpl(this);
+        return new QueryResult.Default(this);
     } // end of asResult
 
     /**
@@ -72,7 +72,84 @@ public abstract class RowList<R extends Row> {
      */
     public abstract Map<String,Integer> getColumnLabels();
 
+    // --- Shared ---
+
+    /**
+     * Nil row list instance
+     */
+    public static final NilRowList Nil = new NilRowList();
+
     // --- Inner classes ---
+
+    /**
+     * Nil row list.
+     */
+    private static final class NilRowList extends RowList<Row.Nothing> {
+        // --- Properties ---
+
+        /**
+         * Empty list of row
+         */
+        private final List<Row.Nothing> rows = 
+            new ArrayList<Row.Nothing>(0);
+
+        /**
+         * Empty list of column classes
+         */
+        private final List<Class<?>> colClasses = new ArrayList<Class<?>>(0);
+
+        /**
+         * Empty labels
+         */
+        private final Map<String,Integer> labels = 
+            new HashMap<String,Integer>(0);
+
+        // --- Constructors ---
+
+        /**
+         * No-arg constructor.
+         */
+        private NilRowList() { }
+
+        // ---
+
+        /**
+         * Returns empty list of row
+         */
+        public List<Row.Nothing> getRows() {
+            return this.rows;
+        } // end of getRows
+
+        /**
+         * Returns unchanged nil row list.
+         */
+        public RowList<Row.Nothing> append(final Row.Nothing row) {
+            return this;
+        } // end of append
+
+        /**
+         * Returns unchanged nil row list.
+         */
+        public RowList<Row.Nothing> withLabel(final int columnIndex, 
+                                              final String label) {
+
+            return this;
+        } // end of withLabel
+
+        /**
+         * Returns empty list of columns classes.
+         */
+        public List<Class<?>> getColumnClasses() {
+            return this.colClasses;
+        } // end of getColumnClasses
+
+        /**
+         * Returns empty list of column labels.
+         */
+        public Map<String,Integer> getColumnLabels() {
+            return this.labels;
+        } // end of getColumnLabels
+    } // end of class Nil
 
     /**
      * Column definition.
@@ -1344,73 +1421,4 @@ public abstract class RowList<R extends Row> {
             return proxy;
         } // end of unwrap
     } // end of RowListMetaData
-
-    /**
-     * Handler result impl.
-     */
-    private final class ResultImpl implements QueryResult {
-        final RowList<?> rowList;
-        final SQLWarning warning;
-
-        /**
-         * Rows constructor.
-         */
-        public ResultImpl(final RowList<?> list) {
-            this(list, null);
-        } // end of <init>
-
-        /**
-         * Bulk constructor
-         */
-        private ResultImpl(final RowList<?> list,
-                           final SQLWarning warning) {
-
-            this.rowList = list;
-            this.warning = warning;
-        } // end of <init>
-
-        // ---
-
-        /**
-         * {@inheritDoc}
-         */
-        public RowList<?> getRowList() { return this.rowList; }
-
-        /**
-         * {@inheritDoc}
-         */
-        public QueryResult withWarning(final SQLWarning warning) {
-            return new ResultImpl(this.rowList, warning);
-        } // end of withWarning
-
-        /**
-         * {@inheritDoc}
-         */
-        public SQLWarning getWarning() {
-            return this.warning;
-        } // end of getWarning
-
-        /**
-         * {@inheritDoc}
-         */
-        public boolean equals(final Object o) {
-            if (o == null || !(o instanceof RowList.ResultImpl)) {
-                return false;
-            } // end of if
-
-            final RowList.ResultImpl other = (RowList.ResultImpl) o;
-
-            return ((this.rowList == null && other.rowList == null) ||
-                    (this.rowList != null && 
-                     this.rowList.equals(other.rowList)));
-
-        } // end of equals
-
-        /**
-         * {@inheritDoc}
-         */
-        public int hashCode() {
-            return (this.rowList == null) ? -1 : this.rowList.hashCode();
-        } // end of hashCode
-    } // end of class ResultImpl
 } // end of class RowList

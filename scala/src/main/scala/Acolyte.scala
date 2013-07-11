@@ -34,6 +34,12 @@ object Acolyte extends ScalaRowLists {
       }
     }
 
+  implicit def FunctionUpdateHandler(h: Execution ⇒ UpdateResult): UpdateHandler = new UpdateHandler {
+    def apply(sql: String, p: JList[Parameter]): UpdateResult = {
+      h(Execution(sql, scalaParameters(p)))
+    }
+  }
+
   implicit def WarningUpdateHandler(h: Execution ⇒ SQLWarning): UpdateHandler =
     new UpdateHandler {
       def apply(sql: String, p: JList[Parameter]): UpdateResult = {

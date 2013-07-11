@@ -16,6 +16,18 @@ public interface Row {
      * Each cell is decribed with a value (left) and an optional value (right).
      */
     public List<Object> cells();
+
+    // --- Shared ---
+
+    /**
+     * Nothing of Row.
+     */
+    public static final class Nothing implements Row {
+        /**
+         * Returns null/no cell.
+         */
+        public List<Object> cells() { return null; }
+    } // end of class Nothing
     
     // --- Inner classes ---
 
