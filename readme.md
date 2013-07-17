@@ -293,16 +293,16 @@ val con = connection(handler)
 In Scala query handler, pattern matching can be use to easily describe result case:
 
 ```scala
-import acolyte.{ Execution, ExecutedParameter }
+import acolyte.{ Execution, DefinedParameter, ParameterVal }
 
 handleStatement.withQueryDetection("^SELECT").
   withQueryHandler({ e: Execution => e match {
-      case Execution(sql, ExecutedParameter("str", _) :: Nil)
+      case Execution(sql, DefinedParameter("str", _) :: Nil)
         if sql.startsWith("SELECT") =>
         // result when sql starts with SQL 
         // and there is only 1 parameter with "str" value
 
-      case Execution(_, ExecutedParameter(_, _) :: ExecutedParameter(2, _) :: _) =>
+      case Execution(_, ParameterVal(_) :: ParameterVal(2) :: _) =>
         // result when there is at least 2 parameters for any sql
         // with the second having integer value 2
     }
@@ -369,14 +369,14 @@ Column names/labels can also be setup (column first index is 1):
 ```scala
 // ...
 
-val list1up = list1.withLabel(1, "first label")
-val list2up = list2.withLabel(2, "first label").withLabel(3, "third name")
+val list1up = list1.withLabel(1 -> "first label")
+val list2up = list2.withLabel(2 -> "first label").withLabel(3 -> "third name")
 ```
 
 Both column classes and names can be declared in bulk way:
 
 ```scala
-import acolyte.RowList.Column.defineCol
+import acolyte.{ RowLists, RowList1, RowList3 }
 
 // ...
 
