@@ -3,8 +3,8 @@ package acolyte
 import java.sql.{ Connection ⇒ SqlConnection, Date, DriverManager }
 
 import acolyte.{ Driver ⇒ AcolyteDriver }
-import acolyte.RowLists.rowList3
-import acolyte.Rows.row3
+import acolyte.RowLists.{ rowList1, rowList3 }
+import acolyte.Rows.{ row1, row3 }
 import Acolyte._ // import DSL
 
 /**
@@ -63,7 +63,7 @@ object ScalaUseCases {
   } // end of useCase1
 
   /**
-   * Use case #2
+   * Use case #2 - Columns definition
    */
   def useCase2: SqlConnection = {
     val jdbcUrl = "jdbc:acolyte:anything-you-want?handler=handler2";
@@ -85,4 +85,33 @@ object ScalaUseCases {
     // ... then connection is managed through |handler|
     return DriverManager.getConnection(jdbcUrl);
   } // end of useCase2
+
+  /**
+   * Use case #3 - Pattern matching
+   */
+  def useCase3: SqlConnection = {
+    val jdbcUrl = "jdbc:acolyte:anything-you-want?handler=handler3";
+
+    val handler: CompositeHandler = handleStatement.
+      withQueryDetection("^SELECT ").
+      withQueryHandler({ e: Execution ⇒
+        e match {
+          case Execution(s, ParameterVal("id") :: Nil) ⇒
+            (rowList1(classOf[String]) :+ row1("useCase_3a")).asResult
+
+          case Execution(s,
+            DefinedParameter("id", _) :: DefinedParameter(3, _) :: Nil) ⇒
+            (rowList3(classOf[String], classOf[Int], classOf[Long]) :+ row3(
+              "useCase_3str", 2, 3l)).asResult
+
+          case _ ⇒ sys.error("Unsupported")
+        }
+      })
+
+    // Register prepared handler with expected ID 'handler3'
+    acolyte.Driver.register("handler3", handler)
+
+    // ... then connection is managed through |handler|
+    return DriverManager.getConnection(jdbcUrl);
+  } // end of useCase3
 } // end of class ScalaUseCases

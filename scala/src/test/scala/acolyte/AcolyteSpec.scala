@@ -64,7 +64,7 @@ object AcolyteSpec extends Specification {
     }
   }
 
-  "Java use case #2" should {
+  "Scala use case #2" should {
     val con = ScalaUseCases.useCase2
 
     "throw exception for update statement" in {
@@ -119,6 +119,36 @@ object AcolyteSpec extends Specification {
       "no third row" in {
         rs.next aka "has third row" must beFalse
       }
+    }
+  }
+
+  "Scala use case #3" should {
+    val con = ScalaUseCases.useCase3
+
+    "return expected result with 1 parameter" in {
+      lazy val s = con.prepareStatement("SELECT * FROM table WHERE id = ?")
+      s.setString(1, "id")
+
+      lazy val rs = s.executeQuery
+
+      (rs.next aka "has first row" must beTrue).
+        and(rs.getString(1) aka "str(1)" mustEqual "useCase_3a")
+
+    }
+
+    "return expected result with 2 parameters" in {
+      lazy val s = con.
+        prepareStatement("SELECT * FROM table WHERE id = ? AND type = ?")
+      s.setString(1, "id")
+      s.setInt(2, 3)
+
+      lazy val rs = s.executeQuery
+
+      (rs.next aka "has first row" must beTrue).
+        and(rs.getString(1) aka "str(1)" mustEqual "useCase_3str").
+        and(rs.getInt(2) aka "int(2)" mustEqual 2).
+        and(rs.getLong(3) aka "long(3)" mustEqual 3)
+
     }
   }
 }

@@ -50,7 +50,7 @@ object Acolyte extends ScalaRowLists {
   private def scalaParameters(p: JList[Parameter]): List[ExecutedParameter] =
     JavaConversions.collectionAsScalaIterable(p).
       foldLeft(Nil: List[ExecutedParameter]) { (l, t) ⇒
-        l :+ ExecutedParameter(t.right, t.left)
+        l :+ DefinedParameter(t.right, t.left)
       }
 
 }
@@ -59,11 +59,24 @@ case class Execution(
   sql: String,
   parameters: List[ExecutedParameter])
 
-case class ExecutedParameter(
+trait ExecutedParameter {
+  def value: Any
+}
+
+case class DefinedParameter(
     value: Any,
-    definition: ParameterDef) {
+    definition: ParameterDef) extends ExecutedParameter {
 
   override lazy val toString = s"Param($value, ${definition.sqlTypeName})"
+}
+
+object ParameterVal {
+  def apply(v: Any): ExecutedParameter = new ExecutedParameter {
+    val value = v
+    override lazy val toString = s"Param($value)"
+  }
+
+  def unapply(p: ExecutedParameter): Option[Any] = Some(p.value)
 }
 
 final class ScalaCompositeHandler(
@@ -74,7 +87,7 @@ final class ScalaCompositeHandler(
       def apply(sql: String, p: JList[Parameter]): QueryResult = {
         val ps = JavaConversions.collectionAsScalaIterable(p).
           foldLeft(Nil: List[ExecutedParameter]) { (l, t) ⇒
-            l :+ ExecutedParameter(t.right, t.left)
+            l :+ DefinedParameter(t.right, t.left)
           }
 
         h(Execution(sql, ps))
