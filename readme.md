@@ -296,13 +296,13 @@ In Scala query handler, pattern matching can be use to easily describe result ca
 import acolyte.{ Execution, DefinedParameter, ParameterVal }
 
 handleStatement.withQueryDetection("^SELECT").
-  withQueryHandler({ e: Execution => e match {
+  withQueryHandler({ e: Execution ⇒ e match {
       case Execution(sql, DefinedParameter("str", _) :: Nil)
-        if sql.startsWith("SELECT") =>
+        if sql.startsWith("SELECT") ⇒
         // result when sql starts with SQL 
         // and there is only 1 parameter with "str" value
 
-      case Execution(_, ParameterVal(_) :: ParameterVal(2) :: _) =>
+      case Execution(_, ParameterVal(_) :: ParameterVal(2) :: _) ⇒
         // result when there is at least 2 parameters for any sql
         // with the second having integer value 2
     }
