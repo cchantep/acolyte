@@ -68,6 +68,13 @@ public final class UpdateResult implements Result<UpdateResult> {
     /**
      * {@inheritDoc}
      */
+    public UpdateResult withWarning(final String reason) {
+        return withWarning(new SQLWarning(reason));
+    } // end of withWarning
+    
+    /**
+     * {@inheritDoc}
+     */
     public SQLWarning getWarning() {
         return this.warning;
     } // end of getWarning

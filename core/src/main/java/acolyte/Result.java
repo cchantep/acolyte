@@ -15,6 +15,11 @@ public interface Result<SELF extends Result> {
     public SELF withWarning(SQLWarning warning);
 
     /**
+     * Returns result with warning for given |reason|.
+     */
+    public SELF withWarning(String reason);
+
+    /**
      * Returns associated warning.
      */
     public SQLWarning getWarning();

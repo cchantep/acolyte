@@ -64,6 +64,13 @@ public interface QueryResult extends Result<QueryResult> {
         /**
          * {@inheritDoc}
          */
+        public QueryResult withWarning(final String reason) {
+            return withWarning(new SQLWarning(reason));
+        } // end of withWarning
+
+        /**
+         * {@inheritDoc}
+         */
         public SQLWarning getWarning() {
             return this.warning;
         } // end of getWarning
