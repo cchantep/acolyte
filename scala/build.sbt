@@ -2,7 +2,7 @@ name := "acolyte-scala"
 
 organization := "acolyte"
 
-version := "1.0.5"
+version := "1.0.6"
 
 scalaVersion := "2.10.2"
 
@@ -34,7 +34,7 @@ sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in
 resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
 
 libraryDependencies ++= Seq(
-  "acolyte" % "acolyte-core" % "1.0.5",
+  "acolyte" % "acolyte-core" % "1.0.6",
   "org.specs2" %% "specs2" % "1.14" % "test")
 
 publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
