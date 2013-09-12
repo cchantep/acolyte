@@ -335,6 +335,14 @@ RowLists.timeList().append(timeRow);
 
 // Instead of RowLists.rowList1(Timestamp.class).append(tsRow) ...
 RowLists.timestampList().append(tsRow);
+</pre></div>
+<p>On single column row list, it&#x2019;s also possible to directly append unwrapped value, instead of row object wrapping a single value:</p>
+
+<div class="source">
+<pre>RowLists.stringList().append(&quot;stringVal&quot;)
+
+// ... instead of ...
+//RowLists.stringList().append(Rows.row1(&quot;stringVal&quot;))
 </pre></div></div>
 <div class="section">
 <h4>SQL Warnings<a name="SQL_Warnings"></a></h4>
@@ -381,8 +389,9 @@ import Acolyte._ // import DSL
 
 // Prepare handler
 val handler: CompositeHandler = handleStatement.
-  withQueryDetection(&quot;^SELECT &quot;). // regex test from beginning
-  withQueryDetection(&quot;EXEC that_proc&quot;). // second detection regex
+  withQueryDetection(
+    &quot;^SELECT &quot;, // regex test from beginning
+    &quot;EXEC that_proc&quot;). // second detection regex
   withUpdateHandler({ e: Execution &#x21d2;
     if (e.sql.startsWith(&quot;DELETE &quot;)) {
       // Process deletion ...
@@ -558,6 +567,14 @@ RowLists.timeList() :+ timeRow
 
 // Instead of RowLists.rowList1(classOf[Timestamp]) :+ tsRow) ...
 RowLists.timestampList() :+ tsRow
+</pre></div>
+<p>On single column row list, it&#x2019;s also possible to directly append unwrapped value, instead of row object wrapping a single value:</p>
+
+<div class="source">
+<pre>RowLists.stringList :+ &quot;stringVal&quot;
+
+// ... instead of ...
+//RowLists.stringList() :+ Rows.row1(&quot;stringVal&quot;)
 </pre></div>
 <p>Once you have declared your row list, and before turning it as result set, you can either add rows to it, or leave it empty.</p>
 
