@@ -5,7 +5,7 @@ trait Core {
   lazy val core = Project(id = "core", base = file("core")).settings(
     name := "acolyte-core",
     organization := "acolyte",
-    version := "1.0.6",
+    version := "1.0.7",
     scalaVersion := "2.10.2",
     javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
     autoScalaLibrary := false,
@@ -162,7 +162,92 @@ public final class Rows {""")
 /**
  * Row lists utility/factory.
  */
-public final class RowLists {""");
+public final class RowLists {
+
+    /**
+     * Convinience alias for row list of 1 string column.
+     */
+    public static RowList1<String> stringList() {
+        return rowList1(String.class);
+    }
+
+    /**
+     * Convinience alias for row list of 1 boolean column.
+     */
+    public static RowList1<Boolean> booleanList() {
+        return rowList1(Boolean.TYPE);
+    }
+
+    /**
+     * Convinience alias for row list of 1 byte column.
+     */
+    public static RowList1<Byte> byteList() {
+        return rowList1(Byte.TYPE);
+    }
+
+    /**
+     * Convinience alias for row list of 1 short column.
+     */
+    public static RowList1<Short> shortList() {
+        return rowList1(Short.TYPE);
+    }
+
+    /**
+     * Convinience alias for row list of 1 int column.
+     */
+    public static RowList1<Integer> intList() {
+        return rowList1(Integer.TYPE);
+    }
+
+    /**
+     * Convinience alias for row list of 1 long column.
+     */
+    public static RowList1<Long> longList() {
+        return rowList1(Long.TYPE);
+    }
+
+    /**
+     * Convinience alias for row list of 1 float column.
+     */
+    public static RowList1<Float> floatList() {
+        return rowList1(Float.TYPE);
+    }
+
+    /**
+     * Convinience alias for row list of 1 double column.
+     */
+    public static RowList1<Double> doubleList() {
+        return rowList1(Double.TYPE);
+    }
+
+    /**
+     * Convinience alias for row list of 1 bigDecimal column.
+     */
+    public static RowList1<java.math.BigDecimal> bigDecimalList() {
+        return rowList1(java.math.BigDecimal.class);
+    }
+
+    /**
+     * Convinience alias for row list of 1 date column.
+     */
+    public static RowList1<java.sql.Date> dateList() {
+        return rowList1(java.sql.Date.class);
+    }
+
+    /**
+     * Convinience alias for row list of 1 time column.
+     */
+    public static RowList1<java.sql.Time> timeList() {
+        return rowList1(java.sql.Time.class);
+    }
+
+    /**
+     * Convinience alias for row list of 1 timestamp column.
+     */
+    public static RowList1<java.sql.Timestamp> timestampList() {
+        return rowList1(java.sql.Timestamp.class);
+    }
+""");
 
         for (n <- 1 to lim) yield {
           val g = for (i <- 0 until n) yield letter(i)
