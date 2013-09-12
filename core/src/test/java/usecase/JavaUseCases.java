@@ -16,8 +16,10 @@ import acolyte.QueryResult;
 import acolyte.StatementHandler.Parameter;
 
 import static acolyte.RowList.Column.defineCol;
+import static acolyte.RowLists.booleanList;
 import static acolyte.RowLists.rowList1;
 import static acolyte.RowLists.rowList3;
+import static acolyte.Rows.row1;
 import static acolyte.Rows.row3;
 
 /**
@@ -37,8 +39,8 @@ public final class JavaUseCases {
     public static Connection useCase1() throws SQLException {
         // Prepare handler
         final StatementHandler handler = new CompositeHandler().
-            withQueryDetection("^SELECT "). // regex test from beginning
-            withQueryDetection("EXEC that_proc"). // second detection regex
+            withQueryDetection("^SELECT ", // regex test from beginning
+                               "EXEC that_proc"). // second detection regex
             withUpdateHandler(new CompositeHandler.UpdateHandler() {
                     // Handle execution of update statement (not query)
                     public UpdateResult apply(String sql, 
@@ -124,7 +126,7 @@ public final class JavaUseCases {
 
                         if (sql.startsWith("EXEC ")) {
                             return QueryResult.
-                                Nil.withWarning(new SQLWarning("Warn"));
+                                Nil.withWarning(new SQLWarning("Warn EXEC"));
 
                         } // end of if
 
@@ -138,7 +140,7 @@ public final class JavaUseCases {
 
                         if (sql.startsWith("DELETE ")) {
                             return UpdateResult.
-                                Nothing.withWarning(new SQLWarning("Warn"));
+                                Nothing.withWarning(new SQLWarning("Warn DELETE"));
 
                         } // end of if
 
@@ -152,4 +154,22 @@ public final class JavaUseCases {
         // ... then connection is managed through |handler|
         return DriverManager.getConnection(jdbcUrl);
     } // end of useCase3
+
+    /**
+     * Use case #4 - Row list convinience constructor.
+     */
+    public static Connection useCase4() throws SQLException {
+        return acolyte.Driver.
+            connection(new CompositeHandler().
+                       withQueryDetection("^SELECT ").
+                       withQueryHandler(new CompositeHandler.QueryHandler() {
+                               public QueryResult apply(String sql, 
+                                                        List<Parameter> ps) {
+                                   
+                                   return booleanList().append(true).asResult();
+                               }
+                           }));
+
+        
+    } // end of useCase4
 } // end of class JavaUseCases

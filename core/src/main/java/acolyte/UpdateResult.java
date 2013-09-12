@@ -39,7 +39,7 @@ public final class UpdateResult implements Result<UpdateResult> {
      * No result constructor.
      */
     private UpdateResult() { 
-        this(-1, null);
+        this(0, null);
     } // end of <init>
 
     /**

@@ -12,13 +12,6 @@ object CompositeHandlerSpec extends Specification {
   "Composite statement handler" title
 
   "Query detection" should {
-    "not be inited" in {
-      new CompositeHandler().withQueryDetection(null.
-        asInstanceOf[java.util.regex.Pattern]).
-        aka("init") must throwA[IllegalArgumentException]
-
-    }
-
     "always match" in {
       lazy val h = new CompositeHandler().withQueryDetection(".*")
 
@@ -38,11 +31,24 @@ object CompositeHandlerSpec extends Specification {
 
     }
 
-    "match with multiple patterns" in {
-      new CompositeHandler().withQueryDetection("^SELECT ").
-        withQueryDetection("EXEC that_proc").
-        isQuery("EXEC that_proc('test')") aka "detection" must beTrue
+    "match with multiple patterns" >> {
+      "sequentially set up" in {
+        val h = new CompositeHandler().withQueryDetection("^SELECT ").
+          withQueryDetection("EXEC that_proc")
 
+        (h.isQuery("EXEC that_proc('test')") aka "detection #1" must beTrue).
+          and(h.isQuery("SELECT *") aka "detection #2" must beTrue)
+
+      }
+
+      "set up in one time" in {
+        val h = new CompositeHandler().
+          withQueryDetection("^SELECT ", "EXEC that_proc")
+
+        (h.isQuery("EXEC that_proc('test')") aka "detection #1" must beTrue).
+          and(h.isQuery("SELECT *") aka "detection #2" must beTrue)
+
+      }
     }
   }
 

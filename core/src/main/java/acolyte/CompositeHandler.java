@@ -113,12 +113,25 @@ public class CompositeHandler implements StatementHandler {
      * query detection |pattern|. If there is already existing pattern,
      * the new one will be used after.
      *
-     * @param pattern Query detection pattern
+     * @param pattern Query detection pattern list
      * @throws java.util.regex.PatternSyntaxException If |pattern| is invalid
      * @see #withQueryDetection(java.util.regex.Pattern)
      */
-    public CompositeHandler withQueryDetection(final String pattern) {
-        return withQueryDetection(Pattern.compile(pattern));
+    public CompositeHandler withQueryDetection(final String... pattern) {
+        if (pattern == null) {
+            throw new IllegalArgumentException();
+        } // end of if
+
+        // ---
+
+        final Pattern[] ps = new Pattern[pattern.length];
+
+        int i = 0;
+        for (final String p : pattern) {
+            ps[i++] = Pattern.compile(p);
+        } // end of for
+
+        return withQueryDetection(ps);
     } // end of withQueryDetection
 
     /**
@@ -129,7 +142,7 @@ public class CompositeHandler implements StatementHandler {
      * @param pattern Query detection pattern
      * @throws IllegalArgumentException if pattern is null
      */
-    public CompositeHandler withQueryDetection(final Pattern pattern) {
+    public CompositeHandler withQueryDetection(final Pattern... pattern) {
         if (pattern == null) {
             throw new IllegalArgumentException();
         } // end of if
@@ -137,13 +150,17 @@ public class CompositeHandler implements StatementHandler {
         // ---
 
         final Pattern[] patterns = 
-            new Pattern[this.queryDetection.length+1];
+            new Pattern[this.queryDetection.length + pattern.length];
 
         System.arraycopy(this.queryDetection, 0, 
                          patterns, 0, 
                          this.queryDetection.length);
 
-        patterns[patterns.length-1] = pattern;
+        int i = this.queryDetection.length;
+
+        for (final Pattern p : pattern) {
+            patterns[i++] = p;
+        } // end of for
 
         return new CompositeHandler(patterns, 
                                     this.queryHandler, 

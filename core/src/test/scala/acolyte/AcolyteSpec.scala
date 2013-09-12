@@ -125,4 +125,47 @@ object AcolyteSpec extends Specification {
       }
     }
   }
+
+  "Java use case #3" should {
+    val con = usecase.JavaUseCases.useCase3
+
+    "return empty result for SELECT query" in {
+      lazy val s = con.prepareStatement("SELECT *")
+
+      s.executeQuery.next aka "has first row" must beFalse
+    }
+
+    "return SQL warning for EXEC query" in {
+      lazy val s = con.prepareStatement("EXEC proc")
+
+      (s.executeQuery.next aka "has first row" must beFalse).
+        and(s.getWarnings.getMessage aka "reason" mustEqual "Warn EXEC")
+    }
+
+    "update nothing" in {
+      lazy val s = con.prepareStatement("UPDATE x")
+
+      s.executeUpdate aka "updated count" mustEqual 0
+    }
+
+    "raise SQL warning on DELETE execution" in {
+      lazy val s = con.prepareStatement("DELETE y")
+
+      (s.executeUpdate aka "updated count" mustEqual 0).
+        and(s.getWarnings.getMessage aka "reason" mustEqual "Warn DELETE")
+    }
+  }
+
+  "Java use case #4" should {
+    val con = usecase.JavaUseCases.useCase4
+
+    "return expected boolean result" in {
+      lazy val s = con.prepareStatement("SELECT * FROM table")
+      lazy val rs = s.executeQuery
+
+      (rs.next aka "has first row" must beTrue).
+        and(rs.getBoolean(1) aka "single column" must beTrue)
+
+    }
+  }
 }
