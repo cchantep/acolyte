@@ -47,6 +47,11 @@ object Acolyte extends ScalaRowLists {
       }
     }
 
+  implicit def RowListQueryHandler[R <: RowList[_]](h: Execution ⇒ R): QueryHandler = new QueryHandler {
+    def apply(sql: String, params: JList[Parameter]): QueryResult =
+      h(Execution(sql, scalaParameters(params))).asResult
+  }
+
   private def scalaParameters(p: JList[Parameter]): List[ExecutedParameter] =
     JavaConversions.collectionAsScalaIterable(p).
       foldLeft(Nil: List[ExecutedParameter]) { (l, t) ⇒

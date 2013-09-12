@@ -151,4 +151,17 @@ object AcolyteSpec extends Specification {
 
     }
   }
+
+  "Scala use case #4" should {
+    val con = ScalaUseCases.useCase4
+
+    "return expected boolean result" in {
+      lazy val s = con.prepareStatement("SELECT * FROM table")
+      lazy val rs = s.executeQuery
+
+      (rs.next aka "has first row" must beTrue).
+        and(rs.getBoolean(1) aka "single column" must beTrue)
+
+    }
+  }
 }

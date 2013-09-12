@@ -114,4 +114,15 @@ object ScalaUseCases {
     // ... then connection is managed through |handler|
     return DriverManager.getConnection(jdbcUrl);
   } // end of useCase3
+
+  /**
+   * Use case #4 - Row list convinience constructor
+   * and query handler convertion.
+   */
+  def useCase4: SqlConnection = connection {
+    handleStatement.
+      withQueryDetection("^SELECT ").
+      withQueryHandler({ e: Execution ⇒ RowLists.booleanList :+ row1(true) })
+
+  } // end of useCase4
 } // end of class ScalaUseCases
