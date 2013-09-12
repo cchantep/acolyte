@@ -52,6 +52,8 @@ object Acolyte extends ScalaRowLists {
       h(Execution(sql, scalaParameters(params))).asResult
   }
 
+  implicit def SingleValueRow[A, B](value: A)(implicit f: A ⇒ B): Row.Row1[B] = Rows.row1[B](f(value))
+
   private def scalaParameters(p: JList[Parameter]): List[ExecutedParameter] =
     JavaConversions.collectionAsScalaIterable(p).
       foldLeft(Nil: List[ExecutedParameter]) { (l, t) ⇒

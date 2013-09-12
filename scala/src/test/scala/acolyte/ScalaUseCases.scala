@@ -24,8 +24,9 @@ object ScalaUseCases {
 
     // Prepare handler
     val handler: CompositeHandler = handleStatement.
-      withQueryDetection("^SELECT "). // regex test from beginning
-      withQueryDetection("EXEC that_proc"). // second detection regex
+      withQueryDetection(
+        "^SELECT ", // regex test from beginning
+        "EXEC that_proc"). // second detection regex
       withUpdateHandler({ e: Execution ⇒
         if (e.sql.startsWith("DELETE ")) {
           // Process deletion ...
@@ -122,7 +123,7 @@ object ScalaUseCases {
   def useCase4: SqlConnection = connection {
     handleStatement.
       withQueryDetection("^SELECT ").
-      withQueryHandler({ e: Execution ⇒ RowLists.booleanList :+ row1(true) })
+      withQueryHandler({ e: Execution ⇒ RowLists.booleanList :+ true })
 
   } // end of useCase4
 } // end of class ScalaUseCases

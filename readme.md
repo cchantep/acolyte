@@ -289,8 +289,9 @@ import Acolyte._ // import DSL
 
 // Prepare handler
 val handler: CompositeHandler = handleStatement.
-  withQueryDetection("^SELECT "). // regex test from beginning
-  withQueryDetection("EXEC that_proc"). // second detection regex
+  withQueryDetection(
+    "^SELECT ", // regex test from beginning
+    "EXEC that_proc"). // second detection regex
   withUpdateHandler({ e: Execution ⇒
     if (e.sql.startsWith("DELETE ")) {
       // Process deletion ...
@@ -476,6 +477,15 @@ RowLists.timeList() :+ timeRow
 
 // Instead of RowLists.rowList1(classOf[Timestamp]) :+ tsRow) ...
 RowLists.timestampList() :+ tsRow
+```
+
+On single column row list, it's also possible to directly append unwrapped value, instead of row object wrapping a single value:
+
+```java
+RowLists.stringList :+ "stringVal"
+
+// ... instead of ...
+//RowLists.stringList() :+ Rows.row1("stringVal")
 ```
 
 Once you have declared your row list, and before turning it as result set, you can either add rows to it, or leave it empty.
