@@ -102,6 +102,13 @@ public final class RowList1<A> extends RowList<Row1<A>> {
     } // end of append
 
     /**
+     * Convinience append.
+     */
+    public RowList1<A> append(final A value) {
+        return append(new Row1<A>(value));
+    } // end of append
+
+    /**
      * {@inheritDoc}
      */
     public RowList1<A> withLabel(final int columnIndex, final String label) {

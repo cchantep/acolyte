@@ -232,6 +232,15 @@ RowLists.timeList().append(timeRow);
 RowLists.timestampList().append(tsRow);
 ```
 
+On single column row list, it's also possible to directly append unwrapped value, instead of row object wrapping a single value:
+
+```java
+RowLists.stringList().append("stringVal")
+
+// ... instead of ...
+//RowLists.stringList().append(Rows.row1("stringVal"))
+```
+
 #### SQL Warnings
 
 Acolyte can also mock up SQL warnings, on update or query, so that `java.sql.Statement.getWarnings()` will returned expected instance.

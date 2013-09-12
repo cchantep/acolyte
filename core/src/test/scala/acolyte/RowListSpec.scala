@@ -228,6 +228,16 @@ object RowListSpec extends Specification with RowListTest {
     }
   }
 
+  "Single column row list" should {
+    "accept unwrapped value" in {
+      val rs = RowLists.booleanList.append(false).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 1).
+        and(rs.next aka "has row" must beTrue).
+        and(rs.getBoolean(1) aka "single col" must beFalse)
+    }
+  }
+
   "Result set fetch size" should {
     "be immutable" in {
       new RowList1(classOf[String]).resultSet.setFetchSize(1).
