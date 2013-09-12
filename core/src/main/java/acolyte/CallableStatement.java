@@ -1087,22 +1087,6 @@ public final class CallableStatement
     /**
      * {@inheritDoc}
      */
-    public BigDecimal getBigDecimal(final String parameterName, 
-                                    final int scale) 
-        throws SQLException {
-
-        checkClosed();
-
-        if (this.result == null) {
-            throw new SQLException("No result");
-        } // end of if
-
-        return this.result.getBigDecimal(parameterName, scale);
-    } // end of getBigDecimal
-
-    /**
-     * {@inheritDoc}
-     */
     public Date getDate(final int parameterIndex) throws SQLException {
         checkClosed();
 
