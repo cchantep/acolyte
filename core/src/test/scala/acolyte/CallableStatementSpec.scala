@@ -244,8 +244,6 @@ object CallableStatementSpec
           aka ("getter") must throwA[SQLException]("No result")).
         and(stmt.getBigDecimal(1, 1)
           aka ("getter") must throwA[SQLException]("No result")).
-        and(stmt.getBigDecimal("param", 1)
-          aka ("getter") must throwA[SQLException]("No result")).
         and(stmt.getTime(1).
           aka("getter") must throwA[SQLException]("No result")).
         and(stmt.getTime("param").
