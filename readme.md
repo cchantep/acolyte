@@ -192,6 +192,46 @@ ResultSet rs1 = list1.append(row1("str")).resultSet();
 ResultSet rs2 = list2.resultSet();
 ```
 
+[RowLists factory](http://cchantep.github.io/acolyte/apidocs/acolyte/RowLists.html) also provide convinience constructor for single column row list:
+
+```java
+// Instead of RowLists.rowList1(String.class).append(stringRow) ...
+RowLists.stringList().append(stringRow);
+
+// Instead of RowLists.rowList1(Boolean.TYPE).append(boolRow) ...
+RowLists.booleanList().append(boolRow);
+
+// Instead of RowLists.rowList1(Byte.TYPE).append(byteRow) ...
+RowLists.byteList().append(byteRow);
+
+// Instead of RowLists.rowList1(Short.TYPE).append(shortRow) ...
+RowLists.shortList().append(shortRow);
+
+// Instead of RowLists.rowList1(Integer.TYPE).append(intRow) ...
+RowLists.intList().append(intRow);
+
+// Instead of RowLists.rowList1(Long.TYPE).append(longRow) ...
+RowLists.longList().append(longRow);
+
+// Instead of RowLists.rowList1(Float.TYPE).append(floatRow) ...
+RowLists.floatList().append(floatRow);
+
+// Instead of RowLists.rowList1(Double.TYPE).append(doubleRow) ...
+RowLists.doubleList().append(doubleRow);
+
+// Instead of RowLists.rowList1(BigDecimal.class).append(bdRow) ...
+RowLists.bigDecimalList().append(bdRow);
+
+// Instead of RowLists.rowList1(Date.class).append(dateRow) ...
+RowLists.dateList().append(dateRow);
+
+// Instead of RowLists.rowList1(Time.class).append(timeRow) ...
+RowLists.timeList().append(timeRow);
+
+// Instead of RowLists.rowList1(Timestamp.class).append(tsRow) ...
+RowLists.timestampList().append(tsRow);
+```
+
 #### SQL Warnings
 
 Acolyte can also mock up SQL warnings, on update or query, so that `java.sql.Statement.getWarnings()` will returned expected instance.
@@ -387,6 +427,46 @@ val list2: RowList3[Int, Float, Char] = RowLists.rowList3(
   classOf[Int] -> "1st",
   classOf[Float] -> "2nd",
   classOf[Char] -> "3rd")
+```
+
+[RowLists factory](http://cchantep.github.io/acolyte/apidocs/acolyte/RowLists.html) also provide convinience constructor for single column row list:
+
+```scala
+// Instead of RowLists.rowList1(classOf[String]) :+ stringRow) ...
+RowLists.stringList() :+ stringRow
+
+// Instead of RowLists.rowList1(Boolean.TYPE) :+ boolRow) ...
+RowLists.booleanList() :+ boolRow
+
+// Instead of RowLists.rowList1(Byte.TYPE) :+ byteRow) ...
+RowLists.byteList() :+ byteRow
+
+// Instead of RowLists.rowList1(Short.TYPE) :+ shortRow) ...
+RowLists.shortList() :+ shortRow
+
+// Instead of RowLists.rowList1(Integer.TYPE) :+ intRow) ...
+RowLists.intList() :+ intRow
+
+// Instead of RowLists.rowList1(Long.TYPE) :+ longRow) ...
+RowLists.longList() :+ longRow
+
+// Instead of RowLists.rowList1(Float.TYPE) :+ floatRow) ...
+RowLists.floatList() :+ floatRow
+
+// Instead of RowLists.rowList1(Double.TYPE) :+ doubleRow) ...
+RowLists.doubleList() :+ doubleRow
+
+// Instead of RowLists.rowList1(classOf[BigDecimal]) :+ bdRow) ...
+RowLists.bigDecimalList() :+ bdRow
+
+// Instead of RowLists.rowList1(classOf[Date]) :+ dateRow) ...
+RowLists.dateList() :+ dateRow
+
+// Instead of RowLists.rowList1(classOf[Time]) :+ timeRow) ...
+RowLists.timeList() :+ timeRow
+
+// Instead of RowLists.rowList1(classOf[Timestamp]) :+ tsRow) ...
+RowLists.timestampList() :+ tsRow
 ```
 
 Once you have declared your row list, and before turning it as result set, you can either add rows to it, or leave it empty.
