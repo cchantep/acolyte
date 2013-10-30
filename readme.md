@@ -110,10 +110,28 @@ Connection con = DriverManager.getConnection(jdbcUrl);
 
 You can see more [use cases](https://github.com/cchantep/acolyte/blob/master/core/src/test/java/usecase/JavaUseCases.java) whose expectations are visible in [specifications](https://github.com/cchantep/acolyte/blob/master/core/src/test/scala/acolyte/AcolyteSpec.scala).
 
+#### Connection 
+
+Connection to Acolyte can be accessed by JDBC URL, if your handler has been registered against driver:
+
+```
+// Register prepared handler with expected ID 'my-unique-id'
+// handler: acolyte.ConnectionHandler or acolyte.StatementHandler instance
+acolyte.Driver.register("my-unique-id", handler);
+
+// then ...
+// ... later as handler has registered with 'my-unique-id'
+final String jdbcUrl = "jdbc:acolyte:anything-you-want?handler=my-unique-id"
+
+Connection con = DriverManager.getConnection(jdbcUrl);
+// ... Connection |con| is managed through |handler|
+```
+
 If you just need/want to directly get connection from `acolyte.Driver`, without using JDBC driver registry, you can use Acolyte direct connection:
 
 ```java
-Connection con = new acolyte.Driver().connection(yourHandlerInstance);
+// handler: acolyte.ConnectionHandler or acolyte.StatementHandler instance
+Connection con = new acolyte.Driver().connection(handler);
 ```
 
 #### Query result creation
