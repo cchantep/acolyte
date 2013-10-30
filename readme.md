@@ -114,7 +114,7 @@ You can see more [use cases](https://github.com/cchantep/acolyte/blob/master/cor
 
 Connection to Acolyte can be accessed by JDBC URL, if your handler has been registered against driver:
 
-```
+```java
 // Register prepared handler with expected ID 'my-unique-id'
 // handler: acolyte.ConnectionHandler or acolyte.StatementHandler instance
 acolyte.Driver.register("my-unique-id", handler);

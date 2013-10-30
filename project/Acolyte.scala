@@ -9,8 +9,8 @@ object Acolyte extends Build with Core {
 
   lazy val root = Project(id = "acolyte", base = file(".")).
     aggregate(core, rowparsers, scala).settings(
-      version := "1.0.7",
-      scalaVersion := "2.10.2",
+      version := "1.0.8",
+      scalaVersion := "2.10.3",
       publishTo := Some(Resolver.file("file", 
         new File(Path.userHome.absolutePath+"/.m2/repository"))))
 }
