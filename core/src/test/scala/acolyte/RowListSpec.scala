@@ -283,7 +283,8 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "be expected one" in {
-      lazy val rs = (new RowList1(classOf[Long]).append(row1(123.toLong))).resultSet
+      lazy val rs = (new RowList1(classOf[Long]).
+        append(row1(123.toLong))).resultSet
       rs.next
 
       rs.getObject(1) aka "cell1" mustEqual 123.toLong
@@ -303,7 +304,8 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "not be read with invalid index" in {
-      lazy val rs = new RowList1(classOf[Long]).append(row1(123.toLong)).resultSet
+      lazy val rs = new RowList1(classOf[Long]).append(row1(123.toLong)).
+        resultSet
       rs.next
 
       rs.getObject(2) aka "getObject" must throwA[SQLException](

@@ -92,7 +92,7 @@ StatementHandler handler = new CompositeHandler().
       RowList3<String, Float, Date> rows = 
         rowList3(String.class, Float.class, Date.class).
         withLabel(1, "String").withLabel(3, "Date"). // Optional: set labels
-        append(row3("str", 1.2f, new Date(1, 2, 3))).
+        append("str", 1.2f, new Date(1, 2, 3)). // values append
         append(row3("val", 2.34f, new Date(4, 5, 6)));
 
       return rows.asResult();

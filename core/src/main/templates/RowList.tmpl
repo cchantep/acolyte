@@ -1,3 +1,4 @@
+// -*- mode: java -*-
 package acolyte;
 
 import java.util.Collections;
@@ -79,6 +80,15 @@ public final class RowList#N#<#CP#> extends RowList<Row#N#<#CP#>> {
      * {@inheritDoc}
      */
     public Map<String,Integer> getColumnLabels() { return this.colNames; }
+
+    /**
+     * Appends row with with given values.
+     *
+     * @see #append(acolyte.Row)
+     */
+    public RowList#N#<#CP#> append(#AP#) {
+        return append(new Row#N#<#CP#>(#AV#));
+    } // end of append
 
     /**
      * {@inheritDoc}

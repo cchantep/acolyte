@@ -91,6 +91,13 @@ public final class RowList1<A> extends RowList<Row1<A>> {
     public Map<String,Integer> getColumnLabels() { return this.colNames; }
 
     /**
+     * Convinience append.
+     */
+    public RowList1<A> append(final A value) {
+        return append(new Row1<A>(value));
+    } // end of append
+
+    /**
      * {@inheritDoc}
      */
     public RowList1<A> append(final Row1<A> row) {
@@ -99,13 +106,6 @@ public final class RowList1<A> extends RowList<Row1<A>> {
         copy.add(row);
             
         return new RowList1<A>(this.c1, copy, this.colNames);
-    } // end of append
-
-    /**
-     * Convinience append.
-     */
-    public RowList1<A> append(final A value) {
-        return append(new Row1<A>(value));
     } // end of append
 
     /**

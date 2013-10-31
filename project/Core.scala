@@ -127,6 +127,7 @@ public final class Rows {""")
         colClasses.add(c%d);""".format(i, i, i)
       }
       val ca = for (i ← 0 until n) yield "c%d".format(i)
+      val ap = cp map { l ⇒ "final %s %s".format(l, l.toLowerCase) }
       val ps = for (i ← 0 until n) yield {
         """/**
      * Class of column #%d
@@ -141,6 +142,8 @@ public final class Rows {""")
             w.append(l.replaceAll("#N#", n.toString).
               replaceAll("#CP#", cp.mkString(",")).
               replaceAll("#CS#", cs.mkString(", ")).
+              replaceAll("#AP#", ap.mkString(", ")).
+              replaceAll("#AV#", cp.map(_.toLowerCase).mkString(", ")).
               replaceAll("#PS#", ps.mkString("\r\n\r\n    ")).
               replaceAll("#IC#", ic.mkString("\r\n\r\n        ")).
               replaceAll("#AC#", ac.mkString("\r\n\r\n        ")).

@@ -72,7 +72,7 @@ public final class JavaUseCases {
                         return rowList3(String.class, Float.class, Date.class).
                             withLabel(1, "String"). // Optional: set labels
                             withLabel(3, "Date"). 
-                            append(row3("str", 1.2f, new Date(1l))).
+                            append("str", 1.2f, new Date(1l)).
                             append(row3("val", 2.34f, new Date(2l))).
                             asResult();
                     }
