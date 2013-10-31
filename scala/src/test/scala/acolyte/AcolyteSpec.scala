@@ -54,7 +54,7 @@ object AcolyteSpec extends Specification {
         (rs.next aka "has second row" must beTrue).
           and(rs.getString(1) aka "2nd row/1st col" mustEqual "val").
           and(rs.getFloat(2) aka "2nd row/2nd col" mustEqual 2.34f).
-          and(rs.getDate(3) aka "2nd row/2rd col" mustEqual new Date(2l))
+          and(rs.getDate(3) aka "2nd row/2rd col" must beNull)
 
       }
 

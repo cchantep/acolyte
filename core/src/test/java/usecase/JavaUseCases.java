@@ -12,6 +12,7 @@ import acolyte.CompositeHandler;
 import acolyte.StatementHandler;
 import acolyte.UpdateResult;
 import acolyte.QueryResult;
+import acolyte.Rows;
 
 import acolyte.StatementHandler.Parameter;
 
@@ -73,7 +74,7 @@ public final class JavaUseCases {
                             withLabel(1, "String"). // Optional: set labels
                             withLabel(3, "Date"). 
                             append("str", 1.2f, new Date(1l)).
-                            append(row3("val", 2.34f, new Date(2l))).
+                            append(row3("val", 2.34f, (Date)null)).
                             asResult();
                     }
                 });

@@ -62,10 +62,8 @@ object AcolyteSpec extends Specification {
           and(rs.getString("String").
             aka("2nd row/1st col (by label)") mustEqual "val").
           and(rs.getFloat(2) aka "2nd row/2nd col" mustEqual 2.34f).
-          and(rs.getDate(3).
-            aka("2nd row/2rd col (by index)") mustEqual new Date(2l)).
-          and(rs.getDate("Date").
-            aka("2nd row/2rd col (by label)") mustEqual new Date(2l))
+          and(rs.getDate(3) aka "2nd row/2rd col (by index)" must beNull).
+          and(rs.getDate("Date") aka "2nd row/2rd col (by label)" must beNull)
 
       }
 

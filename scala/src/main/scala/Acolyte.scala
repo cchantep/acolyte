@@ -13,7 +13,7 @@ import acolyte.CompositeHandler.{ QueryHandler, UpdateHandler }
 import acolyte.RowList.Column
 
 // Acolyte DSL
-object Acolyte extends ScalaRowLists {
+object Acolyte extends ScalaRowLists with ScalaRows {
   def handleStatement = new CompositeHandler()
 
   def connection(h: ConnectionHandler) = Driver.connection(h)
@@ -114,6 +114,9 @@ final class ScalaResultRow(r: Row) extends Row {
 }
 
 final class ScalaRowList[L <: RowList[R], R <: Row](l: L) {
+  def :+[V](values: V)(implicit conv: V ⇒ R): L =
+    l.append(conv(values)).asInstanceOf[L]
+
   def :+(row: R): L = l.append(row).asInstanceOf[L]
 
   def withLabels(labels: (Int, String)*): L =

@@ -27,34 +27,34 @@ object ScalaUseCases {
       withQueryDetection(
         "^SELECT ", // regex test from beginning
         "EXEC that_proc"). // second detection regex
-      withUpdateHandler({ e: Execution ⇒
-        if (e.sql.startsWith("DELETE ")) {
-          // Process deletion ...
-          /* deleted = */ 2;
-        } else {
-          // ... Process ...
-          /* count = */ 1;
-        }
-      }).withQueryHandler({ e: Execution ⇒
-        if (e.sql.startsWith("SELECT ")) {
-          RowLists.rowList1(classOf[String]).asResult
-        } else {
-          // ... EXEC that_proc 
-          // (see previous withQueryDetection)
+        withUpdateHandler({ e: Execution ⇒
+          if (e.sql.startsWith("DELETE ")) {
+            // Process deletion ...
+            /* deleted = */ 2;
+          } else {
+            // ... Process ...
+            /* count = */ 1;
+          }
+        }).withQueryHandler({ e: Execution ⇒
+          if (e.sql.startsWith("SELECT ")) {
+            RowLists.rowList1(classOf[String]).asResult
+          } else {
+            // ... EXEC that_proc 
+            // (see previous withQueryDetection)
 
-          // Prepare list of 2 rows
-          // with 3 columns of types String, Float, Date
-          val rows: RowList3[String, Float, Date] =
-            rowList3(classOf[String], classOf[Float], classOf[Date]).
-              withLabels( // Optional: set labels
-                1 -> "String",
-                3 -> "Date") :+
-                row3("str", 1.2f, new Date(1l)) :+
-                row3("val", 2.34f, new Date(2l))
+            // Prepare list of 2 rows
+            // with 3 columns of types String, Float, Date
+            val rows: RowList3[String, Float, Date] =
+              rowList3(classOf[String], classOf[Float], classOf[Date]).
+                withLabels( // Optional: set labels
+                  1 -> "String",
+                  3 -> "Date") :+
+                  ("str", 1.2f, new Date(1l)) :+
+                  row3[String, Float, Date]("val", 2.34f, null)
 
-          rows.asResult
-        }
-      })
+            rows.asResult
+          }
+        })
 
     // Register prepared handler with expected ID 'handler1'
     AcolyteDriver.register("handler1", handler)

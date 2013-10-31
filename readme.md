@@ -61,6 +61,7 @@ import acolyte.StatementHandler;
 import acolyte.CompositeHandler;
 import acolyte.RowList3;
 import acolyte.Result;
+import acolyte.Rows;
 
 import acolyte.StatementHandler.Parameter;
 
@@ -93,7 +94,7 @@ StatementHandler handler = new CompositeHandler().
         rowList3(String.class, Float.class, Date.class).
         withLabel(1, "String").withLabel(3, "Date"). // Optional: set labels
         append("str", 1.2f, new Date(1, 2, 3)). // values append
-        append(row3("val", 2.34f, new Date(4, 5, 6)));
+        append(row3("val", 2.34f, (Date)null));
 
       return rows.asResult();
     }
@@ -259,6 +260,39 @@ RowLists.stringList().append("stringVal")
 //RowLists.stringList().append(Rows.row1("stringVal"))
 ```
 
+##### NULL values
+
+To be able to add a row with a `null` values, types must be explicitly given, 
+otherwise `java.lang.Object` will be used.
+
+There are various ways to do so:
+
+```java
+import acolyte.RowList2;
+import acolyte.RowLists;
+import acolyte.Row2;
+import acolyte.Rows;
+
+// ...
+
+RowList2<String,Float> list = RowLists.rowList2(String.class, Float.class);
+
+// Indicates types through row constructor
+list.append(new Row2<String,Float>(null, null));
+
+// Indicates types through row factory
+list.append(Rows.<String,Float>row2(null, null));
+
+// Indicates types by cast
+list.append(Rows.row2((String) null, (Float) null));
+```
+
+Type inference works well for `null` with multiple-args-append:
+
+```java
+list.append(null, null);
+```
+
 #### SQL Warnings
 
 Acolyte can also mock up SQL warnings, on update or query, so that `java.sql.Statement.getWarnings()` will returned expected instance.
@@ -332,8 +366,8 @@ val handler: CompositeHandler = handleStatement.
         withLabels( // Optional: set labels
           1 -> "String",
           3 -> "Date")
-        :+ row3("str", 1.2f, new Date(1l))
-        :+ row3("val", 2.34f, new Date(2l))).
+        :+ ("str", 1.2f, new Date(1l)) // tuple as row 
+        :+ row3[String,Float,Date]("val", 2.34f, null)).
         asResult
 
     }
@@ -517,6 +551,37 @@ import acolyte.Rows.row1
 
 val rs1: ResultSet = list1.append(row1("str")).resultSet()
 val rs2: ResultSet = list2.resultSet()
+```
+
+##### NULL values
+
+To be able to add a row with a `null` values, types must be explicitly given, 
+otherwise `Any` will be used.
+
+There are various ways to do so:
+
+```scala
+import acolyte.{ RowList2, RowLists, Row2, Rows }
+
+// ...
+
+val list: RowList2[String,Float] = 
+  RowLists.rowList2(classOf[String], classOf[Float])
+
+// Indicates types through row constructor
+list.append(new Row2[String,Float](null, null))
+
+// Indicates types through row factory
+list :+ Rows.row2[String,Float](null, null)
+
+// Indicates types by cast
+list :+ Rows.row2(null.asInstanceOf[String], null.asInstanceOf[Float])
+```
+
+Type inference works well for `null` with multiple-args-append:
+
+```scala
+list :+ (null, null)
 ```
 
 ### Limitations
