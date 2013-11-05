@@ -5,7 +5,7 @@ trait Core {
   lazy val core = Project(id = "core", base = file("core")).settings(
     name := "acolyte-core",
     organization := "acolyte",
-    version := "1.0.8",
+    version := "1.0.9",
     scalaVersion := "2.10.3",
     javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
     autoScalaLibrary := false,
@@ -13,7 +13,7 @@ trait Core {
     resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
     libraryDependencies ++= Seq(
       "org.apache.commons" % "commons-lang3" % "3.1",
-      "org.specs2" %% "specs2" % "1.14" % "test"),
+      "org.specs2" %% "specs2" % "2.3.2" % "test"),
     crossPaths := false,
     sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
       val (base, managed) = dirs
@@ -127,7 +127,7 @@ public final class Rows {""")
         colClasses.add(c%d);""".format(i, i, i)
       }
       val ca = for (i ← 0 until n) yield "c%d".format(i)
-      val ap = cp map { l ⇒ "final %s %s".format(l, l.toLowerCase) }
+      val ap = cp map { l ⇒ "final %s %s".format(l, l.toLower) }
       val ps = for (i ← 0 until n) yield {
         """/**
      * Class of column #%d
@@ -143,7 +143,7 @@ public final class Rows {""")
               replaceAll("#CP#", cp.mkString(",")).
               replaceAll("#CS#", cs.mkString(", ")).
               replaceAll("#AP#", ap.mkString(", ")).
-              replaceAll("#AV#", cp.map(_.toLowerCase).mkString(", ")).
+              replaceAll("#AV#", cp.map(_.toLower).mkString(", ")).
               replaceAll("#PS#", ps.mkString("\r\n\r\n    ")).
               replaceAll("#IC#", ic.mkString("\r\n\r\n        ")).
               replaceAll("#AC#", ac.mkString("\r\n\r\n        ")).

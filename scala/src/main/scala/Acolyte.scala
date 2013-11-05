@@ -29,9 +29,8 @@ object Acolyte extends ScalaRowLists with ScalaRows {
 
   implicit def IntUpdateHandler(h: Execution ⇒ Int): UpdateHandler =
     new UpdateHandler {
-      def apply(sql: String, p: JList[Parameter]): UpdateResult = {
+      def apply(sql: String, p: JList[Parameter]): UpdateResult =
         new UpdateResult(h(Execution(sql, scalaParameters(p))))
-      }
     }
 
   implicit def FunctionUpdateHandler(h: Execution ⇒ UpdateResult): UpdateHandler = new UpdateHandler {

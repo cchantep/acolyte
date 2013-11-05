@@ -76,8 +76,8 @@ object ScalaUseCases {
           classOf[Float] -> "f",
           classOf[Date] -> "date").
           append(row3("text", 2.3f, new Date(3l))).
-          append(row3("label", 4.56f, new Date(4l))).
-          asResult()
+          append(row3("label", 4.56f, new Date(4l)))
+
       })
 
     // Register prepared handler with expected ID 'handler2'
@@ -105,7 +105,7 @@ object ScalaUseCases {
             (rowList3(classOf[String], classOf[Int], classOf[Long]) :+ row3(
               "useCase_3str", 2, 3l)).asResult
 
-          case _ ⇒ sys.error("Unsupported")
+          case q ⇒ QueryResult.Nil withWarning "Now you're warned"
         }
       })
 

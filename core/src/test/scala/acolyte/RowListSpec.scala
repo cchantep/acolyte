@@ -29,7 +29,7 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "not accept null map" in {
-      new RowList2(classOf[String], classOf[Float], 
+      new RowList2(classOf[String], classOf[Float],
         new java.util.ArrayList[Row2[String, Float]](), null).
         aka("ctor") must throwA[IllegalArgumentException](
           message = "Invalid names")
@@ -498,8 +498,10 @@ object RowListSpec extends Specification with RowListTest {
 
       rs.foreach(_._2.next)
 
-      rs foreach { r ⇒
-        s"from ${r._1}" in { r._2.getBoolean(1) aka "boolean" must beFalse }
+      examplesBlock {
+        rs foreach { r ⇒
+          s"from ${r._1}" in { r._2.getBoolean(1) aka "boolean" must beFalse }
+        }
       }
     }
 
@@ -513,8 +515,10 @@ object RowListSpec extends Specification with RowListTest {
 
       rs.foreach(_._2.next)
 
-      rs foreach { r ⇒
-        s"from ${r._1}" in { r._2.getBoolean(1) aka "boolean" must beTrue }
+      examplesBlock {
+        rs foreach { r ⇒
+          s"from ${r._1}" in { r._2.getBoolean(1) aka "boolean" must beTrue }
+        }
       }
     }
 
@@ -533,8 +537,10 @@ object RowListSpec extends Specification with RowListTest {
 
       rs.foreach(_._2.next)
 
-      rs foreach { r ⇒
-        s"from ${r._1}" in { r._2.getBoolean("n") aka "boolean" must beFalse }
+      examplesBlock {
+        rs foreach { r ⇒
+          s"from ${r._1}" in { r._2.getBoolean("n") aka "boolean" must beFalse }
+        }
       }
     }
 
@@ -553,8 +559,10 @@ object RowListSpec extends Specification with RowListTest {
 
       rs.foreach(_._2.next)
 
-      rs foreach { r ⇒
-        s"from ${r._1}" in { r._2.getBoolean("n") aka "boolean" must beTrue }
+      examplesBlock {
+        rs foreach { r ⇒
+          s"from ${r._1}" in { r._2.getBoolean("n") aka "boolean" must beTrue }
+        }
       }
     }
   }
@@ -647,10 +655,12 @@ object RowListSpec extends Specification with RowListTest {
 
       rs.foreach(_._2.next)
 
-      rs foreach { r ⇒
-        s"from ${r._1}" in {
-          r._2.getBigDecimal(1).doubleValue.
-            aka("big decimal") mustEqual v.doubleValue
+      examplesBlock {
+        rs foreach { r ⇒
+          s"from ${r._1}" in {
+            r._2.getBigDecimal(1).doubleValue.
+              aka("big decimal") mustEqual v.doubleValue
+          }
         }
       }
     }
@@ -672,10 +682,12 @@ object RowListSpec extends Specification with RowListTest {
 
       rs.foreach(_._2.next)
 
-      rs foreach { r ⇒
-        s"from ${r._1}" in {
-          r._2.getBigDecimal("n").doubleValue.
-            aka("big decimal") mustEqual v.doubleValue
+      examplesBlock {
+        rs foreach { r ⇒
+          s"from ${r._1}" in {
+            r._2.getBigDecimal("n").doubleValue.
+              aka("big decimal") mustEqual v.doubleValue
+          }
         }
       }
     }
@@ -777,9 +789,11 @@ sealed trait RowListTest { specs: Specification ⇒
 
         rs.foreach(_._2.next)
 
-        rs foreach { r ⇒
-          s"from ${r._1}" in {
-            byIndex(r._2, 1) aka "get" must not(throwA[SQLException])
+        examplesBlock {
+          rs foreach { r ⇒
+            s"from ${r._1}" in {
+              byIndex(r._2, 1) aka "get" must not(throwA[SQLException])
+            }
           }
         }
       }
@@ -795,9 +809,11 @@ sealed trait RowListTest { specs: Specification ⇒
 
         rs.foreach(_._2.next)
 
-        rs foreach { r ⇒
-          s"from ${r._1}" in {
-            byLabel(r._2, "n") aka "get" must not(throwA[SQLException])
+        examplesBlock {
+          rs foreach { r ⇒
+            s"from ${r._1}" in {
+              byLabel(r._2, "n") aka "get" must not(throwA[SQLException])
+            }
           }
         }
       }
@@ -875,8 +891,10 @@ sealed trait RowListTest { specs: Specification ⇒
 
         rs.foreach(_._2.next)
 
-        rs foreach { r ⇒
-          s"from ${r._1}" in { byIndex(r._2, 1) aka s"$name" mustEqual 1 }
+        examplesBlock {
+          rs foreach { r ⇒
+            s"from ${r._1}" in { byIndex(r._2, 1) aka s"$name" mustEqual 1 }
+          }
         }
       }
 
@@ -897,8 +915,10 @@ sealed trait RowListTest { specs: Specification ⇒
 
         rs.foreach(_._2.next)
 
-        rs foreach { r ⇒
-          s"from ${r._1}" in { byLabel(r._2, "n") aka s"$name" mustEqual 1 }
+        examplesBlock {
+          rs foreach { r ⇒
+            s"from ${r._1}" in { byLabel(r._2, "n") aka s"$name" mustEqual 1 }
+          }
         }
       }
     }

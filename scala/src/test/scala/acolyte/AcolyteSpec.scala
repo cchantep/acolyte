@@ -2,9 +2,7 @@ package acolyte
 
 import java.sql.{ Date, SQLException }
 
-import org.specs2.mutable.Specification
-
-object AcolyteSpec extends Specification {
+object AcolyteSpec extends org.specs2.mutable.Specification {
   "Acolyte" title
 
   sequential
@@ -149,6 +147,15 @@ object AcolyteSpec extends Specification {
         and(rs.getInt(2) aka "int(2)" mustEqual 2).
         and(rs.getLong(3) aka "long(3)" mustEqual 3)
 
+    }
+
+    "raise warning" in {
+      lazy val s = con.prepareStatement("SELECT dummy")
+      s.executeQuery
+
+      Option(s.getWarnings) aka "warning" must beSome.which { w ⇒
+        w.getMessage aka "message" mustEqual "Now you're warned"
+      }
     }
   }
 
