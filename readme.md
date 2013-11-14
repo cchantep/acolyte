@@ -450,6 +450,10 @@ Helpers.running(fakeApp(handler)) {
 }
 ```
 
+#### Update/query handlers
+
+TODO (Scala implicits)
+
 #### Result creation
 
 Row lists can be built in the following way:

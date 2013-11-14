@@ -12,14 +12,28 @@ import acolyte.StatementHandler.Parameter
 import acolyte.CompositeHandler.{ QueryHandler, UpdateHandler }
 import acolyte.RowList.Column
 
-// Acolyte DSL
+/**
+ * Acolyte DSL.
+ *
+ * {{{
+ * import acolyte.Acolyte._
+ *
+ * connection {
+ *   handleStatement.withQueryDetection("…").
+ *     withQueryHandler({ e: Execution ⇒ … }).
+ *     withUpdateHandler({ e: Execution ⇒ … })
+ * }
+ * }}}
+ */
 object Acolyte extends ScalaRowLists with ScalaRows {
-  def handleStatement = new CompositeHandler()
+  def handleStatement = new ScalaCompositeHandler()
 
   def connection(h: ConnectionHandler) = Driver.connection(h)
-  def connection(h: StatementHandler) = Driver.connection(h)
+  def connection(h: CompositeHandler) = Driver.connection(h)
 
+  /*
   implicit def CompositeHandlerAsScala(h: CompositeHandler): ScalaCompositeHandler = new ScalaCompositeHandler(h)
+   */
 
   implicit def ResultRowAsScala[R <: Row](r: R): ScalaResultRow =
     new ScalaResultRow(r)
@@ -33,7 +47,7 @@ object Acolyte extends ScalaRowLists with ScalaRows {
         new UpdateResult(h(UpdateExecution(sql, scalaParameters(p))))
     }
 
-  implicit def FunctionUpdateHandler(h: UpdateExecution ⇒ UpdateResult): UpdateHandler = new UpdateHandler {
+  implicit def ResultUpdateHandler(h: UpdateExecution ⇒ UpdateResult): UpdateHandler = new UpdateHandler {
     def apply(sql: String, p: JList[Parameter]): UpdateResult =
       h(UpdateExecution(sql, scalaParameters(p)))
   }
@@ -45,11 +59,56 @@ object Acolyte extends ScalaRowLists with ScalaRows {
           withWarning(h(UpdateExecution(sql, scalaParameters(p))))
     }
 
-  implicit def RowListQueryHandler[R <: RowList[_]](h: QueryExecution ⇒ R): QueryHandler = new QueryHandler {
+  implicit def FunctionHandler[T](h: QueryExecution ⇒ T)(implicit f: T ⇒ QueryResult): QueryHandler = new QueryHandler {
     def apply(sql: String, params: JList[Parameter]): QueryResult =
-      h(QueryExecution(sql, scalaParameters(params))).asResult
+      f(h(QueryExecution(sql, scalaParameters(params))))
   }
 
+  implicit def RowListAsResult[R <: RowList[_]](r: R): QueryResult = r.asResult
+
+  implicit def StringAsResult(v: String): QueryResult =
+    (RowLists.stringList :+ v).asResult
+
+  implicit def BooleanAsResult(v: Boolean): QueryResult =
+    (RowLists.booleanList :+ v).asResult
+
+  implicit def ByteAsResult(v: Byte): QueryResult =
+    (RowLists.byteList :+ v).asResult
+
+  implicit def ShortAsResult(v: Short): QueryResult =
+    (RowLists.shortList :+ v).asResult
+
+  implicit def IntAsResult(v: Int): QueryResult =
+    (RowLists.intList :+ v).asResult
+
+  implicit def LongAsResult(v: Long): QueryResult =
+    (RowLists.longList :+ v).asResult
+
+  implicit def FloatAsResult(v: Float): QueryResult =
+    (RowLists.floatList :+ v).asResult
+
+  implicit def DoubleAsResult(v: Double): QueryResult =
+    (RowLists.doubleList :+ v).asResult
+
+  implicit def ScalaBigDecimalAsResult(v: BigDecimal): QueryResult =
+    (RowLists.bigDecimalList :+ v.bigDecimal).asResult
+
+  implicit def JavaBigDecimalAsResult(v: java.math.BigDecimal): QueryResult =
+    (RowLists.bigDecimalList :+ v).asResult
+
+  implicit def DateAsTimestampResult(v: java.util.Date): QueryResult =
+    (RowLists.timestampList :+ new java.sql.Timestamp(v.getTime)).asResult
+
+  implicit def SqlDateAsTimestampResult(v: java.sql.Timestamp): QueryResult =
+    (RowLists.timestampList :+ v).asResult
+
+  /**
+   * Converts a single value as row, so that it can be added to row list.
+   *
+   * {{{
+   * stringList :+ "singleVal" // SingleValueRow("singleVal")
+   * }}}
+   */
   implicit def SingleValueRow[A, B](value: A)(implicit f: A ⇒ B): Row.Row1[B] = Rows.row1[B](f(value))
 
   private def scalaParameters(p: JList[Parameter]): List[ExecutedParameter] =
@@ -90,6 +149,9 @@ object ParameterVal {
   def unapply(p: ExecutedParameter): Option[Any] = Some(p.value)
 }
 
+final class ScalaCompositeHandler extends CompositeHandler
+
+/*
 final class ScalaCompositeHandler(
     b: CompositeHandler) extends CompositeHandler {
 
@@ -106,6 +168,7 @@ final class ScalaCompositeHandler(
     })
   }
 }
+ */
 
 final class ScalaResultRow(r: Row) extends Row {
   lazy val cells = r.cells
