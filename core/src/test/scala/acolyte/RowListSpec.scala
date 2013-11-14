@@ -229,12 +229,104 @@ object RowListSpec extends Specification with RowListTest {
   }
 
   "Single column row list" should {
-    "accept unwrapped value" in {
+    "accept string value" in {
+      val rs = RowLists.stringList.append("strval").resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 1).
+        and(rs.next aka "has row" must beTrue).
+        and(rs.getString(1) aka "single col" mustEqual "strval")
+    }
+
+    "accept boolean value" in {
       val rs = RowLists.booleanList.append(false).resultSet
 
       (rs.getFetchSize aka "size" mustEqual 1).
         and(rs.next aka "has row" must beTrue).
         and(rs.getBoolean(1) aka "single col" must beFalse)
+    }
+
+    "accept byte value" in {
+      val rs = RowLists.byteList.append(2.toByte).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 1).
+        and(rs.next aka "has row" must beTrue).
+        and(rs.getByte(1) aka "single col" mustEqual 2)
+    }
+
+    "accept short value" in {
+      val rs = RowLists.shortList.append(3.toShort).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 1).
+        and(rs.next aka "has row" must beTrue).
+        and(rs.getShort(1) aka "single col" mustEqual 3)
+    }
+
+    "accept int value" in {
+      val rs = RowLists.intList.append(4).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 1).
+        and(rs.next aka "has row" must beTrue).
+        and(rs.getInt(1) aka "single col" mustEqual 4)
+    }
+
+    "accept long value" in {
+      val rs = RowLists.longList.append(5l).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 1).
+        and(rs.next aka "has row" must beTrue).
+        and(rs.getLong(1) aka "single col" mustEqual 5l)
+    }
+
+    "accept float value" in {
+      val rs = RowLists.floatList.append(6.7f).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 1).
+        and(rs.next aka "has row" must beTrue).
+        and(rs.getFloat(1) aka "single col" mustEqual 6.7f)
+    }
+
+    "accept double value" in {
+      val rs = RowLists.doubleList.append(7.89d).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 1).
+        and(rs.next aka "has row" must beTrue).
+        and(rs.getDouble(1) aka "single col" mustEqual 7.89d)
+    }
+
+    "accept big decimal" in {
+      val bigdec = new java.math.BigDecimal(1.234)
+      val rs = RowLists.bigDecimalList.append(bigdec).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 1).
+        and(rs.next aka "has row" must beTrue).
+        and(rs.getBigDecimal(1) aka "single col" mustEqual bigdec)
+    }
+
+    "accept date" in {
+      val d = new java.sql.Date(1, 2, 3)
+      val rs = RowLists.dateList.append(d).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 1).
+        and(rs.next aka "has row" must beTrue).
+        and(rs.getDate(1) aka "single col" mustEqual d)
+    }
+
+    "accept time" in {
+      val t = new java.sql.Time(4, 5, 6)
+      val rs = RowLists.timeList.append(t).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 1).
+        and(rs.next aka "has row" must beTrue).
+        and(rs.getTime(1) aka "single col" mustEqual t)
+    }
+
+    "accept timestamp" in {
+      val ts = new java.sql.Timestamp(1234l)
+      val rs = RowLists.timestampList.append(ts).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 1).
+        and(rs.next aka "has row" must beTrue).
+        and(rs.getTimestamp(1) aka "single col" mustEqual ts)
     }
   }
 
