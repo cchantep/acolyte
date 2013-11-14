@@ -3,7 +3,7 @@ package acolyte
 import java.sql.{ Connection ⇒ SqlConnection, Date, DriverManager }
 
 import acolyte.{ Driver ⇒ AcolyteDriver }
-import acolyte.RowLists.{ rowList1, rowList3 }
+import acolyte.RowLists.{ rowList1, rowList3, stringList }
 import acolyte.Rows.{ row1, row3 }
 import Acolyte._ // import DSL
 
@@ -27,7 +27,7 @@ object ScalaUseCases {
       withQueryDetection(
         "^SELECT ", // regex test from beginning
         "EXEC that_proc"). // second detection regex
-        withUpdateHandler({ e: Execution ⇒
+        withUpdateHandler({ e: UpdateExecution ⇒
           if (e.sql.startsWith("DELETE ")) {
             // Process deletion ...
             /* deleted = */ 2;
@@ -35,7 +35,7 @@ object ScalaUseCases {
             // ... Process ...
             /* count = */ 1;
           }
-        }).withQueryHandler({ e: Execution ⇒
+        }).withQueryHandler({ e: QueryExecution ⇒
           if (e.sql.startsWith("SELECT ")) {
             RowLists.rowList1(classOf[String]).asResult
           } else {
@@ -95,12 +95,12 @@ object ScalaUseCases {
 
     val handler: CompositeHandler = handleStatement.
       withQueryDetection("^SELECT ").
-      withQueryHandler({ e: Execution ⇒
+      withQueryHandler({ e: QueryExecution ⇒
         e match {
-          case Execution(s, ParameterVal("id") :: Nil) ⇒
-            (rowList1(classOf[String]) :+ row1("useCase_3a")).asResult
+          case QueryExecution(s, ParameterVal("id") :: Nil) ⇒
+            (stringList :+ "useCase_3a").asResult
 
-          case Execution(s,
+          case QueryExecution(s,
             DefinedParameter("id", _) :: DefinedParameter(3, _) :: Nil) ⇒
             (rowList3(classOf[String], classOf[Int], classOf[Long]) :+ row3(
               "useCase_3str", 2, 3l)).asResult
@@ -123,7 +123,7 @@ object ScalaUseCases {
   def useCase4: SqlConnection = connection {
     handleStatement.
       withQueryDetection("^SELECT ").
-      withQueryHandler({ e: Execution ⇒ RowLists.booleanList :+ true })
+      withQueryHandler({ e: QueryExecution ⇒ true })
 
   } // end of useCase4
 } // end of class ScalaUseCases

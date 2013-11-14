@@ -27,28 +27,27 @@ object Acolyte extends ScalaRowLists with ScalaRows {
   implicit def PairAsColumn[T](c: (Class[T], String)): Column[T] =
     Column.defineCol(c._1, c._2)
 
-  implicit def IntUpdateHandler(h: Execution ⇒ Int): UpdateHandler =
+  implicit def IntUpdateHandler(h: UpdateExecution ⇒ Int): UpdateHandler =
     new UpdateHandler {
       def apply(sql: String, p: JList[Parameter]): UpdateResult =
-        new UpdateResult(h(Execution(sql, scalaParameters(p))))
+        new UpdateResult(h(UpdateExecution(sql, scalaParameters(p))))
     }
 
-  implicit def FunctionUpdateHandler(h: Execution ⇒ UpdateResult): UpdateHandler = new UpdateHandler {
-    def apply(sql: String, p: JList[Parameter]): UpdateResult = {
-      h(Execution(sql, scalaParameters(p)))
-    }
+  implicit def FunctionUpdateHandler(h: UpdateExecution ⇒ UpdateResult): UpdateHandler = new UpdateHandler {
+    def apply(sql: String, p: JList[Parameter]): UpdateResult =
+      h(UpdateExecution(sql, scalaParameters(p)))
   }
 
-  implicit def WarningUpdateHandler(h: Execution ⇒ SQLWarning): UpdateHandler =
+  implicit def WarningUpdateHandler(h: UpdateExecution ⇒ SQLWarning): UpdateHandler =
     new UpdateHandler {
-      def apply(sql: String, p: JList[Parameter]): UpdateResult = {
-        UpdateResult.Nothing.withWarning(h(Execution(sql, scalaParameters(p))))
-      }
+      def apply(sql: String, p: JList[Parameter]): UpdateResult =
+        UpdateResult.Nothing.
+          withWarning(h(UpdateExecution(sql, scalaParameters(p))))
     }
 
-  implicit def RowListQueryHandler[R <: RowList[_]](h: Execution ⇒ R): QueryHandler = new QueryHandler {
+  implicit def RowListQueryHandler[R <: RowList[_]](h: QueryExecution ⇒ R): QueryHandler = new QueryHandler {
     def apply(sql: String, params: JList[Parameter]): QueryResult =
-      h(Execution(sql, scalaParameters(params))).asResult
+      h(QueryExecution(sql, scalaParameters(params))).asResult
   }
 
   implicit def SingleValueRow[A, B](value: A)(implicit f: A ⇒ B): Row.Row1[B] = Rows.row1[B](f(value))
@@ -61,9 +60,15 @@ object Acolyte extends ScalaRowLists with ScalaRows {
 
 }
 
-case class Execution(
+trait Execution
+
+case class QueryExecution(
   sql: String,
-  parameters: List[ExecutedParameter])
+  parameters: List[ExecutedParameter]) extends Execution
+
+case class UpdateExecution(
+  sql: String,
+  parameters: List[ExecutedParameter]) extends Execution
 
 trait ExecutedParameter {
   def value: Any
@@ -88,7 +93,7 @@ object ParameterVal {
 final class ScalaCompositeHandler(
     b: CompositeHandler) extends CompositeHandler {
 
-  def withQueryHandler(h: Execution ⇒ QueryResult): CompositeHandler = {
+  def withQueryHandler(h: QueryExecution ⇒ QueryResult): CompositeHandler = {
     b.withQueryHandler(new QueryHandler {
       def apply(sql: String, p: JList[Parameter]): QueryResult = {
         val ps = JavaConversions.collectionAsScalaIterable(p).
@@ -96,7 +101,7 @@ final class ScalaCompositeHandler(
             l :+ DefinedParameter(t.right, t.left)
           }
 
-        h(Execution(sql, ps))
+        h(QueryExecution(sql, ps))
       }
     })
   }
