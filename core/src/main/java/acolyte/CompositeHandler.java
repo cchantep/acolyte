@@ -10,38 +10,19 @@ import java.sql.ResultSet;
 import acolyte.StatementHandler.Parameter;
 
 /**
- * Rule-based (immutable/thread-safe) statement handler.
+ * Default implementation for composite handler.
  *
  * @author Cedric Chantepie
  */
-public class CompositeHandler implements StatementHandler {
-    // --- Properties ---
-
-    /**
-     * Query (ordered) detection patterns
-     */
-    private final Pattern[] queryDetection;
-
-    /**
-     * Query handler
-     */
-    private final QueryHandler queryHandler;
-
-    /**
-     * Update handler
-     */
-    private final UpdateHandler updateHandler;
+public class CompositeHandler 
+    extends AbstractCompositeHandler<CompositeHandler> {
 
     // --- Constructors ---
 
     /**
      * Constructor
      */
-    public CompositeHandler() {
-        this.queryDetection = new Pattern[0];
-        this.queryHandler = null;
-        this.updateHandler = null;
-    } // end of <init>
+    public CompositeHandler() { super(); }
 
     /**
      * Copy constructor.
@@ -50,123 +31,10 @@ public class CompositeHandler implements StatementHandler {
                             final QueryHandler queryHandler,
                             final UpdateHandler updateHandler) {
 
-        this.queryDetection = (queryDetection == null) ? null : queryDetection;
-        this.queryHandler = queryHandler;
-        this.updateHandler = updateHandler;
+        super(queryDetection, queryHandler, updateHandler);
     } // end of <init>
 
     // ---
-
-    /**
-     * {@inheritDoc}
-     */
-    public QueryResult whenSQLQuery(final String sql, 
-                                    final List<Parameter> parameters) 
-        throws SQLException {
-
-        if (this.queryHandler == null) {
-            throw new SQLException("No query handler");
-        } // end of if
-
-        return this.queryHandler.apply(sql, parameters);
-    } // end of whenSQLQuery
-
-    /**
-     * {@inheritDoc}
-     */
-    public UpdateResult whenSQLUpdate(final String sql, 
-                                      final List<Parameter> parameters) 
-        throws SQLException {
-
-        if (this.updateHandler == null) {
-            throw new SQLException("No update handler: " + sql);
-        } // end of if
-
-        return this.updateHandler.apply(sql, parameters);
-    } // end of whenSQLUpdate
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isQuery(final String sql) {
-        for (final Pattern p : queryDetection) {
-            if (p.matcher(sql).lookingAt()) {
-                return true;
-            } // end of if
-        } // end of for
-
-        return false;
-    } // end of isQuery
-
-    /**
-     * {@inheritDoc}
-     * @throws RuntimeException Not supported
-     */
-    public ResultSet getGeneratedKeys() {
-        throw new RuntimeException("Not supported");
-    } // end of getGeneratedKeys
-
-    // ---
-
-    /**
-     * Returns an new handler based on this one, but including given
-     * query detection |pattern|. If there is already existing pattern,
-     * the new one will be used after.
-     *
-     * @param pattern Query detection pattern list
-     * @throws java.util.regex.PatternSyntaxException If |pattern| is invalid
-     * @see #withQueryDetection(java.util.regex.Pattern)
-     */
-    public CompositeHandler withQueryDetection(final String... pattern) {
-        if (pattern == null) {
-            throw new IllegalArgumentException();
-        } // end of if
-
-        // ---
-
-        final Pattern[] ps = new Pattern[pattern.length];
-
-        int i = 0;
-        for (final String p : pattern) {
-            ps[i++] = Pattern.compile(p);
-        } // end of for
-
-        return withQueryDetection(ps);
-    } // end of withQueryDetection
-
-    /**
-     * Returns an new handler based on this one, but including given
-     * query detection |pattern|. If there is already existing pattern,
-     * the new one will be used after.
-     *
-     * @param pattern Query detection pattern
-     * @throws IllegalArgumentException if pattern is null
-     */
-    public CompositeHandler withQueryDetection(final Pattern... pattern) {
-        if (pattern == null) {
-            throw new IllegalArgumentException();
-        } // end of if
-
-        // ---
-
-        final Pattern[] patterns = 
-            new Pattern[this.queryDetection.length + pattern.length];
-
-        System.arraycopy(this.queryDetection, 0, 
-                         patterns, 0, 
-                         this.queryDetection.length);
-
-        int i = this.queryDetection.length;
-
-        for (final Pattern p : pattern) {
-            patterns[i++] = p;
-        } // end of for
-
-        return new CompositeHandler(patterns, 
-                                    this.queryHandler, 
-                                    this.updateHandler);
-
-    } // end of withQueryDetection
 
     /**
      * Returns a new handler based on this one, 
@@ -208,27 +76,13 @@ public class CompositeHandler implements StatementHandler {
         
     } // end of withUpdateHandler
 
-    // --- Inner classes ---
-
     /**
-     * Query handler.
+     * {@inheritDoc}
      */
-    public static interface QueryHandler {
-        public QueryResult apply(String sql, List<Parameter> parameters) throws SQLException;
+    public CompositeHandler withQueryDetection(final Pattern... pattern) {
+        return new CompositeHandler(queryDetectionPattern(pattern),
+                                    this.queryHandler,
+                                    this.updateHandler);
 
-    } // end of interfaceQueryHandler
-
-    /**
-     * Update handler.
-     */
-    public static interface UpdateHandler {
-        /**
-         * Handles update.
-         *
-         * @return Update count
-         */
-        public UpdateResult apply(String sql, List<Parameter> parameters) 
-            throws SQLException;
-
-    } // end of interfaceQueryHandler
+    } // end of withQueryDetection
 } // end of class CompositeHandler

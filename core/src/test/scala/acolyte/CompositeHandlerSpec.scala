@@ -6,7 +6,7 @@ import org.specs2.mutable.Specification
 
 import acolyte.AbstractStatement.NO_PARAMS
 import acolyte.StatementHandler.Parameter
-import acolyte.CompositeHandler.{ QueryHandler, UpdateHandler }
+import acolyte.AbstractCompositeHandler.{ QueryHandler, UpdateHandler }
 
 object CompositeHandlerSpec extends Specification {
   "Composite statement handler" title
@@ -25,10 +25,16 @@ object CompositeHandlerSpec extends Specification {
 
     }
 
-    "not match" in {
-      new CompositeHandler().withQueryDetection("^SELECT ").
-        isQuery("TEST") aka "detection" must beFalse
+    "not match" >> {
+      "with unmatching statement" in {
+        new CompositeHandler().withQueryDetection("^SELECT ").
+          isQuery("TEST") aka "detection" must beFalse
 
+      }
+
+      "without any pattern" in {
+        new CompositeHandler().isQuery("TEST") aka "detection" must beFalse
+      }
     }
 
     "match with multiple patterns" >> {
