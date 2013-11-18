@@ -1,10 +1,8 @@
 package acolyte
 
-import org.specs2.mutable.Specification
-
 import Acolyte._
 
-object RowSpec extends Specification {
+object RowSpec extends org.specs2.mutable.Specification {
   "Row" title
 
   "Cell(s)" should {

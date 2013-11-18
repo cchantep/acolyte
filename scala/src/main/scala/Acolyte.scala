@@ -2,6 +2,7 @@
 package acolyte
 
 import java.util.{ ArrayList, List ⇒ JList }
+import java.util.regex.Pattern
 import java.sql.{ Statement, SQLWarning }
 
 import scala.language.implicitConversions
@@ -9,7 +10,7 @@ import scala.collection.JavaConversions
 
 import acolyte.ParameterMetaData.ParameterDef
 import acolyte.StatementHandler.Parameter
-import acolyte.CompositeHandler.{ QueryHandler, UpdateHandler }
+import acolyte.AbstractCompositeHandler.{ QueryHandler, UpdateHandler }
 import acolyte.RowList.Column
 
 /**
@@ -25,45 +26,141 @@ import acolyte.RowList.Column
  * }
  * }}}
  */
-object Acolyte extends ScalaRowLists with ScalaRows {
-  def handleStatement = new ScalaCompositeHandler()
+object Acolyte extends ScalaRowLists with ScalaRows with CompositeHandlerImplicits {
 
-  def connection(h: ConnectionHandler) = Driver.connection(h)
-  def connection(h: CompositeHandler) = Driver.connection(h)
-
-  /*
-  implicit def CompositeHandlerAsScala(h: CompositeHandler): ScalaCompositeHandler = new ScalaCompositeHandler(h)
+  /**
+   * Creates a connection, whose statement will be passed to given handler.
+   *
+   * @param h statement handler
+   * @return a new Acolyte connection
    */
+  def connection(h: AbstractCompositeHandler[_]) = Driver.connection(h)
 
+  /**
+   * Creates a connection, managed with given handler.
+   *
+   * @param h connection handler
+   * @return a new Acolyte connection
+   */
+  def connection(h: ConnectionHandler) = Driver.connection(h)
+
+  /**
+   * Creates an empty handler.
+   *
+   * {{{
+   * import acolyte.Acolyte._
+   *
+   * connection { handleStatement }
+   * }}}
+   */
+  def handleStatement = ScalaCompositeHandler.empty
+
+  /**
+   * Creates a new handler detecting all statements as queries
+   * (equivalent to `handleStatement.withQueryDetection(".*")`).
+   *
+   * {{{
+   * import acolyte.Acolyte._
+   *
+   * connection { handleQuery }
+   * }}}
+   */
+  def handleQuery = handleStatement withQueryDetection ".*"
+
+  /**
+   * Pimps result row.
+   *
+   * {{{
+   * row.list // Scala list equivalent to .cells
+   * }}}
+   */
   implicit def ResultRowAsScala[R <: Row](r: R): ScalaResultRow =
     new ScalaResultRow(r)
 
+  /**
+   * Converts tuple to column definition.
+   *
+   * {{{
+   * rowList1(classOf[Int] -> "name") // rowList(new Column(…))
+   * }}}
+   */
   implicit def PairAsColumn[T](c: (Class[T], String)): Column[T] =
     Column.defineCol(c._1, c._2)
 
-  implicit def IntUpdateHandler(h: UpdateExecution ⇒ Int): UpdateHandler =
-    new UpdateHandler {
-      def apply(sql: String, p: JList[Parameter]): UpdateResult =
-        new UpdateResult(h(UpdateExecution(sql, scalaParameters(p))))
-    }
+}
 
-  implicit def ResultUpdateHandler(h: UpdateExecution ⇒ UpdateResult): UpdateHandler = new UpdateHandler {
+trait Execution
+
+case class QueryExecution(
+  sql: String,
+  parameters: List[ExecutedParameter]) extends Execution
+
+case class UpdateExecution(
+  sql: String,
+  parameters: List[ExecutedParameter]) extends Execution
+
+trait ExecutedParameter {
+  def value: Any
+}
+
+case class DefinedParameter(
+    value: Any,
+    definition: ParameterDef) extends ExecutedParameter {
+
+  override lazy val toString = s"Param($value, ${definition.sqlTypeName})"
+}
+
+object ParameterVal {
+  def apply(v: Any): ExecutedParameter = new ExecutedParameter {
+    val value = v
+    override lazy val toString = s"Param($value)"
+  }
+
+  def unapply(p: ExecutedParameter): Option[Any] = Some(p.value)
+}
+
+final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: UpdateHandler) extends AbstractCompositeHandler[ScalaCompositeHandler](qd, qh, uh) {
+
+  def withQueryDetection(pattern: Pattern*) = new ScalaCompositeHandler(
+    queryDetectionPattern(pattern: _*), queryHandler, updateHandler)
+
+  def withQueryHandler(h: QueryExecution ⇒ QueryResult): ScalaCompositeHandler = new ScalaCompositeHandler(queryDetection, new QueryHandler {
+    def apply(sql: String, p: JList[Parameter]): QueryResult =
+      h(QueryExecution(sql, scalaParameters(p)))
+  }, updateHandler)
+
+  def withUpdateHandler(h: UpdateExecution ⇒ UpdateResult): ScalaCompositeHandler = new ScalaCompositeHandler(queryDetection, queryHandler, new UpdateHandler {
     def apply(sql: String, p: JList[Parameter]): UpdateResult =
       h(UpdateExecution(sql, scalaParameters(p)))
-  }
+  })
 
-  implicit def WarningUpdateHandler(h: UpdateExecution ⇒ SQLWarning): UpdateHandler =
-    new UpdateHandler {
-      def apply(sql: String, p: JList[Parameter]): UpdateResult =
-        UpdateResult.Nothing.
-          withWarning(h(UpdateExecution(sql, scalaParameters(p))))
-    }
+  private def scalaParameters(p: JList[Parameter]): List[ExecutedParameter] =
+    JavaConversions.collectionAsScalaIterable(p).
+      foldLeft(Nil: List[ExecutedParameter]) { (l, t) ⇒
+        l :+ DefinedParameter(t.right, t.left)
+      }
 
-  implicit def FunctionHandler[T](h: QueryExecution ⇒ T)(implicit f: T ⇒ QueryResult): QueryHandler = new QueryHandler {
-    def apply(sql: String, params: JList[Parameter]): QueryResult =
-      f(h(QueryExecution(sql, scalaParameters(params))))
-  }
+}
 
+trait CompositeHandlerImplicits { srl: ScalaRowLists ⇒
+
+  /**
+   * Allows to directly use update count as update result.
+   *
+   * {{{
+   * ScalaCompositeHandler.empty withUpdateHandler { exec ⇒ 1/*count*/ }
+   * }}}
+   */
+  implicit def IntUpdateResult(updateCount: Int): UpdateResult =
+    new UpdateResult(updateCount)
+
+  /**
+   * Allows to directly use row list as query result.
+   *
+   * {{{
+   * val qr: QueryResult = stringList
+   * }}}
+   */
   implicit def RowListAsResult[R <: RowList[_]](r: R): QueryResult = r.asResult
 
   implicit def StringAsResult(v: String): QueryResult =
@@ -111,64 +208,11 @@ object Acolyte extends ScalaRowLists with ScalaRows {
    */
   implicit def SingleValueRow[A, B](value: A)(implicit f: A ⇒ B): Row.Row1[B] = Rows.row1[B](f(value))
 
-  private def scalaParameters(p: JList[Parameter]): List[ExecutedParameter] =
-    JavaConversions.collectionAsScalaIterable(p).
-      foldLeft(Nil: List[ExecutedParameter]) { (l, t) ⇒
-        l :+ DefinedParameter(t.right, t.left)
-      }
-
 }
 
-trait Execution
-
-case class QueryExecution(
-  sql: String,
-  parameters: List[ExecutedParameter]) extends Execution
-
-case class UpdateExecution(
-  sql: String,
-  parameters: List[ExecutedParameter]) extends Execution
-
-trait ExecutedParameter {
-  def value: Any
+private object ScalaCompositeHandler {
+  def empty = new ScalaCompositeHandler(null, null, null)
 }
-
-case class DefinedParameter(
-    value: Any,
-    definition: ParameterDef) extends ExecutedParameter {
-
-  override lazy val toString = s"Param($value, ${definition.sqlTypeName})"
-}
-
-object ParameterVal {
-  def apply(v: Any): ExecutedParameter = new ExecutedParameter {
-    val value = v
-    override lazy val toString = s"Param($value)"
-  }
-
-  def unapply(p: ExecutedParameter): Option[Any] = Some(p.value)
-}
-
-final class ScalaCompositeHandler extends CompositeHandler
-
-/*
-final class ScalaCompositeHandler(
-    b: CompositeHandler) extends CompositeHandler {
-
-  def withQueryHandler(h: QueryExecution ⇒ QueryResult): CompositeHandler = {
-    b.withQueryHandler(new QueryHandler {
-      def apply(sql: String, p: JList[Parameter]): QueryResult = {
-        val ps = JavaConversions.collectionAsScalaIterable(p).
-          foldLeft(Nil: List[ExecutedParameter]) { (l, t) ⇒
-            l :+ DefinedParameter(t.right, t.left)
-          }
-
-        h(QueryExecution(sql, ps))
-      }
-    })
-  }
-}
- */
 
 final class ScalaResultRow(r: Row) extends Row {
   lazy val cells = r.cells
@@ -180,12 +224,27 @@ final class ScalaResultRow(r: Row) extends Row {
 
 }
 
+/**
+ * Pimped row list.
+ */
 final class ScalaRowList[L <: RowList[R], R <: Row](l: L) {
-  def :+[V](values: V)(implicit conv: V ⇒ R): L =
-    l.append(conv(values)).asInstanceOf[L]
 
+  /**
+   * Symbolic alias for `append` operation.
+   *
+   * {{{
+   * rowList :+ row
+   * }}}
+   */
   def :+(row: R): L = l.append(row).asInstanceOf[L]
 
+  /**
+   * Defines column label(s) per position(s) (> 0).
+   *
+   * {{{
+   * rowList.withLabels(1 -> "label1", 2 -> "label2")
+   * }}}
+   */
   def withLabels(labels: (Int, String)*): L =
     labels.foldLeft(l) { (l, t) ⇒ l.withLabel(t._1, t._2).asInstanceOf[L] }
 

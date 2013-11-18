@@ -23,11 +23,11 @@ object ScalaUseCases {
       "jdbc:acolyte:anything-you-want?handler=handler1";
 
     // Prepare handler
-    val handler: CompositeHandler = handleStatement.
+    val handler: ScalaCompositeHandler = handleStatement.
       withQueryDetection(
         "^SELECT ", // regex test from beginning
         "EXEC that_proc"). // second detection regex
-        withUpdateHandler({ e: UpdateExecution ⇒
+        withUpdateHandler { e: UpdateExecution ⇒
           if (e.sql.startsWith("DELETE ")) {
             // Process deletion ...
             /* deleted = */ 2;
@@ -35,7 +35,7 @@ object ScalaUseCases {
             // ... Process ...
             /* count = */ 1;
           }
-        }).withQueryHandler({ e: QueryExecution ⇒
+        } withQueryHandler { e: QueryExecution ⇒
           if (e.sql.startsWith("SELECT ")) {
             RowLists.rowList1(classOf[String]).asResult
           } else {
@@ -54,7 +54,7 @@ object ScalaUseCases {
 
             rows.asResult
           }
-        })
+        }
 
     // Register prepared handler with expected ID 'handler1'
     AcolyteDriver.register("handler1", handler)
@@ -69,16 +69,15 @@ object ScalaUseCases {
   def useCase2: SqlConnection = {
     val jdbcUrl = "jdbc:acolyte:anything-you-want?handler=handler2";
 
-    val handler: CompositeHandler = handleStatement.
-      withQueryDetection("^SELECT ").
-      withQueryHandler({ e: Execution ⇒
+    val handler: ScalaCompositeHandler = handleStatement.
+      withQueryDetection("^SELECT ") withQueryHandler { e: Execution ⇒
         rowList3(classOf[String] -> "str",
           classOf[Float] -> "f",
           classOf[Date] -> "date").
           append(row3("text", 2.3f, new Date(3l))).
           append(row3("label", 4.56f, new Date(4l)))
 
-      })
+      }
 
     // Register prepared handler with expected ID 'handler2'
     acolyte.Driver.register("handler2", handler)
@@ -93,9 +92,8 @@ object ScalaUseCases {
   def useCase3: SqlConnection = {
     val jdbcUrl = "jdbc:acolyte:anything-you-want?handler=handler3";
 
-    val handler: CompositeHandler = handleStatement.
-      withQueryDetection("^SELECT ").
-      withQueryHandler({ e: QueryExecution ⇒
+    val handler: ScalaCompositeHandler = handleStatement.
+      withQueryDetection("^SELECT ") withQueryHandler { e: QueryExecution ⇒
         e match {
           case QueryExecution(s, ParameterVal("id") :: Nil) ⇒
             (stringList :+ "useCase_3a").asResult
@@ -107,7 +105,7 @@ object ScalaUseCases {
 
           case q ⇒ QueryResult.Nil withWarning "Now you're warned"
         }
-      })
+      }
 
     // Register prepared handler with expected ID 'handler3'
     acolyte.Driver.register("handler3", handler)
@@ -121,9 +119,6 @@ object ScalaUseCases {
    * and query handler convertion.
    */
   def useCase4: SqlConnection = connection {
-    handleStatement.
-      withQueryDetection("^SELECT ").
-      withQueryHandler({ e: QueryExecution ⇒ true })
-
+    handleQuery withQueryHandler { e ⇒ true }
   } // end of useCase4
 } // end of class ScalaUseCases
