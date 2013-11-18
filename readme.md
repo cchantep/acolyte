@@ -344,7 +344,7 @@ val handler: CompositeHandler = handleStatement.
   withQueryDetection(
     "^SELECT ", // regex test from beginning
     "EXEC that_proc"). // second detection regex
-  withUpdateHandler({ e: Execution ⇒
+  withUpdateHandler { e: Execution ⇒
     if (e.sql.startsWith("DELETE ")) {
       // Process deletion ...
       /* deleted = */ 2;
@@ -352,7 +352,7 @@ val handler: CompositeHandler = handleStatement.
       // ... Process ...
       /* count = */ 1;
     }
-  }).withQueryHandler({ e: Execution ⇒
+  } withQueryHandler { e: Execution ⇒
     if (e.sql.startsWith("SELECT ")) {
       // Empty resultset with 1 text column declared
       rowList1(String.class).asResult
@@ -371,7 +371,7 @@ val handler: CompositeHandler = handleStatement.
         asResult
 
     }
-  })
+  }
 
 // Register prepared handler with expected ID 'my-handler-id'
 AcolyteDriver.register("my-handler-id", handler)
@@ -384,7 +384,7 @@ You can see detailed [use cases](https://github.com/cchantep/acolyte/blob/master
 
 It's also possible to get directly get an Acolyte connection, without using JDBC driver registry:
 
-```java
+```scala
 import acolyte.Acolyte.connection
 
 val con = connection(handler)
@@ -398,7 +398,7 @@ In Scala query handler, pattern matching can be use to easily describe result ca
 import acolyte.{ Execution, DefinedParameter, ParameterVal }
 
 handleStatement.withQueryDetection("^SELECT").
-  withQueryHandler({ e: Execution ⇒ e match {
+  withQueryHandler { e: Execution ⇒ e match {
       case Execution(sql, DefinedParameter("str", _) :: Nil)
         if sql.startsWith("SELECT") ⇒
         // result when sql starts with SQL 
@@ -408,7 +408,14 @@ handleStatement.withQueryDetection("^SELECT").
         // result when there is at least 2 parameters for any sql
         // with the second having integer value 2
     }
-  })
+  }
+```
+
+If you plan only to handle query (not update) statements, `handleQuery` 
+can be used:
+
+```scala
+handleQuery withQueryHandler { e ⇒ … }
 ```
 
 ### Playframework
@@ -438,9 +445,9 @@ Then Play/DB test can be performed as following:
 
 ```scala
 lazy val handler = Some(handleStatement.
-  withQueryDetection("^SELECT").withQueryHandler({ e: acolyte.Execution ⇒
+  withQueryDetection("^SELECT") withQueryHandler { e ⇒
     // Any Acolyte result
-  }))
+  })
 
 Helpers.running(fakeApp(handler)) {
   DB withConnection { con ⇒
@@ -453,6 +460,14 @@ Helpers.running(fakeApp(handler)) {
 #### Update/query handlers
 
 TODO (Scala implicits)
+
+UpdateExec => Int
+UpdateExec => SQLWarning
+UpdateExec => UpdateResult (mixing Int|SQLWarning)
+
+QueryExec => singleVal
+QueryExec => RowList
+QueryExec => QueryResult (mixing singleVal|RowList)
 
 #### Result creation
 
