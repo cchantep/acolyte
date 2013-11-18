@@ -202,10 +202,12 @@ object CallableStatementSpec
         and(stmt.getObject("param",
           JavaConversions mapAsJavaMap Map[String, Class[_]]()).
           aka("getter") must throwA[SQLException]("No result")).
+        /* Java 1.7
         and(stmt.getObject(1, classOf[String]).
           aka("getter") must throwA[SQLException]("No result")).
         and(stmt.getObject("param", classOf[String])
           aka ("getter") must throwA[SQLException]("No result")).
+         */
         and(stmt.getString(1).
           aka("getter") must throwA[SQLException]("No result")).
         and(stmt.getString("param").

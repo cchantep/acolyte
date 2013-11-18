@@ -782,9 +782,8 @@ public final class CallableStatement
         return this.result.getObject(parameterName, map);
     } // end of getObject
 
-    /**
+    /* Java 1.7
      * {@inheritDoc}
-     */
     public <T extends Object> T getObject(final int parameterIndex, 
                                           final Class<T> type) 
         throws SQLException {
@@ -798,9 +797,7 @@ public final class CallableStatement
         return this.result.getObject(parameterIndex, type);
     } // end of getObject
 
-    /**
-     * {@inheritDoc}
-     */
+    // {@inheritDoc}
     public <T extends Object> T getObject(final String parameterName,
                                           final Class<T> type) 
         throws SQLException {
@@ -813,6 +810,7 @@ public final class CallableStatement
 
         return this.result.getObject(parameterName, type);
     } // end of getObject
+    */
 
     /**
      * {@inheritDoc}
