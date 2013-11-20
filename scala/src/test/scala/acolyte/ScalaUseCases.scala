@@ -70,7 +70,7 @@ object ScalaUseCases {
     val jdbcUrl = "jdbc:acolyte:anything-you-want?handler=handler2";
 
     val handler: ScalaCompositeHandler = handleStatement.
-      withQueryDetection("^SELECT ") withQueryHandler { e: Execution ⇒
+      withQueryDetection("^SELECT ") withQueryHandler { execution ⇒
         rowList3(classOf[String] -> "str",
           classOf[Float] -> "f",
           classOf[Date] -> "date").
@@ -93,8 +93,8 @@ object ScalaUseCases {
     val jdbcUrl = "jdbc:acolyte:anything-you-want?handler=handler3";
 
     val handler: ScalaCompositeHandler = handleStatement.
-      withQueryDetection("^SELECT ") withQueryHandler { e: QueryExecution ⇒
-        e match {
+      withQueryDetection("^SELECT ") withQueryHandler {
+        _ match { // QueryExecution
           case QueryExecution(s, ParameterVal("id") :: Nil) ⇒
             (stringList :+ "useCase_3a").asResult
 
@@ -118,7 +118,6 @@ object ScalaUseCases {
    * Use case #4 - Row list convinience constructor
    * and query handler convertion.
    */
-  def useCase4: SqlConnection = connection {
-    handleQuery withQueryHandler { e ⇒ true }
-  } // end of useCase4
+  def useCase4: SqlConnection = connection { handleQuery { e ⇒ true } }
+
 } // end of class ScalaUseCases

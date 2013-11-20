@@ -8,7 +8,7 @@ This documentation can be read [online](http://cchantep.github.io/acolyte/).
 
 ## Requirements
 
-* Java 1.6+
+* Java 1.6
 
 ## Usage
 
@@ -601,6 +601,81 @@ Type inference works well for `null` with multiple-args-append:
 
 ```scala
 list :+ (null, null)
+```
+
+### Specs2
+
+Acolyte can be used with specs2 to write executable specification for function accessing persistence, as following:
+
+```scala
+object Zoo {
+  trait Animal { def name: String }
+  case class Bird(name: String, fly: Boolean = true) extends Animal
+  case class Dog(name: String, color: String) extends Animal
+
+  def atLocation(con: java.sql.Connection)(id: Int): Option[Animal] = {
+    // Yes would be better with something like Anorm or Slick
+    var stmt: java.sql.PreparedStatement = null
+    var rs: java.sql.ResultSet = null
+
+    try {
+      stmt = con.prepareStatement("SELECT * FROM zoo WHERE location = ?")
+      stmt.setInt(1, id)
+
+      rs = stmt.executeQuery()
+      rs.next()
+
+      rs.getString("type") match {
+        case "bird" ⇒ Some(Bird(rs.getString("name"), rs.getBoolean("fly")))
+        case "dog"  ⇒ Some(Dog(rs.getString("name"), rs.getString("color")))
+        case _      ⇒ None
+      }
+    } catch {
+      case _: Throwable ⇒ sys.error("Fails to locate animate")
+    } finally {
+      try { rs.close() }
+      try { stmt.close() }
+    }
+  }
+}
+```
+
+Here is a specs2 sample checking query result is properly selected and mapped:
+
+```scala
+import acolyte.Acolyte._
+import acolyte.RowLists.rowList5
+import acolyte.Rows.row5
+import Zoo._
+
+object ZooSpec extends org.specs2.mutable.Specification {
+  val zooSchema = rowList5(
+    classOf[String] -> "type",
+    classOf[Int] -> "location",
+    classOf[String] -> "name",
+    classOf[Boolean] -> "fly",
+    classOf[String] -> "color")
+
+  "Dog" should {
+    "be found at location 1, and be red" in {
+      val conn = connection(handleQuery { _ ⇒
+        zooSchema :+ ("dog", 1, "Scooby", null.asInstanceOf[Boolean], "red")
+      })
+
+      atLocation(conn)(1) aka "animal" must beSome(Dog("Scooby", "red"))
+    }
+  }
+
+  "Ostrich" should {
+    "be found at location 2" in {
+      val conn = connection(handleQuery { _ ⇒
+        zooSchema :+ ("bird", 2, "Ostrich", false, null.asInstanceOf[String])
+      })
+
+      atLocation(conn)(2) aka "animal" must beSome(Bird("Ostrich", false))
+    }
+  }
+}
 ```
 
 ### Limitations
