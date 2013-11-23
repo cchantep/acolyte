@@ -34,6 +34,14 @@ public class CompositeHandler
         super(queryDetection, queryHandler, updateHandler);
     } // end of <init>
 
+    /**
+     * Returns 'empty' statement handler, 
+     * without detection pattern, query handler or update handler.
+     */
+    public static CompositeHandler empty() {
+        return new CompositeHandler();
+    } // end of empty
+
     // ---
 
     /**

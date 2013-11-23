@@ -26,6 +26,10 @@ object CompositeHandlerSpec extends Specification {
     }
 
     "not match" >> {
+      "with empty handler" in {
+        CompositeHandler.empty.isQuery("TEST") aka "detection" must beFalse
+      }
+
       "with unmatching statement" in {
         new CompositeHandler().withQueryDetection("^SELECT ").
           isQuery("TEST") aka "detection" must beFalse
@@ -59,8 +63,16 @@ object CompositeHandlerSpec extends Specification {
   }
 
   "Update handling" should {
-    "not be inited" in {
-      new CompositeHandler().withUpdateHandler(null.asInstanceOf[UpdateHandler]).
+    "not be inited with sole constructor" in {
+      new CompositeHandler().
+        withUpdateHandler(null.asInstanceOf[UpdateHandler]).
+        aka("init") must throwA[IllegalArgumentException]
+
+    }
+
+    "not be inited with empty statement handler" in {
+      CompositeHandler.empty.
+        withUpdateHandler(null.asInstanceOf[UpdateHandler]).
         aka("init") must throwA[IllegalArgumentException]
 
     }
@@ -94,8 +106,14 @@ object CompositeHandlerSpec extends Specification {
   }
 
   "Query handling" should {
-    "not be inited" in {
+    "not be inited with sole constructor" in {
       new CompositeHandler().withQueryHandler(null.asInstanceOf[QueryHandler]).
+        aka("init") must throwA[IllegalArgumentException]
+
+    }
+
+    "not be inited with empty statement handler" in {
+      CompositeHandler.empty.withQueryHandler(null.asInstanceOf[QueryHandler]).
         aka("init") must throwA[IllegalArgumentException]
 
     }
