@@ -18,7 +18,8 @@ JDBC URL should match `jdbc:acolyte:anything-you-want?handler=id` (see after for
 
 Projects using Acolyte:
 
-- [Cielago](https://github.com/cchantep/cielago-tracker) ([DispatchReportSpec](https://github.com/cchantep/cielago-tracker/blob/master/test/models/DispatchReportSpec.scala), [ListInfoSpec](https://github.com/cchantep/cielago-tracker/blob/master/test/models/ListInfoSpec.scala), [MainSpec](https://github.com/cchantep/cielago-tracker/blob/master/test/controllers/MainSpec.scala), …)
+- [Play Framework](http://www.playframework.com/) Anorm ([AnormSpec](https://github.com/playframework/playframework/blob/master/framework/src/anorm/src/test/scala/anorm/AnormSpec.scala)). 
+- [Cielago](https://github.com/cchantep/cielago-tracker) ([DispatchReportSpec](https://github.com/cchantep/cielago-tracker/blob/master/test/models/DispatchReportSpec.scala), [ListInfoSpec](https://github.com/cchantep/cielago-tracker/blob/master/test/models/ListInfoSpec.scala), [MainSpec](https://github.com/cchantep/cielago-tracker/blob/master/test/controllers/MainSpec.scala), …).
 
 ### Java
 
@@ -605,7 +606,9 @@ list :+ (null, null)
 
 ### Specs2
 
-Acolyte can be used with specs2 to write executable specification for function accessing persistence, as following:
+Acolyte can be used with specs2 to write executable specification for function accessing persistence.
+
+Considering a sample persistence function:
 
 ```scala
 object Zoo {
@@ -640,7 +643,7 @@ object Zoo {
 }
 ```
 
-Here is a specs2 sample checking query result is properly selected and mapped:
+Then following specification can be written, checking that query result is properly selected and mapped:
 
 ```scala
 import acolyte.Acolyte._
@@ -675,6 +678,189 @@ object ZooSpec extends org.specs2.mutable.Specification {
       atLocation(conn)(2) aka "animal" must beSome(Bird("Ostrich", false))
     }
   }
+}
+```
+
+### JUnit
+
+Acolyte can be used with JUnit to write test case for Java method accessing persistence:
+
+```java
+import java.util.List;
+
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Connection;
+
+import static org.junit.Assert.*;
+
+import acolyte.AbstractCompositeHandler.QueryHandler;
+import acolyte.StatementHandler.Parameter;
+import acolyte.QueryResult;
+import acolyte.RowList5;
+
+import static acolyte.RowList.Column.defineCol;
+import static acolyte.RowLists.rowList5;
+import static acolyte.Rows.row5;
+
+@org.junit.runner.RunWith(org.junit.runners.JUnit4.class)
+public class ZooTest {
+    private RowList5<String,Integer,String,Boolean,String> zooSchema =
+        rowList5(defineCol(String.class, "type"),
+                 defineCol(Integer.class, "location"),
+                 defineCol(String.class, "name"),
+                 defineCol(Boolean.class, "fly"),
+                 defineCol(String.class, "color"));
+
+    @org.junit.Test
+    public void dogAtLocation() {
+        final String handlerId = "dogTest";
+        acolyte.Driver.
+            register(handlerId, acolyte.CompositeHandler.empty().
+                     withQueryDetection("^SELECT").
+                     withQueryHandler(new QueryHandler() {
+                             public QueryResult apply(String sql, List<Parameter> parameters) throws SQLException {
+                                 return zooSchema.
+                                     append(row5("dog", 1, "Scooby", 
+                                                 (Boolean)null, "red")).
+                                     asResult();
+
+                             }
+                         }));
+
+        final String jdbcUrl = 
+            "jdbc:acolyte:anything-you-want?handler=" + handlerId;
+
+        try {
+            final Zoo zoo = new Zoo(DriverManager.getConnection(jdbcUrl));
+            
+            org.junit.Assert.assertEquals("Dog should be found at location 1", 
+                                          zoo.atLocation(1), 
+                                          new Dog("Scooby", "red"));
+
+        } catch (Exception e) {
+            org.junit.Assert.fail(e.getMessage());
+        }
+    }
+
+    @org.junit.Test
+    public void birdAtLocation() {
+        final Connection conn = acolyte.Driver.
+            connection(acolyte.CompositeHandler.empty().
+                     withQueryDetection("^SELECT").
+                     withQueryHandler(new QueryHandler() {
+                             public QueryResult apply(String sql, List<Parameter> parameters) throws SQLException {
+                                 return zooSchema.
+                                     append(row5("bird", 2, "Ostrich", 
+                                                 false, (String)null)).
+                                     asResult();
+
+                             }
+                         }));
+
+        org.junit.Assert.assertEquals("Ostrich should be found at location 2", 
+                                      new Zoo(conn).atLocation(2), 
+                                      new Bird("Ostrich", false));
+
+    }
+}
+```
+
+Sample zoo method could be as following:
+
+```java
+import java.sql.PreparedStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
+
+public class Zoo {
+    private final Connection connection;
+
+    public Zoo(Connection c) { this.connection = c; }
+
+    public Animal atLocation(int id) {
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            stmt = this.connection.
+                prepareStatement("SELECT * FROM zoo WHERE location = ?");
+
+            stmt.setInt(1, id);
+
+            rs = stmt.executeQuery();
+            rs.next();
+
+            final String type = rs.getString("type");
+            
+            if (type == "bird") {
+                return new Bird(rs.getString("name"), rs.getBoolean("fly"));
+            } else if (type == "dog") {
+                return new Dog(rs.getString("name"), rs.getString("color"));
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Fails to locate animate");
+        } finally {
+            try { rs.close(); } catch (Exception e) {}
+            try { stmt.close(); } catch (Exception e) {}
+        }
+    }
+}
+
+interface Animal {
+    public String getName();
+}
+class Bird implements Animal {
+    public final String name;
+    public final boolean fly;
+
+    public Bird(String n, boolean f) {
+        this.name = n;
+        this.fly = f;
+    }
+
+    public String getName() { return this.name; }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof Bird)) {
+            return false;
+        } 
+
+        final Bird other = (Bird) o;
+
+        return (((this.name == null && other.name == null) ||
+                 (this.name != null && this.name.equals(other.name))) &&
+                this.fly == other.fly);
+
+    }
+}
+class Dog implements Animal {
+    public final String name;
+    public final String color;
+
+    public Dog(String n, String c) {
+        this.name = n;
+        this.color = c;
+    }
+
+    public String getName() { return this.name; }
+
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof Dog)) {
+            return false;
+        } 
+
+        final Dog other = (Dog) o;
+
+        return (((this.name == null && other.name == null) ||
+                 (this.name != null && this.name.equals(other.name))) &&
+                ((this.color == null && other.color == null) ||
+                 (this.color != null && this.color.equals(other.color))));
+
+    }
 }
 ```
 
