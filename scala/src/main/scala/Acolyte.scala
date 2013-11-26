@@ -17,7 +17,8 @@ import acolyte.RowList.Column
  * Acolyte DSL.
  *
  * {{{
- * import acolyte.Acolyte._
+ * import acolyte.Acolyte.{ connection, handleStatement }
+ * import acolyte.Implicits._
  *
  * connection {
  *   handleStatement.withQueryDetection("…").
@@ -26,7 +27,7 @@ import acolyte.RowList.Column
  * }
  * }}}
  */
-object Acolyte extends ScalaRowLists with ScalaRows with CompositeHandlerImplicits {
+object Acolyte {
 
   /**
    * Creates a connection, whose statement will be passed to given handler.
@@ -48,7 +49,7 @@ object Acolyte extends ScalaRowLists with ScalaRows with CompositeHandlerImplici
    * Creates an empty handler.
    *
    * {{{
-   * import acolyte.Acolyte._
+   * import acolyte.Acolyte.{ connection, handleStatement }
    *
    * connection { handleStatement }
    * }}}
@@ -60,13 +61,25 @@ object Acolyte extends ScalaRowLists with ScalaRows with CompositeHandlerImplici
    * (like `handleStatement.withQueryDetection(".*").withQueryHandler(h)`).
    *
    * {{{
-   * import acolyte.Acolyte._
+   * import acolyte.Acolyte.{ connection, handleQuery }
    *
    * connection { handleQuery { _ ⇒ res }
    * }}}
    */
   def handleQuery(h: QueryExecution ⇒ QueryResult): ScalaCompositeHandler =
     handleStatement withQueryDetection ".*" withQueryHandler h
+
+}
+
+/**
+ * Acolyte implicit conversions for Scala use.
+ *
+ * {{{
+ * import acolyte.Implicits._
+ * }}}
+ */
+object Implicits
+    extends ScalaRowLists with ScalaRows with CompositeHandlerImplicits {
 
   /**
    * Pimps result row.
@@ -90,7 +103,7 @@ object Acolyte extends ScalaRowLists with ScalaRows with CompositeHandlerImplici
 
 }
 
-trait Execution
+sealed trait Execution
 
 case class QueryExecution(
   sql: String,

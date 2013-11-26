@@ -1,6 +1,6 @@
 package acolyte
 
-import Acolyte._
+import acolyte.Implicits._
 
 object RowSpec extends org.specs2.mutable.Specification {
   "Row" title

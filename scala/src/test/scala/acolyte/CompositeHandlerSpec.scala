@@ -1,6 +1,6 @@
 package acolyte
 
-import Acolyte._
+import Acolyte.handleStatement
 
 object CompositeHandlerSpec extends org.specs2.mutable.Specification {
   "Composite statement handler (scala)" title

@@ -5,7 +5,8 @@ import java.sql.{ Connection ⇒ SqlConnection, Date, DriverManager }
 import acolyte.{ Driver ⇒ AcolyteDriver }
 import acolyte.RowLists.{ rowList1, rowList3, stringList }
 import acolyte.Rows.{ row1, row3 }
-import Acolyte._ // import DSL
+import acolyte.Acolyte.{ connection, handleQuery, handleStatement } // DSL
+import acolyte.Implicits._
 
 /**
  * Use cases for testing.

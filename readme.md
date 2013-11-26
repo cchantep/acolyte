@@ -336,12 +336,13 @@ import java.sql.{ Connection ⇒ SqlConnection, Date, DriverManager }
 import acolyte.{ Driver ⇒ AcolyteDriver, Execution }
 import acolyte.RowLists.{ rowList1, rowList3 }
 import acolyte.Rows.row3
-import Acolyte._ // import DSL
+import acolyte.Acolyte // DSL
+import acolyte.Implicits._
 
 // ...
 
 // Prepare handler
-val handler: CompositeHandler = handleStatement.
+val handler: CompositeHandler = Acolyte.handleStatement.
   withQueryDetection(
     "^SELECT ", // regex test from beginning
     "EXEC that_proc"). // second detection regex
@@ -646,7 +647,8 @@ object Zoo {
 Then following specification can be written, checking that query result is properly selected and mapped:
 
 ```scala
-import acolyte.Acolyte._
+import acolyte.Implicits._
+import acolyte.Acolyte.{ connection, handleQuery } // DSL
 import acolyte.RowLists.rowList5
 import acolyte.Rows.row5
 import Zoo._
