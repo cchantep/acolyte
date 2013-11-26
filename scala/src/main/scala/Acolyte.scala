@@ -57,19 +57,6 @@ object Acolyte extends ScalaRowLists with ScalaRows with CompositeHandlerImplici
 
   /**
    * Creates a new handler detecting all statements as queries
-   * (equivalent to `handleStatement.withQueryDetection(".*")`).
-   *
-   * {{{
-   * import acolyte.Acolyte._
-   *
-   * connection { handleQuery }
-   * }}}
-    * @todo Remove at 1.0.10
-   */
-  def handleQuery = handleStatement withQueryDetection ".*"
-
-  /**
-   * Creates a new handler detecting all statements as queries
    * (like `handleStatement.withQueryDetection(".*").withQueryHandler(h)`).
    *
    * {{{
