@@ -159,6 +159,7 @@ public final class Rows {""")
     val rlf: java.io.File = {
       val f = managedSources / "acolyte" / "RowLists.java"
 
+      // @todo medium Move as template file
       IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w =>
         w.append("""package acolyte;
 
@@ -200,6 +201,20 @@ public final class RowLists {
      */
     public static RowList1<Integer> intList() {
         return rowList1(Integer.TYPE);
+    }
+
+    /**
+     * Convinience alias for row list of 1 int column.
+     * @param values Initial values
+     */
+    public static RowList1<Integer> intList(final Integer... values) {
+        RowList1<Integer> list = intList();
+
+        for (Integer v : values) {
+          list = list.append(v);
+        }
+
+        return list;
     }
 
     /**

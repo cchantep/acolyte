@@ -196,12 +196,6 @@ object AbstractStatementSpec extends Specification {
           aka("setter") must throwA[UnsupportedOperationException])
     }
 
-    "have no max row count" in {
-      (statement().getMaxRows aka "max count" mustEqual 0).
-        and(statement().setMaxRows(1).
-          aka("setter") must throwA[UnsupportedOperationException])
-    }
-
     "have not query timeout" in {
       (statement().getQueryTimeout aka "timeout" mustEqual 0).
         and(statement().setQueryTimeout(1).
@@ -256,6 +250,47 @@ object AbstractStatementSpec extends Specification {
       statement().setFetchSize(-1) aka "setter" must throwA[SQLException](
         message = "Negative fetch size")
 
+    }
+  }
+
+  "Max row count" should {
+    "initially be zero" in {
+      statement().getMaxRows aka "initial count" mustEqual 0
+    }
+
+    "not be accessible on a closed statement" in {
+      lazy val s = statement()
+      s.close()
+
+      (s.getMaxRows aka "getter" must throwA[SQLException](
+        message = "Statement is closed")).
+        and(s.setMaxRows(1) aka "setter" must throwA[SQLException](
+          message = "Statement is closed"))
+
+    }
+
+    "not be set negative" in {
+      statement().setMaxRows(-1) aka "setter" must throwA[SQLException](
+        message = "Negative max rows")
+
+    }
+
+    "skip row #3 with max count 2" in {
+      lazy val h = new StatementHandler {
+        def getGeneratedKeys = null
+        def isQuery(s: String) = true
+        def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
+        def whenSQLQuery(s: String, p: Params) = {
+          RowLists.stringList.append("A").append("B").append("C").asResult
+        }
+      }
+      lazy val s = statement(h = h)
+      s.setMaxRows(2)
+
+      (s.execute("QUERY") aka "flag" must beTrue).
+        and(s.getResultSet aka "resultset" mustEqual {
+          RowLists.stringList.append("A").append("B").resultSet
+        })
     }
   }
 

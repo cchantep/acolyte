@@ -48,9 +48,26 @@ public abstract class RowList<R extends Row> {
 
     /**
      * Returns result set from these rows.
+     *
+     * @param maxRows Limit for the maximum number of rows. 
+     * If <= 0 no limit will be set.
+     * If the limit is set and exceeded, the excess rows are silently dropped.
+     */
+    public RowResultSet<R> resultSet(int maxRows) {
+        if (maxRows <= 0) {
+            return new RowResultSet<R>(getRows());
+        } // end of if
+
+        return new RowResultSet<R>(getRows().subList(0, maxRows));
+    } // end of resultSet
+
+    /**
+     * Returns result set from these rows (without row limit).
+     *
+     * @see #resultSet(int)
      */
     public RowResultSet<R> resultSet() {
-        return new RowResultSet<R>(getRows());
+        return resultSet(0);
     } // end of resultSet
 
     /**

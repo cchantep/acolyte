@@ -353,6 +353,32 @@ object RowListSpec extends Specification with RowListTest {
     }
   }
 
+  "Max rows limit" should {
+    lazy val rows = RowLists.intList(10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
+
+    "drop half of rows" in {
+      rows.resultSet(5) aka "resultset" mustEqual {
+        RowLists.intList(10, 9, 8, 7, 6).resultSet
+      }
+    }
+
+    "drop 2 rows at end (max = 8)" in {
+      rows.resultSet(8) aka "resultset" mustEqual {
+        RowLists.intList(10, 9, 8, 7, 6, 5, 4, 3).resultSet
+      }
+    }
+
+    "extract only 3 rows" in {
+      rows.resultSet(3) aka "resultset" mustEqual {
+        RowLists.intList(10, 9, 8).resultSet
+      }
+    }
+
+    "get all rows" in {
+      rows.resultSet(11) aka "resultset" mustEqual rows.resultSet
+    }
+  }
+
   "Object column by index" should {
     "not be read when not on a row" in {
       lazy val typemap = null.asInstanceOf[java.util.Map[String, Class[_]]]

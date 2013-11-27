@@ -10,7 +10,6 @@ import java.sql.SQLWarning;
 import java.sql.Connection;
 import java.sql.ResultSet;
 
-
 import acolyte.StatementHandler.Parameter;
 
 /**
@@ -68,6 +67,11 @@ abstract class AbstractStatement implements java.sql.Statement {
      * Last resultset
      */
     protected ResultSet result = null;
+
+    /**
+     * Max rows
+     */
+    protected int maxRows = 0;
 
     /**
      * Last update count
@@ -134,8 +138,8 @@ abstract class AbstractStatement implements java.sql.Statement {
 
         this.warning = res.getWarning();
 
-        return (this.result = 
-                res.getRowList().resultSet().withStatement(this));
+        return (this.result = res.getRowList().
+                resultSet(this.maxRows).withStatement(this));
 
     } // end of executeQuery
 
@@ -185,7 +189,7 @@ abstract class AbstractStatement implements java.sql.Statement {
     public int getMaxRows() throws SQLException {
         checkClosed();
 
-        return 0;
+        return this.maxRows;
     } // end of getMaxRows
 
     /**
@@ -194,7 +198,11 @@ abstract class AbstractStatement implements java.sql.Statement {
     public void setMaxRows(final int max) throws SQLException {
         checkClosed();
 
-        throw new UnsupportedOperationException();
+        if (max < 0) {
+            throw new SQLException("Negative max rows");
+        } // end of if
+
+        this.maxRows = max;
     } // end of setMaxRows
 
     /**
