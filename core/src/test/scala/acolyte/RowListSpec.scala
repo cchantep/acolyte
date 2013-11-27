@@ -237,12 +237,38 @@ object RowListSpec extends Specification with RowListTest {
         and(rs.getString(1) aka "single col" mustEqual "strval")
     }
 
+    "be created with initial string values" in {
+      val rs = RowLists.stringList("A", "B", "C").resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 3).
+        and(rs.next aka "has row #1" must beTrue).
+        and(rs.getString(1) aka "single col #1" mustEqual "A").
+        and(rs.next aka "has row #2" must beTrue).
+        and(rs.getString(1) aka "single col #2" mustEqual "B").
+        and(rs.next aka "has row #3" must beTrue).
+        and(rs.getString(1) aka "single col #3" mustEqual "C")
+
+    }
+
     "accept boolean value" in {
       val rs = RowLists.booleanList.append(false).resultSet
 
       (rs.getFetchSize aka "size" mustEqual 1).
         and(rs.next aka "has row" must beTrue).
         and(rs.getBoolean(1) aka "single col" must beFalse)
+    }
+
+    "be created with initial boolean values" in {
+      val rs = RowLists.booleanList(true, true, false).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 3).
+        and(rs.next aka "has row #1" must beTrue).
+        and(rs.getBoolean(1) aka "single col #1" must beTrue).
+        and(rs.next aka "has row #2" must beTrue).
+        and(rs.getBoolean(1) aka "single col #2" must beTrue).
+        and(rs.next aka "has row #3" must beTrue).
+        and(rs.getBoolean(1) aka "single col #3" must beFalse)
+
     }
 
     "accept byte value" in {
@@ -253,12 +279,38 @@ object RowListSpec extends Specification with RowListTest {
         and(rs.getByte(1) aka "single col" mustEqual 2)
     }
 
+    "be created with initial byte values" in {
+      val rs = RowLists.byteList(1.toByte, 2.toByte, 3.toByte).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 3).
+        and(rs.next aka "has row #1" must beTrue).
+        and(rs.getByte(1) aka "single col #1" mustEqual 1).
+        and(rs.next aka "has row #2" must beTrue).
+        and(rs.getByte(1) aka "single col #2" mustEqual 2).
+        and(rs.next aka "has row #3" must beTrue).
+        and(rs.getByte(1) aka "single col #3" mustEqual 3)
+
+    }
+
     "accept short value" in {
       val rs = RowLists.shortList.append(3.toShort).resultSet
 
       (rs.getFetchSize aka "size" mustEqual 1).
         and(rs.next aka "has row" must beTrue).
         and(rs.getShort(1) aka "single col" mustEqual 3)
+    }
+
+    "be created with initial short values" in {
+      val rs = RowLists.shortList(1.toShort, 2.toShort, 3.toShort).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 3).
+        and(rs.next aka "has row #1" must beTrue).
+        and(rs.getShort(1) aka "single col #1" mustEqual 1).
+        and(rs.next aka "has row #2" must beTrue).
+        and(rs.getShort(1) aka "single col #2" mustEqual 2).
+        and(rs.next aka "has row #3" must beTrue).
+        and(rs.getShort(1) aka "single col #3" mustEqual 3)
+
     }
 
     "accept int value" in {
@@ -269,12 +321,38 @@ object RowListSpec extends Specification with RowListTest {
         and(rs.getInt(1) aka "single col" mustEqual 4)
     }
 
+    "be created with initial int values" in {
+      val rs = RowLists.intList(1, 2, 3).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 3).
+        and(rs.next aka "has row #1" must beTrue).
+        and(rs.getInt(1) aka "single col #1" mustEqual 1).
+        and(rs.next aka "has row #2" must beTrue).
+        and(rs.getInt(1) aka "single col #2" mustEqual 2).
+        and(rs.next aka "has row #3" must beTrue).
+        and(rs.getInt(1) aka "single col #3" mustEqual 3)
+
+    }
+
     "accept long value" in {
       val rs = RowLists.longList.append(5l).resultSet
 
       (rs.getFetchSize aka "size" mustEqual 1).
         and(rs.next aka "has row" must beTrue).
         and(rs.getLong(1) aka "single col" mustEqual 5l)
+    }
+
+    "be created with initial long values" in {
+      val rs = RowLists.longList(1l, 2l, 3l).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 3).
+        and(rs.next aka "has row #1" must beTrue).
+        and(rs.getLong(1) aka "single col #1" mustEqual 1l).
+        and(rs.next aka "has row #2" must beTrue).
+        and(rs.getLong(1) aka "single col #2" mustEqual 2l).
+        and(rs.next aka "has row #3" must beTrue).
+        and(rs.getLong(1) aka "single col #3" mustEqual 3l)
+
     }
 
     "accept float value" in {
@@ -285,12 +363,38 @@ object RowListSpec extends Specification with RowListTest {
         and(rs.getFloat(1) aka "single col" mustEqual 6.7f)
     }
 
+    "be created with initial float values" in {
+      val rs = RowLists.floatList(1f, 2f, 3f).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 3).
+        and(rs.next aka "has row #1" must beTrue).
+        and(rs.getFloat(1) aka "single col #1" mustEqual 1f).
+        and(rs.next aka "has row #2" must beTrue).
+        and(rs.getFloat(1) aka "single col #2" mustEqual 2f).
+        and(rs.next aka "has row #3" must beTrue).
+        and(rs.getFloat(1) aka "single col #3" mustEqual 3f)
+
+    }
+
     "accept double value" in {
       val rs = RowLists.doubleList.append(7.89d).resultSet
 
       (rs.getFetchSize aka "size" mustEqual 1).
         and(rs.next aka "has row" must beTrue).
         and(rs.getDouble(1) aka "single col" mustEqual 7.89d)
+    }
+
+    "be created with initial double values" in {
+      val rs = RowLists.doubleList(1d, 2d, 3d).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 3).
+        and(rs.next aka "has row #1" must beTrue).
+        and(rs.getDouble(1) aka "single col #1" mustEqual 1d).
+        and(rs.next aka "has row #2" must beTrue).
+        and(rs.getDouble(1) aka "single col #2" mustEqual 2d).
+        and(rs.next aka "has row #3" must beTrue).
+        and(rs.getDouble(1) aka "single col #3" mustEqual 3d)
+
     }
 
     "accept big decimal" in {
@@ -302,6 +406,24 @@ object RowListSpec extends Specification with RowListTest {
         and(rs.getBigDecimal(1) aka "single col" mustEqual bigdec)
     }
 
+    "be created with initial big decimal values" in {
+      val (a, b, c) = (
+        new java.math.BigDecimal(1.2),
+        new java.math.BigDecimal(23.4),
+        new java.math.BigDecimal(4.567))
+
+      val rs = RowLists.bigDecimalList(a, b, c).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 3).
+        and(rs.next aka "has row #1" must beTrue).
+        and(rs.getBigDecimal(1) aka "single col #1" mustEqual a).
+        and(rs.next aka "has row #2" must beTrue).
+        and(rs.getBigDecimal(1) aka "single col #2" mustEqual b).
+        and(rs.next aka "has row #3" must beTrue).
+        and(rs.getBigDecimal(1) aka "single col #3" mustEqual c)
+
+    }
+
     "accept date" in {
       val d = new java.sql.Date(1, 2, 3)
       val rs = RowLists.dateList.append(d).resultSet
@@ -309,6 +431,24 @@ object RowListSpec extends Specification with RowListTest {
       (rs.getFetchSize aka "size" mustEqual 1).
         and(rs.next aka "has row" must beTrue).
         and(rs.getDate(1) aka "single col" mustEqual d)
+    }
+
+    "be created with initial date values" in {
+      val (a, b, c) = (
+        new java.sql.Date(1, 2, 3),
+        new java.sql.Date(2, 3, 4),
+        new java.sql.Date(3, 4, 5))
+
+      val rs = RowLists.dateList(a, b, c).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 3).
+        and(rs.next aka "has row #1" must beTrue).
+        and(rs.getDate(1) aka "single col #1" mustEqual a).
+        and(rs.next aka "has row #2" must beTrue).
+        and(rs.getDate(1) aka "single col #2" mustEqual b).
+        and(rs.next aka "has row #3" must beTrue).
+        and(rs.getDate(1) aka "single col #3" mustEqual c)
+
     }
 
     "accept time" in {
@@ -320,6 +460,24 @@ object RowListSpec extends Specification with RowListTest {
         and(rs.getTime(1) aka "single col" mustEqual t)
     }
 
+    "be created with initial time values" in {
+      val (a, b, c) = (
+        new java.sql.Time(1, 2, 3),
+        new java.sql.Time(2, 3, 4),
+        new java.sql.Time(3, 4, 5))
+
+      val rs = RowLists.timeList(a, b, c).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 3).
+        and(rs.next aka "has row #1" must beTrue).
+        and(rs.getTime(1) aka "single col #1" mustEqual a).
+        and(rs.next aka "has row #2" must beTrue).
+        and(rs.getTime(1) aka "single col #2" mustEqual b).
+        and(rs.next aka "has row #3" must beTrue).
+        and(rs.getTime(1) aka "single col #3" mustEqual c)
+
+    }
+
     "accept timestamp" in {
       val ts = new java.sql.Timestamp(1234l)
       val rs = RowLists.timestampList.append(ts).resultSet
@@ -327,6 +485,24 @@ object RowListSpec extends Specification with RowListTest {
       (rs.getFetchSize aka "size" mustEqual 1).
         and(rs.next aka "has row" must beTrue).
         and(rs.getTimestamp(1) aka "single col" mustEqual ts)
+    }
+
+    "be created with initial timestamp values" in {
+      val (a, b, c) = (
+        new java.sql.Timestamp(1, 2, 3, 4, 5, 6, 7),
+        new java.sql.Timestamp(2, 3, 4, 5, 6, 7, 8),
+        new java.sql.Timestamp(3, 4, 5, 6, 7, 8, 9))
+
+      val rs = RowLists.timestampList(a, b, c).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 3).
+        and(rs.next aka "has row #1" must beTrue).
+        and(rs.getTimestamp(1) aka "single col #1" mustEqual a).
+        and(rs.next aka "has row #2" must beTrue).
+        and(rs.getTimestamp(1) aka "single col #2" mustEqual b).
+        and(rs.next aka "has row #3" must beTrue).
+        and(rs.getTimestamp(1) aka "single col #3" mustEqual c)
+
     }
   }
 

@@ -14,10 +14,38 @@ public final class RowLists {
     }
 
     /**
+     * Convinience alias for row list of 1 string column.
+     * @param values Initial values
+     */
+    public static RowList1<String> stringList(final String... values) {    
+        RowList1<String> list = stringList();
+
+        for (final String v : values) {
+          list = list.append(v);
+        }
+
+        return list;
+    }
+
+    /**
      * Convinience alias for row list of 1 boolean column.
      */
     public static RowList1<Boolean> booleanList() {
         return rowList1(Boolean.TYPE);
+    }
+
+    /**
+     * Convinience alias for row list of 1 boolean column.
+     * @param values Initial values
+     */
+    public static RowList1<Boolean> booleanList(final Boolean... values) {
+        RowList1<Boolean> list = booleanList();
+
+        for (final Boolean v : values) {
+          list = list.append(v);
+        }
+
+        return list;
     }
 
     /**
@@ -28,10 +56,38 @@ public final class RowLists {
     }
 
     /**
+     * Convinience alias for row list of 1 byte column.
+     * @param values Initial values
+     */
+    public static RowList1<Byte> byteList(final Byte... values) {
+        RowList1<Byte> list = byteList();
+
+        for (final Byte v : values) {
+          list = list.append(v);
+        }
+
+        return list;
+    }
+
+    /**
      * Convinience alias for row list of 1 short column.
      */
     public static RowList1<Short> shortList() {
         return rowList1(Short.TYPE);
+    }
+
+    /**
+     * Convinience alias for row list of 1 short column.
+     * @param values Initial values
+     */
+    public static RowList1<Short> shortList(final Short... values) {
+        RowList1<Short> list = shortList();
+
+        for (final Short v : values) {
+          list = list.append(v);
+        }
+
+        return list;
     }
 
     /**
@@ -48,7 +104,7 @@ public final class RowLists {
     public static RowList1<Integer> intList(final Integer... values) {
         RowList1<Integer> list = intList();
 
-        for (Integer v : values) {
+        for (final Integer v : values) {
           list = list.append(v);
         }
 
@@ -63,10 +119,38 @@ public final class RowLists {
     }
 
     /**
+     * Convinience alias for row list of 1 long column.
+     * @param values Initial values
+     */
+    public static RowList1<Long> longList(final Long... values) {
+        RowList1<Long> list = longList();
+
+        for (final Long v : values) {
+          list = list.append(v);
+        }
+
+        return list;
+    }
+
+    /**
      * Convinience alias for row list of 1 float column.
      */
     public static RowList1<Float> floatList() {
         return rowList1(Float.TYPE);
+    }
+
+    /**
+     * Convinience alias for row list of 1 float column.
+     * @param values Initial values
+     */
+    public static RowList1<Float> floatList(final Float... values) {
+        RowList1<Float> list = floatList();
+
+        for (final Float v : values) {
+          list = list.append(v);
+        }
+
+        return list;
     }
 
     /**
@@ -77,10 +161,38 @@ public final class RowLists {
     }
 
     /**
-     * Convinience alias for row list of 1 bigDecimal column.
+     * Convinience alias for row list of 1 double column.
+     * @param values Initial values
+     */
+    public static RowList1<Double> doubleList(final Double... values) {
+        RowList1<Double> list = doubleList();
+
+        for (final Double v : values) {
+          list = list.append(v);
+        }
+
+        return list;
+    }
+
+    /**
+     * Convinience alias for row list of 1 big decimal column.
      */
     public static RowList1<java.math.BigDecimal> bigDecimalList() {
         return rowList1(java.math.BigDecimal.class);
+    }
+
+    /**
+     * Convinience alias for row list of 1 big decimal column.
+     * @param values Initial values
+     */
+    public static RowList1<java.math.BigDecimal> bigDecimalList(final java.math.BigDecimal... values) {
+        RowList1<java.math.BigDecimal> list = bigDecimalList();
+
+        for (final java.math.BigDecimal v : values) {
+          list = list.append(v);
+        }
+
+        return list;
     }
 
     /**
@@ -91,6 +203,20 @@ public final class RowLists {
     }
 
     /**
+     * Convinience alias for row list of 1 date column.
+     * @param values Initial values
+     */
+    public static RowList1<java.sql.Date> dateList(final java.sql.Date... values) {
+        RowList1<java.sql.Date> list = dateList();
+
+        for (final java.sql.Date v : values) {
+          list = list.append(v);
+        }
+
+        return list;
+    }
+
+    /**
      * Convinience alias for row list of 1 time column.
      */
     public static RowList1<java.sql.Time> timeList() {
@@ -98,10 +224,40 @@ public final class RowLists {
     }
 
     /**
+     * Convinience alias for row list of 1 time column.
+     * @param values Initial values
+     */
+    public static RowList1<java.sql.Time> timeList(final java.sql.Time... values) {
+
+        RowList1<java.sql.Time> list = timeList();
+
+        for (final java.sql.Time v : values) {
+          list = list.append(v);
+        }
+
+        return list;
+    }
+
+    /**
      * Convinience alias for row list of 1 timestamp column.
      */
     public static RowList1<java.sql.Timestamp> timestampList() {
         return rowList1(java.sql.Timestamp.class);
+    }
+
+    /**
+     * Convinience alias for row list of 1 timestamp column.
+     * @param values Initial values
+     */
+    public static RowList1<java.sql.Timestamp> timestampList(final java.sql.Timestamp... values) {
+
+        RowList1<java.sql.Timestamp> list = timestampList();
+
+        for (final java.sql.Timestamp v : values) {
+          list = list.append(v);
+        }
+
+        return list;
     }
 
     #F#
