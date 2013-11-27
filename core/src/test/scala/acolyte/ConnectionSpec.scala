@@ -9,6 +9,14 @@ import java.sql.{
   SQLException,
   SQLFeatureNotSupportedException
 }
+import java.sql.ResultSet.{
+  TYPE_FORWARD_ONLY,
+  TYPE_SCROLL_INSENSITIVE,
+  CONCUR_READ_ONLY,
+  CONCUR_UPDATABLE,
+  CLOSE_CURSORS_AT_COMMIT,
+  HOLD_CURSORS_OVER_COMMIT
+}
 
 import org.specs2.mutable.Specification
 
@@ -530,23 +538,56 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
     "be owned by connection" in {
       lazy val c = defaultCon
 
-      c.createStatement.getConnection aka "statement connection" mustEqual c
+      (c.createStatement.getConnection aka "statement connection" mustEqual c).
+        and(c.createStatement(TYPE_FORWARD_ONLY, CONCUR_READ_ONLY).
+          getConnection aka "statement connection" mustEqual c).
+        and(c.createStatement(
+          TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
+          getConnection aka "statement connection" mustEqual c)
+
     }
 
     "not be created from a closed connection" in {
       lazy val c = defaultCon
       c.close()
 
-      c.createStatement aka "creation" must throwA[SQLException](
-        message = "Connection is closed")
+      (c.createStatement aka "creation" must throwA[SQLException](
+        message = "Connection is closed")).
+        and(c.createStatement(TYPE_FORWARD_ONLY, CONCUR_READ_ONLY).
+          aka("creation") must throwA[SQLException]("Connection is closed")).
+        and(c.createStatement(
+          TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
+          aka("creation") must throwA[SQLException]("Connection is closed"))
 
     }
 
-    "not be created with specific resultset type and/or concurrency" in {
-      (defaultCon.createStatement(1, 2).
-        aka("creation") must throwA[SQLFeatureNotSupportedException]).
-        and(defaultCon.createStatement(1, 2, 3).
-          aka("creation") must throwA[SQLFeatureNotSupportedException])
+    "not be created with unsupported resultset type" in {
+      (defaultCon.createStatement(TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY).
+        aka("creation") must throwA[SQLFeatureNotSupportedException](
+          message = "Unsupported result set type")).
+          and(defaultCon.createStatement(
+            TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
+            aka("creation") must throwA[SQLFeatureNotSupportedException](
+              message = "Unsupported result set type"))
+
+    }
+
+    "not be created with unsupported resultset concurrency" in {
+      (defaultCon.createStatement(TYPE_FORWARD_ONLY, CONCUR_UPDATABLE).
+        aka("creation") must throwA[SQLFeatureNotSupportedException](
+          message = "Unsupported result set concurrency")).
+          and(defaultCon.createStatement(
+            TYPE_FORWARD_ONLY, CONCUR_UPDATABLE, CLOSE_CURSORS_AT_COMMIT).
+            aka("creation") must throwA[SQLFeatureNotSupportedException](
+              message = "Unsupported result set concurrency"))
+
+    }
+
+    "not be created with unsupported resultset holdability" in {
+      defaultCon.createStatement(
+        TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, HOLD_CURSORS_OVER_COMMIT).
+        aka("creation") must throwA[SQLFeatureNotSupportedException](
+          message = "Unsupported result set holdability")
 
     }
   }
@@ -558,6 +599,11 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       (c.prepareStatement("TEST").getConnection.
         aka("statement connection") mustEqual c).
         and(c.prepareStatement("TEST", Statement.NO_GENERATED_KEYS).
+          getConnection aka "statement connection" mustEqual c).
+        and(c.prepareStatement("TEST", TYPE_FORWARD_ONLY, CONCUR_READ_ONLY).
+          getConnection aka "statement connection" mustEqual c).
+        and(c.prepareStatement("TEST",
+          TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
           getConnection aka "statement connection" mustEqual c)
 
     }
@@ -566,20 +612,50 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       lazy val c = defaultCon
       c.close()
 
-      c.prepareStatement("TEST") aka "creation" must throwA[SQLException](
-        message = "Connection is closed")
+      (c.prepareStatement("TEST") aka "creation" must throwA[SQLException](
+        message = "Connection is closed")).
+        and(c.prepareStatement("TEST", Statement.NO_GENERATED_KEYS).
+          aka("creation") must throwA[SQLException]("Connection is closed")).
+        and(c.prepareStatement("TEST", TYPE_FORWARD_ONLY, CONCUR_READ_ONLY).
+          aka("creation") must throwA[SQLException]("Connection is closed")).
+        and(c.prepareStatement("TEST",
+          TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
+          aka("creation") must throwA[SQLException]("Connection is closed"))
 
     }
 
-    "not be created with specific resultset type and/or concurrency" in {
-      (defaultCon.prepareStatement("TEST", 1, 2).
-        aka("creation") must throwA[SQLFeatureNotSupportedException]).
-        and(defaultCon.prepareStatement("TEST", 1, 2, 3).
-          aka("creation") must throwA[SQLFeatureNotSupportedException])
+    "not be created with unsupported resultset type" in {
+      (defaultCon.prepareStatement("TEST",
+        TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY).
+        aka("creation") must throwA[SQLFeatureNotSupportedException](
+          message = "Unsupported result set type")).
+          and(defaultCon.prepareStatement("TEST",
+            TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
+            aka("creation") must throwA[SQLFeatureNotSupportedException](
+              message = "Unsupported result set type"))
 
     }
 
-    "not supported auto-generated keys" in {
+    "not be created with unsupported resultset concurrency" in {
+      (defaultCon.prepareStatement("TEST", TYPE_FORWARD_ONLY, CONCUR_UPDATABLE).
+        aka("creation") must throwA[SQLFeatureNotSupportedException](
+          message = "Unsupported result set concurrency")).
+          and(defaultCon.prepareStatement("TEST",
+            TYPE_FORWARD_ONLY, CONCUR_UPDATABLE, CLOSE_CURSORS_AT_COMMIT).
+            aka("creation") must throwA[SQLFeatureNotSupportedException](
+              message = "Unsupported result set concurrency"))
+
+    }
+
+    "not be created with unsupported resultset holdability" in {
+      defaultCon.prepareStatement("TEST",
+        TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, HOLD_CURSORS_OVER_COMMIT).
+        aka("creation") must throwA[SQLFeatureNotSupportedException](
+          message = "Unsupported result set holdability")
+
+    }
+
+    "not support auto-generated keys" in {
       (defaultCon.prepareStatement("TEST", Array[Int]()).
         aka("creation") must throwA[SQLFeatureNotSupportedException]).
         and(defaultCon.prepareStatement("TEST", Array[String]()).
@@ -591,8 +667,13 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
     "be owned by connection" in {
       lazy val c = defaultCon
 
-      c.prepareCall("TEST").getConnection.
-        aka("statement connection") mustEqual c
+      (c.prepareCall("TEST").getConnection.
+        aka("statement connection") mustEqual c).
+        and(c.prepareCall("TEST", TYPE_FORWARD_ONLY, CONCUR_READ_ONLY).
+          getConnection aka "statement connection" mustEqual c).
+        and(c.prepareCall("TEST",
+          TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
+          getConnection aka "statement connection" mustEqual c)
 
     }
 
@@ -600,16 +681,44 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       lazy val c = defaultCon
       c.close()
 
-      c.prepareCall("TEST") aka "creation" must throwA[SQLException](
-        message = "Connection is closed")
+      (c.prepareCall("TEST") aka "creation" must throwA[SQLException](
+        message = "Connection is closed")).
+        and(c.prepareCall("TEST", TYPE_FORWARD_ONLY, CONCUR_READ_ONLY).
+          aka("creation") must throwA[SQLException]("Connection is closed")).
+        and(c.prepareCall("TEST",
+          TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
+          aka("creation") must throwA[SQLException]("Connection is closed"))
 
     }
 
-    "not be created with specific resultset type and/or concurrency" in {
-      (defaultCon.prepareCall("TEST", 1, 2).
-        aka("creation") must throwA[SQLFeatureNotSupportedException]).
-        and(defaultCon.prepareCall("TEST", 1, 2, 3).
-          aka("creation") must throwA[SQLFeatureNotSupportedException])
+    "not be created with unsupported resultset type" in {
+      (defaultCon.prepareCall("TEST",
+        TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY).
+        aka("creation") must throwA[SQLFeatureNotSupportedException](
+          message = "Unsupported result set type")).
+          and(defaultCon.prepareCall("TEST",
+            TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
+            aka("creation") must throwA[SQLFeatureNotSupportedException](
+              message = "Unsupported result set type"))
+
+    }
+
+    "not be created with unsupported resultset concurrency" in {
+      (defaultCon.prepareCall("TEST", TYPE_FORWARD_ONLY, CONCUR_UPDATABLE).
+        aka("creation") must throwA[SQLFeatureNotSupportedException](
+          message = "Unsupported result set concurrency")).
+          and(defaultCon.prepareCall("TEST",
+            TYPE_FORWARD_ONLY, CONCUR_UPDATABLE, CLOSE_CURSORS_AT_COMMIT).
+            aka("creation") must throwA[SQLFeatureNotSupportedException](
+              message = "Unsupported result set concurrency"))
+
+    }
+
+    "not be created with unsupported resultset holdability" in {
+      defaultCon.prepareCall("TEST",
+        TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, HOLD_CURSORS_OVER_COMMIT).
+        aka("creation") must throwA[SQLFeatureNotSupportedException](
+          message = "Unsupported result set holdability")
 
     }
   }

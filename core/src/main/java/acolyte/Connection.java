@@ -321,7 +321,16 @@ public final class Connection implements java.sql.Connection {
                                      final int resultSetConcurrency) 
         throws SQLException {
 
-        throw new SQLFeatureNotSupportedException();
+        if (resultSetType != ResultSet.TYPE_FORWARD_ONLY) {
+            throw new SQLFeatureNotSupportedException("Unsupported result set type");
+        } // end of if
+
+        if (resultSetConcurrency != ResultSet.CONCUR_READ_ONLY) {
+            throw new SQLFeatureNotSupportedException("Unsupported result set concurrency");
+
+        } // end of if
+
+        return createStatement();
     } // end of createStatement
 
     /**
@@ -332,7 +341,16 @@ public final class Connection implements java.sql.Connection {
                                               final int resultSetConcurrency)
         throws SQLException {
 
-        throw new SQLFeatureNotSupportedException();
+        if (resultSetType != ResultSet.TYPE_FORWARD_ONLY) {
+            throw new SQLFeatureNotSupportedException("Unsupported result set type");
+        } // end of if
+
+        if (resultSetConcurrency != ResultSet.CONCUR_READ_ONLY) {
+            throw new SQLFeatureNotSupportedException("Unsupported result set concurrency");
+
+        } // end of if
+
+        return prepareStatement(sql);
     } // end of prepareStatement
 
     /**
@@ -343,7 +361,16 @@ public final class Connection implements java.sql.Connection {
                                          final int resultSetConcurrency)
         throws SQLException {
 
-        throw new SQLFeatureNotSupportedException();
+        if (resultSetType != ResultSet.TYPE_FORWARD_ONLY) {
+            throw new SQLFeatureNotSupportedException("Unsupported result set type");
+        } // end of if
+
+        if (resultSetConcurrency != ResultSet.CONCUR_READ_ONLY) {
+            throw new SQLFeatureNotSupportedException("Unsupported result set concurrency");
+
+        } // end of if
+
+        return prepareCall(sql);
     } // end of prepareCall
 
     /**
@@ -445,21 +472,23 @@ public final class Connection implements java.sql.Connection {
 
     /**
      * {@inheritDoc}
-     * @throws java.sql.SQLFeatureNotSupportedException
+     * @throws java.sql.SQLFeatureNotSupportedException if |resultSetHoldability| is not ResultSet.CLOSE_CURSORS_AT_COMMIT
      */
     public Statement createStatement(final int resultSetType, 
                                      final int resultSetConcurrency, 
                                      final int resultSetHoldability) 
         throws SQLException {
 
-        checkClosed();
+        if (resultSetHoldability != ResultSet.CLOSE_CURSORS_AT_COMMIT) {
+            throw new SQLFeatureNotSupportedException("Unsupported result set holdability");
+        } // end of if
 
-        throw new SQLFeatureNotSupportedException();
+        return createStatement(resultSetType, resultSetConcurrency);
     } // end of createStatement
 
     /**
      * {@inheritDoc}
-     * @throws java.sql.SQLFeatureNotSupportedException
+     * @throws java.sql.SQLFeatureNotSupportedException if |resultSetHoldability| is not ResultSet.CLOSE_CURSORS_AT_COMMIT
      */
     public PreparedStatement prepareStatement(final String sql, 
                                               final int resultSetType, 
@@ -467,14 +496,16 @@ public final class Connection implements java.sql.Connection {
                                               final int resultSetHoldability)
         throws SQLException {
 
-        checkClosed();
+        if (resultSetHoldability != ResultSet.CLOSE_CURSORS_AT_COMMIT) {
+            throw new SQLFeatureNotSupportedException("Unsupported result set holdability");
+        } // end of if
 
-        throw new SQLFeatureNotSupportedException();
+        return prepareStatement(sql, resultSetType, resultSetConcurrency);
     } // end of prepareStatement
 
     /**
      * {@inheritDoc}
-     * @throws java.sql.SQLFeatureNotSupportedException
+     * @throws java.sql.SQLFeatureNotSupportedException if |resultSetHoldability| is not ResultSet.CLOSE_CURSORS_AT_COMMIT
      */
     public CallableStatement prepareCall(final String sql, 
                                          final int resultSetType, 
@@ -482,9 +513,11 @@ public final class Connection implements java.sql.Connection {
                                          final int resultSetHoldability)
         throws SQLException {
 
-        checkClosed();
+        if (resultSetHoldability != ResultSet.CLOSE_CURSORS_AT_COMMIT) {
+            throw new SQLFeatureNotSupportedException("Unsupported result set holdability");
+        } // end of if
 
-        throw new SQLFeatureNotSupportedException();
+        return prepareCall(sql, resultSetType, resultSetConcurrency);
     } // end of prepareCall
 
     /**
@@ -663,7 +696,7 @@ public final class Connection implements java.sql.Connection {
     } // end of getSchema
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc} (Java 1.7)
      */
     public void abort(final Executor exec) throws SQLException {
         if (exec == null) {
@@ -688,7 +721,7 @@ public final class Connection implements java.sql.Connection {
     } // end of setNetworkTimeout
 
     /**
-     * {@inheritDoc}
+     * {@inheritDoc} (Java 1.7)
      * @throws java.sql.SQLFeatureNotSupportedException
      */
     public int getNetworkTimeout() throws SQLException {
