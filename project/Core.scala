@@ -156,150 +156,43 @@ public final class Rows {""")
       }
     }
 
+    val facTmpl = basedir / "src" / "main" / "templates" / "RowLists.tmpl"
     val rlf: java.io.File = {
       val f = managedSources / "acolyte" / "RowLists.java"
 
-      // @todo medium Move as template file
       IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w =>
-        w.append("""package acolyte;
+        val funcs = (1 to lim).foldLeft(Nil:List[String]) { (l, n) =>
+            val g = for (i <- 0 until n) yield letter(i)
+            val ps = for (i <- 0 until n) yield {
+              "final Class<%s> c%d".format(letter(i), i)
+            }
+            val cs = for (i <- 0 until n) yield {
+              "final RowList.Column<%s> c%d".format(letter(i), i)
+            }
+            val as = for (i <- 0 until n) yield "c%d".format(i)
+            val ls = for (i <- 0 until n) yield {
+              "withLabel(%d, c%d.name)".format(i+1, i)
+            }
+            val gp = g.mkString(",")
 
-/**
- * Row lists utility/factory.
- */
-public final class RowLists {
-
-    /**
-     * Convinience alias for row list of 1 string column.
-     */
-    public static RowList1<String> stringList() {
-        return rowList1(String.class);
-    }
-
-    /**
-     * Convinience alias for row list of 1 boolean column.
-     */
-    public static RowList1<Boolean> booleanList() {
-        return rowList1(Boolean.TYPE);
-    }
-
-    /**
-     * Convinience alias for row list of 1 byte column.
-     */
-    public static RowList1<Byte> byteList() {
-        return rowList1(Byte.TYPE);
-    }
-
-    /**
-     * Convinience alias for row list of 1 short column.
-     */
-    public static RowList1<Short> shortList() {
-        return rowList1(Short.TYPE);
-    }
-
-    /**
-     * Convinience alias for row list of 1 int column.
-     */
-    public static RowList1<Integer> intList() {
-        return rowList1(Integer.TYPE);
-    }
-
-    /**
-     * Convinience alias for row list of 1 int column.
-     * @param values Initial values
-     */
-    public static RowList1<Integer> intList(final Integer... values) {
-        RowList1<Integer> list = intList();
-
-        for (Integer v : values) {
-          list = list.append(v);
-        }
-
-        return list;
-    }
-
-    /**
-     * Convinience alias for row list of 1 long column.
-     */
-    public static RowList1<Long> longList() {
-        return rowList1(Long.TYPE);
-    }
-
-    /**
-     * Convinience alias for row list of 1 float column.
-     */
-    public static RowList1<Float> floatList() {
-        return rowList1(Float.TYPE);
-    }
-
-    /**
-     * Convinience alias for row list of 1 double column.
-     */
-    public static RowList1<Double> doubleList() {
-        return rowList1(Double.TYPE);
-    }
-
-    /**
-     * Convinience alias for row list of 1 bigDecimal column.
-     */
-    public static RowList1<java.math.BigDecimal> bigDecimalList() {
-        return rowList1(java.math.BigDecimal.class);
-    }
-
-    /**
-     * Convinience alias for row list of 1 date column.
-     */
-    public static RowList1<java.sql.Date> dateList() {
-        return rowList1(java.sql.Date.class);
-    }
-
-    /**
-     * Convinience alias for row list of 1 time column.
-     */
-    public static RowList1<java.sql.Time> timeList() {
-        return rowList1(java.sql.Time.class);
-    }
-
-    /**
-     * Convinience alias for row list of 1 timestamp column.
-     */
-    public static RowList1<java.sql.Timestamp> timestampList() {
-        return rowList1(java.sql.Timestamp.class);
-    }
-""");
-
-        for (n <- 1 to lim) yield {
-          val g = for (i <- 0 until n) yield letter(i)
-          val ps = for (i <- 0 until n) yield {
-            "final Class<%s> c%d".format(letter(i), i)
-          }
-          val cs = for (i <- 0 until n) yield {
-            "final RowList.Column<%s> c%d".format(letter(i), i)
-          }
-          val as = for (i <- 0 until n) yield "c%d".format(i)
-          val ls = for (i <- 0 until n) yield {
-            "withLabel(%d, c%d.name)".format(i+1, i)
-          }
-          val gp = g.mkString(",")
-
-          w.append("""
+            l :+ """
     /**
      * Returns list of row with %d column(s).
      */
-    public static <%s> RowList%d<%s> rowList%d(%s) { return new RowList%d<%s>(%s); }
-""".format(n, gp, n, gp, n, ps.mkString(", "), n, gp, as.mkString(", ")))
-
-          w.append("""
+    public static <%s> RowList%d<%s> rowList%d(%s) { return new RowList%d<%s>(%s); }""".format(n, gp, n, gp, n, ps.mkString(", "), n, gp, as.mkString(", ")) :+ """
     /**
      * Returns list of row with %d column(s).
      */
-    public static <%s> RowList%d<%s> rowList%d(%s) { return new RowList%d<%s>(%s.columnClass).%s; }
-""".format(n, gp, n, gp, n, cs.mkString(", "), n, gp, as.mkString(".columnClass, "), ls.mkString(".")))
+    public static <%s> RowList%d<%s> rowList%d(%s) { return new RowList%d<%s>(%s.columnClass).%s; }""".format(n, gp, n, gp, n, cs.mkString(", "), n, gp, as.mkString(".columnClass, "), ls.mkString("."))
 
         }
 
-        w.append("\r\n}")
-
-        f
+        IO.reader[java.io.File](facTmpl) { r ⇒
+          IO.foreachLine(r) { l ⇒
+            w.append(l.replace("#F#", funcs.mkString("\r\n"))).append("\r\n")
+          }
+          f
+        }
       }
     }
 
