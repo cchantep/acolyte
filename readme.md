@@ -432,7 +432,11 @@ can be used:
 handleQuery withQueryHandler { e ⇒ … }
 ```
 
-### Playframework
+### Anorm
+
+Acolyte is useful to write test about persistence in projects using [Anorm](http://www.playframework.com/documentation/2.2.x/ScalaAnorm): read [10 minutes tutorial about Acolyte with Anorm](https://github.com/cchantep/acolyte/tree/10m-anorm-tutorial#acolyteanorm-10-minutes-tutorial).
+
+### Play Framework
 
 Acolyte can be easily used with Play test helpers.
 
