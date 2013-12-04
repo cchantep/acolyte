@@ -56,14 +56,34 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
 
     }
 
+    "accept connection properties" in {
+      val props = new java.util.Properties()
+      props.put("_test", "_val")
+
+      acolyte.Driver.register(handlerId, defaultHandler)
+
+      (new acolyte.Driver().connect(jdbcUrl, props).getProperties.
+        aka("connection 1 properties") mustEqual props).
+        and(acolyte.Driver.connection(defaultHandler, props).
+          getProperties aka "connection 2 properties" mustEqual props).
+        and(acolyte.Driver.connection(CompositeHandler.empty, props).
+          getProperties aka "connection 3 properties" mustEqual props)
+    }
+
     "not open connection without handler" in {
       (directConnect("jdbc:acolyte:test").
         aka("connection") must throwA[IllegalArgumentException](
           message = "Invalid handler ID: null")).
-        and(acolyte.Driver.connection(null.asInstanceOf[ConnectionHandler]).
-          aka("direct connection 1") must throwA[IllegalArgumentException]).
-        and(acolyte.Driver.connection(null.asInstanceOf[StatementHandler]).
-          aka("direct connection 1") must throwA[IllegalArgumentException])
+          and(acolyte.Driver.connection(null.asInstanceOf[ConnectionHandler]).
+            aka("direct connection 1") must throwA[IllegalArgumentException]).
+          and(acolyte.Driver.connection(null.asInstanceOf[StatementHandler]).
+            aka("direct connection 2") must throwA[IllegalArgumentException]).
+          and(acolyte.Driver.
+            connection(null.asInstanceOf[ConnectionHandler], null).
+            aka("direct connection 3") must throwA[IllegalArgumentException]).
+          and(acolyte.Driver.
+            connection(null.asInstanceOf[StatementHandler], null).
+            aka("direct connection 4") must throwA[IllegalArgumentException])
 
     }
 

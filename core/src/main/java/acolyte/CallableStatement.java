@@ -59,7 +59,7 @@ public final class CallableStatement
      * @param sql SQL statement
      * @param handler Statement handler (not null)
      */
-    protected CallableStatement(final Connection connection,
+    protected CallableStatement(final acolyte.Connection connection,
                                 final String sql,
                                 final StatementHandler handler) {
         

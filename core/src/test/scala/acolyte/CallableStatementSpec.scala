@@ -299,7 +299,7 @@ object CallableStatementSpec
       statement().wasNull aka "check" must throwA[SQLException]("No result")
     }
 
-    "fail is statement is closed" in {
+    "fail if statement is closed" in {
       val stmt = statement()
       stmt.close()
 

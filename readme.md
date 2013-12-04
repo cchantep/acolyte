@@ -133,8 +133,21 @@ If you just need/want to directly get connection from `acolyte.Driver`, without 
 
 ```java
 // handler: acolyte.ConnectionHandler or acolyte.StatementHandler instance
-Connection con = new acolyte.Driver().connection(handler);
+Connection con = acolyte.Driver.connection(handler);
 ```
+
+### Connection properties
+
+JDBC allows to pass properties to driver to customize connection creation:
+
+```java
+Connection con = DriverManager.getConnection(jdbcUrl, someJavaUtilProps);
+Connection con = acolyte.Driver.connection(handler, someJavaUtilProps);
+```
+
+Acolyte specific properties are:
+
+- `acolyte.parameter.untypedNull`: If `"true"`, Acolyte fallbacks untyped null from `statement.setObject(p, null)` to null string (default: false).
 
 #### Query result creation
 

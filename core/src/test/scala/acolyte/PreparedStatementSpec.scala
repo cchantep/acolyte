@@ -160,6 +160,20 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
     }
 
+    "fallback null object to null string parameter" in {
+      val ps = new java.util.Properties()
+      ps.put("acolyte.parameter.untypedNull", "true")
+
+      val s = statement(connection(ps))
+      s.setObject(1, null)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.VARCHAR)
+
+    }
+
     "be NULL as SQL" in {
       (executeUpdate("TEST ?, y", Types.VARCHAR, null).
         aka("SQL update") mustEqual ("TEST ?, y" -> null)).
@@ -1271,7 +1285,10 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
   def statement(c: Connection = defaultCon, s: String = "TEST", h: StatementHandler = defaultHandler.getStatementHandler): S
 
-  lazy val defaultCon = new acolyte.Connection(jdbcUrl, null, defaultHandler)
+  def connection(ps: java.util.Properties) =
+    new acolyte.Connection(jdbcUrl, ps, defaultHandler)
+
+  lazy val defaultCon = connection(null)
   lazy val defaultHandler = EmptyConnectionHandler
 }
 

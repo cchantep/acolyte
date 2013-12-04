@@ -59,6 +59,20 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
         }
     }
+
+    "set immutable properties on new connection" in {
+      val props = new java.util.Properties()
+      props.put("_test", "_1")
+
+      val con = 
+        connection(url = jdbcUrl, props = props, handler = defaultHandler)
+
+      (con.getProperties aka "properties" mustEqual props).
+        and {
+          props.put("_test", "_2")
+          con.getProperties.get("_test") aka "property" mustEqual "_1"
+        }
+    }
   }
 
   "Type-map setter" should {

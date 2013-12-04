@@ -91,7 +91,7 @@ abstract class AbstractStatement implements java.sql.Statement {
     /**
      * Owner connection
      */
-    protected final Connection connection;
+    protected final acolyte.Connection connection;
 
     // --- Constructors ---
 
@@ -109,7 +109,7 @@ abstract class AbstractStatement implements java.sql.Statement {
      *
      * @param handler Statement handler (not null)
      */
-    protected AbstractStatement(final Connection connection,
+    protected AbstractStatement(final acolyte.Connection connection,
                                 final StatementHandler handler) {
 
         if (connection == null) {

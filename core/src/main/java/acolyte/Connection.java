@@ -107,7 +107,7 @@ public final class Connection implements java.sql.Connection {
      * Bulk constructor.
      *
      * @param url JDBC URL
-     * @param props JDBC properties
+     * @param props JDBC properties (immutable)
      * @param handler Acolyte handler
      * @see Driver#connect
      */
@@ -126,8 +126,12 @@ public final class Connection implements java.sql.Connection {
         // ---
 
         this.url = url;
-        this.props = props;
+        this.props = new Properties();
         this.handler = handler;
+
+        if (props != null) {
+            this.props.putAll(props);
+        } // end of if
     } // end of <init>
 
     // --- Connection impl ---
@@ -750,6 +754,13 @@ public final class Connection implements java.sql.Connection {
     } // end of unwrap
 
     // ---
+
+    /**
+     * Returns connection properties.
+     */
+    public Properties getProperties() {
+        return this.props;
+    } // end of getProperties
 
     /**
      * Throws a SQLException("Connection is closed") if connection is closed.

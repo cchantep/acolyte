@@ -51,7 +51,7 @@ public final class Driver implements java.sql.Driver {
      * @throws IllegalArgumentException if |info| doesn't contain handler
      * (ConnectionHandler) for property "connection.handler".
      */
-    public Connection connect(final String url, final Properties info) 
+    public acolyte.Connection connect(final String url, final Properties info) 
         throws SQLException {
 
         if (!acceptsURL(url)) {
@@ -134,7 +134,21 @@ public final class Driver implements java.sql.Driver {
      *
      * @throws IllegalArgumentException if handler is null
      */
-    public static Connection connection(final ConnectionHandler handler) {
+    public static acolyte.Connection connection(ConnectionHandler handler) {
+        return connection(handler, null);
+    } // end of connection
+
+    /**
+     * Direct connection, with given |handler| and random URL.
+     *
+     * @param handler Connection handler
+     * @param info Connection properties (optional)
+     * @throws IllegalArgumentException if handler is null
+     * @see #connection(acolyte.ConnectionHandler)
+     */
+    public static acolyte.Connection connection(final ConnectionHandler handler,
+                                                final Properties info) {
+
         if (handler == null) {
             throw new IllegalArgumentException();
         } // end of if
@@ -143,7 +157,7 @@ public final class Driver implements java.sql.Driver {
             format("jdbc:acolyte:direct-%d",
                    System.identityHashCode(handler));
 
-        return new acolyte.Connection(url, null, handler);
+        return new acolyte.Connection(url, info, handler);
     } // end of connection
 
     /**
@@ -151,18 +165,25 @@ public final class Driver implements java.sql.Driver {
      *
      * @throws IllegalArgumentException if handler is null
      */
-    public static Connection connection(final StatementHandler handler) {
+    public static acolyte.Connection connection(StatementHandler handler) {
+        return connection(handler, null);
+    } // end of connection
+
+    /**
+     * Direct connection, with given |handler| and random URL.
+     *
+     * @param handler Statement handler
+     * @param info Connection properties (optional)
+     * @throws IllegalArgumentException if handler is null
+     */
+    public static acolyte.Connection connection(final StatementHandler handler,
+                                                final Properties info) {
+
         if (handler == null) {
             throw new IllegalArgumentException();
         } // end of if
 
-        final String url = String.
-            format("jdbc:acolyte:direct-%d",
-                   System.identityHashCode(handler));
-
-        final ConnectionHandler ch = new ConnectionHandler.Default(handler);
-
-        return new acolyte.Connection(url, null, ch);
+        return connection(new ConnectionHandler.Default(handler), info);
     } // end of connection
 
     // ---

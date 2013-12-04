@@ -115,7 +115,7 @@ public class PreparedStatement
      * @param sql SQL statement
      * @param handler Statement handler (not null)
      */
-    protected PreparedStatement(final Connection connection,
+    protected PreparedStatement(final acolyte.Connection connection,
                                 final String sql,
                                 final StatementHandler handler) {
 
@@ -389,6 +389,15 @@ public class PreparedStatement
                           final Object x) throws SQLException {
 
         if (x == null) {
+            if ("true".equals(connection.getProperties().
+                              get("acolyte.parameter.untypedNull"))) {
+
+                // Fallback to String-VARCHAR
+                setObject(parameterIndex, null, Types.VARCHAR);
+
+                return;
+            } // end of if
+
             throw new SQLException("Cannot set parameter from null object");
         } // end of if
 
