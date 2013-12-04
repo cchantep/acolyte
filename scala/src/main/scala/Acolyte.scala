@@ -33,17 +33,39 @@ object Acolyte {
    * Creates a connection, whose statement will be passed to given handler.
    *
    * @param h statement handler
+   * @param p connection properties
    * @return a new Acolyte connection
+   *
+   * {{{
+   * connection(handler) // without connection properties
+   *
+   * // With connection property to fallback untyped null
+   * connection(handler, "acolyte.parameter.untypedNull" -> "true")
+   * }}}
    */
-  def connection(h: AbstractCompositeHandler[_]) = Driver.connection(h)
+  def connection(h: AbstractCompositeHandler[_], p: (String, String)*) =
+    Driver.connection(h, p.foldLeft(new java.util.Properties()) { (ps, t) ⇒
+      ps.put(t._1, t._2); ps
+    })
 
   /**
    * Creates a connection, managed with given handler.
    *
    * @param h connection handler
+   * @param p connection properties
    * @return a new Acolyte connection
+   *
+   * {{{
+   * connection(handler) // without connection properties
+   *
+   * // With connection property to fallback untyped null
+   * connection(handler, "acolyte.parameter.untypedNull" -> "true")
+   * }}}
    */
-  def connection(h: ConnectionHandler) = Driver.connection(h)
+  def connection(h: ConnectionHandler, p: (String, String)*) =
+    Driver.connection(h, p.foldLeft(new java.util.Properties()) { (ps, t) ⇒
+      ps.put(t._1, t._2); ps
+    })
 
   /**
    * Creates an empty handler.
