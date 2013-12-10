@@ -21,9 +21,9 @@ import acolyte.RowList.Column
  * import acolyte.Implicits._
  *
  * connection {
- *   handleStatement.withQueryDetection("…").
- *     withQueryHandler({ e: Execution ⇒ … }).
- *     withUpdateHandler({ e: Execution ⇒ … })
+ *   handleStatement.withQueryDetection("...").
+ *     withQueryHandler({ e: Execution => ... }).
+ *     withUpdateHandler({ e: Execution => ... })
  * }
  * }}}
  */
@@ -85,7 +85,7 @@ object Acolyte {
    * {{{
    * import acolyte.Acolyte.{ connection, handleQuery }
    *
-   * connection { handleQuery { _ ⇒ res }
+   * connection { handleQuery { _ => res }
    * }}}
    */
   def handleQuery(h: QueryExecution ⇒ QueryResult): ScalaCompositeHandler =
@@ -117,7 +117,7 @@ object Implicits
    * Converts tuple to column definition.
    *
    * {{{
-   * rowList1(classOf[Int] -> "name") // rowList(new Column(…))
+   * rowList1(classOf[Int] -> "name") // rowList(new Column(...))
    * }}}
    */
   implicit def PairAsColumn[T](c: (Class[T], String)): Column[T] =
@@ -157,14 +157,70 @@ object ParameterVal {
 
 final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: UpdateHandler) extends AbstractCompositeHandler[ScalaCompositeHandler](qd, qh, uh) {
 
+  /**
+   * Returns handler that detects statement matching given pattern(s)
+   * as query.
+   *
+   * {{{
+   * import acolyte.Acolyte.handleStatement
+   *
+   * // Created handle will detect as query statements
+   * // either starting with 'SELECT ' or containing 'EXEC proc'.
+   * handleStatement.withQueryDetection("^SELECT ", "EXEC proc")
+   * }}}
+   */
   def withQueryDetection(pattern: Pattern*) = new ScalaCompositeHandler(
     queryDetectionPattern(pattern: _*), queryHandler, updateHandler)
 
+  /**
+   * Returns handler that delegates query execution to |h| function.
+   * Given function will be used only if executed statement is detected
+   * as a query by withQueryDetection.
+   *
+   * {{{
+   * import acolyte.QueryExecution
+   * import acolyte.Acolyte.handleStatement
+   *
+   * handleStatement withQueryHandler { e: QueryExecution => aQueryResult }
+   *
+   * // With pattern matching ...
+   * import acolyte.ParameterVal
+   *
+   * handleStatement withQueryHandler {
+   *   _ match {
+   *     case QueryExecution("SELECT * FROM Test WHERE id = ?", ParameterVal(1) :: Nil) => aQueryResult
+   *     case _ => otherResult
+   *   }
+   * }
+   * }}}
+   */
   def withQueryHandler(h: QueryExecution ⇒ QueryResult): ScalaCompositeHandler = new ScalaCompositeHandler(queryDetection, new QueryHandler {
     def apply(sql: String, p: JList[Parameter]): QueryResult =
       h(QueryExecution(sql, scalaParameters(p)))
   }, updateHandler)
 
+  /**
+   * Returns handler that delegates update execution to |h| function.
+   * Given function will be used only if executed statement is not detected
+   * as a query by withQueryDetection.
+   *
+   * {{{
+   * import acolyte.UpdateExecution
+   * import acolyte.Acolyte.handleStatement
+   *
+   * handleStatement withUpdateHandler { e: UpdateExecution => aQueryResult }
+   *
+   * // With pattern matching ...
+   * import acolyte.ParameterVal
+   *
+   * handleStatement withUpdateHandler {
+   *   _ match {
+   *     case UpdateExecution("INSERT INTO Country (code, name) VALUES (?, ?)", ParameterVal(code) :: ParameterVal(name) :: Nil) => 1 /* update count */
+   *     case _ => otherResult
+   *   }
+   * }
+   * }}}
+   */
   def withUpdateHandler(h: UpdateExecution ⇒ UpdateResult): ScalaCompositeHandler = new ScalaCompositeHandler(queryDetection, queryHandler, new UpdateHandler {
     def apply(sql: String, p: JList[Parameter]): UpdateResult =
       h(UpdateExecution(sql, scalaParameters(p)))
