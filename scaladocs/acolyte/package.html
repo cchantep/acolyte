@@ -1,0 +1,251 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>acolyte - acolyte</title>
+          <meta name="description" content="acolyte - acolyte" />
+          <meta name="keywords" content="acolyte acolyte" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../index.html';
+            var hash = 'acolyte.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../lib/package_big.png" />
+        
+        <h1>acolyte</h1>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">acolyte</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="acolyte.CompositeHandlerImplicits" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="CompositeHandlerImplicitsextendsAnyRef"></a>
+      <a id="CompositeHandlerImplicits:CompositeHandlerImplicits"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="CompositeHandlerImplicits.html"><span class="name">CompositeHandlerImplicits</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="acolyte.DefinedParameter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DefinedParameterextendsExecutedParameterwithProductwithSerializable"></a>
+      <a id="DefinedParameter:DefinedParameter"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="DefinedParameter.html"><span class="name">DefinedParameter</span></a><span class="params">(<span name="value">value: <span class="extype" name="scala.Any">Any</span></span>, <span name="definition">definition: <span class="extype" name="acolyte.ParameterMetaData.ParameterDef">ParameterDef</span></span>)</span><span class="result"> extends <a href="ExecutedParameter.html" class="extype" name="acolyte.ExecutedParameter">ExecutedParameter</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="acolyte.ExecutedParameter" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ExecutedParameterextendsAnyRef"></a>
+      <a id="ExecutedParameter:ExecutedParameter"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ExecutedParameter.html"><span class="name">ExecutedParameter</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="acolyte.Execution" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ExecutionextendsAnyRef"></a>
+      <a id="Execution:Execution"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Execution.html"><span class="name">Execution</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="acolyte.QueryExecution" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="QueryExecutionextendsExecutionwithProductwithSerializable"></a>
+      <a id="QueryExecution:QueryExecution"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="QueryExecution.html"><span class="name">QueryExecution</span></a><span class="params">(<span name="sql">sql: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="parameters">parameters: <span class="extype" name="scala.List">List</span>[<a href="ExecutedParameter.html" class="extype" name="acolyte.ExecutedParameter">ExecutedParameter</a>]</span>)</span><span class="result"> extends <a href="Execution.html" class="extype" name="acolyte.Execution">Execution</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="acolyte.ScalaCompositeHandler" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ScalaCompositeHandlerextendsAbstractCompositeHandler[acolyte.ScalaCompositeHandler]"></a>
+      <a id="ScalaCompositeHandler:ScalaCompositeHandler"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalaCompositeHandler.html"><span class="name">ScalaCompositeHandler</span></a><span class="result"> extends <span class="extype" name="acolyte.AbstractCompositeHandler">AbstractCompositeHandler</span>[<a href="ScalaCompositeHandler.html" class="extype" name="acolyte.ScalaCompositeHandler">ScalaCompositeHandler</a>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="acolyte.ScalaResultRow" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ScalaResultRowextendsRow"></a>
+      <a id="ScalaResultRow:ScalaResultRow"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalaResultRow.html"><span class="name">ScalaResultRow</span></a><span class="result"> extends <span class="extype" name="acolyte.Row">Row</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="acolyte.ScalaRowList" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ScalaRowList[L&lt;:acolyte.RowList[R],R&lt;:acolyte.Row]extendsAnyRef"></a>
+      <a id="ScalaRowList[L&lt;:RowList[R],R&lt;:Row]:ScalaRowList[L,R]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ScalaRowList.html"><span class="name">ScalaRowList</span></a><span class="tparams">[<span name="L">L &lt;: <span class="extype" name="acolyte.RowList">RowList</span>[<span class="extype" name="acolyte.ScalaRowList.R">R</span>]</span>, <span name="R">R &lt;: <span class="extype" name="acolyte.Row">Row</span></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Pimped row list.</p>
+    </li><li name="acolyte.UpdateExecution" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UpdateExecutionextendsExecutionwithProductwithSerializable"></a>
+      <a id="UpdateExecution:UpdateExecution"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="UpdateExecution.html"><span class="name">UpdateExecution</span></a><span class="params">(<span name="sql">sql: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="parameters">parameters: <span class="extype" name="scala.List">List</span>[<a href="ExecutedParameter.html" class="extype" name="acolyte.ExecutedParameter">ExecutedParameter</a>]</span>)</span><span class="result"> extends <a href="Execution.html" class="extype" name="acolyte.Execution">Execution</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="acolyte.Acolyte" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Acolyte"></a>
+      <a id="Acolyte:Acolyte"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Acolyte$.html"><span class="name">Acolyte</span></a>
+      </span>
+      </h4>
+      <p class="comment cmt">Acolyte DSL.</p>
+    </li><li name="acolyte.Implicits" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Implicits"></a>
+      <a id="Implicits:Implicits"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Implicits$.html"><span class="name">Implicits</span></a><span class="result"> extends <span class="extype" name="acolyte.ScalaRowLists">ScalaRowLists</span> with <span class="extype" name="acolyte.ScalaRows">ScalaRows</span> with <a href="CompositeHandlerImplicits.html" class="extype" name="acolyte.CompositeHandlerImplicits">CompositeHandlerImplicits</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Acolyte implicit conversions for Scala use.</p>
+    </li><li name="acolyte.ParameterVal" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ParameterVal"></a>
+      <a id="ParameterVal:ParameterVal"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ParameterVal$.html"><span class="name">ParameterVal</span></a>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../lib/template.js"></script>
+    </body>
+      </html>
