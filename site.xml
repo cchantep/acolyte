@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>acolyte</groupId>
   <artifactId>acolyte</artifactId>
-  <version>1.0.10</version>
+  <version>1.0.11</version>
   <packaging>pom</packaging>
   <name>Acolyte</name>
 
@@ -54,6 +54,10 @@
                 <copy todir="${generatedSite}">
                   <fileset dir="${basedir}/src/site" />
                 </copy>
+
+                <copy todir="${project.build.directory}/site/scaladocs">
+                  <fileset dir="${basedir}/scala/target/scala-2.10/api" />
+                </copy>
                     
                 <copy file="${basedir}/readme.md" 
                       tofile="${generatedSite}/markdown/index.md" />
@@ -96,8 +100,9 @@
         </dependencies>
 
         <configuration>
-          <siteDirectory>${project.build.directory}/generated-site</siteDirectory>
-          
+          <siteDirectory>
+            ${project.build.directory}/generated-site
+          </siteDirectory>
         </configuration>
       </plugin>
     </plugins>
@@ -105,13 +110,6 @@
 
   <reporting>
     <plugins>
-      <plugin>
-        <groupId>org.scala-tools</groupId>
-        <artifactId>maven-scala-plugin</artifactId>
-        <configuration>
-          <sourceDir>${basedir}/scala/src/main/scala</sourceDir>
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>

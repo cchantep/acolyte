@@ -23,9 +23,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
   "Test time zone" should {
     "be UTC" in {
-      TimeZone.getDefault.
-        aka("default TZ") mustEqual TimeZone.getTimeZone("UTC")
-
+      TimeZone.getDefault aka "default TZ" mustEqual TimeZone.getTimeZone("UTC")
     }
   }
 
