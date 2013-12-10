@@ -8,7 +8,8 @@
     <menu name="User guide">
       <item name="Java" href="./index.html#Java" />
       <item name="Scala" href="./index.html#Scala" />
-      <item name="Playframework" href="./index.html#Playframework" />
+      <item name="Play Framework" href="./index.html#Play_Framework" />
+      <item name="FAQ" href="./faq.html" />
     </menu>
 
     <menu name="Reference">

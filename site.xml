@@ -62,6 +62,9 @@
                 <copy file="${basedir}/readme.md" 
                       tofile="${generatedSite}/markdown/index.md" />
 
+                <copy file="${basedir}/faq.md" 
+                      todir="${generatedSite}/markdown" />
+
 	      </tasks>
 	    </configuration>
 	  </execution>
