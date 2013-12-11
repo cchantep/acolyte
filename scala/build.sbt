@@ -16,7 +16,7 @@ sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in
   val (base, managed) = dirs
   val rlf = managed / "acolyte" / "RowLists.scala"
   IO.writer[java.io.File](rlf, "", IO.defaultCharset, false) { w ⇒
-    val letter = 'A' to 'Z'
+    val letter = ('A' to 'Z').map(_.toString) ++: ('A' to 'Z').map(l ⇒ "A" + l)
     val lim = letter.size
     val conv = for (n ← 1 to lim) yield {
       val gp = (for (i ← 0 until n) yield letter(i)).mkString(", ")
