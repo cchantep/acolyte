@@ -44,4 +44,6 @@ val handler = handleQuery { e: QueryExecution =>
 
 ## What's the maximum number of column for a row?
 
-Implementations of [Row](http://cchantep.github.io/acolyte/apidocs/acolyte/Row.html) and [RowList](http://cchantep.github.io/acolyte/apidocs/acolyte/RowList.html) are provided up to 26 columns.
+Implementations of [Row](http://cchantep.github.io/acolyte/apidocs/acolyte/Row.html) and [RowList](http://cchantep.github.io/acolyte/apidocs/acolyte/RowList.html) are provided up to 52 columns.
+
+As Scala tuples are limited to 22, syntax `rowList :+ tuple` is not available above this limit.

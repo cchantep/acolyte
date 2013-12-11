@@ -24,7 +24,7 @@ trait Core {
   // Source generator
   private def generateRowClasses(basedir: File, managedSources: File): Seq[File] = {
     val rowTmpl = basedir / "src" / "main" / "templates" / "Row.tmpl"
-    val letter = 'A' to 'Z'
+    val letter = ('A' to 'Z').map(_.toString) ++: ('A' to 'Z').map(l ⇒ "A" + l)
     val lim = letter.size
 
     val rows: Seq[java.io.File] = for (n ← 2 to lim) yield {
@@ -56,15 +56,15 @@ trait Core {
           IO.foreachLine(r) { l ⇒
             w.append(l.replaceAll("#N#", n.toString).
               replaceAll("#CP#", cp.mkString(",")).
-              replace("#PS#", ps.mkString("\r\n    ")).
-              replace("#AS#", as.mkString("\r\n        ")).
+              replace("#PS#", ps.mkString("\n    ")).
+              replace("#AS#", as.mkString("\n        ")).
               replace("#IP#", ip.mkString(", ")).
-              replace("#RP#", rp.mkString("\r\n        ")).
+              replace("#RP#", rp.mkString("\n        ")).
               replace("#NA#", na.mkString(", ")).
-              replace("#SP#", sp.mkString("\r\n\r\n    ")).
-              replace("#HC#", hc.mkString(".\r\n            ")).
-              replace("#EQ#", eq.mkString(".\r\n            "))).
-              append("\r\n")
+              replace("#SP#", sp.mkString("\n\n    ")).
+              replace("#HC#", hc.mkString(".\n            ")).
+              replace("#EQ#", eq.mkString(".\n            "))).
+              append("\n")
 
           }
         }
@@ -104,14 +104,14 @@ public final class Rows {""")
             p.mkString(", "), n, gd, a.mkString(", ")))
         }
 
-        w.append("\r\n}")
+        w.append("\n}")
 
         f
       }
     }
 
     val listTmpl = basedir / "src" / "main" / "templates" / "RowList.tmpl"
-    val rowLists: Seq[java.io.File] = for (n <- 2 to lim) yield {
+    val rowLists: Seq[java.io.File] = for (n ← 2 to lim) yield {
       val f = managedSources / "acolyte" / "RowList%d.java".format(n)
       val cp = for (i ← 0 until n) yield letter(i)
       val cs = for (i ← 0 until n) yield {
@@ -127,7 +127,7 @@ public final class Rows {""")
         colClasses.add(c%d);""".format(i, i, i)
       }
       val ca = for (i ← 0 until n) yield "c%d".format(i)
-      val ap = cp map { l ⇒ "final %s %s".format(l, l.toLower) }
+      val ap = cp map { l ⇒ "final %s %s".format(l, l.toLowerCase) }
       val ps = for (i ← 0 until n) yield {
         """/**
      * Class of column #%d
@@ -135,20 +135,20 @@ public final class Rows {""")
     private final Class<%s> c%d;""".format(i, letter(i), i)
       }
 
-      IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w =>
+      IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w ⇒
         // Generate by substitution on each line of template
         IO.reader[Unit](listTmpl) { r ⇒
-          IO.foreachLine(r) { l ⇒ 
+          IO.foreachLine(r) { l ⇒
             w.append(l.replaceAll("#N#", n.toString).
               replaceAll("#CP#", cp.mkString(",")).
               replaceAll("#CS#", cs.mkString(", ")).
               replaceAll("#AP#", ap.mkString(", ")).
-              replaceAll("#AV#", cp.map(_.toLower).mkString(", ")).
-              replaceAll("#PS#", ps.mkString("\r\n\r\n    ")).
-              replaceAll("#IC#", ic.mkString("\r\n\r\n        ")).
-              replaceAll("#AC#", ac.mkString("\r\n\r\n        ")).
+              replaceAll("#AV#", cp.map(_.toLowerCase).mkString(", ")).
+              replaceAll("#PS#", ps.mkString("\n\n    ")).
+              replaceAll("#IC#", ic.mkString("\n\n        ")).
+              replaceAll("#AC#", ac.mkString("\n\n        ")).
               replaceAll("#CA#", ca.mkString(", "))).
-              append("\r\n")
+              append("\n")
           }
         }
 
@@ -160,22 +160,22 @@ public final class Rows {""")
     val rlf: java.io.File = {
       val f = managedSources / "acolyte" / "RowLists.java"
 
-      IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w =>
-        val funcs = (1 to lim).foldLeft(Nil:List[String]) { (l, n) =>
-            val g = for (i <- 0 until n) yield letter(i)
-            val ps = for (i <- 0 until n) yield {
-              "final Class<%s> c%d".format(letter(i), i)
-            }
-            val cs = for (i <- 0 until n) yield {
-              "final RowList.Column<%s> c%d".format(letter(i), i)
-            }
-            val as = for (i <- 0 until n) yield "c%d".format(i)
-            val ls = for (i <- 0 until n) yield {
-              "withLabel(%d, c%d.name)".format(i+1, i)
-            }
-            val gp = g.mkString(",")
+      IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w ⇒
+        val funcs = (1 to lim).foldLeft(Nil: List[String]) { (l, n) ⇒
+          val g = for (i ← 0 until n) yield letter(i)
+          val ps = for (i ← 0 until n) yield {
+            "final Class<%s> c%d".format(letter(i), i)
+          }
+          val cs = for (i ← 0 until n) yield {
+            "final RowList.Column<%s> c%d".format(letter(i), i)
+          }
+          val as = for (i ← 0 until n) yield "c%d".format(i)
+          val ls = for (i ← 0 until n) yield {
+            "withLabel(%d, c%d.name)".format(i + 1, i)
+          }
+          val gp = g.mkString(",")
 
-            l :+ """
+          l :+ """
     /**
      * Returns list of row with %d column(s).
      */
@@ -189,7 +189,7 @@ public final class Rows {""")
 
         IO.reader[java.io.File](facTmpl) { r ⇒
           IO.foreachLine(r) { l ⇒
-            w.append(l.replace("#F#", funcs.mkString("\r\n"))).append("\r\n")
+            w.append(l.replace("#F#", funcs.mkString("\n"))).append("\n")
           }
           f
         }
