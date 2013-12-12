@@ -47,3 +47,49 @@ val handler = handleQuery { e: QueryExecution =>
 Implementations of [Row](http://cchantep.github.io/acolyte/apidocs/acolyte/Row.html) and [RowList](http://cchantep.github.io/acolyte/apidocs/acolyte/RowList.html) are provided up to 52 columns.
 
 As Scala tuples are limited to 22, syntax `rowList :+ tuple` is not available above this limit.
+
+## How to simply return a single scalar row?
+
+If you just need to mockup a result containing only 1 row with 1 column, single column factories (`booleanList`, `byteList`, `intList`, `stringList`, ...) can be called, or in Scala single value can be directly used (e.g. `2` for a single row with only one int column).
+
+## Why do I get an error like "overloaded method value rowListX with alternatives" from Scala compiler?
+
+Example:
+```
+overloaded method value rowList6 with alternatives:
+[error]   [A, B, C, D, E, F](x$1: acolyte.RowList.Column[A], x$2: acolyte.RowList.Column[B], x$3: acolyte.RowList.Column[C], x$4: acolyte.RowList.Column[D], x$5: acolyte.RowList.Column[E], x$6: acolyte.RowList.Column[F])acolyte.RowList6[A,B,C,D,E,F] <and>
+[error]   [A, B, C, D, E, F](x$1: Class[A], x$2: Class[B], x$3: Class[C], x$4: Class[D], x$5: Class[E], x$6: Class[F])acolyte.RowList6[A,B,C,D,E,F]
+[error]  cannot be applied to ((Class[String], String), (Class[String], String), (Class[String], String), (Class[String], String), (Class[String], String), (Class[String], String))
+```
+
+It occurs when `acolyte.Implicits.PairAsColumn` is missing while using 
+pimped Scala syntax to declare row list:
+
+```scala
+import acolyte.RowLists.rowList6
+
+// Corresponding to error example
+// - will raise compilation error
+rowList6(
+  classOf[String] -> "col1", 
+  classOf[String] -> "col2",
+  classOf[String] -> "col3",
+  classOf[String] -> "col4",
+  classOf[String] -> "col5",
+  classOf[String] -> "col6")
+```
+
+Proper import simply fixes that:
+
+```scala
+import acolyte.RowLists.rowList6
+import acolyte.Implicits.PairAsColumn // or acolyte.Implicits._
+
+rowList6( // Now it's ok
+  classOf[String] -> "col1", 
+  classOf[String] -> "col2",
+  classOf[String] -> "col3",
+  classOf[String] -> "col4",
+  classOf[String] -> "col5",
+  classOf[String] -> "col6")
+```

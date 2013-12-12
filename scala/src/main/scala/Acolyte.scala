@@ -117,6 +117,8 @@ object Implicits
    * Converts tuple to column definition.
    *
    * {{{
+   * import acolyte.Implicits.PairAsColumn
+   *
    * rowList1(classOf[Int] -> "name") // rowList(new Column(...))
    * }}}
    */
