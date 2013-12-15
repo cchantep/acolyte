@@ -19,6 +19,34 @@ trait Core {
       val (base, managed) = dirs
       generateRowClasses(base, managed)
     }),
+    pomExtra := (
+      <url>https://github.com/cchantep/acolyte/</url>
+      <licenses>
+        <license>
+          <name>GNU Lesser General Public License, Version 2.1</name>
+          <url>
+            https://raw.github.com/cchantep/acolyte/master/LICENSE.txt
+          </url>
+          <distribution>repo</distribution>
+        </license>
+      </licenses>
+      <scm>
+        <connection>scm:git:git@github.com:cchantep/acolyte.git</connection>
+        <developerConnection>
+          scm:git:git@github.com:cchantep/acolyte.git
+        </developerConnection>
+        <url>git@github.com:cchantep/acolyte.git</url>
+      </scm>
+      <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/cchantep/acolyte/issues</url>
+      </issueManagement>
+      <developers>
+        <developer>
+          <id>cchantep</id>
+          <name>Cedric Chantepie</name>
+        </developer>
+      </developers>),
     publishTo := Some(Resolver.file("file", new File(Path.userHome.absolutePath + "/.m2/repository"))))
 
   // Source generator
