@@ -2,7 +2,7 @@ name := "acolyte-scala"
 
 organization := "org.eu.acolyte"
 
-version := "1.0.11"
+version := "1.0.11-2"
 
 scalaVersion := "2.10.3"
 

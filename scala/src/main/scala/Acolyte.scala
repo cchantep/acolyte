@@ -90,6 +90,7 @@ object Acolyte {
    */
   def handleQuery(h: QueryExecution ⇒ QueryResult): ScalaCompositeHandler =
     handleStatement withQueryDetection ".*" withQueryHandler h
+  // TODO? (h: QueryExec => A)(implicit c: A => QueryResult)
 
 }
 
