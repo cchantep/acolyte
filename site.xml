@@ -62,9 +62,13 @@
                 <copy file="${basedir}/readme.md" 
                       tofile="${generatedSite}/markdown/index.md" />
 
-                <copy file="${basedir}/faq.md" 
-                      todir="${generatedSite}/markdown" />
+                <copy todir="${generatedSite}/markdown">
+                  <fileset dir="${basedir}" includes="faq.md,changelog.md" />
+                </copy>
 
+                <copy todir="${project.build.directory}/site/css">
+                  <fileset dir="${basedir}/src/site/css" includes="*.css" />
+                </copy>
 	      </tasks>
 	    </configuration>
 	  </execution>

@@ -77,6 +77,7 @@ handleQuery { e: QueryExecution => /* QueryResult */ }
 ([6b1c7602b58f2952f22e18c3408e273924572d91](https://github.com/cchantep/acolyte/commit/6b1c7602b58f2952f22e18c3408e273924572d91) @ [core](https://github.com/cchantep/acolyte/tree/master/core)) Empty composite handler: `acolyte.CompositeHandler.empty()`
 
 ([4e7c51b26586ff6b4049b4fd7b73447561dabd07](https://github.com/cchantep/acolyte/commit/4e7c51b26586ff6b4049b4fd7b73447561dabd07) @ [scala](https://github.com/cchantep/acolyte/tree/master/scala)) Update handleQuery:
+
 ```scala
 import acolyte.Acolyte.handleQuery
 

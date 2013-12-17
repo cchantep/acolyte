@@ -93,3 +93,15 @@ rowList6( // Now it's ok
   classOf[String] -> "col5",
   classOf[String] -> "col6")
 ```
+
+## Why do I get error with null value in row?
+
+As type can always be inferred when using `null`, it can lead to ambiguity.
+e.g. error with the scala DSL:
+
+```
+[error]  found   : Null(null)
+[error]  required: Int
+```
+
+In such cases, [type of null](index.html#NULL_values) must be explicitly given.

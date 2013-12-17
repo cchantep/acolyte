@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project name="acolyte">
   <body>
-    <links>
-      <item name="GitHub project" href="http://github.com/cchantep/acolyte" />
-    </links>
+    <head>
+      <link rel="stylesheet" type="text/css" 
+            href="css/pygments.min.css" />
+    </head>
 
     <menu name="User guide">
       <item name="Java" href="./index.html#Java" />
@@ -15,6 +16,7 @@
     <menu name="Reference">
       <item name="Javadoc" href="./apidocs/index.html" />
       <item name="Scaladoc" href="./scaladocs/index.html" />
+      <item name="Changelog" href="./changelog.html" />
     </menu>
 
     <menu ref="reports" />
@@ -23,6 +25,22 @@
   <skin>
     <groupId>org.apache.maven.skins</groupId>
     <artifactId>maven-fluido-skin</artifactId>
-    <version>1.3.0</version>
+    <version>1.3.1</version>
   </skin>
+
+  <custom>
+    <fluidoSkin>
+      <gitHub>
+        <projectId>cchantep/acolyte</projectId>
+        <ribbonOrientation>right</ribbonOrientation>
+        <ribbonColor>black</ribbonColor>
+      </gitHub>
+
+      <twitter>
+        <user>cchantep</user>
+        <showUser>true</showUser>
+        <showFollowers>true</showFollowers>
+      </twitter>
+    </fluidoSkin>
+  </custom>
 </project>

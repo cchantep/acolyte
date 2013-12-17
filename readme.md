@@ -30,17 +30,17 @@ Using Maven 2/3+, Acolyte dependency can be resolved as following from your POM:
 
   <repositories>
     <!-- ... -->
-    <repository>
-      <id>applicius-snapshots</id>
+    <repository><!-- Get Acolyte release quicker than Central repo -->
+      <id>applicius-releases</id>
       <name>Applicius Maven2 Snapshots Repository</name>
-      <url>https://raw.github.com/applicius/mvn-repo/master/snapshots/</url>
+      <url>https://raw.github.com/applicius/mvn-repo/master/releases/</url>
     </repository>
   </repositories>
 
   <dependencies>
     <!-- ... -->
     <dependency>
-      <groupId>acolyte</groupId>
+      <groupId>org.eu.acolyte</groupId>
       <artifactId>acolyte-core</artifactId>
       <version>VERSION</version>
     </dependency>
@@ -351,7 +351,7 @@ Using SBT, Acolyte dependency can resolved as following:
 resolvers += 
   "Applicius Snapshots" at "https://raw.github.com/applicius/mvn-repo/master/snapshots/"
 
-libraryDependencies += "acolyte" %% "acolyte-scala" % "VERSION" % "test"
+libraryDependencies += "org.eu.acolyte" %% "acolyte-scala" % "VERSION" % "test"
 ```
 
 Then code could be:
@@ -910,3 +910,46 @@ Acolyte can be built from these sources using SBT (0.12.2+): `sbt publish`
 ## Documentation
 
 Documentation is generated using Maven 3: `mvn -f site.xml site`
+
+## Deploy
+
+To local repository:
+
+```
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=core/target/acolyte-core-$VERSION.pom -Dfile=core/target/acolyte-core-$VERSION.jar -Durl=file://$PATH
+
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.pom -Dfile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.jar -Durl=file://$PATH
+```
+
+At Sonatype:
+
+```
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=core/target/acolyte-core-$VERSION.pom -Dfile=core/target/acolyte-core-$VERSION.jar -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=sonatype-nexus-staging
+
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=core/target/acolyte-core-$VERSION.pom -Dfile=core/target/acolyte-core-$VERSION-javadoc.jar -Dclassifier=javadoc -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=sonatype-nexus-staging
+
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=core/target/acolyte-core-$VERSION.pom -Dfile=core/target/acolyte-core-$VERSION-sources.jar -Dclassifier=sources -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=sonatype-nexus-staging
+
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.pom -Dfile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.jar -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=sonatype-nexus-staging
+
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.pom -Dfile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION-javadoc.jar -Dclassifier=javadoc -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=sonatype-nexus-staging
+
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.pom -Dfile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION-sources.jar -Dclassifier=sources -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=sonatype-nexus-staging
+```
+
+Authentication should be configured in `~/.m2/settings.xml`:
+
+```xml
+<settings>
+  <servers>
+    <!-- ... -->
+
+    <server>
+      <id>sonatype-nexus-staging</id>
+      <username>your-jira-id</username>
+      <password>your-jira-pwd</password>
+    </server>
+  </servers>
+  <!-- ... -->
+</settings>
+```
