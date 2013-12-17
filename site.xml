@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project><!-- Only for site generation -->
   <modelVersion>4.0.0</modelVersion>
-  <groupId>acolyte</groupId>
+  <groupId>org.eu.acolyte</groupId>
   <artifactId>acolyte</artifactId>
   <version>1.0.11</version>
   <packaging>pom</packaging>

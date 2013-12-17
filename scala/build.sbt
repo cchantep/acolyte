@@ -1,6 +1,6 @@
 name := "acolyte-scala"
 
-organization := "acolyte"
+organization := "org.eu.acolyte"
 
 version := "1.0.11"
 
@@ -54,7 +54,7 @@ sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in
 resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
 
 libraryDependencies ++= Seq(
-  "acolyte" % "acolyte-core" % "1.0.11",
+  "org.eu.acolyte" % "acolyte-core" % "1.0.11",
   "org.specs2" %% "specs2" % "2.3.2" % "test")
 
 pomExtra := (
@@ -79,6 +79,10 @@ pomExtra := (
     <system>GitHub</system>
     <url>https://github.com/cchantep/acolyte/issues</url>
   </issueManagement>
+  <ciManagement>
+    <system>Travis CI</system>
+    <url>https://travis-ci.org/cchantep/acolyte</url>
+  </ciManagement>
   <developers>
     <developer>
       <id>cchantep</id>

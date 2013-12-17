@@ -4,7 +4,7 @@ import Keys._
 trait Core {
   lazy val core = Project(id = "core", base = file("core")).settings(
     name := "acolyte-core",
-    organization := "acolyte",
+    organization := "org.eu.acolyte",
     version := "1.0.11",
     scalaVersion := "2.10.3",
     javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
@@ -41,6 +41,10 @@ trait Core {
         <system>GitHub</system>
         <url>https://github.com/cchantep/acolyte/issues</url>
       </issueManagement>
+      <ciManagement>
+        <system>Travis CI</system>
+        <url>https://travis-ci.org/cchantep/acolyte</url>
+      </ciManagement>
       <developers>
         <developer>
           <id>cchantep</id>
