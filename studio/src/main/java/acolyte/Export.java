@@ -112,11 +112,8 @@ public final class Export {
         ResultSet rs = null;
 
         try {
-            final Properties conProps = new Properties();
-            conProps.put("user", this.user);
-            conProps.put("password", this.pass);
-
-            con = this.jdbcDriver.connect(this.jdbcUrl, conProps);
+            con = JDBC.connect(this.jdbcDriver, this.jdbcUrl, 
+                               this.user, this.pass);
 
             stmt = con.createStatement();
             rs = stmt.executeQuery(this.sql);

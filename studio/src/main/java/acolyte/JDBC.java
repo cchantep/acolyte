@@ -1,11 +1,14 @@
 package acolyte;
 
 import java.util.ServiceLoader;
+import java.util.Properties;
 import java.util.Iterator;
 
 import java.net.URLClassLoader;
 import java.net.URL;
 
+import java.sql.SQLException;
+import java.sql.Connection;
 import java.sql.Driver;
 
 /**
@@ -36,6 +39,26 @@ public final class JDBC {
 
         return iter.next();
     } // end of loadDriver
+
+    /**
+     * Returns connection using given |driver|.
+     *
+     * @param driver JDBC driver
+     * @param url JDBC url
+     * @param user DB user name
+     * @param pass Password for DB user
+     */
+    public static Connection connect(final Driver driver, final String url,
+                                     final String user, final String pass) 
+        throws SQLException {
+        
+        final Properties props = new Properties();
+
+        props.put("user", user);
+        props.put("password", pass);
+
+        return driver.connect(url, props);
+    } // end of connect
 
     // ---
 
