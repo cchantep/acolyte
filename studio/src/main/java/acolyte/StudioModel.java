@@ -2,6 +2,8 @@ package acolyte;
 
 import java.beans.PropertyChangeListener;
 
+import java.sql.Driver;
+
 import melasse.PropertyChangeSupport;
 
 /**
@@ -29,6 +31,21 @@ public final class StudioModel {
      */
     private boolean processing = false;
 
+    /**
+     * JDBC driver
+     */
+    private Driver driver = null;
+
+    /**
+     * JDBC url
+     */
+    private String url = null;
+
+    /**
+     * Connection ref/ID
+     */
+    private long connectionRef = -1l;
+
     // --- Constructors ---
 
     /**
@@ -36,9 +53,65 @@ public final class StudioModel {
      */
     public StudioModel() {
         this.pcs = new PropertyChangeSupport(this);
+
+        pcs.registerDependency("driver", new String[] { "connectionRef" });
+        pcs.registerDependency("url", new String[] { "connectionRef" });
     } // end of <init>
 
     // --- Properties accessors ---
+
+    /**
+     * Returns connection reference/ID.
+     */
+    public long getConnectionRef() {
+        return this.connectionRef;
+    } // end of getConnectionRef
+
+    /**
+     * Sets JDBC |url|.
+     *
+     * @param url JDBC URL
+     * @see #getUrl
+     */
+    public void setUrl(final String url) {
+        final String old = this.url;
+
+        this.url = url;
+        this.connectionRef = System.currentTimeMillis();
+
+        this.pcs.firePropertyChange("url", old, this.url);
+    } // end of setUrl
+
+    /**
+     * Returns JDBC URL.
+     * @see #setUrl
+     */
+    public String getUrl() {
+        return this.url;
+    } // end of getUrl
+
+    /**
+     * Sets JDBC |driver|.
+     *
+     * @param driver JDBC driver
+     * @see #getDriver
+     */
+    public void setDriver(final Driver driver) {
+        final Driver old = this.driver;
+
+        this.driver = driver;
+        this.connectionRef = System.currentTimeMillis();
+        
+        this.pcs.firePropertyChange("driver", old, this.driver);
+    } // end of setDriver
+
+    /**
+     * Returns JDBC driver.
+     * @see #setDriver
+     */
+    public Driver getDriver() {
+        return this.driver;
+    } // end of getDriver
 
     /**
      * Sets whether connection is |validated|.

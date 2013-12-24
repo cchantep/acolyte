@@ -44,6 +44,8 @@ import javax.swing.JTable;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import javax.swing.GroupLayout.Alignment;
+
 import javax.swing.filechooser.FileFilter;
 
 import javax.swing.table.TableColumn;
@@ -78,11 +80,6 @@ public final class Studio {
      * Main model
      */
     private final StudioModel model = new StudioModel();
-
-    /**
-     * JDBC driver
-     */
-    private Driver driver = null;
 
     // ---
 
@@ -169,7 +166,7 @@ public final class Studio {
                     driverField.setText(driverPath);
 
                     try {
-                        driver = JDBC.loadDriver(driverFile.toURL());
+                        model.setDriver(JDBC.loadDriver(driverFile.toURL()));
 
                         conf.put("jdbc.driverPath", driverPath);
                     } catch (Exception e) {
@@ -210,7 +207,7 @@ public final class Studio {
                             Connection con = null;
 
                             try {
-                                con = JDBC.connect(driver, 
+                                con = JDBC.connect(model.getDriver(), 
                                                    urlField.getText(),
                                                    userField.getText(), 
                                                    passField.getText());
@@ -299,7 +296,8 @@ public final class Studio {
                 }
             };
         testSql.putValue(Action.NAME, "Test SQL");
-        testSql.putValue(Action.SHORT_DESCRIPTION, "Test SQL request");
+        testSql.putValue(Action.SHORT_DESCRIPTION, 
+                         "Test SQL request and get raw result");
         testSql.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_T);
         final JButton testBut = new JButton(testSql);
 
@@ -342,23 +340,23 @@ public final class Studio {
                          GroupLayout.DEFAULT_SIZE,
                          GroupLayout.PREFERRED_SIZE).
             addGroup(layout.
-                     createParallelGroup(GroupLayout.Alignment.BASELINE).
+                     createParallelGroup(Alignment.BASELINE).
                      addComponent(driverLabel).
                      addComponent(driverField).
                      addComponent(driverBut)).
             addGroup(layout.
-                     createParallelGroup(GroupLayout.Alignment.BASELINE).
+                     createParallelGroup(Alignment.BASELINE).
                      addComponent(urlLabel).
                      addComponent(urlField)).
             addComponent(invalidUrl).
             addGroup(layout.
-                     createParallelGroup(GroupLayout.Alignment.BASELINE).
+                     createParallelGroup(Alignment.BASELINE).
                      addComponent(userLabel).
                      addComponent(userField).
                      addComponent(passLabel).
                      addComponent(passField)).
             addGroup(layout.
-                     createParallelGroup(GroupLayout.Alignment.TRAILING).
+                     createParallelGroup(Alignment.TRAILING).
                      addComponent(invalidCred).
                      addComponent(checkConLabel).
                      addComponent(checkConBut)).
@@ -381,7 +379,7 @@ public final class Studio {
                          GroupLayout.PREFERRED_SIZE).
             addComponent(colLabel).
             addGroup(layout.
-                     createParallelGroup(GroupLayout.Alignment.BASELINE).
+                     createParallelGroup(Alignment.BASELINE).
                      addComponent(colName).
                      addComponent(colTypes).
                      addComponent(colBut)).
@@ -390,7 +388,7 @@ public final class Studio {
                          GroupLayout.DEFAULT_SIZE,
                          (int) screenSize.getHeight()/16).
             addGroup(layout.
-                     createParallelGroup(GroupLayout.Alignment.BASELINE).
+                     createParallelGroup(Alignment.BASELINE).
                      addComponent(extractLabel).
                      addComponent(extractBut)).
             addComponent(secondSep,
@@ -403,12 +401,12 @@ public final class Studio {
                          GroupLayout.DEFAULT_SIZE,
                          Short.MAX_VALUE).
             addGroup(layout.
-                     createParallelGroup(GroupLayout.Alignment.BASELINE).
+                     createParallelGroup(Alignment.BASELINE).
                      addComponent(convertFormats).
                      addComponent(convertBut));
 
         final GroupLayout.ParallelGroup hgroup = 
-            layout.createParallelGroup(GroupLayout.Alignment.LEADING).
+            layout.createParallelGroup(Alignment.LEADING).
             addComponent(confLabel).
             addGroup(layout.createSequentialGroup().
                      addComponent(driverLabel,
@@ -514,115 +512,89 @@ public final class Studio {
         frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frm.setVisible(true);
 
+        // Sets up model bindings
+        Binder.bind("text", urlField, "url", this.model, 
+                    new BindingOptionMap().
+                    add(TextBindingKey.CONTINUOUSLY_UPDATE_VALUE));
+        
         // Sets up binding to disable action while processing
         final BindingOptionMap negOpts = new BindingOptionMap().
             add(BindingKey.INPUT_TRANSFORMER, 
                 NegateBooleanTransformer.getInstance());
-
+        
         Binder.bind("processing", this.model, "enabled", chooseDriver, negOpts);
         Binder.bind("processing", this.model, "enabled", driverLabel, negOpts);
         Binder.bind("processing", this.model, "enabled", urlField, negOpts);
         Binder.bind("processing", this.model, "enabled", userField, negOpts);
         Binder.bind("processing", this.model, "enabled", passField, negOpts);
-
+        
         Binder.bind("processing", this.model, "enabled[]", checkCon, negOpts);
         Binder.bind("processing", this.model, "enabled[]", testSql, negOpts);
         Binder.bind("processing", this.model, "enabled[]", extract, negOpts);
         Binder.bind("processing", this.model, "enabled[]", convert, negOpts);
-
+        
         // Sets up binding to disable action until connection validated
         Binder.bind("connectionValidated", this.model, "enabled[]", testSql, 
                     BindingOptionMap.targetModeOptions);
-
+        
         Binder.bind("connectionValidated", this.model, "enabled[]", extract, 
                     BindingOptionMap.targetModeOptions);
-
+        
         Binder.bind("connectionValidated", this.model, "enabled[]", convert, 
                     BindingOptionMap.targetModeOptions);
-
+        
         // Sets up bindings
-        final BindingOptionMap txtLenOpts = new BindingOptionMap().
+        final BindingOptionMap txtLenOpts = 
+            new BindingOptionMap().
             add(BindingKey.INPUT_TRANSFORMER,
                 StringLengthToBooleanTransformer.
                 getTrimmingInstance()).
             add(TextBindingKey.CONTINUOUSLY_UPDATE_VALUE);
-
+    
         colName.setAction(addCol);
 	Binder.bind("text", colName, "enabled", addCol, txtLenOpts);
 
-	Binder.bind("text", urlField,
-                    "visible", invalidUrl,
+	Binder.bind("connectionRef", model, "visible", invalidUrl,
 		    new BindingOptionMap().
-                    add(TextBindingKey.CONTINUOUSLY_UPDATE_VALUE).
 		    add(BindingKey.INPUT_TRANSFORMER,
-                        new ValueTransformer<String,Boolean>() {
-                            public Boolean transform(final String t) {
+                        new ValueTransformer<Long,Boolean>() {
+                            public Boolean transform(final Long r) {
+                                final Driver d = model.getDriver();
+                                final String t = model.getUrl();
+
                                 try {
                                     return (t != null && t.length() > 0 &&
-                                            driver != null && 
-                                            !driver.acceptsURL(t));
+                                            d != null && !d.acceptsURL(t));
 
                                 } catch (Exception e) { }
 
                                 return false;
                             }
                     }));
-
+                    
         // Bindings for check connection action
-	Binder.bind("text", driverField,
-                    "enabled[]", checkCon,
+	Binder.bind("connectionRef", model, "enabled[]", checkCon,
 		    new BindingOptionMap().
-		    add(BindingKey.INPUT_TRANSFORMER,
-                        new ValueTransformer<String,Boolean>() {
-                            public Boolean transform(final String t) {
-                                if (t == null || t == "Path to driver.jar") {
-                                    return false;
-                                } // end of if
+		    add(BindingKey.INPUT_TRANSFORMER, 
+                        new ValueTransformer<Long,Boolean>() {
+                            public Boolean transform(final Long r) {
+                                final Driver d = model.getDriver();
+                                final String t = model.getUrl();
 
-                                if (t.trim().length() == 0) {
-                                    return false;
-                                } // end of if
-                                
-                                // ---
-
-                                // Sets from file chooser - so already validated
-                                return true;
-                            }
-                    }));
-
-	Binder.bind("text", urlField,
-                    "enabled[]", checkCon,
-		    new BindingOptionMap().
-                    add(TextBindingKey.CONTINUOUSLY_UPDATE_VALUE).
-		    add(BindingKey.INPUT_TRANSFORMER,
-                        new ValueTransformer<String,Boolean>() {
-                            public Boolean transform(final String t) {
                                 try {
-                                    return (driver != null && 
-                                            driver.acceptsURL(t));
-
+                                    return (d != null && d.acceptsURL(t));
                                 } catch (Exception e) { }
 
                                 return false;
                             }
                     }));
 
-        Binder.bind("text", userField,
-                    "enabled[]", checkCon,
-		    txtLenOpts);
-
-        Binder.bind("text", passField,
-                    "enabled[]", checkCon,
-		    txtLenOpts);
+        Binder.bind("text", userField, "enabled[]", checkCon, txtLenOpts);
+        Binder.bind("text", passField, "enabled[]", checkCon, txtLenOpts);
 
         // Bindings for SQL test action
-	Binder.bind("text", sqlArea,
-		    "enabled[]", testSql,
-		    txtLenOpts);
-
-        Binder.bind("enabled", testSql,
-                    "enabled[]", extract,
-                    null);
+	Binder.bind("text", sqlArea, "enabled[]", testSql, txtLenOpts);
+        Binder.bind("enabled", testSql, "enabled[]", extract, null);
 
     } // end of setUp
 
