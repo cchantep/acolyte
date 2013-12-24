@@ -1,11 +1,20 @@
 package acolyte;
 
 import java.util.Properties;
+import java.util.ArrayList;
+import java.util.Vector;
 import java.util.Arrays;
 
+import java.io.OutputStreamWriter;
+import java.io.InputStreamReader;
+import java.io.FileOutputStream;
+import java.io.FileInputStream;
 import java.io.File;
 
+import java.sql.ResultSetMetaData;
 import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.ResultSet;
 import java.sql.Driver;
 
 import java.util.concurrent.ExecutorService;
@@ -28,6 +37,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JPasswordField;
 import javax.swing.BorderFactory;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import javax.swing.LayoutStyle;
 import javax.swing.GroupLayout;
@@ -38,6 +48,7 @@ import javax.swing.JTextField;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JTable;
@@ -52,7 +63,7 @@ import javax.swing.table.TableColumn;
 
 import melasse.StringLengthToBooleanTransformer;
 import melasse.NegateBooleanTransformer;
-import melasse.ValueTransformer;
+import melasse.UnaryFunction;
 import melasse.BindingOptionMap;
 import melasse.TextBindingKey;
 import melasse.BindingKey;
@@ -64,6 +75,15 @@ import melasse.Binder;
  * @author Cedric Chantepie
  */
 public final class Studio {
+    // --- Shared ---
+
+    /**
+     * Do nothing - only returns false.
+     */
+    private static final Callable<Boolean> retFalse = new Callable<Boolean>() {
+        public Boolean call() { return false; }
+    };
+
     // --- Properties ---
 
     /**
@@ -81,6 +101,64 @@ public final class Studio {
      */
     private final StudioModel model = new StudioModel();
 
+    /**
+     * Callable configuration persistence
+     */
+    private final Callable<Boolean> saveConf;
+
+    // --- Constructors ---
+
+    /**
+     * No-arg constructor.
+     */
+    public Studio() {
+        final File userDir = new File(System.getProperty("user.home"));
+        final File prefDir = (userDir.canWrite()) 
+            ? new File(userDir, ".acolyte") : null;
+
+        if (prefDir != null && !prefDir.exists()) {
+            prefDir.mkdir();
+        } // end of if
+
+        final File prefFile = 
+            (prefDir != null && prefDir.canRead() && prefDir.canWrite())
+            ? new File(prefDir, "studio.properties") : null;
+
+        if (prefFile.exists()) {
+            reloadConfig(prefFile);
+        } // end of if
+
+        this.saveConf = (prefFile == null) 
+            ? retFalse : new Callable<Boolean>() {
+            public Boolean call() {
+                OutputStreamWriter w = null;
+
+                try {
+                    final FileOutputStream out = new FileOutputStream(prefFile);
+                    w = new OutputStreamWriter(out, "UTF-8");
+
+                    conf.store(w, "Acolyte studio configuration");
+                    w.flush();
+
+                    return true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if (w != null) {
+                        try {
+                            w.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        } // end of catch
+                    } // end of if
+                } // end of finally
+
+                return false;
+            }
+        };
+
+    } // end of <init>
+
     // ---
 
     /**
@@ -95,30 +173,50 @@ public final class Studio {
                                          (int) (screenSize.getHeight()/1.2f)));
         frm.setPreferredSize(frm.getMinimumSize());
 
-        // 
+        // Prepare config
+        final String driverPath = conf.getProperty("jdbc.driverPath");
+        final String jdbcUrl = conf.getProperty("jdbc.url");
+        final String dbUser = conf.getProperty("db.user");
+
+        final JTextField driverField = new JTextField();
+        driverField.setEditable(false);
         
+        if (driverPath != null && driverPath.length() > 0) {
+            final File driverFile = new File(driverPath);
+
+            try {
+                this.model.setDriver(JDBC.loadDriver(driverFile));
+                driverField.setText(driverPath);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } // end of catch
+        } else {
+            driverField.setForeground(Color.LIGHT_GRAY);
+            driverField.setText("Path to driver.jar");
+        } // end of else
+
+        // 
         final Container content = frm.getContentPane();
         final GroupLayout layout = new GroupLayout(content);
         final JLabel confLabel = 
             new JLabel("<html><b>JDBC access</b></html>");
+        final JLabel confValidated = new JLabel("(validated)");
+        confValidated.setForeground(new Color(0, 124, 0));
         final JLabel driverLabel = new JLabel("JDBC driver");
-        final JTextField driverField = new JTextField("Path to driver.jar");
-        driverField.setEditable(false);
-        driverField.setForeground(Color.LIGHT_GRAY);
         de.sciss.syntaxpane.DefaultSyntaxKit.initKit();
         final JLabel urlLabel = new JLabel("JDBC URL");
-        final JTextField urlField = new JTextField();
+        final JTextField urlField = new JTextField(jdbcUrl);
         final JLabel invalidUrl = new JLabel("Driver doesn't accept URL.");
         invalidUrl.setForeground(Color.RED);
         final JLabel userLabel = new JLabel("DB user");
-        final JTextField userField = new JTextField();
+        final JTextField userField = new JTextField(dbUser);
         final JLabel passLabel = new JLabel("Password");
         final JPasswordField passField = new JPasswordField();
         final JLabel invalidCred = 
             new JLabel("Can't connect using these credentials");
         invalidCred.setForeground(Color.RED);
         invalidCred.setVisible(false);
-        final JLabel sqlLabel = new JLabel("<html><b>SQL</b></html>");
+        final JLabel sqlLabel = new JLabel("<html><b>SQL query</b></html>");
         final JEditorPane sqlArea = new JEditorPane();
         final JScrollPane sqlPanel = 
             new JScrollPane(sqlArea, 
@@ -157,18 +255,18 @@ public final class Studio {
 
                     // ---
 
-                    final String driverPath = 
-                        chooser.getSelectedFile().getAbsolutePath();
-
-                    final File driverFile = new File(driverPath);
+                    final File driverFile = chooser.getSelectedFile();
+                    final String driverPath = driverFile.getAbsolutePath();
 
                     driverField.setForeground(colName.getForeground());
                     driverField.setText(driverPath);
 
                     try {
-                        model.setDriver(JDBC.loadDriver(driverFile.toURL()));
+                        model.setDriver(JDBC.loadDriver(driverFile));
 
+                        // !! Side-effect
                         conf.put("jdbc.driverPath", driverPath);
+                        updateConfig();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -208,9 +306,9 @@ public final class Studio {
 
                             try {
                                 con = JDBC.connect(model.getDriver(), 
-                                                   urlField.getText(),
-                                                   userField.getText(), 
-                                                   passField.getText());
+                                                   model.getUrl(),
+                                                   model.getUser(), 
+                                                   model.getPassword());
 
                                 return con != null;
                             } catch (Exception ex) {
@@ -226,9 +324,9 @@ public final class Studio {
                         } // end of call
                     };
 
-                    final ValueTransformer<Callable<Boolean>,Boolean> tx = 
-                        new ValueTransformer<Callable<Boolean>,Boolean>() {
-                        public Boolean transform(final Callable<Boolean> x) {
+                    final UnaryFunction<Callable<Boolean>,Boolean> tx = 
+                        new UnaryFunction<Callable<Boolean>,Boolean>() {
+                        public Boolean apply(final Callable<Boolean> x) {
                             Boolean res = null;
 
                             try {
@@ -293,18 +391,26 @@ public final class Studio {
         final AbstractAction testSql = new AbstractAction() {
                 public void actionPerformed(final ActionEvent e) {
                     System.out.println("-> test SQL");
+
+                    model.setProcessing(true);
+
+                    final String sql = sqlArea.getText();
+
+                    testSql(frm, sql, 100);
                 }
             };
-        testSql.putValue(Action.NAME, "Test SQL");
+        testSql.putValue(Action.NAME, "Test query");
         testSql.putValue(Action.SHORT_DESCRIPTION, 
-                         "Test SQL request and get raw result");
+                         "Test SQL query and get raw result");
         testSql.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_T);
         final JButton testBut = new JButton(testSql);
 
         sqlPanel.setBorder(BorderFactory.createLoweredBevelBorder());
         
         final JLabel extractLabel = 
-            new JLabel("Fetch results with SQL and", SwingConstants.RIGHT);
+            new JLabel("Fetch results executing query and", 
+                       SwingConstants.RIGHT);
+        extractLabel.setForeground(Color.DARK_GRAY);
         final AbstractAction extract = new AbstractAction() {
                 public void actionPerformed(final ActionEvent e) { }
             };
@@ -335,28 +441,29 @@ public final class Studio {
         final JSeparator secondSep = new JSeparator();
         final GroupLayout.SequentialGroup vgroup = 
             layout.createSequentialGroup().
-            addComponent(confLabel,
-                         GroupLayout.PREFERRED_SIZE,
-                         GroupLayout.DEFAULT_SIZE,
-                         GroupLayout.PREFERRED_SIZE).
-            addGroup(layout.
-                     createParallelGroup(Alignment.BASELINE).
+            addGroup(layout.createParallelGroup(Alignment.BASELINE).
+                     addComponent(confLabel,
+                                  GroupLayout.PREFERRED_SIZE,
+                                  GroupLayout.DEFAULT_SIZE,
+                                  GroupLayout.PREFERRED_SIZE).
+                     addComponent(confValidated,
+                                  GroupLayout.PREFERRED_SIZE,
+                                  GroupLayout.DEFAULT_SIZE,
+                                  GroupLayout.PREFERRED_SIZE)).
+            addGroup(layout.createParallelGroup(Alignment.BASELINE).
                      addComponent(driverLabel).
                      addComponent(driverField).
                      addComponent(driverBut)).
-            addGroup(layout.
-                     createParallelGroup(Alignment.BASELINE).
+            addGroup(layout.createParallelGroup(Alignment.BASELINE).
                      addComponent(urlLabel).
                      addComponent(urlField)).
             addComponent(invalidUrl).
-            addGroup(layout.
-                     createParallelGroup(Alignment.BASELINE).
+            addGroup(layout.createParallelGroup(Alignment.BASELINE).
                      addComponent(userLabel).
                      addComponent(userField).
                      addComponent(passLabel).
                      addComponent(passField)).
-            addGroup(layout.
-                     createParallelGroup(Alignment.TRAILING).
+            addGroup(layout.createParallelGroup(Alignment.TRAILING).
                      addComponent(invalidCred).
                      addComponent(checkConLabel).
                      addComponent(checkConBut)).
@@ -407,7 +514,15 @@ public final class Studio {
 
         final GroupLayout.ParallelGroup hgroup = 
             layout.createParallelGroup(Alignment.LEADING).
-            addComponent(confLabel).
+            addGroup(layout.createSequentialGroup().
+                     addComponent(confLabel,
+                                  GroupLayout.PREFERRED_SIZE,
+                                  GroupLayout.DEFAULT_SIZE,
+                                  GroupLayout.PREFERRED_SIZE).
+                     addComponent(confValidated, 
+                                  GroupLayout.PREFERRED_SIZE,
+                                  GroupLayout.DEFAULT_SIZE,
+                                  Short.MAX_VALUE)).
             addGroup(layout.createSequentialGroup().
                      addComponent(driverLabel,
                                   GroupLayout.PREFERRED_SIZE,
@@ -513,10 +628,13 @@ public final class Studio {
         frm.setVisible(true);
 
         // Sets up model bindings
-        Binder.bind("text", urlField, "url", this.model, 
-                    new BindingOptionMap().
-                    add(TextBindingKey.CONTINUOUSLY_UPDATE_VALUE));
-        
+        final BindingOptionMap txtOpts = new BindingOptionMap().
+            add(TextBindingKey.CONTINUOUSLY_UPDATE_VALUE);
+
+        Binder.bind("text", userField, "user", this.model, txtOpts);
+        Binder.bind("text", passField, "password", this.model, txtOpts);
+        Binder.bind("text", urlField, "url", this.model, txtOpts);
+
         // Sets up binding to disable action while processing
         final BindingOptionMap negOpts = new BindingOptionMap().
             add(BindingKey.INPUT_TRANSFORMER, 
@@ -542,6 +660,10 @@ public final class Studio {
         
         Binder.bind("connectionValidated", this.model, "enabled[]", convert, 
                     BindingOptionMap.targetModeOptions);
+
+        Binder.bind("connectionValidated", this.model, 
+                    "visible", confValidated, 
+                    BindingOptionMap.targetModeOptions);
         
         // Sets up bindings
         final BindingOptionMap txtLenOpts = 
@@ -554,11 +676,11 @@ public final class Studio {
         colName.setAction(addCol);
 	Binder.bind("text", colName, "enabled", addCol, txtLenOpts);
 
-	Binder.bind("connectionRef", model, "visible", invalidUrl,
+	Binder.bind("connectionConfig", model, "visible", invalidUrl,
 		    new BindingOptionMap().
 		    add(BindingKey.INPUT_TRANSFORMER,
-                        new ValueTransformer<Long,Boolean>() {
-                            public Boolean transform(final Long r) {
+                        new UnaryFunction<Long,Boolean>() {
+                            public Boolean apply(final Long r) {
                                 final Driver d = model.getDriver();
                                 final String t = model.getUrl();
 
@@ -571,15 +693,18 @@ public final class Studio {
                                 return false;
                             }
                     }));
-                    
+
         // Bindings for check connection action
-	Binder.bind("connectionRef", model, "enabled[]", checkCon,
+	Binder.bind("connectionConfig", model, "enabled[]", checkCon,
 		    new BindingOptionMap().
 		    add(BindingKey.INPUT_TRANSFORMER, 
-                        new ValueTransformer<Long,Boolean>() {
-                            public Boolean transform(final Long r) {
+                        new UnaryFunction<Long,Boolean>() {
+                            public Boolean apply(final Long r) {
                                 final Driver d = model.getDriver();
                                 final String t = model.getUrl();
+
+                                // !! Side-effect
+                                updateConfig();
 
                                 try {
                                     return (d != null && d.acceptsURL(t));
@@ -589,26 +714,23 @@ public final class Studio {
                             }
                     }));
 
-        Binder.bind("text", userField, "enabled[]", checkCon, txtLenOpts);
-        Binder.bind("text", passField, "enabled[]", checkCon, txtLenOpts);
+        Binder.bind("user", this.model, "enabled[]", checkCon, txtLenOpts);
+        Binder.bind("password", this.model, "enabled[]", checkCon, txtLenOpts);
 
         // Bindings for SQL test action
 	Binder.bind("text", sqlArea, "enabled[]", testSql, txtLenOpts);
         Binder.bind("enabled", testSql, "enabled[]", extract, null);
-
     } // end of setUp
 
     /**
      * Studio process.
      */
-    private <T> SwingWorker<T,T> studioProcess(final int timeout, final Callable<T> c, final ValueTransformer<Callable<T>,T> tx) {
+    private <T> SwingWorker<T,T> studioProcess(final int timeout, final Callable<T> c, final UnaryFunction<Callable<T>,T> f) {
 
         final Callable<T> cw = new Callable<T>() {
             public T call() {
                 final FutureTask<T> t = new FutureTask<T>(c);
 
-                System.out.println("_cw");
-                
                 try {
                     executor.submit(t);
                     return t.get(timeout, TimeUnit.SECONDS);
@@ -623,7 +745,7 @@ public final class Studio {
         return new SwingWorker<T,T>() {
             public T doInBackground() throws Exception {
                 try {
-                    tx.transform(cw);
+                    f.apply(cw);
                 } finally {
                     model.setProcessing(false);
                 } // end of finally
@@ -632,4 +754,159 @@ public final class Studio {
             }
         };
     } // end of studioProcess
+
+    /**
+     * Reloads configuration from file.
+     */
+    private void reloadConfig(final File f) {
+        InputStreamReader r = null;
+
+        try {
+            final FileInputStream in = new FileInputStream(f);
+            r = new InputStreamReader(in, "UTF-8");
+
+            this.conf.load(r);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (r != null) {
+                try {
+                    r.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } // end of catch
+            } // end of if
+        } // end of finally
+    } // end of reloadConfig
+
+    /**
+     * Updates application configuration.
+     */
+    private void updateConfig() {
+        // JDBC URL
+        final String u = this.model.getUrl();
+        final String url = (u != null) ? u.trim() : null;
+
+        if (url == null || url.length() == 0) {
+            this.conf.remove("jdbc.url");
+        } else {
+            this.conf.put("jdbc.url", url);
+        } // end of else
+
+        // DB user name
+        final String n = this.model.getUser();
+        final String user = (n != null) ? n.trim() : null;
+
+        if (user == null || user.length() == 0) {
+            this.conf.remove("db.user");
+        } else {
+            this.conf.put("db.user", user);
+        } // end of else
+
+        try {
+            this.saveConf.call();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } // end of catch
+    } // end of updateConfig
+
+    /**
+     * Test SQL query.
+     */
+    private void testSql(final JFrame frm, final String sql, final int limit) {
+        System.out.println("sql=" + sql);
+
+        Connection con = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = JDBC.connect(model.getDriver(), model.getUrl(),
+                               model.getUser(), model.getPassword());
+                        
+            stmt = con.createStatement();
+            stmt.setMaxRows(limit);
+            rs = stmt.executeQuery(sql);
+
+            if (!rs.next()) {
+                JOptionPane.
+                    showMessageDialog(frm, "No result fetched for this query.",
+                                      "No result", JOptionPane.WARNING_MESSAGE);
+                                              
+                return;
+            } // end of if
+
+            // ---
+
+            final ResultSetMetaData meta = rs.getMetaData();
+            final int c = meta.getColumnCount();
+            final JDialog dlg = new JDialog(frm, "Test result");
+            final Vector<String> ns = new Vector<String>();
+
+            for (int p = 1; p <= c; p++) {
+                final String n = meta.getColumnLabel(p);
+                ns.add((n == null || "".equals(n)) ? "col" + p : n);
+            } // end of for
+
+            final Vector<Vector<String>> rows = new Vector<Vector<String>>();
+            Vector<String> row = new Vector<String>();
+
+            for (int p = 1; p <= c; p++) {
+                row.add(rs.getString(p));
+            } // end of for
+
+            rows.add(row);
+
+            while (rs.next()) {
+                row = new Vector<String>();
+                
+                for (int p = 1; p <= c; p++) {
+                    row.add(rs.getString(p));
+                } // end of for
+
+                rows.add(row);
+            } // end of if
+
+            final JTable table = new JTable(rows, ns);
+            final JScrollPane pane = new JScrollPane(table);
+
+            dlg.setContentPane(pane);
+            dlg.pack();
+            dlg.setLocationRelativeTo(null);
+            dlg.setVisible(true);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            if (rs != null) {
+                try { 
+                    rs.close(); 
+                } catch (Exception ex) { }
+            } // end of if
+
+            if (stmt != null) {
+                try { 
+                    stmt.close(); 
+                } catch (Exception ex) { }
+            } // end of if
+
+            if (con != null) {
+                try { 
+                    con.close(); 
+                } catch (Exception ex) { }
+            } // end of if
+
+            model.setProcessing(false);
+        } // end of finally
+    } // end of testSql
+
+    // ---
+
+    /**
+     * Starts studio application.
+     */
+    public static void main(final String[] args) throws Exception {
+        final Studio studio = new Studio();
+
+        studio.setUp();
+    } // end of main
 } // end of class Studio

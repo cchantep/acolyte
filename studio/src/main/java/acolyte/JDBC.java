@@ -1,5 +1,7 @@
 package acolyte;
 
+import java.io.File;
+
 import java.util.ServiceLoader;
 import java.util.Properties;
 import java.util.Iterator;
@@ -17,6 +19,19 @@ import java.sql.Driver;
  * @author Cedric Chantepie
  */
 public final class JDBC {
+
+    /**
+     * Returns JDBC driver declared in specified JAR.
+     *
+     * @param jar JAR file
+     */
+    public static Driver loadDriver(final File jar) {
+        try {
+            return loadDriver(jar.toURL());
+        } catch (java.net.MalformedURLException e) {
+            throw new RuntimeException(e);
+        } // end of catch
+    } // end of loadDriver
 
     /**
      * Returns JDBC driver declared in specified JAR.

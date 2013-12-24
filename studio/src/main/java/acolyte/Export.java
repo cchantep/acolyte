@@ -311,12 +311,6 @@ public final class Export {
      * args[6] to args[n] - type(s) of column from 1 to m.
      */
     public static void main(final String[] args) throws Exception {
-        final Studio studio = new Studio();
-
-        studio.setUp();
-    }
-
-    public static void _main(final String[] args) throws Exception {
         final File config = new File("acolyte.properties");
 
         if (config.exists()) {

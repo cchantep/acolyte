@@ -12,10 +12,10 @@ autoScalaLibrary := false
 
 scalacOptions += "-feature"
 
-resolvers += "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
+resolvers += "Applicius Releases Repository" at "https://raw.github.com/applicius/mvn-repo/master/releases/"
 
 libraryDependencies ++= Seq(
-  "melasse" % "melasse-api" % "1.0",
+  "melasse" % "melasse-core" % "1.0",
   "de.sciss" % "syntaxpane" % "1.1.0")
 
 crossPaths := false

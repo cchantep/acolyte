@@ -42,9 +42,19 @@ public final class StudioModel {
     private String url = null;
 
     /**
-     * Connection ref/ID
+     * DB user name
      */
-    private long connectionRef = -1l;
+    private String user = null;
+
+    /**
+     * Password for DB user
+     */
+    private String password = null;
+
+    /**
+     * Connection config time
+     */
+    private long connectionConfig = -1l;
 
     // --- Constructors ---
 
@@ -54,18 +64,72 @@ public final class StudioModel {
     public StudioModel() {
         this.pcs = new PropertyChangeSupport(this);
 
-        pcs.registerDependency("driver", new String[] { "connectionRef" });
-        pcs.registerDependency("url", new String[] { "connectionRef" });
+        pcs.registerDependency("driver", new String[] { "connectionConfig" });
+        pcs.registerDependency("url", new String[] { "connectionConfig" });
+        pcs.registerDependency("user", new String[] { "connectionConfig" });
+        pcs.registerDependency("password", new String[] { "connectionConfig" });
+
+        pcs.registerDependency("connectionConfig", 
+                               new String[] { "connectionValidated" });
+
     } // end of <init>
 
     // --- Properties accessors ---
 
     /**
-     * Returns connection reference/ID.
+     * Returns time when configuration of connection was updated.
      */
-    public long getConnectionRef() {
-        return this.connectionRef;
-    } // end of getConnectionRef
+    public long getConnectionConfig() {
+        return this.connectionConfig;
+    } // end of getConnectionConfig
+
+    /**
+     * Sets name of DB |user|.
+     *
+     * @param user User name
+     * @see #getUser
+     */
+    public void setUser(final String user) {
+        final String old = this.user;
+
+        this.user = user;
+        this.connectionConfig = System.currentTimeMillis();
+        this.connectionValidated = false;
+
+        this.pcs.firePropertyChange("user", old, this.user);
+    } // end of setUser
+
+    /**
+     * Returns name of DB user.
+     * @see #setUser
+     */
+    public String getUser() {
+        return this.user;
+    } // end of getUser
+
+    /**
+     * Sets |password| for DB user.
+     *
+     * @param password DB user password
+     * @see #getPassword
+     */
+    public void setPassword(final String password) {
+        final String old = this.password;
+
+        this.password = password;
+        this.connectionConfig = System.currentTimeMillis();
+        this.connectionValidated = false;
+
+        this.pcs.firePropertyChange("password", old, this.password);
+    } // end of setPassword
+
+    /**
+     * Returns password of DB user.
+     * @see #setPassword
+     */
+    public String getPassword() {
+        return this.password;
+    } // end of getPassword
 
     /**
      * Sets JDBC |url|.
@@ -77,7 +141,8 @@ public final class StudioModel {
         final String old = this.url;
 
         this.url = url;
-        this.connectionRef = System.currentTimeMillis();
+        this.connectionConfig = System.currentTimeMillis();
+        this.connectionValidated = false;
 
         this.pcs.firePropertyChange("url", old, this.url);
     } // end of setUrl
@@ -100,7 +165,8 @@ public final class StudioModel {
         final Driver old = this.driver;
 
         this.driver = driver;
-        this.connectionRef = System.currentTimeMillis();
+        this.connectionConfig = System.currentTimeMillis();
+        this.connectionValidated = false;
         
         this.pcs.firePropertyChange("driver", old, this.driver);
     } // end of setDriver
