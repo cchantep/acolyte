@@ -2,7 +2,6 @@ package acolyte;
 
 import java.util.Properties;
 import java.util.ArrayList;
-import java.util.Vector;
 import java.util.Arrays;
 
 import java.io.OutputStreamWriter;
@@ -25,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Color;
 
 import java.awt.event.MouseAdapter;
@@ -59,6 +59,8 @@ import javax.swing.GroupLayout.Alignment;
 
 import javax.swing.filechooser.FileFilter;
 
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import melasse.StringLengthToBooleanTransformer;
@@ -206,37 +208,27 @@ public final class Studio {
         de.sciss.syntaxpane.DefaultSyntaxKit.initKit();
         final JLabel urlLabel = new JLabel("JDBC URL");
         final JTextField urlField = new JTextField(jdbcUrl);
+        urlLabel.setLabelFor(urlField);
         final JLabel invalidUrl = new JLabel("Driver doesn't accept URL.");
         invalidUrl.setForeground(Color.RED);
         final JLabel userLabel = new JLabel("DB user");
         final JTextField userField = new JTextField(dbUser);
+        userLabel.setLabelFor(userField);
         final JLabel passLabel = new JLabel("Password");
         final JPasswordField passField = new JPasswordField();
+        passLabel.setLabelFor(passField);
         final JLabel invalidCred = 
             new JLabel("Can't connect using these credentials");
         invalidCred.setForeground(Color.RED);
         invalidCred.setVisible(false);
-        final JLabel sqlLabel = new JLabel("<html><b>SQL query</b></html>");
-        final JEditorPane sqlArea = new JEditorPane();
-        final JScrollPane sqlPanel = 
-            new JScrollPane(sqlArea, 
-                            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-                            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        sqlArea.setContentType("text/sql");
-        final JLabel colLabel = 
-            new JLabel("<html><b>Column mappings</b></html>");
-        final JTextField colName = new JTextField();
-        final JTable colTable = new JTable();
-        final JTable resTable = new JTable();
-        final JScrollPane colPanel = new JScrollPane(colTable);
         final JLabel resLabel = new JLabel("<html><b>Mapped result</b></html>");
+        final JTable resTable = new JTable();
+        resTable.setDefaultRenderer(String.class, new ResultCellRenderer());
+
         final JScrollPane resPanel = 
             new JScrollPane(resTable, 
                             JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        final JComboBox colTypes = 
-            new JComboBox(Export.colTypes.toArray());
-        colTypes.setSelectedItem("string");
 
         final Runnable selectDriver = new Runnable() {
                 public void run() {
@@ -258,7 +250,7 @@ public final class Studio {
                     final File driverFile = chooser.getSelectedFile();
                     final String driverPath = driverFile.getAbsolutePath();
 
-                    driverField.setForeground(colName.getForeground());
+                    driverField.setForeground(Color.BLACK);
                     driverField.setText(driverPath);
 
                     try {
@@ -344,9 +336,7 @@ public final class Studio {
                         }
                     };
 
-                    SwingWorker<Boolean,Boolean> sw = studioProcess(5, c, tx);
-
-                    sw.execute();
+                    studioProcess(5, c, tx).execute();
                 }
             };
         checkCon.putValue(Action.NAME, "Check connection...");
@@ -369,29 +359,18 @@ public final class Studio {
         userField.setAction(checkConFromField);
         passField.setAction(checkConFromField);
 
-        final AbstractAction addCol = new AbstractAction() {
-                public void actionPerformed(final ActionEvent e) {
-                    final String name = colName.getText();
-                    final String type = (String) colTypes.getSelectedItem();
-
-                    final TableColumn col = new TableColumn();
-                    col.setHeaderValue(name);
-
-                    colTable.addColumn(col);
-
-                    colName.setText("");
-                    colName.grabFocus();
-                }
-            };
-        addCol.putValue(Action.NAME, "Add column");
-        addCol.putValue(Action.SHORT_DESCRIPTION, "Add column to list");
-        addCol.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_C);
-        final JButton colBut = new JButton(addCol);
+        // SQL test UI
+        final JLabel sqlLabel = new JLabel("<html><b>SQL query</b></html>");
+        final JEditorPane sqlArea = new JEditorPane();
+        final JScrollPane sqlPanel = 
+            new JScrollPane(sqlArea, 
+                            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        sqlPanel.setBorder(BorderFactory.createLoweredBevelBorder());
+        sqlArea.setContentType("text/sql"); // should be after sqlPanel setup
 
         final AbstractAction testSql = new AbstractAction() {
                 public void actionPerformed(final ActionEvent e) {
-                    System.out.println("-> test SQL");
-
                     model.setProcessing(true);
 
                     final String sql = sqlArea.getText();
@@ -405,7 +384,64 @@ public final class Studio {
         testSql.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_T);
         final JButton testBut = new JButton(testSql);
 
-        sqlPanel.setBorder(BorderFactory.createLoweredBevelBorder());
+        // Column mappings UI
+        final JLabel colLabel = 
+            new JLabel("<html><b>Column mappings</b></html>");
+        final JTextField colName = new JTextField();
+        final ArrayList<String> colNames = new ArrayList<String>();
+        final ArrayList<String> colData = new ArrayList<String>();
+        final AbstractTableModel colModel = new AbstractTableModel() {
+                public int getColumnCount() { return colNames.size(); }
+                public int getRowCount() { return 1; }
+                public String getColumnName(int i) { return colNames.get(i); }
+                
+                public Class<String> getColumnClass(int i) {
+                    return String.class;
+                }
+                public String getValueAt(int x, int y) {
+                    if (x > 1) return null; else return colData.get(y);
+                }
+                public boolean isCellEditable(int x, int y) {
+                    return false;
+                }
+            };
+        final JTable colTable = new JTable(colModel);
+        final int colTableHeight = 5 + (colTable.getRowHeight() * 2);
+        final JScrollPane colPanel = new JScrollPane(colTable);
+        final JComboBox colTypes = new JComboBox(Export.colTypes.toArray());
+        colTypes.setSelectedItem("string");
+
+        final AbstractAction addCol = new AbstractAction() {
+                public void actionPerformed(final ActionEvent e) {
+                    final String name = colName.getText();
+                    final String type = (String) colTypes.getSelectedItem();
+
+                    colNames.add(name);
+                    colData.add(type);
+
+                    colModel.fireTableStructureChanged();
+                    colModel.fireTableDataChanged();
+
+                    colName.setText("");
+                    colName.grabFocus();
+                }
+            };
+        addCol.putValue(Action.NAME, "Add column");
+        addCol.putValue(Action.SHORT_DESCRIPTION, "Add column to list");
+        addCol.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_C);
+        final JButton colBut = new JButton(addCol);
+        final AbstractAction addColFromField = new AbstractAction() {
+                public void actionPerformed(final ActionEvent e) {
+                    if (!addCol.isEnabled()) {
+                        return;
+                    } // end of if
+
+                    // ---
+
+                    addCol.actionPerformed(e);
+                }
+            };
+        colName.setAction(addColFromField);        
         
         final JLabel extractLabel = 
             new JLabel("Fetch results executing query and", 
@@ -491,9 +527,9 @@ public final class Studio {
                      addComponent(colTypes).
                      addComponent(colBut)).
             addComponent(colPanel,
-                         (int) screenSize.getHeight()/16,
-                         GroupLayout.DEFAULT_SIZE,
-                         (int) screenSize.getHeight()/16).
+                         colTableHeight, 
+                         GroupLayout.DEFAULT_SIZE, 
+                         colTableHeight).
             addGroup(layout.
                      createParallelGroup(Alignment.BASELINE).
                      addComponent(extractLabel).
@@ -672,8 +708,7 @@ public final class Studio {
                 StringLengthToBooleanTransformer.
                 getTrimmingInstance()).
             add(TextBindingKey.CONTINUOUSLY_UPDATE_VALUE);
-    
-        colName.setAction(addCol);
+
 	Binder.bind("text", colName, "enabled", addCol, txtLenOpts);
 
 	Binder.bind("connectionConfig", model, "visible", invalidUrl,
@@ -814,8 +849,6 @@ public final class Studio {
      * Test SQL query.
      */
     private void testSql(final JFrame frm, final String sql, final int limit) {
-        System.out.println("sql=" + sql);
-
         Connection con = null;
         Statement stmt = null;
         ResultSet rs = null;
@@ -841,15 +874,16 @@ public final class Studio {
             final ResultSetMetaData meta = rs.getMetaData();
             final int c = meta.getColumnCount();
             final JDialog dlg = new JDialog(frm, "Test result");
-            final Vector<String> ns = new Vector<String>();
+            final ArrayList<String> ns = new ArrayList<String>();
 
             for (int p = 1; p <= c; p++) {
                 final String n = meta.getColumnLabel(p);
                 ns.add((n == null || "".equals(n)) ? "col" + p : n);
             } // end of for
 
-            final Vector<Vector<String>> rows = new Vector<Vector<String>>();
-            Vector<String> row = new Vector<String>();
+            final ArrayList<ArrayList<String>> rows = 
+                new ArrayList<ArrayList<String>>();
+            ArrayList<String> row = new ArrayList<String>();
 
             for (int p = 1; p <= c; p++) {
                 row.add(rs.getString(p));
@@ -858,7 +892,7 @@ public final class Studio {
             rows.add(row);
 
             while (rs.next()) {
-                row = new Vector<String>();
+                row = new ArrayList<String>();
                 
                 for (int p = 1; p <= c; p++) {
                     row.add(rs.getString(p));
@@ -867,14 +901,50 @@ public final class Studio {
                 rows.add(row);
             } // end of if
 
-            final JTable table = new JTable(rows, ns);
-            final JScrollPane pane = new JScrollPane(table);
+            final AbstractTableModel tm = new AbstractTableModel() {
+                    public int getColumnCount() { return c; }
+                    public int getRowCount() { return rows.size(); }
+                    public String getColumnName(int i) { return ns.get(i); }
 
+                    public Class<String> getColumnClass(int i) {
+                        return String.class;
+                    }
+                    public String getValueAt(int x, int y) {
+                        return rows.get(x).get(y);
+                    }
+                    public boolean isCellEditable(int x, int y) {
+                        return false;
+                    }
+                };
+            final JTable table = new JTable(tm);
+            final JScrollPane pane = new JScrollPane(table);
+            final int rowCount = rows.size();
+            final int rowHeight = table.getRowHeight();
+            final int dataHeight = rowHeight * (rowCount+1);
+            final int height = (dataHeight > frm.getHeight())
+                ? frm.getHeight() : dataHeight;
+
+            table.setDefaultRenderer(String.class, new ResultCellRenderer());
+
+            dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             dlg.setContentPane(pane);
-            dlg.pack();
             dlg.setLocationRelativeTo(null);
             dlg.setVisible(true);
+
+            dlg.setMinimumSize(new Dimension(frm.getWidth(), dataHeight));
+
+            table.setPreferredScrollableViewportSize(dlg.getMinimumSize());
+            dlg.pack();
+
+            dlg.setLocationRelativeTo(null);
+            final Point loc = dlg.getLocation();
+            loc.translate(20, 0);
+            dlg.setLocation(loc);
         } catch (Exception ex) {
+            JOptionPane.
+                showMessageDialog(frm, ex.getMessage(),
+                                  "Query error", JOptionPane.ERROR_MESSAGE);
+
             ex.printStackTrace();
         } finally {
             if (rs != null) {
@@ -909,4 +979,24 @@ public final class Studio {
 
         studio.setUp();
     } // end of main
+
+    // --- Inner classes ---
+
+    /**
+     * Cell renderer for result.
+     */
+    private final class ResultCellRenderer implements TableCellRenderer {
+        public JLabel getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column) {
+            
+            final String str = (value == null) ? 
+                "NULL" : value.toString();
+            
+            final JLabel cell = new JLabel(str);
+            
+            cell.setForeground((value == null) ? 
+                               Color.LIGHT_GRAY : Color.BLACK);
+            
+            return cell;
+        } // end of getTableCellRendererComponent
+    } // end of ResultCellRenderer
 } // end of class Studio
