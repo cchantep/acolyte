@@ -1,8 +1,14 @@
 package acolyte;
 
+import java.util.Collections;
 import java.util.Properties;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Vector;
 import java.util.Arrays;
+import java.util.Map;
+
+import java.text.MessageFormat;
 
 import java.io.OutputStreamWriter;
 import java.io.InputStreamReader;
@@ -11,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.File;
 
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.ResultSet;
@@ -29,9 +36,11 @@ import java.awt.Color;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.KeyEvent;
 
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.AbstractAction;
 import javax.swing.JPasswordField;
@@ -47,6 +56,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
+import javax.swing.JSpinner;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.Action;
@@ -64,12 +74,18 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import melasse.StringLengthToBooleanTransformer;
+import melasse.IntegerToBooleanTransformer;
+import melasse.NumberToStringTransformer;
 import melasse.NegateBooleanTransformer;
-import melasse.UnaryFunction;
 import melasse.BindingOptionMap;
 import melasse.TextBindingKey;
+import melasse.UnaryFunction;
 import melasse.BindingKey;
 import melasse.Binder;
+
+import melasse.PropertyChangeSupport.PropertyEditSession;
+
+import melasse.swing.TableModel;
 
 /**
  * Acolyte studio UI.
@@ -80,11 +96,36 @@ public final class Studio {
     // --- Shared ---
 
     /**
-     * Do nothing - only returns false.
+     * Do nothing - only returns false
      */
     private static final Callable<Boolean> retFalse = new Callable<Boolean>() {
         public Boolean call() { return false; }
     };
+
+    /**
+     * Column value formatting patterns
+     */
+    private static final Map<String,String> colPatterns;
+
+    static {
+        final HashMap<String,String> map = 
+            new HashMap<String,String>(Export.colTypes.size());
+
+        map.put("bigdecimal", "%s");
+        map.put("bool", "%b");
+        map.put("byte", "%d");
+        map.put("short", "%d");
+        map.put("date", "%tF");
+        map.put("double", "%f");
+        map.put("float", "%f");
+        map.put("int", "%d");
+        map.put("long", "%d");
+        map.put("time", "%r");
+        map.put("timestamp", "%tr");
+        map.put("string", "%s");
+
+        colPatterns = Collections.unmodifiableMap(map);
+    } // end of <cinit>
 
     // --- Properties ---
 
@@ -183,7 +224,7 @@ public final class Studio {
         final JTextField driverField = new JTextField();
         driverField.setEditable(false);
         
-        if (driverPath != null && driverPath.length() > 0) {
+        if (driverPath != null) {
             final File driverFile = new File(driverPath);
 
             try {
@@ -200,6 +241,8 @@ public final class Studio {
         // 
         final Container content = frm.getContentPane();
         final GroupLayout layout = new GroupLayout(content);
+
+        // Configuration UI
         final JLabel confLabel = 
             new JLabel("<html><b>JDBC access</b></html>");
         final JLabel confValidated = new JLabel("(validated)");
@@ -211,6 +254,7 @@ public final class Studio {
         urlLabel.setLabelFor(urlField);
         final JLabel invalidUrl = new JLabel("Driver doesn't accept URL.");
         invalidUrl.setForeground(Color.RED);
+        invalidUrl.setVisible(false);
         final JLabel userLabel = new JLabel("DB user");
         final JTextField userField = new JTextField(dbUser);
         userLabel.setLabelFor(userField);
@@ -221,14 +265,6 @@ public final class Studio {
             new JLabel("Can't connect using these credentials");
         invalidCred.setForeground(Color.RED);
         invalidCred.setVisible(false);
-        final JLabel resLabel = new JLabel("<html><b>Mapped result</b></html>");
-        final JTable resTable = new JTable();
-        resTable.setDefaultRenderer(String.class, new ResultCellRenderer());
-
-        final JScrollPane resPanel = 
-            new JScrollPane(resTable, 
-                            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-                            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
         final Runnable selectDriver = new Runnable() {
                 public void run() {
@@ -282,25 +318,17 @@ public final class Studio {
         final JLabel checkConLabel = new JLabel();
         final AbstractAction checkCon = new AbstractAction() {
                 public void actionPerformed(final ActionEvent e) {
-                    final ImageIcon waitIco = 
-                        new ImageIcon(this.getClass().
-                                      getResource("loader.gif"));
-
                     model.setProcessing(true);
                     model.setConnectionValidated(false);
 
-                    checkConLabel.setIcon(waitIco);
-                    waitIco.setImageObserver(checkConLabel);
+                    final ImageIcon waitIco = setWaitIcon(checkConLabel);
 
                     final Callable<Boolean> c = new Callable<Boolean>() {
                         public Boolean call() {
                             Connection con = null;
 
                             try {
-                                con = JDBC.connect(model.getDriver(), 
-                                                   model.getUrl(),
-                                                   model.getUser(), 
-                                                   model.getPassword());
+                                con = getConnection();
 
                                 return con != null;
                             } catch (Exception ex) {
@@ -369,13 +397,23 @@ public final class Studio {
         sqlPanel.setBorder(BorderFactory.createLoweredBevelBorder());
         sqlArea.setContentType("text/sql"); // should be after sqlPanel setup
 
+        final JLabel testSqlLabel = new JLabel("(Ctrl+T)");
+        testSqlLabel.setHorizontalTextPosition(SwingConstants.LEFT);
+        testSqlLabel.setForeground(Color.DARK_GRAY);
         final AbstractAction testSql = new AbstractAction() {
                 public void actionPerformed(final ActionEvent e) {
                     model.setProcessing(true);
-
+                
+                    final ImageIcon waitIco = setWaitIcon(testSqlLabel);
                     final String sql = sqlArea.getText();
-
-                    testSql(frm, sql, 100);
+                
+                    try {
+                        testSql(frm, sql, 100);
+                    } finally {
+                        model.setProcessing(false);
+                        waitIco.setImageObserver(null);
+                        testSqlLabel.setIcon(null);
+                    } // end of finally
                 }
             };
         testSql.putValue(Action.NAME, "Test query");
@@ -383,44 +421,45 @@ public final class Studio {
                          "Test SQL query and get raw result");
         testSql.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_T);
         final JButton testBut = new JButton(testSql);
+        sqlArea.addKeyListener(new KeyAdapter() {
+                public void keyReleased(final KeyEvent e) {
+                    if (e.getKeyCode() != KeyEvent.VK_T || !e.isControlDown()) {
+                        return;
+                    }
+
+                    // ---
+
+                    testBut.doClick();
+                }
+            });
 
         // Column mappings UI
         final JLabel colLabel = 
             new JLabel("<html><b>Column mappings</b></html>");
         final JTextField colName = new JTextField();
-        final ArrayList<String> colNames = new ArrayList<String>();
-        final ArrayList<String> colData = new ArrayList<String>();
-        final AbstractTableModel colModel = new AbstractTableModel() {
-                public int getColumnCount() { return colNames.size(); }
-                public int getRowCount() { return 1; }
-                public String getColumnName(int i) { return colNames.get(i); }
-                
-                public Class<String> getColumnClass(int i) {
-                    return String.class;
-                }
-                public String getValueAt(int x, int y) {
-                    if (x > 1) return null; else return colData.get(y);
-                }
-                public boolean isCellEditable(int x, int y) {
-                    return false;
-                }
-            };
+        final Vector<String> colNames = new Vector<String>();
+        final Vector<Vector<String>> colData = new Vector<Vector<String>>();
+        final TableModel colModel = new TableModel(colData, colNames);
         final JTable colTable = new JTable(colModel);
         final int colTableHeight = 5 + (colTable.getRowHeight() * 2);
         final JScrollPane colPanel = new JScrollPane(colTable);
         final JComboBox colTypes = new JComboBox(Export.colTypes.toArray());
         colTypes.setSelectedItem("string");
+        colData.add(new Vector<String>());
 
         final AbstractAction addCol = new AbstractAction() {
                 public void actionPerformed(final ActionEvent e) {
                     final String name = colName.getText();
                     final String type = (String) colTypes.getSelectedItem();
+                    final Vector<String> cd = colData.elementAt(0);
+                    final PropertyEditSession s = colModel.willChange();
 
                     colNames.add(name);
-                    colData.add(type);
+                    cd.add(type);
 
                     colModel.fireTableStructureChanged();
                     colModel.fireTableDataChanged();
+                    s.propertyDidChange();
 
                     colName.setText("");
                     colName.grabFocus();
@@ -441,21 +480,92 @@ public final class Studio {
                     addCol.actionPerformed(e);
                 }
             };
-        colName.setAction(addColFromField);        
-        
-        final JLabel extractLabel = 
-            new JLabel("Fetch results executing query and", 
-                       SwingConstants.RIGHT);
-        extractLabel.setForeground(Color.DARK_GRAY);
+        colName.setAction(addColFromField);
+
+        final Vector<String> resCols = new Vector<String>();
+        final Vector<Vector<String>> resData = new Vector<Vector<String>>();
+        final TableModel resModel = new TableModel(resData, resCols);
+        final JLabel extractLabel1 = new JLabel("Fetch", SwingConstants.RIGHT);
+        final JLabel extractLabel2 = 
+            new JLabel("result rows executing query and", SwingConstants.LEFT);
+        extractLabel1.setForeground(Color.DARK_GRAY);
+        extractLabel2.setForeground(Color.DARK_GRAY);
+        final SpinnerNumberModel xlm = 
+            new SpinnerNumberModel(100, 1, Integer.MAX_VALUE, 1);
+        final JSpinner extractLimField = new JSpinner(xlm);
+        final JSpinner.NumberEditor xlf = 
+            new JSpinner.NumberEditor(extractLimField);
         final AbstractAction extract = new AbstractAction() {
-                public void actionPerformed(final ActionEvent e) { }
+                public void actionPerformed(final ActionEvent e) { 
+                    System.out.println("--> EXTRACT: " + colNames +
+                                       ", " + colData);
+
+                    model.setProcessing(true);
+
+                    final Number n = xlm.getNumber();
+                    Connection con = null;
+                    Statement stmt = null;
+                    ResultSet rs = null;
+
+                    try {
+                        con = getConnection();
+                        stmt = con.createStatement();
+
+                        stmt.setMaxRows(n.intValue());
+                        rs = stmt.executeQuery(sqlArea.getText());
+
+                        final int c = rs.getMetaData().getColumnCount();
+                        final RowFunction<Object> f = 
+                            new RowFunction<Object>() {
+                            public ArrayList<Object> apply(final ResultSet rs) {
+                                final ArrayList<Object> row =
+                                new ArrayList<Object>(c);
+
+                                return row;
+                            }
+                        };
+                        final TableData td = tableData(rs, f);
+                    } catch (Exception ex) {
+                        JOptionPane.
+                            showMessageDialog(frm, ex.getMessage(),
+                                              "Query error", 
+                                              JOptionPane.ERROR_MESSAGE);
+                        
+                    } finally {
+                        if (rs != null) {
+                            try { rs.close(); } catch (Exception ex) {}
+                        } // end of if
+
+                        if (stmt != null) {
+                            try { stmt.close(); } catch (Exception ex) {}
+                        } // end of if
+
+                        if (con != null) {
+                            try { con.close(); } catch (Exception ex) {}
+                        } // end of if
+
+                        model.setProcessing(false);
+                    } // end of finally
+                }
             };
         extract.putValue(Action.NAME, "Extract");
         extract.putValue(Action.SHORT_DESCRIPTION, 
-                               "Extract result using column mappings");
+                         "Extract result using column mappings");
         extract.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_X);
         final JButton extractBut = new JButton(extract);
 
+        // Mapped result UI
+        final JLabel resLabel = new JLabel("<html><b>Mapped result</b></html>");
+        final JTable resTable = new JTable(resModel);
+        resTable.setDefaultRenderer(String.class, new ResultCellRenderer());
+
+        final JScrollPane resPanel = 
+            new JScrollPane(resTable, 
+                            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        
+        final JLabel resCountLabel = new JLabel();
+        resCountLabel.setForeground(Color.DARK_GRAY);
         final JComboBox convertFormats = 
             new JComboBox(new String[] { "Java", "Scala" });
         final AbstractAction convert = new AbstractAction() {
@@ -512,10 +622,15 @@ public final class Studio {
                          (int) screenSize.getHeight()/10,
                          GroupLayout.DEFAULT_SIZE,
                          GroupLayout.PREFERRED_SIZE).
-            addComponent(testBut, 
-                         GroupLayout.PREFERRED_SIZE,
-                         GroupLayout.DEFAULT_SIZE,
-                         GroupLayout.PREFERRED_SIZE).
+            addGroup(layout.createParallelGroup(Alignment.TRAILING).
+                     addComponent(testBut, 
+                                  GroupLayout.PREFERRED_SIZE,
+                                  GroupLayout.DEFAULT_SIZE,
+                                  GroupLayout.PREFERRED_SIZE).
+                     addComponent(testSqlLabel, 
+                                  GroupLayout.PREFERRED_SIZE,
+                                  GroupLayout.DEFAULT_SIZE,
+                                  GroupLayout.PREFERRED_SIZE)).
             addComponent(firstSep,
                          GroupLayout.PREFERRED_SIZE, 
                          GroupLayout.DEFAULT_SIZE,
@@ -532,19 +647,22 @@ public final class Studio {
                          colTableHeight).
             addGroup(layout.
                      createParallelGroup(Alignment.BASELINE).
-                     addComponent(extractLabel).
+                     addComponent(extractLabel1).
+                     addComponent(extractLimField).
+                     addComponent(extractLabel2).
                      addComponent(extractBut)).
             addComponent(secondSep,
                          GroupLayout.PREFERRED_SIZE, 
                          GroupLayout.DEFAULT_SIZE,
                          GroupLayout.PREFERRED_SIZE).
-            addComponent(resLabel).
+            addGroup(layout.createParallelGroup(Alignment.BASELINE).
+                     addComponent(resLabel).
+                     addComponent(resCountLabel)).
             addComponent(resPanel,
                          (int) (screenSize.getHeight()/6.5f),
                          GroupLayout.DEFAULT_SIZE,
                          Short.MAX_VALUE).
-            addGroup(layout.
-                     createParallelGroup(Alignment.BASELINE).
+            addGroup(layout.createParallelGroup(Alignment.BASELINE).
                      addComponent(convertFormats).
                      addComponent(convertBut));
 
@@ -609,6 +727,10 @@ public final class Studio {
                      addComponent(testBut,
                                   GroupLayout.PREFERRED_SIZE, 
                                   GroupLayout.DEFAULT_SIZE,
+                                  GroupLayout.PREFERRED_SIZE).
+                     addComponent(testSqlLabel,
+                                  GroupLayout.PREFERRED_SIZE, 
+                                  GroupLayout.DEFAULT_SIZE,
                                   GroupLayout.PREFERRED_SIZE)).
             addComponent(firstSep).
             addComponent(colLabel).
@@ -627,16 +749,34 @@ public final class Studio {
                                   GroupLayout.PREFERRED_SIZE)).
             addComponent(colPanel).
             addGroup(layout.createSequentialGroup().
-                     addComponent(extractLabel,
+                     addComponent(extractLabel1,
                                   GroupLayout.PREFERRED_SIZE,
                                   GroupLayout.DEFAULT_SIZE,
                                   Short.MAX_VALUE).
+                     addComponent(extractLimField,
+                                  GroupLayout.PREFERRED_SIZE, 
+                                  GroupLayout.DEFAULT_SIZE, 
+                                  GroupLayout.PREFERRED_SIZE).
+                     addComponent(extractLabel2,
+                                  GroupLayout.PREFERRED_SIZE,
+                                  GroupLayout.DEFAULT_SIZE,
+                                  GroupLayout.PREFERRED_SIZE).
                      addComponent(extractBut,
                                   GroupLayout.PREFERRED_SIZE,
                                   GroupLayout.DEFAULT_SIZE,
                                   GroupLayout.PREFERRED_SIZE)).
             addComponent(secondSep).
-            addComponent(resLabel).
+            addGroup(layout.createSequentialGroup().
+                     addComponent(resLabel,
+                                  GroupLayout.PREFERRED_SIZE,
+                                  GroupLayout.DEFAULT_SIZE,
+                                  GroupLayout.PREFERRED_SIZE).
+                     addComponent(resCountLabel, 0,
+                                  GroupLayout.DEFAULT_SIZE,
+                                  GroupLayout.PREFERRED_SIZE).
+                     addPreferredGap(LayoutStyle.ComponentPlacement.RELATED,
+                                     GroupLayout.DEFAULT_SIZE, 
+                                     Short.MAX_VALUE)).
             addComponent(resPanel).
             addGroup(layout.createSequentialGroup().
                      addPreferredGap(LayoutStyle.ComponentPlacement.RELATED,
@@ -657,11 +797,25 @@ public final class Studio {
                         driverLabel, urlLabel, userLabel);
 
         layout.linkSize(SwingConstants.VERTICAL, checkConBut, checkConLabel);
+        layout.linkSize(SwingConstants.VERTICAL, testBut, testSqlLabel);
 
         frm.pack();
         frm.setLocationRelativeTo(null);
         frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frm.setVisible(true);
+
+        // Initial focus
+        frm.requestFocus();
+
+        if (driverPath == null) {
+            driverBut.grabFocus();
+        } else if (jdbcUrl == null) {
+            urlField.grabFocus();
+        } else if (dbUser == null) {
+            userField.grabFocus();
+        } else {
+            passField.grabFocus();
+        } // end of else
 
         // Sets up model bindings
         final BindingOptionMap txtOpts = new BindingOptionMap().
@@ -754,7 +908,21 @@ public final class Studio {
 
         // Bindings for SQL test action
 	Binder.bind("text", sqlArea, "enabled[]", testSql, txtLenOpts);
-        Binder.bind("enabled", testSql, "enabled[]", extract, null);
+
+        // Bindings for extract action
+        Binder.bind("text", sqlArea, "enabled[]", extract, txtLenOpts);
+        Binder.bind("columnCount", colModel, "enabled[]", extract, 
+                    new BindingOptionMap().add(BindingKey.INPUT_TRANSFORMER,
+                                               IntegerToBooleanTransformer.
+                                               getInstance()));
+
+        // Bindings for convert action
+        Binder.bind("rowCount", resModel, "text", resCountLabel,
+                    new BindingOptionMap().
+                    add(BindingKey.INPUT_TRANSFORMER, 
+                        NumberToStringTransformer.getInstance(new MessageFormat("{0,choice,0#no row|1#1 row|1<{0,number,integer} rows}."))));
+
+        Binder.bind("text", sqlArea, "enabled[]", convert, txtLenOpts);
     } // end of setUp
 
     /**
@@ -854,8 +1022,7 @@ public final class Studio {
         ResultSet rs = null;
 
         try {
-            con = JDBC.connect(model.getDriver(), model.getUrl(),
-                               model.getUser(), model.getPassword());
+            con = getConnection();
                         
             stmt = con.createStatement();
             stmt.setMaxRows(limit);
@@ -871,46 +1038,34 @@ public final class Studio {
 
             // ---
 
-            final ResultSetMetaData meta = rs.getMetaData();
-            final int c = meta.getColumnCount();
             final JDialog dlg = new JDialog(frm, "Test result");
-            final ArrayList<String> ns = new ArrayList<String>();
-
-            for (int p = 1; p <= c; p++) {
-                final String n = meta.getColumnLabel(p);
-                ns.add((n == null || "".equals(n)) ? "col" + p : n);
-            } // end of for
-
-            final ArrayList<ArrayList<String>> rows = 
-                new ArrayList<ArrayList<String>>();
-            ArrayList<String> row = new ArrayList<String>();
-
-            for (int p = 1; p <= c; p++) {
-                row.add(rs.getString(p));
-            } // end of for
-
-            rows.add(row);
-
-            while (rs.next()) {
-                row = new ArrayList<String>();
-                
-                for (int p = 1; p <= c; p++) {
-                    row.add(rs.getString(p));
-                } // end of for
-
-                rows.add(row);
-            } // end of if
-
+            final int c = rs.getMetaData().getColumnCount();
+            final RowFunction<String> f = new RowFunction<String>() {
+                public ArrayList<String> apply(final ResultSet rs) {
+                    try {
+                        final ArrayList<String> row = new ArrayList<String>();
+                        for (int p = 1; p <= c; p++) {
+                            row.add(rs.getString(p));
+                        }
+                        return row;
+                    } catch (SQLException e) {
+                        throw new RuntimeException("Fails to extract row", e);
+                    } // end of catch
+                }
+            };
+            final TableData<String> td = tableData(rs, f);
+            final int rc = td.rows.size();
             final AbstractTableModel tm = new AbstractTableModel() {
                     public int getColumnCount() { return c; }
-                    public int getRowCount() { return rows.size(); }
-                    public String getColumnName(int i) { return ns.get(i); }
-
+                    public int getRowCount() { return rc; }
+                    public String getColumnName(int i) { 
+                        return td.columns.get(i); 
+                    }
                     public Class<String> getColumnClass(int i) {
                         return String.class;
                     }
                     public String getValueAt(int x, int y) {
-                        return rows.get(x).get(y);
+                        return td.rows.get(x).get(y);
                     }
                     public boolean isCellEditable(int x, int y) {
                         return false;
@@ -918,7 +1073,7 @@ public final class Studio {
                 };
             final JTable table = new JTable(tm);
             final JScrollPane pane = new JScrollPane(table);
-            final int rowCount = rows.size();
+            final int rowCount = td.rows.size();
             final int rowHeight = table.getRowHeight();
             final int dataHeight = rowHeight * (rowCount+1);
             final int height = (dataHeight > frm.getHeight())
@@ -928,18 +1083,28 @@ public final class Studio {
 
             dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             dlg.setContentPane(pane);
+            dlg.setMinimumSize(new Dimension(frm.getWidth(), dataHeight));
+            table.setPreferredScrollableViewportSize(dlg.getMinimumSize());
+            dlg.pack();
             dlg.setLocationRelativeTo(null);
             dlg.setVisible(true);
 
-            dlg.setMinimumSize(new Dimension(frm.getWidth(), dataHeight));
-
-            table.setPreferredScrollableViewportSize(dlg.getMinimumSize());
-            dlg.pack();
-
-            dlg.setLocationRelativeTo(null);
+            //dlg.setLocationRelativeTo(null);
             final Point loc = dlg.getLocation();
             loc.translate(20, 0);
             dlg.setLocation(loc);
+
+            final KeyAdapter kl = new KeyAdapter() {
+                    public void keyReleased(KeyEvent e) {
+                        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                            dlg.dispose();
+                        }
+                    }
+                };
+
+            dlg.addKeyListener(kl);
+            pane.grabFocus();
+            pane.addKeyListener(kl);
         } catch (Exception ex) {
             JOptionPane.
                 showMessageDialog(frm, ex.getMessage(),
@@ -964,11 +1129,58 @@ public final class Studio {
                     con.close(); 
                 } catch (Exception ex) { }
             } // end of if
-
-            model.setProcessing(false);
         } // end of finally
     } // end of testSql
 
+    /**
+     * Returns JDBC connection for configuration in model.
+     */
+    private Connection getConnection() throws SQLException {
+        return JDBC.connect(model.getDriver(), model.getUrl(),
+                            model.getUser(), model.getPassword());
+
+    } // end of getConnection
+
+    /**
+     * Returns table data from |result| set. 
+     */
+    private <A> TableData<A> tableData(final ResultSet rs, 
+                                       final RowFunction<A> f) 
+        throws SQLException {
+
+        final ResultSetMetaData meta = rs.getMetaData();
+        final int c = meta.getColumnCount();
+        final TableData<A> td = new TableData<A>();
+
+        for (int p = 1; p <= c; p++) {
+            final String n = meta.getColumnLabel(p);
+            td.columns.add((n == null || "".equals(n)) ? "col" + p : n);
+        } // end of for
+        
+        // First row
+        td.rows.add(f.apply(rs));
+
+        // Other row(s)
+        while (rs.next()) {
+            td.rows.add(f.apply(rs));
+        } // end of if
+        
+        return td;
+    } // end of tableData
+
+    /**
+     * Sets wait icon on |label|.
+     */
+    private ImageIcon setWaitIcon(final JLabel label) {
+        final ImageIcon ico = 
+            new ImageIcon(this.getClass().getResource("loader.gif"));
+
+        label.setIcon(ico);
+        ico.setImageObserver(label);
+
+        return ico;
+    } // end of setWaitIcon
+        
     // ---
 
     /**
@@ -983,9 +1195,15 @@ public final class Studio {
     // --- Inner classes ---
 
     /**
+     * Returns list of formatted strings from a result set.
+     */
+    private static interface RowFunction<A> 
+        extends UnaryFunction<ResultSet,ArrayList<A>> { }
+
+    /**
      * Cell renderer for result.
      */
-    private final class ResultCellRenderer implements TableCellRenderer {
+    private static final class ResultCellRenderer implements TableCellRenderer {
         public JLabel getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column) {
             
             final String str = (value == null) ? 
@@ -999,4 +1217,17 @@ public final class Studio {
             return cell;
         } // end of getTableCellRendererComponent
     } // end of ResultCellRenderer
+
+    /**
+     * Table data.
+     */
+    private static final class TableData<A> {
+        final ArrayList<String> columns;
+        final ArrayList<ArrayList<A>> rows;
+
+        TableData() {
+            this.columns = new ArrayList<String>();
+            this.rows = new ArrayList<ArrayList<A>>();
+        } // end of <init>
+    } // end of class TableData
 } // end of class Studio
