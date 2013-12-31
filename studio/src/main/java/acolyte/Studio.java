@@ -85,8 +85,6 @@ import melasse.Binder;
 
 import melasse.PropertyChangeSupport.PropertyEditSession;
 
-import melasse.swing.TableModel;
-
 /**
  * Acolyte studio UI.
  *
@@ -427,8 +425,6 @@ public final class Studio {
                         return;
                     }
 
-                    // ---
-
                     testBut.doClick();
                 }
             });
@@ -439,8 +435,10 @@ public final class Studio {
         final JTextField colName = new JTextField();
         final Vector<String> colNames = new Vector<String>();
         final Vector<Vector<String>> colData = new Vector<Vector<String>>();
-        final TableModel colModel = new TableModel(colData, colNames);
+        final NotEditableTableModel colModel = 
+            new NotEditableTableModel(colData, colNames);
         final JTable colTable = new JTable(colModel);
+        colTable.setRowSelectionAllowed(false);
         final int colTableHeight = 5 + (colTable.getRowHeight() * 2);
         final JScrollPane colPanel = new JScrollPane(colTable);
         final JComboBox colTypes = new JComboBox(Export.colTypes.toArray());
@@ -450,6 +448,18 @@ public final class Studio {
         final AbstractAction addCol = new AbstractAction() {
                 public void actionPerformed(final ActionEvent e) {
                     final String name = colName.getText();
+                    
+                    if (colNames.contains(name)) {
+                        JOptionPane.
+                            showMessageDialog(frm, "Column is already mapped",
+                                              "Duplicate column", 
+                                              JOptionPane.ERROR_MESSAGE);
+
+                        return;
+                    } // end of if
+
+                    // ---
+
                     final String type = (String) colTypes.getSelectedItem();
                     final Vector<String> cd = colData.elementAt(0);
                     final PropertyEditSession s = colModel.willChange();
@@ -482,9 +492,55 @@ public final class Studio {
             };
         colName.setAction(addColFromField);
 
+        final AbstractAction removeCol = new AbstractAction() {
+                public void actionPerformed(final ActionEvent e) {
+                    final int col = colTable.getSelectedColumn();
+
+                    if (col == -1) {
+                        return; // No selection
+                    } // end of if
+
+                    // ---
+
+                    System.out.println("#col=" + col);
+
+                    final Vector<String> cd = colData.get(0);
+                    final PropertyEditSession s = colModel.willChange();
+
+                    System.out.println("#colNames=" + colNames +
+                                       ", #cd=" + cd);
+                        
+                    colNames.removeElementAt(col);
+                    cd.removeElementAt(col);
+
+                    colModel.fireTableStructureChanged();
+                    colModel.fireTableDataChanged();
+                    s.propertyDidChange();
+
+                } 
+            };
+        removeCol.putValue(Action.NAME, "Remove selected");
+        removeCol.putValue(Action.SHORT_DESCRIPTION, 
+                      "Remove column selected in list");
+        removeCol.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
+        final JButton removeColBut = new JButton(removeCol);
+
+        colTable.addKeyListener(new KeyAdapter() {
+                public void keyReleased(final KeyEvent e) {
+                    final int kc = e.getKeyCode();
+
+                    if (kc == KeyEvent.VK_DELETE ||
+                        kc == KeyEvent.VK_BACK_SPACE) {
+
+                        removeColBut.doClick();
+                    } // end of if
+                }
+            });
+
         final Vector<String> resCols = new Vector<String>();
         final Vector<Vector<String>> resData = new Vector<Vector<String>>();
-        final TableModel resModel = new TableModel(resData, resCols);
+        final NotEditableTableModel resModel = 
+            new NotEditableTableModel(resData, resCols);
         final JLabel extractLabel1 = new JLabel("Fetch", SwingConstants.RIGHT);
         final JLabel extractLabel2 = 
             new JLabel("result rows executing query and", SwingConstants.LEFT);
@@ -619,7 +675,7 @@ public final class Studio {
                          GroupLayout.PREFERRED_SIZE).
             addComponent(sqlLabel).
             addComponent(sqlPanel, 
-                         (int) screenSize.getHeight()/10,
+                         (int) (screenSize.getHeight()/11.5f),
                          GroupLayout.DEFAULT_SIZE,
                          GroupLayout.PREFERRED_SIZE).
             addGroup(layout.createParallelGroup(Alignment.TRAILING).
@@ -645,6 +701,7 @@ public final class Studio {
                          colTableHeight, 
                          GroupLayout.DEFAULT_SIZE, 
                          colTableHeight).
+            addComponent(removeColBut).
             addGroup(layout.
                      createParallelGroup(Alignment.BASELINE).
                      addComponent(extractLabel1).
@@ -748,6 +805,10 @@ public final class Studio {
                                   GroupLayout.DEFAULT_SIZE,
                                   GroupLayout.PREFERRED_SIZE)).
             addComponent(colPanel).
+            addComponent(removeColBut,
+                         GroupLayout.PREFERRED_SIZE,
+                         GroupLayout.DEFAULT_SIZE,
+                         GroupLayout.PREFERRED_SIZE).
             addGroup(layout.createSequentialGroup().
                      addComponent(extractLabel1,
                                   GroupLayout.PREFERRED_SIZE,
@@ -920,7 +981,7 @@ public final class Studio {
         Binder.bind("rowCount", resModel, "text", resCountLabel,
                     new BindingOptionMap().
                     add(BindingKey.INPUT_TRANSFORMER, 
-                        NumberToStringTransformer.getInstance(new MessageFormat("{0,choice,0#no row|1#1 row|1<{0,number,integer} rows}."))));
+                        NumberToStringTransformer.getInstance(new MessageFormat("{0,choice,0#no row|1#1 row|1<{0,number,integer} rows}"))));
 
         Binder.bind("text", sqlArea, "enabled[]", convert, txtLenOpts);
     } // end of setUp
@@ -1221,7 +1282,7 @@ public final class Studio {
     /**
      * Table data.
      */
-    private static final class TableData<A> {
+    private final class TableData<A> {
         final ArrayList<String> columns;
         final ArrayList<ArrayList<A>> rows;
 
@@ -1230,4 +1291,34 @@ public final class Studio {
             this.rows = new ArrayList<ArrayList<A>>();
         } // end of <init>
     } // end of class TableData
+
+    /**
+     * Table model with not-editable cells.
+     */
+    private final class NotEditableTableModel extends melasse.swing.TableModel {
+        /** 
+         * Bulk constructor.
+         */
+        public NotEditableTableModel(final Vector data, 
+                                     final Vector columnNames) {
+
+            super(data, columnNames);
+        } // end of <init>
+
+        // ---
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean isCellEditable(int rowIndex, int columnIndex) {
+            return false;
+        } // end of isCellEditable
+
+        /**
+         * {@inheritDoc}
+         */
+        public void setValue(int rowIndex, int columnIndex) {
+            throw new UnsupportedOperationException();
+        } // end of setValue
+    } // end of class NotEditableTableModel
 } // end of class Studio
