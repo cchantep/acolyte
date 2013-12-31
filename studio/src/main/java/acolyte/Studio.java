@@ -1,5 +1,7 @@
 package acolyte;
 
+import java.math.BigDecimal;
+
 import java.util.Collections;
 import java.util.Properties;
 import java.util.ArrayList;
@@ -19,9 +21,11 @@ import java.io.File;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Connection;
-import java.sql.Statement;
 import java.sql.ResultSet;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.sql.Driver;
+import java.sql.Time;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.FutureTask;
@@ -29,6 +33,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -69,6 +74,7 @@ import javax.swing.GroupLayout.Alignment;
 
 import javax.swing.filechooser.FileFilter;
 
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -99,31 +105,6 @@ public final class Studio {
     private static final Callable<Boolean> retFalse = new Callable<Boolean>() {
         public Boolean call() { return false; }
     };
-
-    /**
-     * Column value formatting patterns
-     */
-    private static final Map<String,String> colPatterns;
-
-    static {
-        final HashMap<String,String> map = 
-            new HashMap<String,String>(Export.colTypes.size());
-
-        map.put("bigdecimal", "%s");
-        map.put("bool", "%b");
-        map.put("byte", "%d");
-        map.put("short", "%d");
-        map.put("date", "%tF");
-        map.put("double", "%f");
-        map.put("float", "%f");
-        map.put("int", "%d");
-        map.put("long", "%d");
-        map.put("time", "%r");
-        map.put("timestamp", "%tr");
-        map.put("string", "%s");
-
-        colPatterns = Collections.unmodifiableMap(map);
-    } // end of <cinit>
 
     // --- Properties ---
 
@@ -502,13 +483,8 @@ public final class Studio {
 
                     // ---
 
-                    System.out.println("#col=" + col);
-
                     final Vector<String> cd = colData.get(0);
                     final PropertyEditSession s = colModel.willChange();
-
-                    System.out.println("#colNames=" + colNames +
-                                       ", #cd=" + cd);
                         
                     colNames.removeElementAt(col);
                     cd.removeElementAt(col);
@@ -516,12 +492,11 @@ public final class Studio {
                     colModel.fireTableStructureChanged();
                     colModel.fireTableDataChanged();
                     s.propertyDidChange();
-
                 } 
             };
         removeCol.putValue(Action.NAME, "Remove selected");
         removeCol.putValue(Action.SHORT_DESCRIPTION, 
-                      "Remove column selected in list");
+                           "Remove column selected in list");
         removeCol.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
         final JButton removeColBut = new JButton(removeCol);
 
@@ -538,7 +513,7 @@ public final class Studio {
             });
 
         final Vector<String> resCols = new Vector<String>();
-        final Vector<Vector<String>> resData = new Vector<Vector<String>>();
+        final Vector<Vector<Object>> resData = new Vector<Vector<Object>>();
         final NotEditableTableModel resModel = 
             new NotEditableTableModel(resData, resCols);
         final JLabel extractLabel1 = new JLabel("Fetch", SwingConstants.RIGHT);
@@ -553,12 +528,19 @@ public final class Studio {
             new JSpinner.NumberEditor(extractLimField);
         final AbstractAction extract = new AbstractAction() {
                 public void actionPerformed(final ActionEvent e) { 
-                    System.out.println("--> EXTRACT: " + colNames +
-                                       ", " + colData);
-
                     model.setProcessing(true);
 
                     final Number n = xlm.getNumber();
+                    final Vector<String> cd = colData.elementAt(0);
+                    final int len = cd.size();
+                    final HashMap<String,String> map = 
+                        new HashMap<String,String>(len);
+
+                    for (int c = 0; c < len; c++) { // zip col data
+                        map.put(colNames.elementAt(c), cd.elementAt(c));
+                    } // end of for
+
+                    final ExtractFunction f = new ExtractFunction(map);
                     Connection con = null;
                     Statement stmt = null;
                     ResultSet rs = null;
@@ -570,17 +552,24 @@ public final class Studio {
                         stmt.setMaxRows(n.intValue());
                         rs = stmt.executeQuery(sqlArea.getText());
 
-                        final int c = rs.getMetaData().getColumnCount();
-                        final RowFunction<Object> f = 
-                            new RowFunction<Object>() {
-                            public ArrayList<Object> apply(final ResultSet rs) {
-                                final ArrayList<Object> row =
-                                new ArrayList<Object>(c);
+                        final PropertyEditSession s = resModel.willChange();
 
-                                return row;
-                            }
-                        };
-                        final TableData td = tableData(rs, f);
+                        resCols.clear();
+                        resData.clear();
+
+                        if (rs.next()) {
+                            final TableData<Object> td = tableData(rs, f);
+
+                            resCols.addAll(td.columns);
+                            
+                            for (final ArrayList<Object> r : td.rows) {
+                                resData.add(new Vector(r));
+                            } // end of for
+                        } // end of if
+
+                        resModel.fireTableStructureChanged();
+                        resModel.fireTableDataChanged();
+                        s.propertyDidChange();
                     } catch (Exception ex) {
                         JOptionPane.
                             showMessageDialog(frm, ex.getMessage(),
@@ -612,8 +601,7 @@ public final class Studio {
 
         // Mapped result UI
         final JLabel resLabel = new JLabel("<html><b>Mapped result</b></html>");
-        final JTable resTable = new JTable(resModel);
-        resTable.setDefaultRenderer(String.class, new ResultCellRenderer());
+        final JTable resTable = withColRenderers(new JTable(resModel));
 
         final JScrollPane resPanel = 
             new JScrollPane(resTable, 
@@ -625,7 +613,11 @@ public final class Studio {
         final JComboBox convertFormats = 
             new JComboBox(new String[] { "Java", "Scala" });
         final AbstractAction convert = new AbstractAction() {
-                public void actionPerformed(final ActionEvent e) { }
+                public void actionPerformed(final ActionEvent e) { 
+                    System.out.println("-> convert");
+                    
+                    
+                }
             };
         convert.putValue(Action.NAME, "Convert");
         convert.putValue(Action.SHORT_DESCRIPTION, 
@@ -633,6 +625,7 @@ public final class Studio {
         convert.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_C);
         final JButton convertBut = new JButton(convert);
 
+        // Lays out UI components
         content.setLayout(layout);
 
 	layout.setAutoCreateGaps(true);
@@ -926,6 +919,12 @@ public final class Studio {
 
 	Binder.bind("text", colName, "enabled", addCol, txtLenOpts);
 
+        Binder.bind("selectionModel.selectionEmpty", colTable,
+                    "enabled", removeCol, 
+                    new BindingOptionMap().
+                    add(BindingKey.INPUT_TRANSFORMER, 
+                        NegateBooleanTransformer.getInstance()));
+
 	Binder.bind("connectionConfig", model, "visible", invalidUrl,
 		    new BindingOptionMap().
 		    add(BindingKey.INPUT_TRANSFORMER,
@@ -1157,7 +1156,9 @@ public final class Studio {
 
             final KeyAdapter kl = new KeyAdapter() {
                     public void keyReleased(KeyEvent e) {
-                        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                        final int kc = e.getKeyCode();
+                        if (kc == KeyEvent.VK_ESCAPE || 
+                            kc == KeyEvent.VK_ENTER) {
                             dlg.dispose();
                         }
                     }
@@ -1241,6 +1242,100 @@ public final class Studio {
 
         return ico;
     } // end of setWaitIcon
+
+    /**
+     * Returns value of specified |column| according its type.
+     */
+    private static Object getObject(final ResultSet rs,
+                                    final String name,
+                                    final int t) throws SQLException {
+        
+        switch (t) {
+        case 0: // bigdecimal
+            return rs.getBigDecimal(name);
+        case 1: // bool
+            return rs.getBoolean(name);
+        case 2: // byte
+            return rs.getByte(name);
+        case 3: // short
+            return rs.getShort(name);
+        case 4: // date
+            return rs.getDate(name);
+        case 5: // double
+            return rs.getDouble(name);
+        case 6: // float
+            return rs.getFloat(name);
+        case 7: // int
+            return rs.getInt(name);
+        case 8: // long
+            return rs.getLong(name);
+        case 9: // time
+            return rs.getTime(name);
+        case 10: // timestamp
+            return rs.getTimestamp(name);
+        default: // string
+            return rs.getString(name);
+        }
+    } // end of getObject
+
+    /**
+     * Returns table with column renderers.
+     */
+    private JTable withColRenderers(final JTable table) {
+        final DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+
+        // BigDecimal
+        table.setDefaultRenderer(BigDecimal.class, new TableCellRenderer() {
+            public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column) {
+
+                final BigDecimal bd = (BigDecimal) value;
+
+                return dtcr.getTableCellRendererComponent(table, bd.toString(), isSelected, hasFocus, row, column);
+            }
+        });
+
+        // Boolean
+        table.setDefaultRenderer(Boolean.class, new TableCellRenderer() {
+            public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column) {
+
+                final Boolean b = (Boolean) value;
+
+                return dtcr.getTableCellRendererComponent(table, Boolean.toString(b), isSelected, hasFocus, row, column);
+            }
+        });
+
+        // Date
+        table.setDefaultRenderer(java.sql.Date.class, new TableCellRenderer() {
+            public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column) {
+
+                final java.sql.Date d = (java.sql.Date) value;
+
+                return dtcr.getTableCellRendererComponent(table, String.format("%tF", d), isSelected, hasFocus, row, column);
+            }
+        });
+
+        // Time
+        table.setDefaultRenderer(Time.class, new TableCellRenderer() {
+            public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column) {
+
+                final Time t = (Time) value;
+
+                return dtcr.getTableCellRendererComponent(table, String.format("%tr", t), isSelected, hasFocus, row, column);
+            }
+        });
+
+        // Timestamp
+        table.setDefaultRenderer(Timestamp.class, new TableCellRenderer() {
+            public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column) {
+
+                final Time t = (Time) value;
+
+                return dtcr.getTableCellRendererComponent(table, String.format("%tr", t), isSelected, hasFocus, row, column);
+            }
+        });
+
+        return table;
+    } // end of withColRenderers
         
     // ---
 
@@ -1321,4 +1416,38 @@ public final class Studio {
             throw new UnsupportedOperationException();
         } // end of setValue
     } // end of class NotEditableTableModel
+
+    /**
+     * Extract mapped column from row.
+     */
+    private final class ExtractFunction implements RowFunction<Object> {
+        private final HashMap<String,String> mapping;
+
+        /**
+         * Un-curried function.
+         */
+        public ExtractFunction(final HashMap<String,String> map) {
+            this.mapping = map;
+        } // end of <init>
+
+        /**
+         * {@inheritDoc}
+         */
+        public ArrayList<Object> apply(final ResultSet rs) {
+            final ArrayList<Object> list = new ArrayList<Object>();
+
+            try {
+                for (final String name : this.mapping.keySet()) {
+                    final String t = this.mapping.get(name);
+                    
+                    list.add(getObject(rs, name, Export.colTypes.indexOf(t)));
+                } // end of for
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e.getMessage());
+            } // end of catch
+
+            return list;
+        } // end of apply
+    } // end of class ExtractFunction
 } // end of class Studio
