@@ -2,12 +2,11 @@ package acolyte;
 
 import java.math.BigDecimal;
 
-import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Properties;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
-import java.util.Arrays;
 import java.util.Map;
 
 import java.text.MessageFormat;
@@ -68,15 +67,16 @@ import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JTable;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import javax.swing.GroupLayout.Alignment;
 
 import javax.swing.filechooser.FileFilter;
 
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableColumn;
 
 import melasse.StringLengthToBooleanTransformer;
@@ -84,6 +84,7 @@ import melasse.IntegerToBooleanTransformer;
 import melasse.NumberToStringTransformer;
 import melasse.NegateBooleanTransformer;
 import melasse.BindingOptionMap;
+import melasse.QuietWrapAction;
 import melasse.TextBindingKey;
 import melasse.UnaryFunction;
 import melasse.BindingKey;
@@ -134,17 +135,7 @@ public final class Studio {
      * No-arg constructor.
      */
     public Studio() {
-        final File userDir = new File(System.getProperty("user.home"));
-        final File prefDir = (userDir.canWrite()) 
-            ? new File(userDir, ".acolyte") : null;
-
-        if (prefDir != null && !prefDir.exists()) {
-            prefDir.mkdir();
-        } // end of if
-
-        final File prefFile = 
-            (prefDir != null && prefDir.canRead() && prefDir.canWrite())
-            ? new File(prefDir, "studio.properties") : null;
+        final File prefFile = preferencesFile();
 
         if (prefFile.exists()) {
             reloadConfig(prefFile);
@@ -245,43 +236,9 @@ public final class Studio {
         invalidCred.setForeground(Color.RED);
         invalidCred.setVisible(false);
 
-        final Runnable selectDriver = new Runnable() {
-                public void run() {
-                    final JFileChooser chooser = new JFileChooser(new File("."));
-
-                    for (final FileFilter ff : chooser.getChoosableFileFilters()) chooser.removeChoosableFileFilter(ff); // clean choosable filters
-
-                    chooser.setDialogTitle("Chooser JDBC driver");
-                    chooser.setMultiSelectionEnabled(false);
-                    chooser.setFileFilter(new JDBCDriverFileFilter());
-
-                    final int choice = chooser.showOpenDialog(frm);
-                    if (choice != JFileChooser.APPROVE_OPTION) {
-                        return;
-                    } // end of if
-
-                    // ---
-
-                    final File driverFile = chooser.getSelectedFile();
-                    final String driverPath = driverFile.getAbsolutePath();
-
-                    driverField.setForeground(Color.BLACK);
-                    driverField.setText(driverPath);
-
-                    try {
-                        model.setDriver(JDBC.loadDriver(driverFile));
-
-                        // !! Side-effect
-                        conf.put("jdbc.driverPath", driverPath);
-                        updateConfig();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
         final AbstractAction chooseDriver = new AbstractAction() {
                 public void actionPerformed(final ActionEvent e) {
-                    selectDriver.run();
+                    chooseDriver(frm, driverField);
                 }
             };
         chooseDriver.putValue(Action.NAME, "Choose...");
@@ -289,8 +246,8 @@ public final class Studio {
         chooseDriver.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_O);
         final JButton driverBut = new JButton(chooseDriver);
         driverField.addMouseListener(new MouseAdapter() {
-                public void mouseClicked(final MouseEvent e) {
-                    selectDriver.run();
+                public void mouseClicked(final MouseEvent e) { 
+                    chooseDriver(frm, driverField); 
                 }
             });
 
@@ -351,17 +308,7 @@ public final class Studio {
                           "Check connection to database");
         checkCon.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_K);
         final JButton checkConBut = new JButton(checkCon);
-        final AbstractAction checkConFromField = new AbstractAction() {
-                public void actionPerformed(final ActionEvent e) {
-                    if (!checkCon.isEnabled()) {
-                        return;
-                    } // end of if
-
-                    // ---
-
-                    checkCon.actionPerformed(e);
-                }
-            };
+        final Action checkConFromField = new QuietWrapAction(checkCon);
         urlField.setAction(checkConFromField);
         userField.setAction(checkConFromField);
         passField.setAction(checkConFromField);
@@ -402,11 +349,8 @@ public final class Studio {
         final JButton testBut = new JButton(testSql);
         sqlArea.addKeyListener(new KeyAdapter() {
                 public void keyReleased(final KeyEvent e) {
-                    if (e.getKeyCode() != KeyEvent.VK_T || !e.isControlDown()) {
-                        return;
-                    }
-
-                    testBut.doClick();
+                    if (e.getKeyCode() == KeyEvent.VK_T && e.isControlDown()) 
+                        testBut.doClick();
                 }
             });
 
@@ -415,16 +359,17 @@ public final class Studio {
             new JLabel("<html><b>Column mappings</b></html>");
         final JTextField colName = new JTextField();
         final Vector<String> colNames = new Vector<String>();
-        final Vector<Vector<String>> colData = new Vector<Vector<String>>();
+        final Vector<Vector<ColumnType>> colData = 
+            new Vector<Vector<ColumnType>>();
         final NotEditableTableModel colModel = 
             new NotEditableTableModel(colData, colNames);
         final JTable colTable = new JTable(colModel);
         colTable.setRowSelectionAllowed(false);
         final int colTableHeight = 5 + (colTable.getRowHeight() * 2);
         final JScrollPane colPanel = new JScrollPane(colTable);
-        final JComboBox colTypes = new JComboBox(Export.colTypes.toArray());
-        colTypes.setSelectedItem("string");
-        colData.add(new Vector<String>());
+        final JComboBox colTypes = new JComboBox(ColumnType.values());
+        colTypes.setSelectedItem(ColumnType.String);
+        colData.add(new Vector<ColumnType>());
 
         final AbstractAction addCol = new AbstractAction() {
                 public void actionPerformed(final ActionEvent e) {
@@ -441,8 +386,9 @@ public final class Studio {
 
                     // ---
 
-                    final String type = (String) colTypes.getSelectedItem();
-                    final Vector<String> cd = colData.elementAt(0);
+                    final ColumnType type = 
+                        (ColumnType) colTypes.getSelectedItem();
+                    final Vector<ColumnType> cd = colData.elementAt(0);
                     final PropertyEditSession s = colModel.willChange();
 
                     colNames.add(name);
@@ -460,18 +406,7 @@ public final class Studio {
         addCol.putValue(Action.SHORT_DESCRIPTION, "Add column to list");
         addCol.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_C);
         final JButton colBut = new JButton(addCol);
-        final AbstractAction addColFromField = new AbstractAction() {
-                public void actionPerformed(final ActionEvent e) {
-                    if (!addCol.isEnabled()) {
-                        return;
-                    } // end of if
-
-                    // ---
-
-                    addCol.actionPerformed(e);
-                }
-            };
-        colName.setAction(addColFromField);
+        colName.setAction(new QuietWrapAction(addCol));
 
         final AbstractAction removeCol = new AbstractAction() {
                 public void actionPerformed(final ActionEvent e) {
@@ -483,7 +418,7 @@ public final class Studio {
 
                     // ---
 
-                    final Vector<String> cd = colData.get(0);
+                    final Vector<ColumnType> cd = colData.get(0);
                     final PropertyEditSession s = colModel.willChange();
                         
                     colNames.removeElementAt(col);
@@ -512,10 +447,12 @@ public final class Studio {
                 }
             });
 
-        final Vector<String> resCols = new Vector<String>();
+        final DefaultTableColumnModel resCols = new DefaultTableColumnModel();
         final Vector<Vector<Object>> resData = new Vector<Vector<Object>>();
         final NotEditableTableModel resModel = 
-            new NotEditableTableModel(resData, resCols);
+            new NotEditableTableModel(resData, new Vector<String>());
+        final JTable resTable = withColRenderers(new JTable(resModel, resCols));
+        final TableCellRenderer headerRenderer = headerRenderer(resTable);
         final JLabel extractLabel1 = new JLabel("Fetch", SwingConstants.RIGHT);
         final JLabel extractLabel2 = 
             new JLabel("result rows executing query and", SwingConstants.LEFT);
@@ -530,11 +467,12 @@ public final class Studio {
                 public void actionPerformed(final ActionEvent e) { 
                     model.setProcessing(true);
 
+                    final ImageIcon waitIco = setWaitIcon(extractLabel1);
                     final Number n = xlm.getNumber();
-                    final Vector<String> cd = colData.elementAt(0);
+                    final Vector<ColumnType> cd = colData.elementAt(0);
                     final int len = cd.size();
-                    final HashMap<String,String> map = 
-                        new HashMap<String,String>(len);
+                    final HashMap<String,ColumnType> map = 
+                        new HashMap<String,ColumnType>(len);
 
                     for (int c = 0; c < len; c++) { // zip col data
                         map.put(colNames.elementAt(c), cd.elementAt(c));
@@ -553,17 +491,29 @@ public final class Studio {
                         rs = stmt.executeQuery(sqlArea.getText());
 
                         final PropertyEditSession s = resModel.willChange();
+                        final Enumeration<TableColumn> cols = 
+                            resCols.getColumns();
 
-                        resCols.clear();
+                        while (cols.hasMoreElements()) {
+                            resCols.removeColumn(cols.nextElement());
+                        } // end of for
+
                         resData.clear();
 
                         if (rs.next()) {
                             final TableData<Object> td = tableData(rs, f);
 
-                            resCols.addAll(td.columns);
+                            for (final Map.Entry<String,ColumnType> c : map.entrySet()) { 
+                                final TableColumn tc = new TableColumn();
+
+                                tc.setHeaderValue(c);
+                                tc.setHeaderRenderer(headerRenderer);
+
+                                resCols.addColumn(tc);
+                            } // end of for
                             
                             for (final ArrayList<Object> r : td.rows) {
-                                resData.add(new Vector(r));
+                                resData.add(new Vector<Object>(r));
                             } // end of for
                         } // end of if
 
@@ -590,6 +540,8 @@ public final class Studio {
                         } // end of if
 
                         model.setProcessing(false);
+                        waitIco.setImageObserver(null);
+                        extractLabel1.setIcon(null);
                     } // end of finally
                 }
             };
@@ -599,9 +551,18 @@ public final class Studio {
         extract.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_X);
         final JButton extractBut = new JButton(extract);
 
+        colName.addKeyListener(new KeyAdapter() {
+                public void keyReleased(final KeyEvent e) {
+                    if (e.getKeyCode() != KeyEvent.VK_X || !e.isControlDown()) {
+                        return;
+                    }
+
+                    extractBut.doClick();
+                }
+            });
+
         // Mapped result UI
         final JLabel resLabel = new JLabel("<html><b>Mapped result</b></html>");
-        final JTable resTable = withColRenderers(new JTable(resModel));
 
         final JScrollPane resPanel = 
             new JScrollPane(resTable, 
@@ -616,7 +577,18 @@ public final class Studio {
                 public void actionPerformed(final ActionEvent e) { 
                     System.out.println("-> convert");
                     
-                    
+                    final String format = (String) convertFormats.
+                        getSelectedItem();
+
+                    System.out.println("#format=" + format);
+
+                    /*
+                    final String out = ("Java".equals(format))
+                        ? javaRowList(resCols, resData) 
+                        : scalaRowList(resCols, resData);
+
+                    System.out.println("#out=" + out);
+                    */
                 }
             };
         convert.putValue(Action.NAME, "Convert");
@@ -745,6 +717,9 @@ public final class Studio {
                                   Short.MAX_VALUE)).
             addComponent(invalidUrl).
             addGroup(layout.createSequentialGroup().
+                     addComponent(invalidCred, 0,
+                                  GroupLayout.DEFAULT_SIZE,
+                                  Short.MAX_VALUE).
                      addPreferredGap(LayoutStyle.ComponentPlacement.RELATED,
                                      GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).
                      addComponent(checkConLabel,
@@ -770,10 +745,6 @@ public final class Studio {
             addComponent(sqlLabel).
             addComponent(sqlPanel).
             addGroup(layout.createSequentialGroup().
-                     addComponent(invalidCred,
-                                  GroupLayout.PREFERRED_SIZE,
-                                  GroupLayout.DEFAULT_SIZE,
-                                  Short.MAX_VALUE).
                      addComponent(testBut,
                                   GroupLayout.PREFERRED_SIZE, 
                                   GroupLayout.DEFAULT_SIZE,
@@ -850,7 +821,9 @@ public final class Studio {
         layout.linkSize(SwingConstants.HORIZONTAL, 
                         driverLabel, urlLabel, userLabel);
 
-        layout.linkSize(SwingConstants.VERTICAL, checkConBut, checkConLabel);
+        layout.linkSize(SwingConstants.VERTICAL, 
+                        invalidCred, checkConBut, checkConLabel);
+
         layout.linkSize(SwingConstants.VERTICAL, testBut, testSqlLabel);
 
         frm.pack();
@@ -986,6 +959,23 @@ public final class Studio {
     } // end of setUp
 
     /**
+     * Returns preference file: <tt>$USERHOME/.acolyte/studio.properties</tt>
+     */
+    static File preferencesFile() {
+        final File userDir = new File(System.getProperty("user.home"));
+        final File prefDir = (userDir.canWrite()) 
+            ? new File(userDir, ".acolyte") : null;
+
+        if (prefDir != null && !prefDir.exists()) {
+            prefDir.mkdir();
+        } // end of if
+
+        return (prefDir != null && prefDir.canRead() && prefDir.canWrite())
+            ? new File(prefDir, "studio.properties") : null;
+
+    } // end of preferencesFile
+
+    /**
      * Studio process.
      */
     private <T> SwingWorker<T,T> studioProcess(final int timeout, final Callable<T> c, final UnaryFunction<Callable<T>,T> f) {
@@ -1017,6 +1007,33 @@ public final class Studio {
             }
         };
     } // end of studioProcess
+
+    /**
+     * Header renderer for result table
+     */
+    private static TableCellRenderer headerRenderer(final JTable t) {
+        final TableCellRenderer defaultRenderer = 
+            t.getTableHeader().getDefaultRenderer();
+
+        return new TableCellRenderer() {
+            public Component getTableCellRendererComponent(final JTable table, 
+                                                           final Object value, 
+                                                           final boolean sel, 
+                                                           final boolean foc, 
+                                                           final int row, 
+                                                           final int column) {
+                
+                @SuppressWarnings("unchecked")
+                    final Map.Entry<String,ColumnType> headerVal = 
+                    (Map.Entry<String,ColumnType>) value;
+
+                return defaultRenderer.
+                    getTableCellRendererComponent(table, headerVal.getKey(),
+                                                  sel, foc, row, column);
+                
+            }
+        };
+    } // end of headerRenderer
 
     /**
      * Reloads configuration from file.
@@ -1244,44 +1261,10 @@ public final class Studio {
     } // end of setWaitIcon
 
     /**
-     * Returns value of specified |column| according its type.
-     */
-    private static Object getObject(final ResultSet rs,
-                                    final String name,
-                                    final int t) throws SQLException {
-        
-        switch (t) {
-        case 0: // bigdecimal
-            return rs.getBigDecimal(name);
-        case 1: // bool
-            return rs.getBoolean(name);
-        case 2: // byte
-            return rs.getByte(name);
-        case 3: // short
-            return rs.getShort(name);
-        case 4: // date
-            return rs.getDate(name);
-        case 5: // double
-            return rs.getDouble(name);
-        case 6: // float
-            return rs.getFloat(name);
-        case 7: // int
-            return rs.getInt(name);
-        case 8: // long
-            return rs.getLong(name);
-        case 9: // time
-            return rs.getTime(name);
-        case 10: // timestamp
-            return rs.getTimestamp(name);
-        default: // string
-            return rs.getString(name);
-        }
-    } // end of getObject
-
-    /**
      * Returns table with column renderers.
      */
     private JTable withColRenderers(final JTable table) {
+        // Data renderers
         final DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
 
         // BigDecimal
@@ -1336,7 +1319,45 @@ public final class Studio {
 
         return table;
     } // end of withColRenderers
-        
+
+    /**
+     * Chooses a JDBC driver.
+     */
+    public void chooseDriver(final JFrame frm, final JTextField field) {
+        final JFileChooser chooser = new JFileChooser(new File("."));
+
+        for (final FileFilter ff : chooser.getChoosableFileFilters()) {
+            chooser.removeChoosableFileFilter(ff); // clean choosable filters
+        } // end of for
+
+        chooser.setDialogTitle("Chooser JDBC driver");
+        chooser.setMultiSelectionEnabled(false);
+        chooser.setFileFilter(new JDBCDriverFileFilter());
+
+        final int choice = chooser.showOpenDialog(frm);
+        if (choice != JFileChooser.APPROVE_OPTION) {
+            return;
+        } // end of if
+
+        // ---
+
+        final File driverFile = chooser.getSelectedFile();
+        final String driverPath = driverFile.getAbsolutePath();
+
+        field.setForeground(Color.BLACK);
+        field.setText(driverPath);
+
+        try {
+            model.setDriver(JDBC.loadDriver(driverFile));
+
+            // !! Side-effect
+            conf.put("jdbc.driverPath", driverPath);
+            updateConfig();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } // end of catch
+    } // end of chooseDriver
+
     // ---
 
     /**
@@ -1353,26 +1374,8 @@ public final class Studio {
     /**
      * Returns list of formatted strings from a result set.
      */
-    private static interface RowFunction<A> 
+    private interface RowFunction<A> 
         extends UnaryFunction<ResultSet,ArrayList<A>> { }
-
-    /**
-     * Cell renderer for result.
-     */
-    private static final class ResultCellRenderer implements TableCellRenderer {
-        public JLabel getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column) {
-            
-            final String str = (value == null) ? 
-                "NULL" : value.toString();
-            
-            final JLabel cell = new JLabel(str);
-            
-            cell.setForeground((value == null) ? 
-                               Color.LIGHT_GRAY : Color.BLACK);
-            
-            return cell;
-        } // end of getTableCellRendererComponent
-    } // end of ResultCellRenderer
 
     /**
      * Table data.
@@ -1388,45 +1391,15 @@ public final class Studio {
     } // end of class TableData
 
     /**
-     * Table model with not-editable cells.
-     */
-    private final class NotEditableTableModel extends melasse.swing.TableModel {
-        /** 
-         * Bulk constructor.
-         */
-        public NotEditableTableModel(final Vector data, 
-                                     final Vector columnNames) {
-
-            super(data, columnNames);
-        } // end of <init>
-
-        // ---
-
-        /**
-         * {@inheritDoc}
-         */
-        public boolean isCellEditable(int rowIndex, int columnIndex) {
-            return false;
-        } // end of isCellEditable
-
-        /**
-         * {@inheritDoc}
-         */
-        public void setValue(int rowIndex, int columnIndex) {
-            throw new UnsupportedOperationException();
-        } // end of setValue
-    } // end of class NotEditableTableModel
-
-    /**
      * Extract mapped column from row.
      */
     private final class ExtractFunction implements RowFunction<Object> {
-        private final HashMap<String,String> mapping;
+        private final HashMap<String,ColumnType> mapping;
 
         /**
          * Un-curried function.
          */
-        public ExtractFunction(final HashMap<String,String> map) {
+        public ExtractFunction(final HashMap<String,ColumnType> map) {
             this.mapping = map;
         } // end of <init>
 
@@ -1438,9 +1411,7 @@ public final class Studio {
 
             try {
                 for (final String name : this.mapping.keySet()) {
-                    final String t = this.mapping.get(name);
-                    
-                    list.add(getObject(rs, name, Export.colTypes.indexOf(t)));
+                    list.add(JDBC.getObject(rs, name, this.mapping.get(name)));
                 } // end of for
             } catch (SQLException e) {
                 e.printStackTrace();

@@ -11,6 +11,7 @@ import java.net.URL;
 
 import java.sql.SQLException;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.Driver;
 
 /**
@@ -27,7 +28,7 @@ public final class JDBC {
      */
     public static Driver loadDriver(final File jar) {
         try {
-            return loadDriver(jar.toURL());
+            return loadDriver(jar.toURI().toURL());
         } catch (java.net.MalformedURLException e) {
             throw new RuntimeException(e);
         } // end of catch
@@ -74,6 +75,29 @@ public final class JDBC {
 
         return driver.connect(url, props);
     } // end of connect
+
+    /**
+     * Returns value of specified |column| according its type.
+     */
+    public static Object getObject(final ResultSet rs,
+                                   final String name,
+                                   final ColumnType type) throws SQLException {
+        
+        switch (type) {
+        case BigDecimal: return rs.getBigDecimal(name);
+        case Boolean: return rs.getBoolean(name);
+        case Byte: return rs.getByte(name);
+        case Short: return rs.getShort(name);
+        case Date: return rs.getDate(name);
+        case Double: return rs.getDouble(name);
+        case Float: return rs.getFloat(name);
+        case Int: return rs.getInt(name);
+        case Long: return rs.getLong(name);
+        case Time: return rs.getTime(name);
+        case Timestamp: return rs.getTimestamp(name);
+        default: return rs.getString(name);
+        }
+    } // end of getObject
 
     // ---
 

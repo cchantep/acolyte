@@ -46,7 +46,7 @@ final class JDBCDriverFileFilter extends javax.swing.filechooser.FileFilter {
         // ---
 
         try {
-            return JDBC.loadDriver(f.toURL()) != null;
+            return JDBC.loadDriver(f.toURI().toURL()) != null;
         } catch (java.net.MalformedURLException e) {
             System.err.println("Invalid url to JDBC driver");
             return false;

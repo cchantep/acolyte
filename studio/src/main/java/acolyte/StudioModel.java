@@ -62,7 +62,7 @@ public final class StudioModel {
      * No-arg constructor.
      */
     public StudioModel() {
-        this.pcs = new PropertyChangeSupport(this);
+        this.pcs = new PropertyChangeSupport<StudioModel>(this);
 
         pcs.registerDependency("driver", new String[] { "connectionConfig" });
         pcs.registerDependency("url", new String[] { "connectionConfig" });

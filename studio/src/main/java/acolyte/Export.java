@@ -25,15 +25,6 @@ import java.sql.Driver;
  * @author Cedric Chantepie
  */
 public final class Export {
-    // --- Constants ---
-
-    /**
-     * Column types.
-     */
-    public static final List<String> colTypes = Arrays.asList(new String[] {
-            "bigdecimal", "bool", "byte", "short", "date", "double", "float",
-            "int", "long", "time", "timestamp", "string"
-        });
 
     // --- Properties ---
 
@@ -306,12 +297,13 @@ public final class Export {
      * "date", "double", "float", "int", "long", "time", "timestamp", "string".
      *
      * @param args Execution arguments : args[0] - JDBC URL, 
+     * args[1] - Path to JAR or JDBC driver,
      * args[2] - connexion user, args[3] - User password, 
      * args[4] - SQL statement, args[5] - Encoding,
      * args[6] to args[n] - type(s) of column from 1 to m.
      */
     public static void main(final String[] args) throws Exception {
-        final File config = new File("acolyte.properties");
+        final File config = Studio.preferencesFile();
 
         if (config.exists()) {
             FileInputStream in = null;
@@ -341,8 +333,8 @@ public final class Export {
             final Properties conf = new Properties();
 
             conf.put("jdbc.url", args[0]);
-            conf.put("jdbc.driver", args[1]);
-            conf.put("user", args[2]);
+            conf.put("jdbc.driverPath", args[1]);
+            conf.put("db.user", args[2]);
             conf.put("password", args[3]);
             conf.put("encoding", args[4]);
 
@@ -359,7 +351,7 @@ public final class Export {
 
         System.out.println("config=" + config);
 
-        final File driverFile = new File(config.getProperty("jdbc.driver"));
+        final File driverFile = new File(config.getProperty("jdbc.driverPath"));
 
         if (!driverFile.exists()) {
             throw new RuntimeException("JDBC driver not found: " + 
@@ -367,7 +359,7 @@ public final class Export {
 
         } // end of if
 
-        final Driver jdbcDriver = JDBC.loadDriver(driverFile.toURL());
+        final Driver jdbcDriver = JDBC.loadDriver(driverFile.toURI().toURL());
 
         System.out.println("jdbcDriver=" + jdbcDriver);
 
@@ -380,19 +372,20 @@ public final class Export {
         // ---
 
         final String jdbcUrl = config.getProperty("jdbc.url");
-        final String user = config.getProperty("user");
+        final String user = config.getProperty("db.user");
         final String pass = config.getProperty("password");
         final String sql = args[argsOffset];
         final String encoding = config.getProperty("encoding");
-        final ArrayList<Integer> cols = new ArrayList<Integer>();
+        final ArrayList<ColumnType> cols = new ArrayList<ColumnType>();
 
-        int index;
         for (int i = argsOffset+1; i < args.length; i++) {
-            if ((index = colTypes.indexOf(args[i])) == -1) {
+            final ColumnType t = ColumnType.typeFor(args[i]);
+
+            if (t == null) {
                 throw new RuntimeException("Invalid column type: " + args[i]);
             } // end of if
 
-            cols.add(index);
+            cols.add(t);
         } // end of for
 
         if (cols.isEmpty()) {
@@ -432,9 +425,10 @@ public final class Export {
         props.put("string.none", "null");
 
         final URLClassLoader cl = URLClassLoader.
-            newInstance(new URL[] { driverFile.toURL() }, 
+            newInstance(new URL[] { driverFile.toURI().toURL() }, 
                         Export.class.getClassLoader());
 
+        @SuppressWarnings("unchecked")
         final Class<Export> clazz = (Class<Export>) cl.
             loadClass("acolyte.Export");
 
