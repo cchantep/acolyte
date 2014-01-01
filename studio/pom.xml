@@ -1,0 +1,78 @@
+<?xml version="1.0"?><project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>eu.org.acolyte</groupId>
+  <artifactId>studio</artifactId>
+  <packaging>jar</packaging>
+  <name>Acolyte Studio</name>
+  <version>1.0.11</version>
+  <url>https://github.com/cchantep/acolyte/</url>
+
+  <scm>
+    <connection>scm:git:git@github.com:cchantep/acolyte.git</connection>
+    <developerConnection>
+      scm:git:git@github.com:cchantep/acolyte.git
+    </developerConnection>
+    <url>git@github.com:cchantep/acolyte.git</url>
+  </scm>
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/cchantep/acolyte/issues</url>
+  </issueManagement>
+  <ciManagement>
+    <system>Travis CI</system>
+    <url>https://travis-ci.org/cchantep/acolyte</url>
+  </ciManagement>
+  <developers>
+    <developer>
+      <id>cchantep</id>
+      <name>Cedric Chantepie</name>
+    </developer>
+  </developers>
+
+  <prerequisites>
+    <maven>3.0.4</maven>
+  </prerequisites>
+
+  <repositories>
+    <repository>
+      <id>applicius-releases</id>
+      <name>Applicius Releases Repo</name>
+      <url>https://raw.github.com/applicius/mvn-repo/master/releases</url>
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>melasse</groupId>
+      <artifactId>melasse-core</artifactId>
+      <version>1.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>de.sciss</groupId>
+      <artifactId>syntaxpane</artifactId>
+      <version>1.1.0</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.1</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <outputFile>${project.build.directory}/dist/acolyte-studio-${project.version}.jar</outputFile>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
