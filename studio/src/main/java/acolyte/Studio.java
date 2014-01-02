@@ -571,8 +571,7 @@ public final class Studio {
         
         final JLabel resCountLabel = new JLabel();
         resCountLabel.setForeground(Color.DARK_GRAY);
-        final JComboBox convertFormats = 
-            new JComboBox(new String[] { "Java", "Scala" });
+        final JComboBox convertFormats = new JComboBox(Formatting.values());
         final AbstractAction convert = new AbstractAction() {
                 public void actionPerformed(final ActionEvent e) { 
                     System.out.println("-> convert");
