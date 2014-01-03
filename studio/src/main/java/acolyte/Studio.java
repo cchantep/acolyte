@@ -72,6 +72,8 @@ import javax.swing.GroupLayout.Alignment;
 
 import javax.swing.filechooser.FileFilter;
 
+import javax.swing.text.Document;
+
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.AbstractTableModel;
@@ -1420,4 +1422,35 @@ public final class Studio {
             return list;
         } // end of apply
     } // end of class ExtractFunction
+
+    /**
+     * Document appender.
+     */
+    private final class DocumentAppender implements RowFormatter.Appender {
+        private final Document doc;
+
+        // --- Constructors ---
+
+        /**
+         * Bulk constructor.
+         */
+        DocumentAppender(final Document doc) {
+            this.doc = doc;
+        } // end of <init>
+
+        // ---
+
+        /**
+         * {@inheritDoc}
+         */
+        public void append(String text) {
+            try {
+                synchronized(this.doc) {
+                    this.doc.insertString(this.doc.getLength(), text, null);
+                } // end of synchronized
+            } catch (Exception e) {
+                throw new RuntimeException("Fails to append to doc", e);
+            } // end of catch
+        } // end of append
+    } // end of class DocumentAppender
 } // end of class Studio
