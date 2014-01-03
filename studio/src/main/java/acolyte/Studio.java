@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.Map;
@@ -558,16 +559,6 @@ public final class Studio {
         extract.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_X);
         final JButton extractBut = new JButton(extract);
 
-        colName.addKeyListener(new KeyAdapter() {
-                public void keyReleased(final KeyEvent e) {
-                    if (e.getKeyCode() != KeyEvent.VK_X || !e.isControlDown()) {
-                        return;
-                    }
-
-                    extractBut.doClick();
-                }
-            });
-
         // Mapped result UI
         final JLabel resLabel = new JLabel("<html><b>Mapped result</b></html>");
 
@@ -583,20 +574,18 @@ public final class Studio {
                 public void actionPerformed(final ActionEvent e) { 
                     System.out.println("-> convert");
                     
-                    final String format = (String) convertFormats.
+                    final Formatting fmt = (Formatting) convertFormats.
                         getSelectedItem();
 
-                    System.out.println("#format=" + format);
+                    final Charset charset = (Charset) charsets.
+                        getSelectedItem();
+
+                    System.out.println("#format=" + fmt + 
+                                       ", #charset=" + charset);
 
                     model.setProcessing(true);
 
-                    /*
-                    final String out = ("Java".equals(format))
-                        ? javaRowList(resCols, resData) 
-                        : scalaRowList(resCols, resData);
-
-                    System.out.println("#out=" + out);
-                    */
+                    displayRows(frm, resCols, resData, charset, fmt);
 
                     model.setProcessing(false);
                 }
@@ -606,6 +595,18 @@ public final class Studio {
                          "Convert extracted data to some Acolyte syntax");
         convert.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_C);
         final JButton convertBut = new JButton(convert);
+
+        colName.addKeyListener(new KeyAdapter() {
+                public void keyReleased(final KeyEvent e) {
+                    if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_X) {
+                        extractBut.doClick();
+                    } else if (e.isControlDown() &&
+                               e.getKeyCode() == KeyEvent.VK_C) {
+
+                        convertBut.doClick();
+                    } // end of else if
+                }
+            });
 
         // Lays out UI components
         content.setLayout(layout);
@@ -1042,7 +1043,7 @@ public final class Studio {
                                                            final int column) {
                 
                 @SuppressWarnings("unchecked")
-                    final Map.Entry<String,ColumnType> headerVal = 
+                final Map.Entry<String,ColumnType> headerVal = 
                     (Map.Entry<String,ColumnType>) value;
 
                 return defaultRenderer.
@@ -1376,6 +1377,75 @@ public final class Studio {
         } // end of catch
     } // end of chooseDriver
 
+    /**
+     * Displays formatted rows.
+     */
+    public void displayRows(final JFrame frm,
+                            final TableColumnModel colModel, 
+                            final Vector<Vector<Object>> data,
+                            final Charset charset,
+                            final Formatting fmt) {
+
+        final ArrayList<String> colNames = new ArrayList<String>();
+        final ArrayList<ColumnType> colTypes = new ArrayList<ColumnType>();
+        final Enumeration<TableColumn> n = colModel.getColumns();
+
+        while (n.hasMoreElements()) {
+            @SuppressWarnings("unchecked")
+            final Map.Entry<String,ColumnType> e = 
+                (Map.Entry<String,ColumnType>) n.nextElement().getHeaderValue();
+
+            colNames.add(e.getKey());
+            colTypes.add(e.getValue());
+        } // end of while
+
+        System.out.println("#colNames=" + colNames + ", #colTypes=" + colTypes);
+
+        final VectorIterator it = new VectorIterator(data);
+        final JEditorPane rowArea = new JEditorPane();
+        rowArea.setEditable(false);
+        final JScrollPane rowPanel = 
+            new JScrollPane(rowArea, 
+                            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        rowPanel.setBorder(BorderFactory.createLoweredBevelBorder());
+        rowArea.setContentType(fmt.mimeType);
+
+        final JDialog dlg = new JDialog(frm, "Formatted data");
+        final Container content = dlg.getContentPane();
+        final GroupLayout layout = new GroupLayout(content);
+        final Document doc = rowArea.getDocument();
+
+        // TODO: Prepare document with column declaration
+
+        // Lays out UI component
+        content.setLayout(layout);
+
+	layout.setAutoCreateGaps(true);
+	layout.setAutoCreateContainerGaps(true);
+
+        final GroupLayout.SequentialGroup vgroup = 
+            layout.createSequentialGroup().
+            addComponent(rowPanel,
+                         GroupLayout.PREFERRED_SIZE,
+                         GroupLayout.DEFAULT_SIZE,
+                         Short.MAX_VALUE);
+
+        final GroupLayout.ParallelGroup hgroup = 
+            layout.createParallelGroup(Alignment.LEADING).
+            addComponent(rowPanel,
+                         GroupLayout.PREFERRED_SIZE,
+                         GroupLayout.DEFAULT_SIZE,
+                         Short.MAX_VALUE);
+
+        layout.setVerticalGroup(vgroup);
+        layout.setHorizontalGroup(hgroup);
+
+        dlg.pack();
+        dlg.setLocationRelativeTo(null);
+        dlg.setVisible(true);
+    } // end of displayRows
+
     // ---
 
     /**
@@ -1470,4 +1540,74 @@ public final class Studio {
             } // end of catch
         } // end of append
     } // end of class DocumentAppender
+
+    /**
+     * Iterator if row from vector.
+     */
+    private final class VectorIterator 
+        implements java.util.Iterator<RowFormatter.ResultRow> {
+
+        private Iterator<Vector<Object>> it;
+
+        /**
+         * Bulk constructor.
+         */
+        VectorIterator(final Vector<Vector<Object>> vector) {
+            this.it = vector.iterator();
+        } // end of <init>
+
+        // ---
+
+        /**
+         * {@inheritDoc}
+         */
+        public void remove() { throw new UnsupportedOperationException(); }
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean hasNext() {
+            return this.it.hasNext();
+        } // end of hasNext
+
+        /**
+         * {@inheritDoc}
+         */
+        public RowFormatter.ResultRow next() {
+            return new VectorRow(this.it.next());
+        } // end of next
+    } // end of class VectorIterator
+
+    /**
+     * Row based on vector.
+     */
+    private final class VectorRow implements RowFormatter.ResultRow {
+        private Vector<Object> v;
+
+        /**
+         * Bulk constructor.
+         */
+        VectorRow(final Vector<Object> vector) {
+            this.v = vector;
+        } // end of <init>
+
+        // ---
+
+        public String getString(int p) { return (String) v.elementAt(p); }
+        public boolean getBoolean(int p) { return (Boolean) v.elementAt(p); }
+        public byte getByte(int p) { return (Byte) v.elementAt(p); }
+        public short getShort(int p) { return (Short) v.elementAt(p); }
+        public java.sql.Date getDate(int p) { 
+            return (java.sql.Date) v.elementAt(p);
+        }
+        public double getDouble(int p) { return (Double) v.elementAt(p); }
+        public float getFloat(int p) { return (Float) v.elementAt(p); }
+        public int getInt(int p) { return (Integer) v.elementAt(p); }
+        public long getLong(int p) { return (Long) v.elementAt(p); }
+        public Time getTime(int p) { return (Time) v.elementAt(p); }
+        public Timestamp getTimestamp(int p) {
+            return (Timestamp) v.elementAt(p);
+        }
+        public boolean isNull(int p) { return v.elementAt(p) == null; }
+    } // end of class VectorRow
 } // end of class Studio

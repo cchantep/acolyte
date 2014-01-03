@@ -11,7 +11,7 @@ enum Formatting {
     /**
      * Java formatting
      */
-    Java("Java",
+    Java("Java", "text/java",
          ".append(" /* rowStart */,
          ")\r\n" /* rowEnd */,
          ", " /* valueSeparator */,
@@ -43,7 +43,7 @@ enum Formatting {
     /**
      * Scala formatting
      */
-    Scala("Scala",
+    Scala("Scala", "text/scala",
           ".append(" /* rowStart */,
           ")\r\n" /* rowEnd */,
           ", " /* valueSeparator */,
@@ -78,6 +78,11 @@ enum Formatting {
      * Format name
      */
     public final String format;
+
+    /**
+     * Mime type
+     */
+    public final String mimeType;
 
     /**
      * Row start
@@ -236,6 +241,7 @@ enum Formatting {
      * @param format Format name
      */
     private Formatting(final String format,
+                       final String mimeType,
                        final String rowStart,
                        final String rowEnd,
                        final String valueSeparator,
@@ -265,6 +271,7 @@ enum Formatting {
                        final String noneString) {
 
         this.format = format;
+        this.mimeType = mimeType;
         this.rowStart = rowStart;
         this.rowEnd = rowEnd;
         this.valueSeparator = valueSeparator;

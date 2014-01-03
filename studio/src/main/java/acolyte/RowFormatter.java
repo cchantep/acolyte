@@ -2,6 +2,7 @@ package acolyte;
 
 import java.util.Properties;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Arrays;
 import java.util.List;
 
@@ -121,10 +122,12 @@ public final class RowFormatter {
 
             stmt = con.createStatement();
             rs = stmt.executeQuery(this.sql);
-            
+
+            final ResultIterator it = new ResultIterator(rs);
+
             while (rs.next()) {
                 ap.append(formatting.rowStart);
-                appendValues(ap, charset, formatting, this.cols, rs, 0);
+                appendValues(it, ap, charset, formatting, this.cols, 0);
                 ap.append(formatting.rowEnd);
             } // end of while
         } finally {
@@ -215,30 +218,31 @@ public final class RowFormatter {
     /**
      * Result set values.
      */
-    static void appendValues(final Appender ap,
+    static void appendValues(final Iterator<ResultRow> it,
+                             final Appender ap,
                              final Charset charset,
                              final Formatting fmt,
                              final List<ColumnType> cols, 
-                             final ResultSet rs,
-                             final int index) 
+                             final int colIndex) 
         throws SQLException, UnsupportedEncodingException {
 
-        if (index >= cols.size()) {
+        if (colIndex >= cols.size()) {
             return;
         } // end of if
 
         // ---
 
-        if (index > 0) {
+        if (colIndex > 0) {
             ap.append(fmt.valueSeparator);
         } // end of if
 
-        final int pos = index+1;
-        final ColumnType col = cols.get(index);
+        final int pos = colIndex+1;
+        final ColumnType col = cols.get(colIndex);
+        final ResultRow rs = it.next();
 
-        if (rs.getObject(pos) == null) {
+        if (rs.isNull(pos)) {
             appendNull(ap, fmt, col);
-            appendValues(ap, charset, fmt, cols, rs, index+1);
+            appendValues(it, ap, charset, fmt, cols, colIndex+1);
 
             return;
         } // end of if
@@ -299,7 +303,7 @@ public final class RowFormatter {
             break;
         } // end of switch
 
-        appendValues(ap, charset, fmt, cols, rs, index+1);
+        appendValues(it, ap, charset, fmt, cols, colIndex+1);
     } // end of appendValues
 
     // ---
@@ -371,7 +375,7 @@ public final class RowFormatter {
                                  final String[] args,
                                  final int argsOffset) throws Exception {
 
-        logger.log(Level.FINER, "config={0}", config);
+        logger.log(Level.FINER, "config = {0}", config);
 
         final File driverFile = new File(config.getProperty("jdbc.driverPath"));
 
@@ -383,7 +387,7 @@ public final class RowFormatter {
 
         final Driver jdbcDriver = JDBC.loadDriver(driverFile.toURI().toURL());
 
-        logger.log(Level.FINER, "jdbcDriver={0}", jdbcDriver);
+        logger.log(Level.FINER, "jdbcDriver = {0}", jdbcDriver);
 
         if (jdbcDriver == null) {
             throw new RuntimeException("Cannot load JDBC driver: " + 
@@ -443,4 +447,177 @@ public final class RowFormatter {
     static interface Appender {
         public void append(final String str);
     } // end of interface Appender
+
+    /**
+     * Result row.
+     */
+    static interface ResultRow {
+        public String getString(int p);
+        public boolean getBoolean(int p);
+        public byte getByte(int p);
+        public short getShort(int p);
+        public java.sql.Date getDate(int p);
+        public double getDouble(int p);
+        public float getFloat(int p);
+        public int getInt(int p);
+        public long getLong(int p);
+        public java.sql.Time getTime(int p);
+        public java.sql.Timestamp getTimestamp(int p);
+        public boolean isNull(int p);
+    } // end of interface ResultRow
+
+    /**
+     * Result row from SQL resultset.
+     */
+    private final class SqlResultRow implements ResultRow {
+        private final ResultSet rs;
+
+        /**
+         * Bulk constructor.
+         */
+        SqlResultRow(final ResultSet rs) {
+            this.rs = rs;
+        } // end of <init>
+
+        public String getString(int p) { 
+            try {
+                return rs.getString(p); 
+            } catch (SQLException e) {
+                throw new RuntimeException("Fails to get value", e);
+            }
+        }
+
+        public boolean getBoolean(int p) { 
+            try {
+                return rs.getBoolean(p); 
+            } catch (SQLException e) {
+                throw new RuntimeException("Fails to get value", e);
+            }
+        }
+
+        public byte getByte(int p) { 
+            try {
+                return rs.getByte(p); 
+            } catch (SQLException e) {
+                throw new RuntimeException("Fails to get value", e);
+            }
+        }
+
+        public short getShort(int p) {
+            try {
+                return rs.getShort(p); 
+            } catch (SQLException e) {
+                throw new RuntimeException("Fails to get value", e);
+            }
+        }
+
+        public java.sql.Date getDate(int p) { 
+            try {
+                return rs.getDate(p); 
+            } catch (SQLException e) {
+                throw new RuntimeException("Fails to get value", e);
+            }
+        }
+
+        public double getDouble(int p) { 
+            try {
+                return rs.getDouble(p); 
+            } catch (SQLException e) {
+                throw new RuntimeException("Fails to get value", e);
+            }
+        }
+
+        public float getFloat(int p) { 
+            try {
+                return rs.getFloat(p); 
+            } catch (SQLException e) {
+                throw new RuntimeException("Fails to get value", e);
+            }
+        }
+
+        public int getInt(int p) { 
+            try {
+                return rs.getInt(p); 
+            } catch (SQLException e) {
+                throw new RuntimeException("Fails to get value", e);
+            }
+        }
+
+        public long getLong(int p) { 
+            try {
+                return rs.getLong(p); 
+            } catch (SQLException e) {
+                throw new RuntimeException("Fails to get value", e);
+            }
+        }
+
+        public java.sql.Time getTime(int p) { 
+            try {
+                return rs.getTime(p); 
+            } catch (SQLException e) {
+                throw new RuntimeException("Fails to get value", e);
+            }
+        }
+
+        public java.sql.Timestamp getTimestamp(int p) { 
+            try {
+                return rs.getTimestamp(p); 
+            } catch (SQLException e) {
+                throw new RuntimeException("Fails to get value", e);
+            }
+        }
+
+        public boolean isNull(int p) { 
+            try {
+                return rs.getObject(p) == null; 
+            } catch (SQLException e) {
+                throw new RuntimeException("Fails to get value", e);
+            }
+        }
+    } // end of class SqlResultRow
+
+    /**
+     * Result iterator.
+     */
+    private final class ResultIterator implements Iterator<ResultRow> {
+        private final ResultSet rs;
+
+        /**
+         * Bulk constructor.
+         */
+        ResultIterator(final ResultSet rs) {
+            this.rs = rs;
+        } // end of <init>
+
+        // ---
+
+        /**
+         * {@inheritDoc}
+         */
+        public void remove() { throw new UnsupportedOperationException(); }
+        
+        /**
+         * {@inheritDoc}
+         */
+        public boolean hasNext() {
+            try {
+                return !this.rs.isLast();
+            } catch (Exception e) {
+                throw new RuntimeException("Fails to check result", e);
+            } // end of catch
+        } // end of hasNext
+
+        /**
+         * {@inheritDoc}
+         */
+        public ResultRow next() {
+            try {
+                this.rs.next();
+            } catch (Exception e) {
+                throw new RuntimeException("Fails to get next result", e);
+            } // end of catch
+
+            return new SqlResultRow(this.rs);
+        } // end of next
+    } // end of class ResultIterator
 } // end of class RowFormatter
