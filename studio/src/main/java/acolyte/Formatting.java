@@ -300,6 +300,6 @@ enum Formatting {
      * {@inheritDoc}
      */
     public String toString() {
-        return String.format("Formatting(%s)", this.format);
+        return this.format;
     } // end of toString
 } // end of enum Formatting

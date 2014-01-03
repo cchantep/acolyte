@@ -17,6 +17,8 @@ import java.io.FileOutputStream;
 import java.io.FileInputStream;
 import java.io.File;
 
+import java.nio.charset.Charset;
+
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Connection;
@@ -215,8 +217,7 @@ public final class Studio {
         final GroupLayout layout = new GroupLayout(content);
 
         // Configuration UI
-        final JLabel confLabel = 
-            new JLabel("<html><b>JDBC access</b></html>");
+        final JLabel confLabel = new JLabel("<html><b>JDBC access</b></html>");
         final JLabel confValidated = new JLabel("(validated)");
         confValidated.setForeground(new Color(0, 124, 0));
         final JLabel driverLabel = new JLabel("JDBC driver");
@@ -233,6 +234,11 @@ public final class Studio {
         final JLabel passLabel = new JLabel("Password");
         final JPasswordField passField = new JPasswordField();
         passLabel.setLabelFor(passField);
+        final JLabel charsetLabel = new JLabel("Charset");
+        charsetLabel.setToolTipText("Character set");
+        final JComboBox charsets = 
+            new JComboBox(Charset.availableCharsets().values().toArray());
+        charsets.setSelectedItem(Charset.defaultCharset());
         final JLabel invalidCred = 
             new JLabel("Can't connect using these credentials");
         invalidCred.setForeground(Color.RED);
@@ -260,7 +266,6 @@ public final class Studio {
                     model.setConnectionValidated(false);
 
                     final ImageIcon waitIco = setWaitIcon(checkConLabel);
-
                     final Callable<Boolean> c = new Callable<Boolean>() {
                         public Boolean call() {
                             Connection con = null;
@@ -583,6 +588,8 @@ public final class Studio {
 
                     System.out.println("#format=" + format);
 
+                    model.setProcessing(true);
+
                     /*
                     final String out = ("Java".equals(format))
                         ? javaRowList(resCols, resData) 
@@ -590,6 +597,8 @@ public final class Studio {
 
                     System.out.println("#out=" + out);
                     */
+
+                    model.setProcessing(false);
                 }
             };
         convert.putValue(Action.NAME, "Convert");
@@ -631,6 +640,9 @@ public final class Studio {
                      addComponent(userField).
                      addComponent(passLabel).
                      addComponent(passField)).
+            addGroup(layout.createParallelGroup(Alignment.BASELINE).
+                     addComponent(charsetLabel).
+                     addComponent(charsets)).
             addGroup(layout.createParallelGroup(Alignment.TRAILING).
                      addComponent(invalidCred).
                      addComponent(checkConLabel).
@@ -641,7 +653,7 @@ public final class Studio {
                          GroupLayout.PREFERRED_SIZE).
             addComponent(sqlLabel).
             addComponent(sqlPanel, 
-                         (int) (screenSize.getHeight()/11.5f),
+                         (int) (screenSize.getHeight()/13.75f),
                          GroupLayout.DEFAULT_SIZE,
                          GroupLayout.PREFERRED_SIZE).
             addGroup(layout.createParallelGroup(Alignment.TRAILING).
@@ -682,7 +694,7 @@ public final class Studio {
                      addComponent(resLabel).
                      addComponent(resCountLabel)).
             addComponent(resPanel,
-                         (int) (screenSize.getHeight()/6.5f),
+                         (int) screenSize.getHeight()/8,
                          GroupLayout.DEFAULT_SIZE,
                          Short.MAX_VALUE).
             addGroup(layout.createParallelGroup(Alignment.BASELINE).
@@ -743,6 +755,9 @@ public final class Studio {
                                   GroupLayout.PREFERRED_SIZE,
                                   GroupLayout.DEFAULT_SIZE,
                                   Short.MAX_VALUE)).
+            addGroup(layout.createSequentialGroup().
+                     addComponent(charsetLabel).
+                     addComponent(charsets)).
             addComponent(sqlLabel).
             addComponent(sqlPanel).
             addGroup(layout.createSequentialGroup().
@@ -820,7 +835,9 @@ public final class Studio {
         layout.setHorizontalGroup(hgroup);
 
         layout.linkSize(SwingConstants.HORIZONTAL, 
-                        driverLabel, urlLabel, userLabel);
+                        driverLabel, urlLabel, userLabel, charsetLabel);
+
+        layout.linkSize(SwingConstants.HORIZONTAL, userField, charsets);
 
         layout.linkSize(SwingConstants.VERTICAL, 
                         invalidCred, checkConBut, checkConLabel);
