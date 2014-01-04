@@ -66,6 +66,9 @@
                   <fileset dir="${basedir}" includes="faq.md,changelog.md" />
                 </copy>
 
+                <copy file="${basedir}/studio/readme.md" 
+                      tofile="${generatedSite}/markdown/studio.md" />
+
                 <copy todir="${project.build.directory}/site/css">
                   <fileset dir="${basedir}/src/site/css" includes="*.css" />
                 </copy>

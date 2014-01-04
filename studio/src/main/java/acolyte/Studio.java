@@ -101,6 +101,7 @@ import melasse.PropertyChangeSupport.PropertyEditSession;
  * Acolyte studio UI.
  *
  * @author Cedric Chantepie
+ * @todo Store db.charset
  */
 public final class Studio {
     // --- Shared ---

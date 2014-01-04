@@ -315,8 +315,8 @@ public final class RowFormatter {
      * args[1] - Path to JAR or JDBC driver,
      * args[2] - connexion user, 
      * args[3] - User password, 
-     * args[4] - SQL statement, 
-     * args[5] - Encoding,
+     * args[4] - Encoding,
+     * args[5] - SQL statement, 
      * args[6] - Output format (either "java" or "scala"),
      * args[7] to args[n] - type(s) of column from 1 to m.
      *
@@ -361,7 +361,7 @@ public final class RowFormatter {
             conf.put("jdbc.driverPath", args[1]);
             conf.put("db.user", args[2]);
             conf.put("password", args[3]);
-            conf.put("charset", args[4]);
+            conf.put("db.charset", args[4]);
 
             execWith(ap, conf, args, 5);
         } // end of else
@@ -400,8 +400,8 @@ public final class RowFormatter {
         final String jdbcUrl = config.getProperty("jdbc.url");
         final String user = config.getProperty("db.user");
         final String pass = config.getProperty("password");
-        final String sql = args[argsOffset];
-        final Formatting formatting = Formatting.forName(args[argsOffset+1]);
+        final Formatting formatting = Formatting.forName(args[argsOffset]);
+        final String sql = args[argsOffset+1];
         final Charset charset = Charset.forName(config.getProperty("charset"));
         final ArrayList<ColumnType> cols = new ArrayList<ColumnType>();
 

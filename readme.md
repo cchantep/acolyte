@@ -903,6 +903,10 @@ class Dog implements Animal {
 - Pseudo-support for transaction.
 - Currency types.
 
+### Related applications
+
+- [Acolyte Studio](./studio.html): Application with CLI and GUI which is useful when you already have a database and want tests to use data extracted from there.
+
 ## Build
 
 Acolyte can be built from these sources using SBT (0.12.2+): `sbt publish`

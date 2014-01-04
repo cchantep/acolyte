@@ -13,6 +13,10 @@
       <item name="FAQ" href="./faq.html" />
     </menu>
 
+    <menu name="Subprojects">
+      <item name="Acolyte Studio" href="./studio.html" />
+    </menu>
+
     <menu name="Reference">
       <item name="Javadoc" href="./apidocs/index.html" />
       <item name="Scaladoc" href="./scaladocs/index.html" />

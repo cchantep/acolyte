@@ -105,3 +105,7 @@ e.g. error with the scala DSL:
 ```
 
 In such cases, [type of null](index.html#NULL_values) must be explicitly given.
+
+## Can I re-use data from existing DB with Acolyte?
+
+[Studio](./studio.html) can record results from DB, so they can be used later with Acolyte framework, either in Java or Scala.
