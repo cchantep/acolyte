@@ -4,6 +4,8 @@ import java.beans.PropertyChangeListener;
 
 import java.sql.Driver;
 
+import java.nio.charset.Charset;
+
 import melasse.PropertyChangeSupport;
 
 /**
@@ -52,6 +54,11 @@ public final class StudioModel {
     private String password = null;
 
     /**
+     * DB character set
+     */
+    private Charset charset = null;
+
+    /**
      * Connection config time
      */
     private long connectionConfig = -1l;
@@ -68,6 +75,7 @@ public final class StudioModel {
         pcs.registerDependency("url", new String[] { "connectionConfig" });
         pcs.registerDependency("user", new String[] { "connectionConfig" });
         pcs.registerDependency("password", new String[] { "connectionConfig" });
+        pcs.registerDependency("charset", new String[] { "connectionConfig" });
 
         pcs.registerDependency("connectionConfig", 
                                new String[] { "connectionValidated" });
@@ -82,6 +90,31 @@ public final class StudioModel {
     public long getConnectionConfig() {
         return this.connectionConfig;
     } // end of getConnectionConfig
+
+    /**
+     * Sets DB |charset|.
+     * 
+     * @param charset DB charset
+     * @see #getCharset
+     */
+    public void setCharset(final Charset charset) {
+        final Charset old = this.charset;
+
+        this.charset = charset;
+        this.connectionConfig = System.currentTimeMillis();
+        this.connectionValidated = false;
+
+        this.pcs.firePropertyChange("charset", old, this.charset);
+    } // end of setCharset
+
+    /**
+     * Returns DB charset.
+     *
+     * @see #setCharset
+     */
+    public Charset getCharset() {
+        return this.charset;
+    } // end of getCharset
 
     /**
      * Sets name of DB |user|.

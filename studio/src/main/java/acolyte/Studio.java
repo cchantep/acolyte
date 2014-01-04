@@ -144,7 +144,7 @@ public final class Studio {
         final File prefFile = preferencesFile();
 
         if (prefFile.exists()) {
-            reloadConfig(prefFile);
+            Configuration.loadConfig(this.conf, prefFile);
         } // end of if
 
         this.saveConf = (prefFile == null) 
@@ -196,6 +196,10 @@ public final class Studio {
         final String driverPath = conf.getProperty("jdbc.driverPath");
         final String jdbcUrl = conf.getProperty("jdbc.url");
         final String dbUser = conf.getProperty("db.user");
+        final String dbCharset = conf.getProperty("db.charset");
+        final Charset charset = 
+            (dbCharset != null && Charset.isSupported(dbCharset))
+            ? Charset.forName(dbCharset) : Charset.defaultCharset();
 
         final JTextField driverField = new JTextField();
         driverField.setEditable(false);
@@ -240,7 +244,7 @@ public final class Studio {
         charsetLabel.setToolTipText("Character set");
         final JComboBox charsets = 
             new JComboBox(Charset.availableCharsets().values().toArray());
-        charsets.setSelectedItem(Charset.defaultCharset());
+        charsets.setSelectedItem(charset);
         final JLabel invalidCred = 
             new JLabel("Can't connect using these credentials");
         invalidCred.setForeground(Color.RED);
@@ -578,8 +582,7 @@ public final class Studio {
                     final Formatting fmt = (Formatting) convertFormats.
                         getSelectedItem();
 
-                    final Charset charset = (Charset) charsets.
-                        getSelectedItem();
+                    final Charset charset = model.getCharset();
 
                     System.out.println("#format=" + fmt + 
                                        ", #charset=" + charset);
@@ -871,6 +874,7 @@ public final class Studio {
         Binder.bind("text", userField, "user", this.model, txtOpts);
         Binder.bind("text", passField, "password", this.model, txtOpts);
         Binder.bind("text", urlField, "url", this.model, txtOpts);
+        Binder.bind("selectedItem", charsets, "charset", this.model, null);
 
         // Sets up binding to disable action while processing
         final BindingOptionMap negOpts = new BindingOptionMap().
@@ -918,7 +922,7 @@ public final class Studio {
                     add(BindingKey.INPUT_TRANSFORMER, 
                         NegateBooleanTransformer.getInstance()));
 
-	Binder.bind("connectionConfig", model, "visible", invalidUrl,
+	Binder.bind("connectionConfig", this.model, "visible", invalidUrl,
 		    new BindingOptionMap().
 		    add(BindingKey.INPUT_TRANSFORMER,
                         new UnaryFunction<Long,Boolean>() {
@@ -937,7 +941,7 @@ public final class Studio {
                     }));
 
         // Bindings for check connection action
-	Binder.bind("connectionConfig", model, "enabled[]", checkCon,
+	Binder.bind("connectionConfig", this.model, "enabled[]", checkCon,
 		    new BindingOptionMap().
 		    add(BindingKey.INPUT_TRANSFORMER, 
                         new UnaryFunction<Long,Boolean>() {
@@ -1056,30 +1060,6 @@ public final class Studio {
     } // end of headerRenderer
 
     /**
-     * Reloads configuration from file.
-     */
-    private void reloadConfig(final File f) {
-        InputStreamReader r = null;
-
-        try {
-            final FileInputStream in = new FileInputStream(f);
-            r = new InputStreamReader(in, "UTF-8");
-
-            this.conf.load(r);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (r != null) {
-                try {
-                    r.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } // end of catch
-            } // end of if
-        } // end of finally
-    } // end of reloadConfig
-
-    /**
      * Updates application configuration.
      */
     private void updateConfig() {
@@ -1103,6 +1083,16 @@ public final class Studio {
             this.conf.put("db.user", user);
         } // end of else
 
+        // DB charset
+        final Charset charset = this.model.getCharset();
+
+        if (charset == null) {
+            this.conf.remove("db.charset");
+        } else {
+            this.conf.put("db.charset", charset.name());
+        } // end of else
+
+        // Persist configuration
         try {
             this.saveConf.call();
         } catch (Exception e) {
@@ -1170,17 +1160,12 @@ public final class Studio {
                 };
             final JTable table = new JTable(tm);
             final JScrollPane pane = new JScrollPane(table);
-            final int rowCount = td.rows.size();
-            final int rowHeight = table.getRowHeight();
-            final int dataHeight = rowHeight * (rowCount+1);
-            final int height = (dataHeight > frm.getHeight())
-                ? frm.getHeight() : dataHeight;
 
             table.setDefaultRenderer(String.class, new ResultCellRenderer());
 
             dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             dlg.setContentPane(pane);
-            dlg.setMinimumSize(new Dimension(frm.getWidth(), dataHeight));
+            dlg.setMinimumSize(new Dimension(frm.getWidth(), frm.getHeight()/4));
             table.setPreferredScrollableViewportSize(dlg.getMinimumSize());
             dlg.pack();
             dlg.setLocationRelativeTo(null);
