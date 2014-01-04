@@ -47,9 +47,9 @@ public enum ColumnType {
     // --- Properties ---
 
     /**
-     * Key name
+     * Type name
      */
-    private final String name;
+    public final String name;
 
     // --- Constructors ---
 

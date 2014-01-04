@@ -101,7 +101,6 @@ import melasse.PropertyChangeSupport.PropertyEditSession;
  * Acolyte studio UI.
  *
  * @author Cedric Chantepie
- * @todo Store db.charset
  */
 public final class Studio {
     // --- Shared ---
@@ -577,21 +576,26 @@ public final class Studio {
         final JComboBox convertFormats = new JComboBox(Formatting.values());
         final AbstractAction convert = new AbstractAction() {
                 public void actionPerformed(final ActionEvent e) { 
-                    System.out.println("-> convert");
-                    
+                    final Charset charset = model.getCharset();
                     final Formatting fmt = (Formatting) convertFormats.
                         getSelectedItem();
 
-                    final Charset charset = model.getCharset();
-
-                    System.out.println("#format=" + fmt + 
-                                       ", #charset=" + charset);
-
                     model.setProcessing(true);
 
-                    displayRows(frm, resCols, resData, charset, fmt);
+                    final Callable<Void> end = new Callable<Void>() {
+                        public Void call() {
+                            model.setProcessing(false);
+                            return null;
+                        }
+                    };
 
-                    model.setProcessing(false);
+                    try {
+                        displayRows(frm, resCols, resData, charset, fmt, end);
+                    } catch (Exception ex) {
+                        try { end.call(); } catch (Exception x) { }
+
+                        throw new RuntimeException("Fails to display rows", ex);
+                    } // end of catch
                 }
             };
         convert.putValue(Action.NAME, "Convert");
@@ -867,6 +871,23 @@ public final class Studio {
             passField.grabFocus();
         } // end of else
 
+        createConvertDialog(frm, Formatting.Java, 
+                            new UnaryFunction<Document,Callable<Void>>() {
+                                public Callable<Void> apply(Document d) { 
+                                    return new Callable<Void>() {
+                                        public Void call() {
+                                            System.out.println("_here");
+                                            return null;
+                                        }
+                                    };
+                                }
+                            }, new Callable<Void>() {
+                                public Void call() {
+                                    System.out.println("_end");
+                                    return null;
+                                }
+                            });
+
         // Sets up model bindings
         final BindingOptionMap txtOpts = new BindingOptionMap().
             add(TextBindingKey.CONTINUOUSLY_UPDATE_VALUE);
@@ -899,9 +920,6 @@ public final class Studio {
         Binder.bind("connectionValidated", this.model, "enabled[]", extract, 
                     BindingOptionMap.targetModeOptions);
         
-        Binder.bind("connectionValidated", this.model, "enabled[]", convert, 
-                    BindingOptionMap.targetModeOptions);
-
         Binder.bind("connectionValidated", this.model, 
                     "visible", confValidated, 
                     BindingOptionMap.targetModeOptions);
@@ -967,11 +985,12 @@ public final class Studio {
 	Binder.bind("text", sqlArea, "enabled[]", testSql, txtLenOpts);
 
         // Bindings for extract action
+        final BindingOptionMap intBoolOpts = new BindingOptionMap().
+            add(BindingKey.INPUT_TRANSFORMER,
+                IntegerToBooleanTransformer.getInstance());
+
         Binder.bind("text", sqlArea, "enabled[]", extract, txtLenOpts);
-        Binder.bind("columnCount", colModel, "enabled[]", extract, 
-                    new BindingOptionMap().add(BindingKey.INPUT_TRANSFORMER,
-                                               IntegerToBooleanTransformer.
-                                               getInstance()));
+        Binder.bind("columnCount", colModel, "enabled[]", extract, intBoolOpts);
 
         // Bindings for convert action
         Binder.bind("rowCount", resModel, "text", resCountLabel,
@@ -979,7 +998,7 @@ public final class Studio {
                     add(BindingKey.INPUT_TRANSFORMER, 
                         NumberToStringTransformer.getInstance(new MessageFormat("{0,choice,0#no row|1#1 row|1<{0,number,integer} rows}"))));
 
-        Binder.bind("text", sqlArea, "enabled[]", convert, txtLenOpts);
+        Binder.bind("rowCount", resModel, "enabled[]", convert, intBoolOpts);
     } // end of setUp
 
     /**
@@ -1255,9 +1274,9 @@ public final class Studio {
     /**
      * Sets wait icon on |label|.
      */
-    private ImageIcon setWaitIcon(final JLabel label) {
+    private static ImageIcon setWaitIcon(final JLabel label) {
         final ImageIcon ico = 
-            new ImageIcon(this.getClass().getResource("loader.gif"));
+            new ImageIcon(Studio.class.getResource("loader.gif"));
 
         label.setIcon(ico);
         ico.setImageObserver(label);
@@ -1364,32 +1383,18 @@ public final class Studio {
     } // end of chooseDriver
 
     /**
-     * Displays formatted rows.
+     * Creates export dialog, and returns associated document.
      */
-    public void displayRows(final JFrame frm,
-                            final TableColumnModel colModel, 
-                            final Vector<Vector<Object>> data,
-                            final Charset charset,
-                            final Formatting fmt) {
+    private static <T> void createConvertDialog(final JFrame frm, final Formatting fmt, final UnaryFunction<Document,Callable<T>> init, final Callable<Void> end) {
 
-        final ArrayList<String> colNames = new ArrayList<String>();
-        final ArrayList<ColumnType> colTypes = new ArrayList<ColumnType>();
-        final Enumeration<TableColumn> n = colModel.getColumns();
+        // Prepares UI components
+        final JLabel dialogLabel = 
+            new JLabel("<html><b>Formatted data</b></html>");
+        dialogLabel.setHorizontalTextPosition(SwingConstants.LEFT);
 
-        while (n.hasMoreElements()) {
-            @SuppressWarnings("unchecked")
-            final Map.Entry<String,ColumnType> e = 
-                (Map.Entry<String,ColumnType>) n.nextElement().getHeaderValue();
-
-            colNames.add(e.getKey());
-            colTypes.add(e.getValue());
-        } // end of while
-
-        System.out.println("#colNames=" + colNames + ", #colTypes=" + colTypes);
-
-        final VectorIterator it = new VectorIterator(data);
         final JEditorPane rowArea = new JEditorPane();
         rowArea.setEditable(false);
+        dialogLabel.setLabelFor(rowArea);
         final JScrollPane rowPanel = 
             new JScrollPane(rowArea, 
                             JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
@@ -1397,12 +1402,18 @@ public final class Studio {
         rowPanel.setBorder(BorderFactory.createLoweredBevelBorder());
         rowArea.setContentType(fmt.mimeType);
 
-        final JDialog dlg = new JDialog(frm, "Formatted data");
+        final JDialog dlg = new JDialog(frm, "Convert");
         final Container content = dlg.getContentPane();
         final GroupLayout layout = new GroupLayout(content);
-        final Document doc = rowArea.getDocument();
 
-        // TODO: Prepare document with column declaration
+        final AbstractAction pbcopy = new AbstractAction() {
+                public void actionPerformed(final ActionEvent evt) {
+                    System.out.println("-> pbcopy");
+                }
+            };
+        pbcopy.putValue(Action.NAME, "Copy");
+        pbcopy.putValue(Action.SHORT_DESCRIPTION, "Copy to paste board");
+        final JButton copyBut = new JButton(pbcopy);
 
         // Lays out UI component
         content.setLayout(layout);
@@ -1412,24 +1423,123 @@ public final class Studio {
 
         final GroupLayout.SequentialGroup vgroup = 
             layout.createSequentialGroup().
+            addComponent(dialogLabel).
             addComponent(rowPanel,
                          GroupLayout.PREFERRED_SIZE,
                          GroupLayout.DEFAULT_SIZE,
-                         Short.MAX_VALUE);
+                         Short.MAX_VALUE).
+            addComponent(copyBut);
 
         final GroupLayout.ParallelGroup hgroup = 
             layout.createParallelGroup(Alignment.LEADING).
+            addComponent(dialogLabel).
             addComponent(rowPanel,
                          GroupLayout.PREFERRED_SIZE,
                          GroupLayout.DEFAULT_SIZE,
-                         Short.MAX_VALUE);
+                         Short.MAX_VALUE).
+            addGroup(layout.createSequentialGroup().
+                     addPreferredGap(LayoutStyle.ComponentPlacement.RELATED,
+                                     GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).
+                     addComponent(copyBut));
 
         layout.setVerticalGroup(vgroup);
         layout.setHorizontalGroup(hgroup);
 
+        dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dlg.setMinimumSize(new Dimension(frm.getWidth(), frm.getHeight()/3));
+
         dlg.pack();
         dlg.setLocationRelativeTo(null);
         dlg.setVisible(true);
+
+        final ImageIcon waitIco = setWaitIcon(dialogLabel);
+
+        try {
+            final Callable<T> f = init.apply(rowArea.getDocument());
+
+            final SwingWorker<Void,Void> w = new SwingWorker<Void,Void>() {
+                public Void doInBackground() throws Exception {
+                    try {
+                        f.call();
+                    } finally {
+                        try { end.call(); } catch (Exception e) { }
+                    }
+
+                    return null;
+                }
+            };
+
+            w.execute();
+        } finally {
+            waitIco.setImageObserver(null);
+            dialogLabel.setIcon(null);
+        } // end of finally
+    } // end of createConvertDialog
+
+    /**
+     * Displays formatted rows.
+     */
+    private void displayRows(final JFrame frm,
+                             final TableColumnModel colModel, 
+                             final Vector<Vector<Object>> data,
+                             final Charset charset,
+                             final Formatting fmt,
+                             final Callable<Void> end) {
+
+        final UnaryFunction<Document,Callable<Void>> f = 
+            new UnaryFunction<Document,Callable<Void>>() {
+            public Callable<Void> apply(final Document doc) {
+                final DocumentAppender ap = new DocumentAppender(doc);
+
+                // Column definitions
+                final ArrayList<String> cnames = new ArrayList<String>();
+                final ArrayList<ColumnType> ctypes = 
+                new ArrayList<ColumnType>();
+                final Enumeration<TableColumn> n = colModel.getColumns();
+                final int c = colModel.getColumnCount();
+
+                ap.append("acolyte.RowLists.rowList" + c + "(");
+
+                int i = 0;
+                while (n.hasMoreElements()) {
+                    @SuppressWarnings("unchecked")
+                    final Map.Entry<String,ColumnType> e = 
+                        (Map.Entry<String,ColumnType>) n.
+                        nextElement().getHeaderValue();
+
+                    final String name = e.getKey();
+                    final ColumnType type = e.getValue();
+                    
+                    cnames.add(name);
+                    ctypes.add(type);
+                    
+                    if (i++ > 0) {
+                        ap.append(", ");
+                    } // end of if
+                    
+                    final String tname = (fmt.typeMap.containsKey(type))
+                        ? fmt.typeMap.get(type) : "String";
+                    
+                    ap.append(String.format(fmt.colDef, tname, name));
+                } // end of while
+
+                ap.append(")");
+
+                // --
+                
+                return new Callable<Void>() {
+                    public Void call() {
+                        RowFormatter.
+                            appendRows(new VectorIterator(data), ap, charset, 
+                                       fmt, ctypes);
+                        
+                        return null;
+                    }
+                };
+            } // end of apply
+        }; // end of f
+
+        createConvertDialog(frm, fmt, f, end);
     } // end of displayRows
 
     // ---

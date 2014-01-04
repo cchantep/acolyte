@@ -1,5 +1,7 @@
 package acolyte;
 
+import java.util.HashMap;
+
 /**
  * Formatting options.
  *
@@ -14,6 +16,8 @@ enum Formatting {
     Java("Java", "text/java",
          ".append(" /* rowStart */,
          ")\r\n" /* rowEnd */,
+         "acolyte.RowList.Column.defineCol(%s.class, \"%s\")" /* colDef */,
+         FormattingConstants.javaMap, /* type map */
          ", " /* valueSeparator */,
          "new java.math.BigDecimal(\"%s\")" /* someBigDecimal */,
          "(java.math.BigDecimal)null" /* noneBigDecimal */,
@@ -46,6 +50,8 @@ enum Formatting {
     Scala("Scala", "text/scala",
           ".append(" /* rowStart */,
           ")\r\n" /* rowEnd */,
+          "classOf[%s] -> \"%s\"", /* colDef */
+          FormattingConstants.scalaMap, /* types map */
           ", " /* valueSeparator */,
           "new java.math.BigDecimal(\"%s\")" /* someBigDecimal */,
           "null.asInstanceOf[java.math.BigDecimal]" /* noneBigDecimal */,
@@ -93,6 +99,16 @@ enum Formatting {
      * Row end
      */
     public final String rowEnd;
+
+    /**
+     * Column definition
+     */
+    public final String colDef;
+
+    /**
+     * Type map
+     */
+    public final HashMap<ColumnType,String> typeMap;
 
     /**
      * Value separator
@@ -244,6 +260,8 @@ enum Formatting {
                        final String mimeType,
                        final String rowStart,
                        final String rowEnd,
+                       final String colDef,
+                       final HashMap<ColumnType,String> typeMap,
                        final String valueSeparator,
                        final String someBigDecimal,
                        final String noneBigDecimal,
@@ -274,6 +292,8 @@ enum Formatting {
         this.mimeType = mimeType;
         this.rowStart = rowStart;
         this.rowEnd = rowEnd;
+        this.colDef = colDef;
+        this.typeMap = typeMap;
         this.valueSeparator = valueSeparator;
         this.someBigDecimal = someBigDecimal;
         this.noneBigDecimal = noneBigDecimal;
@@ -310,3 +330,53 @@ enum Formatting {
         return this.format;
     } // end of toString
 } // end of enum Formatting
+
+/**
+ * Formatting constants.
+ */
+final class FormattingConstants {
+    
+    /**
+     * Java mappings from column type to type name.
+     */
+    protected final static HashMap<ColumnType,String> javaMap;
+
+    /**
+     * Scala mappings from column type to type name.
+     */
+    protected final static HashMap<ColumnType,String> scalaMap;
+
+    static {
+        // Java mappings
+        javaMap = new HashMap<ColumnType,String>();
+
+        javaMap.put(ColumnType.BigDecimal, "java.math.BigDecimal");
+        javaMap.put(ColumnType.Boolean, "Boolean");
+        javaMap.put(ColumnType.Byte, "Byte");
+        javaMap.put(ColumnType.Short, "Short");
+        javaMap.put(ColumnType.Date, "java.sql.Date");
+        javaMap.put(ColumnType.Double, "Double");
+        javaMap.put(ColumnType.Float, "Float");
+        javaMap.put(ColumnType.Int, "Integer");
+        javaMap.put(ColumnType.Long, "Long");
+        javaMap.put(ColumnType.Time, "java.sql.Time");
+        javaMap.put(ColumnType.Timestamp, "java.sql.Timestamp");
+        // Default ColumnType.String -> String
+
+        // Scala mappings
+        scalaMap = new HashMap<ColumnType,String>();
+
+        scalaMap.put(ColumnType.BigDecimal, "java.math.BigDecimal");
+        scalaMap.put(ColumnType.Boolean, "Boolean");
+        scalaMap.put(ColumnType.Byte, "Byte");
+        scalaMap.put(ColumnType.Short, "Short");
+        scalaMap.put(ColumnType.Date, "java.sql.Date");
+        scalaMap.put(ColumnType.Double, "Double");
+        scalaMap.put(ColumnType.Float, "Float");
+        scalaMap.put(ColumnType.Int, "Int");
+        scalaMap.put(ColumnType.Long, "Long");
+        scalaMap.put(ColumnType.Time, "java.sql.Time");
+        scalaMap.put(ColumnType.Timestamp, "java.sql.Timestamp");
+        // Default ColumnType.String -> String
+    } // end of <cinit>
+} // end of class FormattingConstants

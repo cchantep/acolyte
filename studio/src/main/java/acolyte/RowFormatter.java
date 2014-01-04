@@ -123,13 +123,9 @@ public final class RowFormatter {
             stmt = con.createStatement();
             rs = stmt.executeQuery(this.sql);
 
-            final ResultIterator it = new ResultIterator(rs);
+            appendRows(new ResultIterator(rs), ap, 
+                       this.charset, this.formatting, this.cols);
 
-            while (rs.next()) {
-                ap.append(formatting.rowStart);
-                appendValues(it, ap, charset, formatting, this.cols, 0);
-                ap.append(formatting.rowEnd);
-            } // end of while
         } finally {
             if (rs != null) {
                 try {
@@ -161,8 +157,8 @@ public final class RowFormatter {
      * Appends a null value.
      */
     static void appendNull(final Appender ap, 
-                           final Formatting fmt,
-                           final ColumnType col) throws SQLException {
+                           final Formatting fmt, 
+                           final ColumnType col) {
 
         switch (col) {
         case BigDecimal:
@@ -223,8 +219,7 @@ public final class RowFormatter {
                              final Charset charset,
                              final Formatting fmt,
                              final List<ColumnType> cols, 
-                             final int colIndex) 
-        throws SQLException, UnsupportedEncodingException {
+                             final int colIndex) {
 
         if (colIndex >= cols.size()) {
             return;
@@ -305,6 +300,22 @@ public final class RowFormatter {
 
         appendValues(it, ap, charset, fmt, cols, colIndex+1);
     } // end of appendValues
+
+    /**
+     * Appends rows
+     */
+    protected static void appendRows(final Iterator<ResultRow> it,
+                                     final Appender ap,
+                                     final Charset charset,
+                                     final Formatting fmt,
+                                     final List<ColumnType> cols) {
+
+        while (it.hasNext()) {
+            ap.append(fmt.rowStart);
+            appendValues(it, ap, charset, fmt, cols, 0);
+            ap.append(fmt.rowEnd);
+        } // end of while
+    } // end of appendRows
 
     // ---
 
