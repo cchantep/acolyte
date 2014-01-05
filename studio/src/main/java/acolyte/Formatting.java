@@ -14,9 +14,10 @@ enum Formatting {
      * Java formatting
      */
     Java("Java", "text/java",
+         "import acolyte.RowList.Column;\r\nimport acolyte.RowLists;",
+         "Column.defineCol(%s.class, \"%s\")" /* colDef */,
          ".append(" /* rowStart */,
-         ")\r\n" /* rowEnd */,
-         "acolyte.RowList.Column.defineCol(%s.class, \"%s\")" /* colDef */,
+         ")" /* rowEnd */,
          FormattingConstants.javaMap, /* type map */
          ", " /* valueSeparator */,
          "new java.math.BigDecimal(\"%s\")" /* someBigDecimal */,
@@ -48,9 +49,10 @@ enum Formatting {
      * Scala formatting
      */
     Scala("Scala", "text/scala",
-          ".append(" /* rowStart */,
-          ")\r\n" /* rowEnd */,
+          "import acolyte.RowLists", /* imports */
           "classOf[%s] -> \"%s\"", /* colDef */
+          ".append(" /* rowStart */,
+          ")" /* rowEnd */,
           FormattingConstants.scalaMap, /* types map */
           ", " /* valueSeparator */,
           "new java.math.BigDecimal(\"%s\")" /* someBigDecimal */,
@@ -89,6 +91,11 @@ enum Formatting {
      * Mime type
      */
     public final String mimeType;
+
+    /**
+     * Imports
+     */
+    public final String imports;
 
     /**
      * Row start
@@ -258,9 +265,10 @@ enum Formatting {
      */
     private Formatting(final String format,
                        final String mimeType,
+                       final String imports,
+                       final String colDef,
                        final String rowStart,
                        final String rowEnd,
-                       final String colDef,
                        final HashMap<ColumnType,String> typeMap,
                        final String valueSeparator,
                        final String someBigDecimal,
@@ -290,6 +298,7 @@ enum Formatting {
 
         this.format = format;
         this.mimeType = mimeType;
+        this.imports = imports;
         this.rowStart = rowStart;
         this.rowEnd = rowEnd;
         this.colDef = colDef;

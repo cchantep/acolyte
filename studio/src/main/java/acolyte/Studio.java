@@ -38,8 +38,10 @@ import java.util.concurrent.TimeUnit;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.Point;
 import java.awt.Color;
+import java.awt.Image;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.ActionEvent;
@@ -51,6 +53,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.AbstractAction;
 import javax.swing.JPasswordField;
+import javax.swing.SwingUtilities;
 import javax.swing.BorderFactory;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -63,6 +66,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
+import javax.swing.UIManager;
 import javax.swing.JSpinner;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -83,6 +87,9 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableColumn;
+
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Clipboard;
 
 import melasse.StringLengthToBooleanTransformer;
 import melasse.IntegerToBooleanTransformer;
@@ -184,8 +191,8 @@ public final class Studio {
      */
     public void setUp() {
         final JFrame frm = new JFrame("Acolyte Studio");
-        final Dimension screenSize = java.awt.Toolkit.
-            getDefaultToolkit().getScreenSize();
+        final Toolkit toolkit = Toolkit.getDefaultToolkit();
+        final Dimension screenSize = toolkit.getScreenSize();
 
         frm.setMinimumSize(new Dimension((int) (screenSize.getWidth()/2.4d),
                                          (int) (screenSize.getHeight()/1.2f)));
@@ -853,10 +860,24 @@ public final class Studio {
 
         layout.linkSize(SwingConstants.VERTICAL, testBut, testSqlLabel);
 
+        final Image dockIcon = toolkit.
+            getImage(this.getClass().getResource("dockico.png"));
+
+        try { // Sets L&F to system one
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            SwingUtilities.updateComponentTreeUI(frm);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } // end of catch
+
         frm.pack();
         frm.setLocationRelativeTo(null);
         frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frm.setVisible(true);
+
+        // Application icons
+        frm.setIconImage(dockIcon);
+        Native.setDockIcon(dockIcon);
 
         // Initial focus
         frm.requestFocus();
@@ -870,24 +891,7 @@ public final class Studio {
         } else {
             passField.grabFocus();
         } // end of else
-
-        createConvertDialog(frm, Formatting.Java, 
-                            new UnaryFunction<Document,Callable<Void>>() {
-                                public Callable<Void> apply(Document d) { 
-                                    return new Callable<Void>() {
-                                        public Void call() {
-                                            System.out.println("_here");
-                                            return null;
-                                        }
-                                    };
-                                }
-                            }, new Callable<Void>() {
-                                public Void call() {
-                                    System.out.println("_end");
-                                    return null;
-                                }
-                            });
-
+        
         // Sets up model bindings
         final BindingOptionMap txtOpts = new BindingOptionMap().
             add(TextBindingKey.CONTINUOUSLY_UPDATE_VALUE);
@@ -1052,6 +1056,21 @@ public final class Studio {
     } // end of studioProcess
 
     /**
+     * Listens to key to close a |window|.
+     */
+    private static final KeyAdapter closeKeyStrokes(final java.awt.Window window) {
+        return new KeyAdapter() {
+            public void keyReleased(KeyEvent e) {
+                final int kc = e.getKeyCode();
+                if (kc == KeyEvent.VK_ESCAPE || 
+                    kc == KeyEvent.VK_ENTER) {
+                    window.dispose();
+                }
+            }
+        };
+    } // end of closeKeyStrokes
+
+    /**
      * Header renderer for result table
      */
     private static TableCellRenderer headerRenderer(final JTable t) {
@@ -1190,24 +1209,15 @@ public final class Studio {
             dlg.setLocationRelativeTo(null);
             dlg.setVisible(true);
 
-            //dlg.setLocationRelativeTo(null);
             final Point loc = dlg.getLocation();
             loc.translate(20, 0);
             dlg.setLocation(loc);
 
-            final KeyAdapter kl = new KeyAdapter() {
-                    public void keyReleased(KeyEvent e) {
-                        final int kc = e.getKeyCode();
-                        if (kc == KeyEvent.VK_ESCAPE || 
-                            kc == KeyEvent.VK_ENTER) {
-                            dlg.dispose();
-                        }
-                    }
-                };
-
+            final KeyAdapter kl = closeKeyStrokes(dlg);
             dlg.addKeyListener(kl);
-            pane.grabFocus();
             pane.addKeyListener(kl);
+
+            pane.grabFocus();
         } catch (Exception ex) {
             JOptionPane.
                 showMessageDialog(frm, ex.getMessage(),
@@ -1406,9 +1416,13 @@ public final class Studio {
         final Container content = dlg.getContentPane();
         final GroupLayout layout = new GroupLayout(content);
 
+        final Clipboard pb = Toolkit.getDefaultToolkit().getSystemClipboard();
         final AbstractAction pbcopy = new AbstractAction() {
                 public void actionPerformed(final ActionEvent evt) {
-                    System.out.println("-> pbcopy");
+                    final StringSelection codeSel = 
+                        new StringSelection(rowArea.getText());
+
+                    pb.setContents(codeSel, null);
                 }
             };
         pbcopy.putValue(Action.NAME, "Copy");
@@ -1433,10 +1447,7 @@ public final class Studio {
         final GroupLayout.ParallelGroup hgroup = 
             layout.createParallelGroup(Alignment.LEADING).
             addComponent(dialogLabel).
-            addComponent(rowPanel,
-                         GroupLayout.PREFERRED_SIZE,
-                         GroupLayout.DEFAULT_SIZE,
-                         Short.MAX_VALUE).
+            addComponent(rowPanel).
             addGroup(layout.createSequentialGroup().
                      addPreferredGap(LayoutStyle.ComponentPlacement.RELATED,
                                      GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).
@@ -1451,6 +1462,13 @@ public final class Studio {
         dlg.pack();
         dlg.setLocationRelativeTo(null);
         dlg.setVisible(true);
+
+        final KeyAdapter kl = closeKeyStrokes(dlg);
+        dlg.addKeyListener(kl);
+        content.addKeyListener(kl);
+        rowArea.addKeyListener(kl);
+
+        rowArea.grabFocus();
 
         final ImageIcon waitIco = setWaitIcon(dialogLabel);
 
@@ -1479,12 +1497,12 @@ public final class Studio {
     /**
      * Displays formatted rows.
      */
-    private void displayRows(final JFrame frm,
-                             final TableColumnModel colModel, 
-                             final Vector<Vector<Object>> data,
-                             final Charset charset,
-                             final Formatting fmt,
-                             final Callable<Void> end) {
+    private static void displayRows(final JFrame frm,
+                                    final TableColumnModel colModel, 
+                                    final Vector<Vector<Object>> data,
+                                    final Charset charset,
+                                    final Formatting fmt,
+                                    final Callable<Void> end) {
 
         final UnaryFunction<Document,Callable<Void>> f = 
             new UnaryFunction<Document,Callable<Void>>() {
@@ -1498,7 +1516,8 @@ public final class Studio {
                 final Enumeration<TableColumn> n = colModel.getColumns();
                 final int c = colModel.getColumnCount();
 
-                ap.append("acolyte.RowLists.rowList" + c + "(");
+                ap.append(fmt.imports);
+                ap.append("\r\n\r\nRowLists.rowList" + c + "(");
 
                 int i = 0;
                 while (n.hasMoreElements()) {
@@ -1523,7 +1542,7 @@ public final class Studio {
                     ap.append(String.format(fmt.colDef, tname, name));
                 } // end of while
 
-                ap.append(")");
+                ap.append(")\r\n");
 
                 // --
                 
@@ -1609,7 +1628,9 @@ public final class Studio {
     /**
      * Document appender.
      */
-    private final class DocumentAppender implements RowFormatter.Appender {
+    private static final class DocumentAppender 
+        implements RowFormatter.Appender {
+
         private final Document doc;
 
         // --- Constructors ---
@@ -1640,7 +1661,7 @@ public final class Studio {
     /**
      * Iterator if row from vector.
      */
-    private final class VectorIterator 
+    private static final class VectorIterator 
         implements java.util.Iterator<RowFormatter.ResultRow> {
 
         private Iterator<Vector<Object>> it;
@@ -1677,7 +1698,7 @@ public final class Studio {
     /**
      * Row based on vector.
      */
-    private final class VectorRow implements RowFormatter.ResultRow {
+    private static final class VectorRow implements RowFormatter.ResultRow {
         private Vector<Object> v;
 
         /**

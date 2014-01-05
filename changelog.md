@@ -1,3 +1,13 @@
+## 1.0.11
+
+([b079c0ca31f3006ce3b8e779f5e778319ce4ed72](https://github.com/cchantep/acolyte/commit/b079c0ca31f3006ce3b8e779f5e778319ce4ed72) @ [studio](https://github.com/cchantep/acolyte/tree/master/studio)) First GUI release
+
+([d9d4e5c831916305c415708203d8c8ef6d6ba5ce](https://github.com/cchantep/acolyte/commit/d9d4e5c831916305c415708203d8c8ef6d6ba5ce) @ [core](https://github.com/cchantep/acolyte/tree/master/core)) Update groupId to publish artifacts on Central via Sonatype
+
+([3cc594b2d3e3030e6b09c91b3384092723eb1020](https://github.com/cchantep/acolyte/commit/3cc594b2d3e3030e6b09c91b3384092723eb1020) @ [scala](https://github.com/cchantep/acolyte/tree/master/scala)) Update limit of row columns from 26 to 52
+
+([d6e4d9a9033ede803ad863a4682ca63123ac7040](https://github.com/cchantep/acolyte/commit/d6e4d9a9033ede803ad863a4682ca63123ac7040) @ [core](https://github.com/cchantep/acolyte/tree/master/core)) Update limit of row columns from 26 to 52
+
 ## 1.0.10
 
 ([500abb5493a1b6221b5e5c0f2fdf102a5bcf88ff](https://github.com/cchantep/acolyte/commit/500abb5493a1b6221b5e5c0f2fdf102a5bcf88ff) @ [scala](https://github.com/cchantep/acolyte/tree/master/scala)) Connection properties support:
@@ -118,3 +128,4 @@ list.append("row");
 ```scala
 Acolyte.withQueryHandler({ e: Execution => rowList })
 ```
+

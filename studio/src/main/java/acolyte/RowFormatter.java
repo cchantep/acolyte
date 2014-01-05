@@ -38,6 +38,15 @@ public final class RowFormatter {
      */
     private static final Logger logger = Logger.getLogger("acolyte-studio");
 
+    /**
+     * Appender to sysout
+     */
+    private static final Appender sysAppender = new Appender() {
+            public void append(final String s) {
+                System.out.print(s);
+            }
+        };
+
     // --- Properties ---
 
     /**
@@ -73,7 +82,7 @@ public final class RowFormatter {
     /**
      * Column descriptors
      */
-    private final List<ColumnType> cols;
+    private final Iterable<ColumnType> cols;
 
     /**
      * Formatting properties
@@ -91,7 +100,7 @@ public final class RowFormatter {
                         final String pass, 
                         final String sql, 
                         final Charset charset,
-                        final List<ColumnType> cols,
+                        final Iterable<ColumnType> cols,
                         final Formatting formatting) {
 
         this.jdbcDriver = jdbcDriver;
@@ -218,10 +227,10 @@ public final class RowFormatter {
                              final Appender ap,
                              final Charset charset,
                              final Formatting fmt,
-                             final List<ColumnType> cols, 
+                             final Iterator<ColumnType> cols, 
                              final int colIndex) {
 
-        if (colIndex >= cols.size()) {
+        if (!cols.hasNext()) {
             return;
         } // end of if
 
@@ -231,11 +240,10 @@ public final class RowFormatter {
             ap.append(fmt.valueSeparator);
         } // end of if
 
-        final int pos = colIndex+1;
-        final ColumnType col = cols.get(colIndex);
+        final ColumnType col = cols.next();
         final ResultRow rs = it.next();
 
-        if (rs.isNull(pos)) {
+        if (rs.isNull(colIndex)) {
             appendNull(ap, fmt, col);
             appendValues(it, ap, charset, fmt, cols, colIndex+1);
 
@@ -246,53 +254,63 @@ public final class RowFormatter {
 
         switch (col) {
         case BigDecimal:
-            ap.append(String.format(fmt.someBigDecimal, rs.getString(pos)));
+            ap.append(String.format(fmt.someBigDecimal, 
+                                    rs.getString(colIndex)));
             break;
 
         case Boolean:
-            ap.append(String.format(fmt.someBoolean, rs.getBoolean(pos)));
+            ap.append(String.format(fmt.someBoolean, 
+                                    rs.getBoolean(colIndex)));
             break;
 
         case Byte:
-            ap.append(String.format(fmt.someByte, rs.getByte(pos)));
+            ap.append(String.format(fmt.someByte, 
+                                    rs.getByte(colIndex)));
             break;
 
         case Short:
-            ap.append(String.format(fmt.someShort, rs.getShort(pos)));
+            ap.append(String.format(fmt.someShort, 
+                                    rs.getShort(colIndex)));
             break;
 
         case Date:
-            ap.append(String.format(fmt.someDate, rs.getDate(pos).getTime()));
+            ap.append(String.format(fmt.someDate, 
+                                    rs.getDate(colIndex).getTime()));
             break;
 
         case Double:
-            ap.append(String.format(fmt.someDouble, rs.getDouble(pos)));
+            ap.append(String.format(fmt.someDouble, 
+                                    rs.getDouble(colIndex)));
             break;
 
         case Float:
-            ap.append(String.format(fmt.someFloat, rs.getFloat(pos)));
+            ap.append(String.format(fmt.someFloat, 
+                                    rs.getFloat(colIndex)));
             break;
 
         case Int:
-            ap.append(String.format(fmt.someInt, rs.getInt(pos)));
+            ap.append(String.format(fmt.someInt, 
+                                    rs.getInt(colIndex)));
             break;
 
         case Long:
-            ap.append(String.format(fmt.someLong, rs.getLong(pos)));
+            ap.append(String.format(fmt.someLong, 
+                                    rs.getLong(colIndex)));
             break;
 
         case Time:
-            ap.append(String.format(fmt.someTime, rs.getTime(pos).getTime()));
+            ap.append(String.format(fmt.someTime, 
+                                    rs.getTime(colIndex).getTime()));
             break;
 
         case Timestamp:
             ap.append(String.format(fmt.someTimestamp, 
-                                    rs.getTimestamp(pos).getTime()));
+                                    rs.getTimestamp(colIndex).getTime()));
             break;
 
         default:
             ap.append(String.format(fmt.someString, 
-                                    new String(rs.getString(pos).
+                                    new String(rs.getString(colIndex).
                                                getBytes(charset)).
                                     replaceAll("\"", "\\\"")));
             break;
@@ -308,13 +326,21 @@ public final class RowFormatter {
                                      final Appender ap,
                                      final Charset charset,
                                      final Formatting fmt,
-                                     final List<ColumnType> cols) {
+                                     final Iterable<ColumnType> cols) {
 
+        int i = 0;
         while (it.hasNext()) {
+            if (i++ > 0) {
+                ap.append("\r\n");
+            } // end of if
+
+            ap.append("  ");
             ap.append(fmt.rowStart);
-            appendValues(it, ap, charset, fmt, cols, 0);
+            appendValues(it, ap, charset, fmt, cols.iterator(), 0);
             ap.append(fmt.rowEnd);
         } // end of while
+
+        ap.append(";");
     } // end of appendRows
 
     // ---
@@ -324,58 +350,68 @@ public final class RowFormatter {
      *
      * @param args Execution arguments : args[0] - JDBC URL, 
      * args[1] - Path to JAR or JDBC driver,
-     * args[2] - connexion user, 
-     * args[3] - User password, 
-     * args[4] - Encoding,
-     * args[5] - SQL statement, 
-     * args[6] - Output format (either "java" or "scala"),
+     * args[2] - DB user, 
+     * args[3] - Encoding,
+     * args[4] - User password, 
+     * args[5] - Output format (either "java" or "scala"),
+     * args[6] - SQL statement, 
      * args[7] to args[n] - type(s) of column from 1 to m.
      *
      * @see ColumnType
      */
     public static void main(final String[] args) throws Exception {
-        final File config = Studio.preferencesFile();
-        final Appender ap = new Appender() {
-                public void append(final String s) {
-                    System.out.println(s);
-                }
-            };
+        if (args.length < 4) {
+            throw new IllegalArgumentException();
+        } // end of if
 
-        if (config.exists()) {
-            FileInputStream in = null;
+        // ---
 
-            try {
-                in = new FileInputStream(config);
-
-                final Properties conf = new Properties();
-
-                conf.load(in);
-
-                execWith(ap, conf, args, 0);
-            } catch (Exception e) {
-                throw new RuntimeException("Fails to load configuration: " +
-                                           config.getAbsolutePath(), e);
-                
-            } finally { 
-                if (in != null) {
-                    try {
-                        in.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } // end of catch
-                } // end of if
-            } // end of finally
-        } else {
+        if (new File(args[1]).exists()) { // driver path
             final Properties conf = new Properties();
 
             conf.put("jdbc.url", args[0]);
             conf.put("jdbc.driverPath", args[1]);
             conf.put("db.user", args[2]);
-            conf.put("password", args[3]);
-            conf.put("db.charset", args[4]);
+            conf.put("db.charset", args[3]);
 
-            execWith(ap, conf, args, 5);
-        } // end of else
+            execWith(sysAppender, conf, args, 4);
+
+            return;
+        } // end of if
+
+        // ---
+
+        final File config = Studio.preferencesFile();
+
+        if (!config.exists()) {
+            throw new IllegalArgumentException("Cannot find configuration");
+        } // end of if
+
+        // ---
+
+        FileInputStream in = null;
+
+        try {
+            in = new FileInputStream(config);
+
+            final Properties conf = new Properties();
+
+            conf.load(in);
+
+            execWith(sysAppender, conf, args, 0);
+        } catch (Exception e) {
+            throw new RuntimeException("Fails to load configuration: " +
+                                       config.getAbsolutePath(), e);
+                
+        } finally { 
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } // end of catch
+            } // end of if
+        } // end of finally
     } // end of main
 
     /**
@@ -410,13 +446,14 @@ public final class RowFormatter {
 
         final String jdbcUrl = config.getProperty("jdbc.url");
         final String user = config.getProperty("db.user");
-        final String pass = config.getProperty("password");
-        final Formatting formatting = Formatting.forName(args[argsOffset]);
-        final String sql = args[argsOffset+1];
-        final Charset charset = Charset.forName(config.getProperty("charset"));
+        final String pass = args[argsOffset];
+        final Formatting formatting = Formatting.forName(args[argsOffset+1]);
+        final String sql = args[argsOffset+2];
+        final Charset charset = Charset.
+            forName(config.getProperty("db.charset"));
         final ArrayList<ColumnType> cols = new ArrayList<ColumnType>();
 
-        for (int i = argsOffset+2; i < args.length; i++) {
+        for (int i = argsOffset+3; i < args.length; i++) {
             final ColumnType t = ColumnType.typeFor(args[i]);
 
             if (t == null) {
@@ -443,7 +480,7 @@ public final class RowFormatter {
         final RowFormatter fmt = clazz.
             getConstructor(Driver.class, String.class, String.class, 
                            String.class, String.class, Charset.class, 
-                           List.class, Formatting.class).
+                           Iterable.class, Formatting.class).
             newInstance(jdbcDriver, jdbcUrl, user, pass, 
                         sql, charset, cols, formatting);
 
@@ -492,7 +529,7 @@ public final class RowFormatter {
 
         public String getString(int p) { 
             try {
-                return rs.getString(p); 
+                return rs.getString(p+1); 
             } catch (SQLException e) {
                 throw new RuntimeException("Fails to get value", e);
             }
@@ -500,7 +537,7 @@ public final class RowFormatter {
 
         public boolean getBoolean(int p) { 
             try {
-                return rs.getBoolean(p); 
+                return rs.getBoolean(p+1); 
             } catch (SQLException e) {
                 throw new RuntimeException("Fails to get value", e);
             }
@@ -508,7 +545,7 @@ public final class RowFormatter {
 
         public byte getByte(int p) { 
             try {
-                return rs.getByte(p); 
+                return rs.getByte(p+1); 
             } catch (SQLException e) {
                 throw new RuntimeException("Fails to get value", e);
             }
@@ -516,7 +553,7 @@ public final class RowFormatter {
 
         public short getShort(int p) {
             try {
-                return rs.getShort(p); 
+                return rs.getShort(p+1); 
             } catch (SQLException e) {
                 throw new RuntimeException("Fails to get value", e);
             }
@@ -524,7 +561,7 @@ public final class RowFormatter {
 
         public java.sql.Date getDate(int p) { 
             try {
-                return rs.getDate(p); 
+                return rs.getDate(p+1); 
             } catch (SQLException e) {
                 throw new RuntimeException("Fails to get value", e);
             }
@@ -532,7 +569,7 @@ public final class RowFormatter {
 
         public double getDouble(int p) { 
             try {
-                return rs.getDouble(p); 
+                return rs.getDouble(p+1); 
             } catch (SQLException e) {
                 throw new RuntimeException("Fails to get value", e);
             }
@@ -540,7 +577,7 @@ public final class RowFormatter {
 
         public float getFloat(int p) { 
             try {
-                return rs.getFloat(p); 
+                return rs.getFloat(p+1); 
             } catch (SQLException e) {
                 throw new RuntimeException("Fails to get value", e);
             }
@@ -548,7 +585,7 @@ public final class RowFormatter {
 
         public int getInt(int p) { 
             try {
-                return rs.getInt(p); 
+                return rs.getInt(p+1); 
             } catch (SQLException e) {
                 throw new RuntimeException("Fails to get value", e);
             }
@@ -556,7 +593,7 @@ public final class RowFormatter {
 
         public long getLong(int p) { 
             try {
-                return rs.getLong(p); 
+                return rs.getLong(p+1); 
             } catch (SQLException e) {
                 throw new RuntimeException("Fails to get value", e);
             }
@@ -564,7 +601,7 @@ public final class RowFormatter {
 
         public java.sql.Time getTime(int p) { 
             try {
-                return rs.getTime(p); 
+                return rs.getTime(p+1); 
             } catch (SQLException e) {
                 throw new RuntimeException("Fails to get value", e);
             }
@@ -572,7 +609,7 @@ public final class RowFormatter {
 
         public java.sql.Timestamp getTimestamp(int p) { 
             try {
-                return rs.getTimestamp(p); 
+                return rs.getTimestamp(p+1); 
             } catch (SQLException e) {
                 throw new RuntimeException("Fails to get value", e);
             }
@@ -580,7 +617,7 @@ public final class RowFormatter {
 
         public boolean isNull(int p) { 
             try {
-                return rs.getObject(p) == null; 
+                return rs.getObject(p+1) == null; 
             } catch (SQLException e) {
                 throw new RuntimeException("Fails to get value", e);
             }

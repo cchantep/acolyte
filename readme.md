@@ -920,9 +920,9 @@ Documentation is generated using Maven 3: `mvn -f site.xml site`
 To local repository:
 
 ```
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=core/target/acolyte-core-$VERSION.pom -Dfile=core/target/acolyte-core-$VERSION.jar -Durl=file://$PATH
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=core/target/acolyte-core-$VERSION.pom -Dfile=core/target/acolyte-core-$VERSION.jar -Durl=file://$REPOPATH
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.pom -Dfile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.jar -Durl=file://$PATH
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.pom -Dfile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.jar -Durl=file://$REPOPATH
 ```
 
 At Sonatype:
