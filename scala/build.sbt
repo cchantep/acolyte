@@ -2,7 +2,7 @@ name := "acolyte-scala"
 
 organization := "org.eu.acolyte"
 
-version := "1.0.11-3"
+version := "1.0.12"
 
 scalaVersion := "2.10.3"
 
@@ -54,7 +54,7 @@ sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in
 resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
 
 libraryDependencies ++= Seq(
-  "org.eu.acolyte" % "acolyte-core" % "1.0.11-2",
+  "org.eu.acolyte" % "acolyte-core" % "1.0.12",
   "org.specs2" %% "specs2" % "2.3.2" % "test")
 
 pomExtra := (
