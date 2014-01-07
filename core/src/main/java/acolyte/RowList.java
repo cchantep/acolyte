@@ -24,7 +24,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
  *
  * @author Cedric Chantepie
  * @todo Add nullable property to Column
- * @todo Check NPE in RowResultSet.getObject
  */
 public abstract class RowList<R extends Row> {
 
@@ -218,7 +217,7 @@ public abstract class RowList<R extends Row> {
     /**
      * Cell on a row.
      */
-    private static final class Cell<C> {
+    private static final class Cell<C> { // TODO: Remove useless Cell class
         public final C value;
 
         public Cell(final C v) {
@@ -367,7 +366,6 @@ public abstract class RowList<R extends Row> {
 
             final int idx = columnIndex - 1;
             final List<Object> cells = this.rows.get(this.row-1).cells();
-            // stringList :+ null -> .get -> NPE
 
             if (idx < 0 || idx >= cells.size()) {
                 throw new SQLException("Invalid column index: " + columnIndex);

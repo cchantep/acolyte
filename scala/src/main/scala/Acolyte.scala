@@ -301,7 +301,8 @@ trait CompositeHandlerImplicits { srl: ScalaRowLists ⇒
    * stringList :+ "singleVal" // SingleValueRow("singleVal")
    * }}}
    */
-  implicit def SingleValueRow[A, B](value: A)(implicit f: A ⇒ B): Row.Row1[B] = Rows.row1[B](f(value))
+  implicit def SingleValueRow[A, B](value: A)(implicit f: A ⇒ B): Row.Row1[B] =
+    Rows.row1[B](f(value))
 
 }
 
@@ -319,6 +320,46 @@ final class ScalaResultRow(r: Row) extends Row {
 
 }
 
+// TODO: Move ScalaRowListX to separate file
+// TODO: Gather common :+(RowN[_] and withLabels
+import acolyte.Row.Row1
+
+/**
+ * Pimped row list.
+ */
+final class ScalaRowList1[A](l: RowList1[A]) {
+  /**
+   * Symbolic alias for `append` operation with null as single value
+   * (inferred as expected row type).
+   * !! If value is not null, usual `:+` is called.
+   *
+   */
+  def :+(n: Null)(implicit f: A ⇒ Row.Row1[A]): RowList1[A] =
+    l.append(f(null.asInstanceOf[A])).asInstanceOf[RowList1[A]]
+
+  /**
+   * Symbolic alias for `append` operation.
+   *
+   * {{{
+   * rowList :+ row
+   * }}}
+   */
+  def :+(row: Row1[A]): RowList1[A] = l.append(row).asInstanceOf[RowList1[A]]
+
+  /**
+   * Defines column label(s) per position(s) (> 0).
+   *
+   * {{{
+   * rowList.withLabels(1 -> "label1", 2 -> "label2")
+   * }}}
+   */
+  def withLabels(labels: (Int, String)*): RowList1[A] =
+    labels.foldLeft(l) { (l, t) ⇒
+      l.withLabel(t._1, t._2).asInstanceOf[RowList1[A]]
+    }
+
+}
+
 /**
  * Pimped row list.
  */
@@ -332,6 +373,7 @@ final class ScalaRowList[L <: RowList[R], R <: Row](l: L) {
    * }}}
    */
   def :+(row: R): L = l.append(row).asInstanceOf[L]
+  // TODO: Remove asInstanceOf (implicit?)
 
   /**
    * Defines column label(s) per position(s) (> 0).

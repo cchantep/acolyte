@@ -3,12 +3,11 @@ package acolyte
 
 import scala.language.implicitConversions
 
-import Row.Row1
-
 // Acolyte DSL
 private[acolyte] trait ScalaRowLists {
   #SRL#
 
   // If no specific convertion found, default to this one
-  implicit def RowListAsScala[R <: Row](l: RowList[R]): ScalaRowList[RowList[R], R] = new ScalaRowList(l)
+  // TODO: Remove
+  //implicit def RowListAsScala[R <: Row](l: RowList[R]): ScalaRowList[RowList[R], R] = new ScalaRowList(l)
 }
