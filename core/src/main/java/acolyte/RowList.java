@@ -23,6 +23,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
  * Type-safe list of row.
  *
  * @author Cedric Chantepie
+ * @todo Add nullable property to Column
+ * @todo Check NPE in RowResultSet.getObject
  */
 public abstract class RowList<R extends Row> {
 
@@ -169,6 +171,18 @@ public abstract class RowList<R extends Row> {
     } // end of class Nil
 
     /**
+     * Creates column definition.
+     *
+     * @throws IllegalArgumentException if |columnClass| is null, 
+     * or |name| is empty.
+     */
+    public static <T> Column<T> Column(final Class<T> columnClass,
+                                       final String name) {
+        
+        return new Column<T>(columnClass, name);
+    } // end of column
+
+    /**
      * Column definition.
      */
     public static final class Column<T> {
@@ -199,18 +213,6 @@ public abstract class RowList<R extends Row> {
             this.columnClass = columnClass;
             this.name = name;
         } // end of <init>
-
-        /**
-         * Creates column definition.
-         *
-         * @throws IllegalArgumentException if |columnClass| is null, 
-         * or |name| is empty.
-         */
-        public static <T> Column<T> defineCol(final Class<T> columnClass,
-                                              final String name) {
-
-            return new Column<T>(columnClass, name);
-        } // end of column
     } // end of Column
 
     /**
@@ -365,6 +367,7 @@ public abstract class RowList<R extends Row> {
 
             final int idx = columnIndex - 1;
             final List<Object> cells = this.rows.get(this.row-1).cells();
+            // stringList :+ null -> .get -> NPE
 
             if (idx < 0 || idx >= cells.size()) {
                 throw new SQLException("Invalid column index: " + columnIndex);
@@ -1253,6 +1256,7 @@ public abstract class RowList<R extends Row> {
          * {@inheritDoc}
          */
         public int isNullable(final int column) throws SQLException {
+            // TODO: See anorm.RowSpec
             return ResultSetMetaData.columnNullableUnknown;
         } // end of isNullable
 

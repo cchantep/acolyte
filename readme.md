@@ -186,17 +186,17 @@ list2 = list2.withLabel(2, "first label").withLabel(3, "third name");
 Both column classes and names can be declared in bulk way, using [definition class](http://cchantep.github.io/acolyte/apidocs/acolyte/RowList.Column.html):
 
 ```java
-import static acolyte.RowList.Column.defineCol;
+import static acolyte.RowList.Column;
 
 // ...
 
 RowList1<String> list1 = RowLists.
-  rowList1(defineCol(String.class, "first label"));
+  rowList1(Column(String.class, "first label"));
 
 RowList3<Integer, Float, Character> list2 = RowLists.
-  rowList3(defineCol(Integer.class, "1st"), 
-           defineCol(Float.class, "2nd"), 
-           defineCol(Character.class, "3rd"));
+  rowList3(Column(Integer.class, "1st"), 
+           Column(Float.class, "2nd"), 
+           Column(Character.class, "3rd"));
 ```
 
 Once you have declared your row list, and before turning it as result set, you can either add rows to it, or leave it empty.
@@ -730,18 +730,18 @@ import acolyte.StatementHandler.Parameter;
 import acolyte.QueryResult;
 import acolyte.RowList5;
 
-import static acolyte.RowList.Column.defineCol;
+import static acolyte.RowList.Column;
 import static acolyte.RowLists.rowList5;
 import static acolyte.Rows.row5;
 
 @org.junit.runner.RunWith(org.junit.runners.JUnit4.class)
 public class ZooTest {
     private RowList5<String,Integer,String,Boolean,String> zooSchema =
-        rowList5(defineCol(String.class, "type"),
-                 defineCol(Integer.class, "location"),
-                 defineCol(String.class, "name"),
-                 defineCol(Boolean.class, "fly"),
-                 defineCol(String.class, "color"));
+        rowList5(Column(String.class, "type"),
+                 Column(Integer.class, "location"),
+                 Column(String.class, "name"),
+                 Column(Boolean.class, "fly"),
+                 Column(String.class, "color"));
 
     @org.junit.Test
     public void dogAtLocation() {

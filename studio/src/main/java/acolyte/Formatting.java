@@ -14,8 +14,8 @@ enum Formatting {
      * Java formatting
      */
     Java("Java", "text/java",
-         "import acolyte.RowList.Column;\r\nimport acolyte.RowLists;",
-         "Column.defineCol(%s.class, \"%s\")" /* colDef */,
+         "import static acolyte.RowList.Column;\r\nimport acolyte.RowLists;",
+         "Column(%s.class, \"%s\")" /* colDef */,
          ".append(" /* rowStart */,
          ")" /* rowEnd */,
          FormattingConstants.javaMap, /* type map */

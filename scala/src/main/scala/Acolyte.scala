@@ -124,7 +124,7 @@ object Implicits
    * }}}
    */
   implicit def PairAsColumn[T](c: (Class[T], String)): Column[T] =
-    Column.defineCol(c._1, c._2)
+    Column(c._1, c._2)
 
 }
 

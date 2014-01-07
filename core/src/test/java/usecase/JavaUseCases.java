@@ -16,10 +16,10 @@ import acolyte.Rows;
 
 import acolyte.StatementHandler.Parameter;
 
-import static acolyte.RowList.Column.defineCol;
 import static acolyte.RowLists.booleanList;
 import static acolyte.RowLists.rowList1;
 import static acolyte.RowLists.rowList3;
+import static acolyte.RowList.Column;
 import static acolyte.Rows.row1;
 import static acolyte.Rows.row3;
 
@@ -98,9 +98,9 @@ public final class JavaUseCases {
 
                         // Prepare list of 2 rows
                         // with 3 columns of types String, Float, Date
-                        return rowList3(defineCol(String.class, "str"),
-                                        defineCol(Float.class, "f"), 
-                                        defineCol(Date.class, "date")).
+                        return rowList3(Column(String.class, "str"),
+                                        Column(Float.class, "f"), 
+                                        Column(Date.class, "date")).
                             append(row3("text", 2.3f, new Date(3l))).
                             append(row3("label", 4.56f, new Date(4l))).
                             asResult();
