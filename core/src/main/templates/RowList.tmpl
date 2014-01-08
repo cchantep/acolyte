@@ -8,104 +8,43 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Row list of row with #N# cells.
+ * Row list of row with #N# cell.
  *
  * @author Cedric Chantepie
  */
-public final class RowList#N#<#CP#> extends RowList<Row#N#<#CP#>> {
-    // --- Properties ---
-        
-    /**
-     * Rows
-     */
-    private final List<Row#N#<#CP#>> rows;
-        
-    /**
-     * Column names
-     */
-    private final Map<String,Integer> colNames;
+public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>> 
+    extends RowList<Row#N#<#CP#>> {
 
-    #PS#
+    #AGS#
 
     /**
-     * Column classes
+     * Returns row list factory.
      */
-    private final ArrayList<Class<?>> colClasses;
-
-    // --- Constructors ---
+    abstract Factory<#CP#, UPDATED> factory();
 
     /**
-     * Bulk constructor.
-     *
-     * @throws IllegalArgumentException if rows is null
+     * Append column values.
+     * see #append(acolyte#Row#N#)
      */
-    protected RowList#N#(#CS#, final List<Row#N#<#CP#>> rows, final Map<String,Integer> colNames) {
-
-        #IC#
-
-        if (rows == null) {
-            throw new IllegalArgumentException("Invalid rows");
-        } // end of if
-
-        if (colNames == null) {
-            throw new IllegalArgumentException("Invalid names");
-        } // end of if
-
-        this.rows = Collections.unmodifiableList(rows);
-        this.colNames = Collections.unmodifiableMap(colNames);
-
-        // Column classes
-        final ArrayList<Class<?>> colClasses = new ArrayList<Class<?>>();
-
-        #AC#
-
-        this.colClasses = colClasses;
-    } // end of <init>
-
-    /**
-     * No-arg constructor.
-     */
-    public RowList#N#(#CS#) {
-        this(#CA#, new ArrayList<Row#N#<#CP#>>(), new HashMap<String,Integer>());
-    } // end of <init>
-
-    // ---
-
-    /**
-     * {@inheritDoc}
-     */
-    public List<Row#N#<#CP#>> getRows() { return this.rows; }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Map<String,Integer> getColumnLabels() { return this.colNames; }
-
-    /**
-     * Appends row with with given values.
-     *
-     * @see #append(acolyte.Row)
-     */
-    public RowList#N#<#CP#> append(#AP#) {
+    public UPDATED append(#AP#) {
         return append(new Row#N#<#CP#>(#AV#));
     } // end of append
 
     /**
      * {@inheritDoc}
      */
-    public RowList#N#<#CP#> append(final Row#N#<#CP#> row) {
-        final ArrayList<Row#N#<#CP#>> copy = new ArrayList<Row#N#<#CP#>>(this.rows);
+    public UPDATED append(final Row#N#<#CP#> row) {
+        final ArrayList<Row#N#<#CP#>> copy = new ArrayList<Row#N#<#CP#>>(getRows());
             
         copy.add(row);
-            
-        return new RowList#N#<#CP#>(#CA#, copy, this.colNames);
+
+        return factory().rowList(#GC#, copy, getColumnLabels());
     } // end of append
 
     /**
      * {@inheritDoc}
      */
-    public RowList#N#<#CP#> withLabel(final int columnIndex, final String label) {
-
+    public UPDATED withLabel(final int columnIndex, final String label) {
         if (label == null) {
             throw new IllegalArgumentException("Invalid label");
         } // end of if
@@ -113,17 +52,114 @@ public final class RowList#N#<#CP#> extends RowList<Row#N#<#CP#>> {
         // ---
 
         final HashMap<String,Integer> cols = 
-            new HashMap<String,Integer>(this.colNames);
+            new HashMap<String,Integer>(getColumnLabels());
 
         cols.put(label, (Integer) columnIndex);
 
-        return new RowList#N#<#CP#>(#CA#, this.rows, cols);
+        return factory().rowList(#GC#, getRows(), cols);
     } // end of withLabel
-        
+
+    // --- Inner classes ---
+
     /**
-     * {@inheritDoc}
+     * Row list factory.
      */
-    public List<Class<?>> getColumnClasses() {
-        return this.colClasses;
-    } // end of getColumnClasses
+    static interface Factory<#CP#, ROWLIST extends RowList#N#<#CP#,?>> {
+
+        /**
+         * Build row list, including |rows| with given column |labels|.
+         */
+        public ROWLIST rowList(#CS#, final List<Row#N#<#CP#>> rows, final Map<String,Integer> labels);
+    } // end of interface Factory
+
+    /**
+     * Row list implementation.
+     */
+    public static final class Impl<#CP#> extends RowList#N#<#CP#,Impl<#CP#>> {
+        // --- Properties ---
+        
+        /**
+         * Rows
+         */
+        final List<Row#N#<#CP#>> rows;
+        
+        /**
+         * Column names
+         */
+        final Map<String,Integer> colNames;
+
+        #PS#
+
+        /**
+         * Column classes
+         */
+        private final List<Class<?>> colClasses;
+
+        // --- Constructors ---
+
+        /**
+         * Bulk constructor.
+         *
+         * @throws IllegalArgumentException if rows is null
+         */
+        Impl(#CS#, final List<Row#N#<#CP#>> rows, final Map<String,Integer> colNames) {
+
+            #IC#
+
+            if (rows == null) {
+                throw new IllegalArgumentException("Invalid rows");
+            } // end of if
+
+            if (colNames == null) {
+                throw new IllegalArgumentException("Invalid names");
+            } // end of if
+
+            this.rows = Collections.unmodifiableList(rows);
+            this.colNames = Collections.unmodifiableMap(colNames);
+
+            // Column classes
+            final ArrayList<Class<?>> colClasses = new ArrayList<Class<?>>();
+
+            #AC#
+
+            this.colClasses = Collections.unmodifiableList(colClasses);
+        } // end of <init>
+
+        /**
+         * No-arg constructor.
+         */
+        Impl(#CS#) {
+            this(#CA#, new ArrayList<Row#N#<#CP#>>(), new HashMap<String,Integer>());
+        } // end of <init>
+
+        // ---
+
+        #GS#
+
+        /**
+         * {@inheritDoc}
+         */
+        RowList#N#.Factory<#CP#, Impl<#CP#>> factory() {
+            return new RowList#N#.Factory<#CP#,Impl<#CP#>>() {
+                public Impl<#CP#> rowList(#CS#, final List<Row#N#<#CP#>> rows, final Map<String,Integer> colNames) {
+                    return new Impl(#PSC#, rows, colNames);
+                }
+            };
+        } // end of factory
+
+        /**
+         * {@inheritDoc}
+         */
+        public List<Row#N#<#CP#>> getRows() { return this.rows; }
+        
+        /**
+         * {@inheritDoc}
+         */
+        public Map<String,Integer> getColumnLabels() { return this.colNames; }
+
+        /**
+         * {@inheritDoc}
+         */
+        public List<Class<?>> getColumnClasses() { return this.colClasses; }
+    } // end of class Impl
 } // end of class RowList#N#

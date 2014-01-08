@@ -9,7 +9,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 string column.
      */
-    public static RowList1<String> stringList() {
+    public static RowList1.Impl<String> stringList() {
         return rowList1(String.class);
     }
 
@@ -17,8 +17,8 @@ public final class RowLists {
      * Convinience alias for row list of 1 string column.
      * @param values Initial values
      */
-    public static RowList1<String> stringList(final String... values) {    
-        RowList1<String> list = stringList();
+    public static RowList1.Impl<String> stringList(final String... values) {    
+        RowList1.Impl<String> list = stringList();
 
         for (final String v : values) {
           list = list.append(v);
@@ -30,7 +30,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 boolean column.
      */
-    public static RowList1<Boolean> booleanList() {
+    public static RowList1.Impl<Boolean> booleanList() {
         return rowList1(Boolean.TYPE);
     }
 
@@ -38,8 +38,8 @@ public final class RowLists {
      * Convinience alias for row list of 1 boolean column.
      * @param values Initial values
      */
-    public static RowList1<Boolean> booleanList(final Boolean... values) {
-        RowList1<Boolean> list = booleanList();
+    public static RowList1.Impl<Boolean> booleanList(final Boolean... values) {
+        RowList1.Impl<Boolean> list = booleanList();
 
         for (final Boolean v : values) {
           list = list.append(v);
@@ -51,7 +51,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 byte column.
      */
-    public static RowList1<Byte> byteList() {
+    public static RowList1.Impl<Byte> byteList() {
         return rowList1(Byte.TYPE);
     }
 
@@ -59,8 +59,8 @@ public final class RowLists {
      * Convinience alias for row list of 1 byte column.
      * @param values Initial values
      */
-    public static RowList1<Byte> byteList(final Byte... values) {
-        RowList1<Byte> list = byteList();
+    public static RowList1.Impl<Byte> byteList(final Byte... values) {
+        RowList1.Impl<Byte> list = byteList();
 
         for (final Byte v : values) {
           list = list.append(v);
@@ -72,7 +72,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 short column.
      */
-    public static RowList1<Short> shortList() {
+    public static RowList1.Impl<Short> shortList() {
         return rowList1(Short.TYPE);
     }
 
@@ -80,8 +80,8 @@ public final class RowLists {
      * Convinience alias for row list of 1 short column.
      * @param values Initial values
      */
-    public static RowList1<Short> shortList(final Short... values) {
-        RowList1<Short> list = shortList();
+    public static RowList1.Impl<Short> shortList(final Short... values) {
+        RowList1.Impl<Short> list = shortList();
 
         for (final Short v : values) {
           list = list.append(v);
@@ -93,7 +93,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 int column.
      */
-    public static RowList1<Integer> intList() {
+    public static RowList1.Impl<Integer> intList() {
         return rowList1(Integer.TYPE);
     }
 
@@ -101,8 +101,8 @@ public final class RowLists {
      * Convinience alias for row list of 1 int column.
      * @param values Initial values
      */
-    public static RowList1<Integer> intList(final Integer... values) {
-        RowList1<Integer> list = intList();
+    public static RowList1.Impl<Integer> intList(final Integer... values) {
+        RowList1.Impl<Integer> list = intList();
 
         for (final Integer v : values) {
           list = list.append(v);
@@ -114,7 +114,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 long column.
      */
-    public static RowList1<Long> longList() {
+    public static RowList1.Impl<Long> longList() {
         return rowList1(Long.TYPE);
     }
 
@@ -122,8 +122,8 @@ public final class RowLists {
      * Convinience alias for row list of 1 long column.
      * @param values Initial values
      */
-    public static RowList1<Long> longList(final Long... values) {
-        RowList1<Long> list = longList();
+    public static RowList1.Impl<Long> longList(final Long... values) {
+        RowList1.Impl<Long> list = longList();
 
         for (final Long v : values) {
           list = list.append(v);
@@ -135,7 +135,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 float column.
      */
-    public static RowList1<Float> floatList() {
+    public static RowList1.Impl<Float> floatList() {
         return rowList1(Float.TYPE);
     }
 
@@ -143,8 +143,8 @@ public final class RowLists {
      * Convinience alias for row list of 1 float column.
      * @param values Initial values
      */
-    public static RowList1<Float> floatList(final Float... values) {
-        RowList1<Float> list = floatList();
+    public static RowList1.Impl<Float> floatList(final Float... values) {
+        RowList1.Impl<Float> list = floatList();
 
         for (final Float v : values) {
           list = list.append(v);
@@ -156,7 +156,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 double column.
      */
-    public static RowList1<Double> doubleList() {
+    public static RowList1.Impl<Double> doubleList() {
         return rowList1(Double.TYPE);
     }
 
@@ -164,8 +164,8 @@ public final class RowLists {
      * Convinience alias for row list of 1 double column.
      * @param values Initial values
      */
-    public static RowList1<Double> doubleList(final Double... values) {
-        RowList1<Double> list = doubleList();
+    public static RowList1.Impl<Double> doubleList(final Double... values) {
+        RowList1.Impl<Double> list = doubleList();
 
         for (final Double v : values) {
           list = list.append(v);
@@ -177,7 +177,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 big decimal column.
      */
-    public static RowList1<java.math.BigDecimal> bigDecimalList() {
+    public static RowList1.Impl<java.math.BigDecimal> bigDecimalList() {
         return rowList1(java.math.BigDecimal.class);
     }
 
@@ -185,8 +185,8 @@ public final class RowLists {
      * Convinience alias for row list of 1 big decimal column.
      * @param values Initial values
      */
-    public static RowList1<java.math.BigDecimal> bigDecimalList(final java.math.BigDecimal... values) {
-        RowList1<java.math.BigDecimal> list = bigDecimalList();
+    public static RowList1.Impl<java.math.BigDecimal> bigDecimalList(final java.math.BigDecimal... values) {
+        RowList1.Impl<java.math.BigDecimal> list = bigDecimalList();
 
         for (final java.math.BigDecimal v : values) {
           list = list.append(v);
@@ -198,7 +198,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 date column.
      */
-    public static RowList1<java.sql.Date> dateList() {
+    public static RowList1.Impl<java.sql.Date> dateList() {
         return rowList1(java.sql.Date.class);
     }
 
@@ -206,8 +206,8 @@ public final class RowLists {
      * Convinience alias for row list of 1 date column.
      * @param values Initial values
      */
-    public static RowList1<java.sql.Date> dateList(final java.sql.Date... values) {
-        RowList1<java.sql.Date> list = dateList();
+    public static RowList1.Impl<java.sql.Date> dateList(final java.sql.Date... values) {
+        RowList1.Impl<java.sql.Date> list = dateList();
 
         for (final java.sql.Date v : values) {
           list = list.append(v);
@@ -219,7 +219,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 time column.
      */
-    public static RowList1<java.sql.Time> timeList() {
+    public static RowList1.Impl<java.sql.Time> timeList() {
         return rowList1(java.sql.Time.class);
     }
 
@@ -227,9 +227,9 @@ public final class RowLists {
      * Convinience alias for row list of 1 time column.
      * @param values Initial values
      */
-    public static RowList1<java.sql.Time> timeList(final java.sql.Time... values) {
+    public static RowList1.Impl<java.sql.Time> timeList(final java.sql.Time... values) {
 
-        RowList1<java.sql.Time> list = timeList();
+        RowList1.Impl<java.sql.Time> list = timeList();
 
         for (final java.sql.Time v : values) {
           list = list.append(v);
@@ -241,7 +241,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 timestamp column.
      */
-    public static RowList1<java.sql.Timestamp> timestampList() {
+    public static RowList1.Impl<java.sql.Timestamp> timestampList() {
         return rowList1(java.sql.Timestamp.class);
     }
 
@@ -249,9 +249,9 @@ public final class RowLists {
      * Convinience alias for row list of 1 timestamp column.
      * @param values Initial values
      */
-    public static RowList1<java.sql.Timestamp> timestampList(final java.sql.Timestamp... values) {
+    public static RowList1.Impl<java.sql.Timestamp> timestampList(final java.sql.Timestamp... values) {
 
-        RowList1<java.sql.Timestamp> list = timestampList();
+        RowList1.Impl<java.sql.Timestamp> list = timestampList();
 
         for (final java.sql.Timestamp v : values) {
           list = list.append(v);

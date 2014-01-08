@@ -14,7 +14,6 @@ import java.sql.{
 
 import org.specs2.mutable.Specification
 
-import acolyte.Row.Row1
 import acolyte.Rows.{ row1, row2 }
 
 object RowListSpec extends Specification with RowListTest {
@@ -22,14 +21,14 @@ object RowListSpec extends Specification with RowListTest {
 
   "Creation" should {
     "not accept null list" in {
-      new RowList1(classOf[String], null,
+      new RowList1.Impl(classOf[String], null,
         new java.util.HashMap[String, Integer]()).
         aka("ctor") must throwA[IllegalArgumentException](
           message = "Invalid rows")
     }
 
     "not accept null map" in {
-      new RowList2(classOf[String], classOf[Float],
+      new RowList2.Impl(classOf[String], classOf[Float],
         new java.util.ArrayList[Row2[String, Float]](), null).
         aka("ctor") must throwA[IllegalArgumentException](
           message = "Invalid names")
@@ -209,9 +208,9 @@ object RowListSpec extends Specification with RowListTest {
 
   "Result set statement" should {
     "be null" in {
-      (new RowList1(classOf[String]).resultSet.
+      (new RowList1.Impl(classOf[String]).resultSet.
         getStatement aka "statement" must beNull).
-        and(new RowList1(classOf[String]).resultSet.withStatement(null).
+        and(new RowList1.Impl(classOf[String]).resultSet.withStatement(null).
           getStatement aka "statement" must beNull)
 
     }
@@ -222,7 +221,7 @@ object RowListSpec extends Specification with RowListTest {
       lazy val con = new acolyte.Connection(url, null, ch)
       lazy val s = new AbstractStatement(con, ch.getStatementHandler) {}
 
-      new RowList1(classOf[String]).resultSet.withStatement(s).
+      new RowList1.Impl(classOf[String]).resultSet.withStatement(s).
         getStatement aka "statement" mustEqual s
 
     }
@@ -508,22 +507,22 @@ object RowListSpec extends Specification with RowListTest {
 
   "Result set fetch size" should {
     "be immutable" in {
-      new RowList1(classOf[String]).resultSet.setFetchSize(1).
+      new RowList1.Impl(classOf[String]).resultSet.setFetchSize(1).
         aka("setter") must throwA[UnsupportedOperationException]
 
     }
 
     "be 1" in {
-      (new RowList1(classOf[String]).append(row1("str")).
+      (new RowList1.Impl(classOf[String]).append(row1("str")).
         resultSet.getFetchSize aka "size" mustEqual 1).
-        and(new RowList2(classOf[String], classOf[Float]).
+        and(new RowList2.Impl(classOf[String], classOf[Float]).
           append(row2("str", 1.23.toFloat)).
           resultSet.getFetchSize aka "size" mustEqual 1)
 
     }
 
     "be 2" in {
-      (new RowList1(classOf[String]).append(row1("a")).append(row1("b")).
+      (new RowList1.Impl(classOf[String]).append(row1("a")).append(row1("b")).
         resultSet.getFetchSize aka "size" mustEqual 2)
 
     }
@@ -558,7 +557,7 @@ object RowListSpec extends Specification with RowListTest {
   "Object column by index" should {
     "not be read when not on a row" in {
       lazy val typemap = null.asInstanceOf[java.util.Map[String, Class[_]]]
-      lazy val rs = new RowList1(classOf[String]).
+      lazy val rs = new RowList1.Impl(classOf[String]).
         withLabel(1, "n").append(row1("str")).resultSet
 
       (rs.getObject(1) aka "getObject" must throwA[SQLException](
@@ -577,7 +576,7 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "be expected one" in {
-      lazy val rs = (new RowList1(classOf[Long]).
+      lazy val rs = (new RowList1.Impl(classOf[Long]).
         append(row1(123.toLong))).resultSet
       rs.next
 
@@ -585,7 +584,7 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "be null" in {
-      lazy val rs = new RowList1(classOf[Float]).withLabel(1, "n").
+      lazy val rs = new RowList1.Impl(classOf[Float]).withLabel(1, "n").
         append(row1(null.asInstanceOf[Float])).resultSet
 
       rs.next
@@ -598,7 +597,7 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "not be read with invalid index" in {
-      lazy val rs = new RowList1(classOf[Long]).append(row1(123.toLong)).
+      lazy val rs = new RowList1.Impl(classOf[Long]).append(row1(123.toLong)).
         resultSet
       rs.next
 
@@ -608,7 +607,7 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "not convert without type" in {
-      lazy val rs = new RowList1(classOf[String]).withLabel(1, "n").
+      lazy val rs = new RowList1.Impl(classOf[String]).withLabel(1, "n").
         append(row1("str")).resultSet
       rs.next
 
@@ -620,7 +619,7 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "not convert incompatible type" in {
-      lazy val rs = new RowList1(classOf[String]).withLabel(1, "n").
+      lazy val rs = new RowList1.Impl(classOf[String]).withLabel(1, "n").
         append(row1("str")).resultSet
       rs.next
 
@@ -633,7 +632,7 @@ object RowListSpec extends Specification with RowListTest {
 
     "convert compatible type" in {
       val d = new Date(1, 2, 3)
-      lazy val rs = new RowList1(classOf[Date]).withLabel(1, "n").
+      lazy val rs = new RowList1.Impl(classOf[Date]).withLabel(1, "n").
         append(row1(d)).resultSet
       rs.next
 
@@ -647,7 +646,7 @@ object RowListSpec extends Specification with RowListTest {
       val d = new Date(1, 2, 3)
       lazy val t = new Time(d.getTime)
       lazy val ts = new Timestamp(d.getTime)
-      lazy val rs = new RowList1(classOf[Date]).withLabel(1, "n").
+      lazy val rs = new RowList1.Impl(classOf[Date]).withLabel(1, "n").
         append(row1(d)).resultSet
       rs.next
 
@@ -658,7 +657,7 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "convert compatible numeric type" in {
-      lazy val rs = new RowList1(classOf[Int]).withLabel(1, "n").
+      lazy val rs = new RowList1.Impl(classOf[Int]).withLabel(1, "n").
         append(row1(1)).resultSet
       rs.next
 
@@ -672,7 +671,7 @@ object RowListSpec extends Specification with RowListTest {
 
   "Object column by name" should {
     "not be read when not on a row" in {
-      new RowList1(classOf[String]).withLabel(1, "n").
+      new RowList1.Impl(classOf[String]).withLabel(1, "n").
         append(row1("str")).resultSet.
         getObject("n") aka "getObject" must throwA[SQLException](
           message = "Not on a row")
@@ -680,7 +679,7 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "be expected one" in {
-      lazy val rs = (new RowList1(classOf[Long]).
+      lazy val rs = (new RowList1.Impl(classOf[Long]).
         withLabel(1, "l").append(row1(123.toLong))).resultSet
       rs.next
 
@@ -688,7 +687,7 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "be null" in {
-      lazy val rs = new RowList1(classOf[Float]).withLabel(1, "name").
+      lazy val rs = new RowList1.Impl(classOf[Float]).withLabel(1, "name").
         append(row1(null.asInstanceOf[Float])).resultSet
 
       rs.next
@@ -697,7 +696,7 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "not be read with invalid name" in {
-      lazy val rs = new RowList1(classOf[Long]).
+      lazy val rs = new RowList1.Impl(classOf[Long]).
         withLabel(1, "n").append(row1(123.toLong)).resultSet
       rs.next
 
@@ -708,7 +707,7 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "not be read with invalid name mapping" in {
-      lazy val rs = new RowList1(classOf[Long]).
+      lazy val rs = new RowList1.Impl(classOf[Long]).
         withLabel(0, "before").withLabel(2, "after").
         append(row1(123.toLong)).resultSet
       rs.next
@@ -722,17 +721,17 @@ object RowListSpec extends Specification with RowListTest {
 
   "String column from result set" should {
     "not be read by index when not on a row" in {
-      (new RowList1(classOf[String]).append(row1("str")).resultSet.
+      (new RowList1.Impl(classOf[String]).append(row1("str")).resultSet.
         getString(1) aka "getString" must throwA[SQLException](
           message = "Not on a row")).
-          and(new RowList1(classOf[String]).withLabel(1, "n").
+          and(new RowList1.Impl(classOf[String]).withLabel(1, "n").
             append(row1("str")).resultSet.getString("n").
             aka("getString") must throwA[SQLException]("Not on a row"))
 
     }
 
     "be expected one" in {
-      val rs = new RowList1(classOf[String]).withLabel(1, "n").
+      val rs = new RowList1.Impl(classOf[String]).withLabel(1, "n").
         append(row1("str")).resultSet
       rs.next
 
@@ -741,7 +740,7 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "be null" in {
-      val rs = (new RowList1(classOf[String]).
+      val rs = (new RowList1.Impl(classOf[String]).
         withLabel(1, "n").append(row1(null.asInstanceOf[String]))).resultSet
 
       rs.next
@@ -753,17 +752,17 @@ object RowListSpec extends Specification with RowListTest {
 
   "Boolean column from result set" should {
     "not be read by index when not on a row" in {
-      (new RowList1(classOf[Boolean]).append(row1(true)).resultSet.
+      (new RowList1.Impl(classOf[Boolean]).append(row1(true)).resultSet.
         getBoolean(1) aka "getBoolean" must throwA[SQLException](
           message = "Not on a row")).
-          and(new RowList1(classOf[Boolean]).withLabel(1, "n").
+          and(new RowList1.Impl(classOf[Boolean]).withLabel(1, "n").
             append(row1(false)).resultSet.getBoolean("n").
             aka("getBoolean") must throwA[SQLException]("Not on a row"))
 
     }
 
     "be expected one" in {
-      val rs = new RowList1(classOf[Boolean]).withLabel(1, "n").
+      val rs = new RowList1.Impl(classOf[Boolean]).withLabel(1, "n").
         append(row1(true)).resultSet
       rs.next
 
@@ -772,7 +771,7 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "be null (false)" in {
-      val rs = new RowList1(classOf[Boolean]).withLabel(1, "n").
+      val rs = new RowList1.Impl(classOf[Boolean]).withLabel(1, "n").
         append(row1(null.asInstanceOf[Boolean])).resultSet
 
       rs.next
@@ -783,12 +782,12 @@ object RowListSpec extends Specification with RowListTest {
 
     "converted to false by index" >> {
       val rs = Seq[(String, ResultSet)](
-        "char" -> new RowList1(classOf[Char]).append(row1('0')).resultSet,
-        "byte" -> new RowList1(classOf[Byte]).append(row1(0.toByte)).resultSet,
-        "short" -> new RowList1(classOf[Short]).
+        "char" -> new RowList1.Impl(classOf[Char]).append(row1('0')).resultSet,
+        "byte" -> new RowList1.Impl(classOf[Byte]).append(row1(0.toByte)).resultSet,
+        "short" -> new RowList1.Impl(classOf[Short]).
           append(row1(0.toShort)).resultSet,
-        "int" -> new RowList1(classOf[Int]).append(row1(0)).resultSet,
-        "long" -> new RowList1(classOf[Long]).append(row1(0.toLong)).resultSet)
+        "int" -> new RowList1.Impl(classOf[Int]).append(row1(0)).resultSet,
+        "long" -> new RowList1.Impl(classOf[Long]).append(row1(0.toLong)).resultSet)
 
       rs.foreach(_._2.next)
 
@@ -801,11 +800,11 @@ object RowListSpec extends Specification with RowListTest {
 
     "converted to true by index" >> {
       val rs = Seq[(String, ResultSet)](
-        "char" -> (new RowList1(classOf[Char]).append(row1('1'))).resultSet,
-        "byte" -> (new RowList1(classOf[Byte]).append(row1(2.toByte))).resultSet,
-        "short" -> (new RowList1(classOf[Short]).append(row1(3.toShort))).resultSet,
-        "int" -> (new RowList1(classOf[Int]).append(row1(4))).resultSet,
-        "long" -> (new RowList1(classOf[Long]).append(row1(5.toLong))).resultSet)
+        "char" -> (new RowList1.Impl(classOf[Char]).append(row1('1'))).resultSet,
+        "byte" -> (new RowList1.Impl(classOf[Byte]).append(row1(2.toByte))).resultSet,
+        "short" -> (new RowList1.Impl(classOf[Short]).append(row1(3.toShort))).resultSet,
+        "int" -> (new RowList1.Impl(classOf[Int]).append(row1(4))).resultSet,
+        "long" -> (new RowList1.Impl(classOf[Long]).append(row1(5.toLong))).resultSet)
 
       rs.foreach(_._2.next)
 
@@ -818,15 +817,15 @@ object RowListSpec extends Specification with RowListTest {
 
     "converted to false by label" >> {
       val rs = Seq[(String, ResultSet)](
-        "char" -> (new RowList1(classOf[Char]).
+        "char" -> (new RowList1.Impl(classOf[Char]).
           withLabel(1, "n").append(row1('0'))).resultSet,
-        "byte" -> (new RowList1(classOf[Byte]).
+        "byte" -> (new RowList1.Impl(classOf[Byte]).
           withLabel(1, "n").append(row1(0.toByte))).resultSet,
-        "short" -> (new RowList1(classOf[Short]).
+        "short" -> (new RowList1.Impl(classOf[Short]).
           withLabel(1, "n").append(row1(0.toShort))).resultSet,
-        "int" -> (new RowList1(classOf[Int]).
+        "int" -> (new RowList1.Impl(classOf[Int]).
           withLabel(1, "n").append(row1(0))).resultSet,
-        "long" -> (new RowList1(classOf[Long]).
+        "long" -> (new RowList1.Impl(classOf[Long]).
           withLabel(1, "n").append(row1(0.toLong))).resultSet)
 
       rs.foreach(_._2.next)
@@ -840,15 +839,15 @@ object RowListSpec extends Specification with RowListTest {
 
     "converted to true by label" >> {
       val rs = Seq[(String, ResultSet)](
-        "char" -> (new RowList1(classOf[Char]).
+        "char" -> (new RowList1.Impl(classOf[Char]).
           withLabel(1, "n").append(row1('1'))).resultSet,
-        "byte" -> (new RowList1(classOf[Byte]).
+        "byte" -> (new RowList1.Impl(classOf[Byte]).
           withLabel(1, "n").append(row1(2.toByte))).resultSet,
-        "short" -> (new RowList1(classOf[Short]).
+        "short" -> (new RowList1.Impl(classOf[Short]).
           withLabel(1, "n").append(row1(3.toShort))).resultSet,
-        "int" -> (new RowList1(classOf[Int]).
+        "int" -> (new RowList1.Impl(classOf[Int]).
           withLabel(1, "n").append(row1(4))).resultSet,
-        "long" -> (new RowList1(classOf[Long]).
+        "long" -> (new RowList1.Impl(classOf[Long]).
           withLabel(1, "n").append(row1(5.toLong))).resultSet)
 
       rs.foreach(_._2.next)
@@ -872,17 +871,17 @@ object RowListSpec extends Specification with RowListTest {
     val v = new JBigDec("1")
 
     "not be read by index when not on a row" in {
-      (new RowList1(classOf[JBigDec]).append(row1(v)).resultSet.
+      (new RowList1.Impl(classOf[JBigDec]).append(row1(v)).resultSet.
         getBigDecimal(1) aka "get" must throwA[SQLException](
           message = "Not on a row")).
-          and(new RowList1(classOf[JBigDec]).withLabel(1, "n").
+          and(new RowList1.Impl(classOf[JBigDec]).withLabel(1, "n").
             append(row1(v)).resultSet.getBigDecimal("n").
             aka("get") must throwA[SQLException]("Not on a row"))
 
     }
 
     "be expected one" in {
-      val rs = new RowList1(classOf[JBigDec]).withLabel(1, "n").
+      val rs = new RowList1.Impl(classOf[JBigDec]).withLabel(1, "n").
         append(row1(v)).resultSet
       rs.next
 
@@ -891,7 +890,7 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "be scaled one" in {
-      val rs = new RowList1(classOf[JBigDec]).withLabel(1, "n").
+      val rs = new RowList1.Impl(classOf[JBigDec]).withLabel(1, "n").
         append(row1(new JBigDec("1.2345"))).resultSet
 
       rs.next
@@ -903,7 +902,7 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "be null" in {
-      val rs = new RowList1(classOf[JBigDec]).withLabel(1, "n").
+      val rs = new RowList1.Impl(classOf[JBigDec]).withLabel(1, "n").
         append(row1(null.asInstanceOf[JBigDec])).resultSet
       rs.next
 
@@ -914,7 +913,7 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "be undefined" in {
-      val rs = new RowList1(classOf[String]).withLabel(1, "n").
+      val rs = new RowList1.Impl(classOf[String]).withLabel(1, "n").
         append(row1("str")).resultSet
       rs.next
 
@@ -934,17 +933,17 @@ object RowListSpec extends Specification with RowListTest {
 
     "converted by index" >> {
       val rs = Seq[(String, ResultSet)](
-        "byte" -> (new RowList1(classOf[Byte]).
+        "byte" -> (new RowList1.Impl(classOf[Byte]).
           append(row1(v.intValue.toByte))).resultSet,
-        "short" -> (new RowList1(classOf[Short]).
+        "short" -> (new RowList1.Impl(classOf[Short]).
           append(row1(v.intValue.toShort))).resultSet,
-        "int" -> (new RowList1(classOf[Int]).
+        "int" -> (new RowList1.Impl(classOf[Int]).
           append(row1(v.intValue))).resultSet,
-        "long" -> (new RowList1(classOf[Long]).
+        "long" -> (new RowList1.Impl(classOf[Long]).
           append(row1(v.longValue))).resultSet,
-        "float" -> (new RowList1(classOf[Float]).
+        "float" -> (new RowList1.Impl(classOf[Float]).
           append(row1(v.floatValue))).resultSet,
-        "double" -> (new RowList1(classOf[Double]).
+        "double" -> (new RowList1.Impl(classOf[Double]).
           append(row1(v.doubleValue))).resultSet)
 
       rs.foreach(_._2.next)
@@ -961,17 +960,17 @@ object RowListSpec extends Specification with RowListTest {
 
     "converted by label" >> {
       val rs = Seq[(String, ResultSet)](
-        "byte" -> (new RowList1(classOf[Byte]).withLabel(1, "n").
+        "byte" -> (new RowList1.Impl(classOf[Byte]).withLabel(1, "n").
           append(row1(v.intValue.toByte))).resultSet,
-        "short" -> (new RowList1(classOf[Short]).withLabel(1, "n").
+        "short" -> (new RowList1.Impl(classOf[Short]).withLabel(1, "n").
           append(row1(v.intValue.toShort))).resultSet,
-        "int" -> (new RowList1(classOf[Int]).withLabel(1, "n").
+        "int" -> (new RowList1.Impl(classOf[Int]).withLabel(1, "n").
           append(row1(v.intValue))).resultSet,
-        "long" -> (new RowList1(classOf[Long]).withLabel(1, "n").
+        "long" -> (new RowList1.Impl(classOf[Long]).withLabel(1, "n").
           append(row1(v.longValue))).resultSet,
-        "float" -> (new RowList1(classOf[Float]).withLabel(1, "n").
+        "float" -> (new RowList1.Impl(classOf[Float]).withLabel(1, "n").
           append(row1(v.floatValue))).resultSet,
-        "double" -> (new RowList1(classOf[Double]).withLabel(1, "n").
+        "double" -> (new RowList1.Impl(classOf[Double]).withLabel(1, "n").
           append(row1(v.doubleValue))).resultSet)
 
       rs.foreach(_._2.next)
@@ -1020,11 +1019,11 @@ sealed trait RowListTest { specs: Specification ⇒
   def temporalGetterSpec[D <: java.util.Date](name: String, v: D)(implicit mf: Manifest[D], byIndex: (ResultSet, Int) ⇒ D, byLabel: (ResultSet, String) ⇒ D, byIndexWithCal: (ResultSet, Int, Calendar) ⇒ D, byLabelWithCal: (ResultSet, String, Calendar) ⇒ D) =
     s"$name column from result set" should {
       "not be read by index when not on a row" in {
-        (byIndex(new RowList1(mf.runtimeClass.asInstanceOf[Class[D]]).
+        (byIndex(new RowList1.Impl(mf.runtimeClass.asInstanceOf[Class[D]]).
           append(row1(v)).resultSet, 1).
           aka("get") must throwA[SQLException](
             message = "Not on a row")).
-            and(byLabel(new RowList1(mf.runtimeClass.asInstanceOf[Class[D]]).
+            and(byLabel(new RowList1.Impl(mf.runtimeClass.asInstanceOf[Class[D]]).
               withLabel(1, "n").append(row1(v)).resultSet, "n").
               aka("get") must throwA[SQLException]("Not on a row"))
 
@@ -1032,7 +1031,7 @@ sealed trait RowListTest { specs: Specification ⇒
 
       "be expected one" in {
         val c = Calendar.getInstance
-        val rs = new RowList1(mf.runtimeClass.asInstanceOf[Class[D]]).
+        val rs = new RowList1.Impl(mf.runtimeClass.asInstanceOf[Class[D]]).
           withLabel(1, "n").append(row1(v)).resultSet
         rs.next
 
@@ -1044,7 +1043,7 @@ sealed trait RowListTest { specs: Specification ⇒
 
       "be null" in {
         val c = Calendar.getInstance
-        val rs = new RowList1(mf.runtimeClass.asInstanceOf[Class[D]]).
+        val rs = new RowList1.Impl(mf.runtimeClass.asInstanceOf[Class[D]]).
           withLabel(1, "n").append(row1(null.asInstanceOf[D])).resultSet
 
         rs.next
@@ -1057,7 +1056,7 @@ sealed trait RowListTest { specs: Specification ⇒
 
       "be undefined" in {
         val c = Calendar.getInstance
-        val rs = new RowList1(classOf[String]).withLabel(1, "n").
+        val rs = new RowList1.Impl(classOf[String]).withLabel(1, "n").
           append(row1("str")).resultSet
         rs.next
 
@@ -1074,11 +1073,11 @@ sealed trait RowListTest { specs: Specification ⇒
 
       "converted by index" >> {
         val rs = Seq[(String, ResultSet)](
-          "date" -> new RowList1(classOf[Date]).
+          "date" -> new RowList1.Impl(classOf[Date]).
             append(row1(new Date(v.getTime))).resultSet,
-          "time" -> new RowList1(classOf[Time]).
+          "time" -> new RowList1.Impl(classOf[Time]).
             append(row1(new Time(v.getTime))).resultSet,
-          "ts" -> new RowList1(classOf[Timestamp]).
+          "ts" -> new RowList1.Impl(classOf[Timestamp]).
             append(row1(new Timestamp(v.getTime))).resultSet)
 
         rs.foreach(_._2.next)
@@ -1094,11 +1093,11 @@ sealed trait RowListTest { specs: Specification ⇒
 
       "converted by label" >> {
         val rs = Seq[(String, ResultSet)](
-          "date" -> new RowList1(classOf[Date]).withLabel(1, "n").
+          "date" -> new RowList1.Impl(classOf[Date]).withLabel(1, "n").
             append(row1(new Date(v.getTime))).resultSet,
-          "time" -> new RowList1(classOf[Time]).withLabel(1, "n").
+          "time" -> new RowList1.Impl(classOf[Time]).withLabel(1, "n").
             append(row1(new Time(v.getTime))).resultSet,
-          "ts" -> new RowList1(classOf[Timestamp]).withLabel(1, "n").
+          "ts" -> new RowList1.Impl(classOf[Timestamp]).withLabel(1, "n").
             append(row1(new Timestamp(v.getTime))).resultSet)
 
         rs.foreach(_._2.next)
@@ -1131,18 +1130,18 @@ sealed trait RowListTest { specs: Specification ⇒
   def numberGetterSpec[N](name: String, v: N)(implicit num: Numeric[N], mf: Manifest[N], byIndex: (ResultSet, Int) ⇒ N, byLabel: (ResultSet, String) ⇒ N) =
     s"$name column from result set" should {
       "not be read by index when not on a row" in {
-        (byIndex(new RowList1(mf.runtimeClass.asInstanceOf[Class[N]]).
+        (byIndex(new RowList1.Impl(mf.runtimeClass.asInstanceOf[Class[N]]).
           append(row1(v)).resultSet, 1).
           aka("get") must throwA[SQLException](
             message = "Not on a row")).
-            and(byLabel(new RowList1(mf.runtimeClass.asInstanceOf[Class[N]]).
+            and(byLabel(new RowList1.Impl(mf.runtimeClass.asInstanceOf[Class[N]]).
               withLabel(1, "n").append(row1(v)).resultSet, "n").
               aka("get") must throwA[SQLException]("Not on a row"))
 
       }
 
       "be expected one" in {
-        val rs = new RowList1(mf.runtimeClass.asInstanceOf[Class[N]]).
+        val rs = new RowList1.Impl(mf.runtimeClass.asInstanceOf[Class[N]]).
           withLabel(1, "n").append(row1(v)).resultSet
         rs.next
 
@@ -1151,7 +1150,7 @@ sealed trait RowListTest { specs: Specification ⇒
       }
 
       "be null (0)" in {
-        val rs = new RowList1(mf.runtimeClass.asInstanceOf[Class[N]]).
+        val rs = new RowList1.Impl(mf.runtimeClass.asInstanceOf[Class[N]]).
           withLabel(1, "n").append(row1(null.asInstanceOf[N])).resultSet
         rs.next
 
@@ -1160,7 +1159,7 @@ sealed trait RowListTest { specs: Specification ⇒
       }
 
       "be undefined (-1)" in {
-        val rs = new RowList1(classOf[String]).withLabel(1, "n").
+        val rs = new RowList1.Impl(classOf[String]).withLabel(1, "n").
           append(row1("str")).resultSet
         rs.next
 
@@ -1171,16 +1170,16 @@ sealed trait RowListTest { specs: Specification ⇒
 
       "converted by index" >> {
         val rs = Seq[(String, ResultSet)](
-          "byte" -> new RowList1(classOf[Byte]).
+          "byte" -> new RowList1.Impl(classOf[Byte]).
             append(row1(num.toInt(v).toByte)).resultSet,
-          "short" -> new RowList1(classOf[Short]).
+          "short" -> new RowList1.Impl(classOf[Short]).
             append(row1(num.toInt(v).toShort)).resultSet,
-          "int" -> new RowList1(classOf[Int]).append(row1(num.toInt(v))).resultSet,
-          "long" -> new RowList1(classOf[Long]).
+          "int" -> new RowList1.Impl(classOf[Int]).append(row1(num.toInt(v))).resultSet,
+          "long" -> new RowList1.Impl(classOf[Long]).
             append(row1(num.toLong(v))).resultSet,
-          "float" -> new RowList1(classOf[Float]).
+          "float" -> new RowList1.Impl(classOf[Float]).
             append(row1(num.toFloat(v))).resultSet,
-          "double" -> new RowList1(classOf[Double]).
+          "double" -> new RowList1.Impl(classOf[Double]).
             append(row1(num.toDouble(v))).resultSet)
 
         rs.foreach(_._2.next)
@@ -1194,17 +1193,17 @@ sealed trait RowListTest { specs: Specification ⇒
 
       "converted by label" >> {
         val rs = Seq[(String, ResultSet)](
-          "byte" -> new RowList1(classOf[Byte]).withLabel(1, "n").
+          "byte" -> new RowList1.Impl(classOf[Byte]).withLabel(1, "n").
             append(row1(num.toInt(v).toByte)).resultSet,
-          "short" -> new RowList1(classOf[Short]).withLabel(1, "n").
+          "short" -> new RowList1.Impl(classOf[Short]).withLabel(1, "n").
             append(row1(num.toInt(v).toShort)).resultSet,
-          "int" -> new RowList1(classOf[Int]).withLabel(1, "n").
+          "int" -> new RowList1.Impl(classOf[Int]).withLabel(1, "n").
             append(row1(num.toInt(v))).resultSet,
-          "long" -> new RowList1(classOf[Long]).withLabel(1, "n").
+          "long" -> new RowList1.Impl(classOf[Long]).withLabel(1, "n").
             append(row1(num.toLong(v))).resultSet,
-          "float" -> new RowList1(classOf[Float]).withLabel(1, "n").
+          "float" -> new RowList1.Impl(classOf[Float]).withLabel(1, "n").
             append(row1(num.toFloat(v))).resultSet,
-          "double" -> new RowList1(classOf[Double]).withLabel(1, "n").
+          "double" -> new RowList1.Impl(classOf[Double]).withLabel(1, "n").
             append(row1(num.toDouble(v))).resultSet)
 
         rs.foreach(_._2.next)

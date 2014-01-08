@@ -110,19 +110,18 @@ trait Core {
       IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w ⇒
         w.append("""package acolyte;
 
-import acolyte.Row.Row1;
-
 /**
  * Rows utility/factory.
+ * @deprecated Rows are created by append operation on row lists.
  */
 public final class Rows {""")
 
         for (n ← 1 to lim) yield {
           val g = for (i ← 0 until n) yield letter(i)
           val p = for (i ← 0 until n) yield {
-            "final %s c%d".format(letter(i), i + 1)
+            "final %s _c%d".format(letter(i), i + 1)
           }
-          val a = for (i ← 0 until n) yield "c%d".format(i + 1)
+          val a = for (i ← 0 until n) yield "_c%d".format(i + 1)
           val gd = g.mkString(",")
 
           w.append("""
@@ -143,7 +142,7 @@ public final class Rows {""")
     }
 
     val listTmpl = basedir / "src" / "main" / "templates" / "RowList.tmpl"
-    val rowLists: Seq[java.io.File] = for (n ← 2 to lim) yield {
+    val rowLists: Seq[java.io.File] = for (n ← 1 to lim) yield {
       val f = managedSources / "acolyte" / "RowList%d.java".format(n)
       val cp = for (i ← 0 until n) yield letter(i)
       val cs = for (i ← 0 until n) yield {
@@ -151,21 +150,36 @@ public final class Rows {""")
       }
       val ic = for (i ← 0 until n) yield {
         """if (c%d == null) {
-            throw new IllegalArgumentException("Invalid class for column #%d");
-        }""".format(i, i)
+                throw new IllegalArgumentException("Invalid class for column #%d");
+            }""".format(i, i)
       }
       val ac = for (i ← 0 until n) yield {
-        """this.c%d = c%d;
-        colClasses.add(c%d);""".format(i, i, i)
+        """this._c%d = c%d;
+            colClasses.add(this._c%d);""".format(i, i, i)
       }
       val ca = for (i ← 0 until n) yield "c%d".format(i)
       val ap = cp map { l ⇒ "final %s %s".format(l, l.toLowerCase) }
       val ps = for (i ← 0 until n) yield {
         """/**
-     * Class of column #%d
-     */
-    private final Class<%s> c%d;""".format(i, letter(i), i)
+         * Class of column #%d
+         */
+        final Class<%s> _c%d;""".format(i, letter(i), i)
       }
+      val ags = for (i ← 0 until n) yield {
+        """/**
+     * Returns class of column #%d.
+     */
+    public abstract Class<%s> c%d();""".format(i, letter(i), i)
+      }
+      val gc = for (i ← 0 until n) yield "c%d()".format(i)
+      val gs = for (i ← 0 until n) yield {
+        """/**
+         * {inheritDoc}
+         */
+        public Class<%s> c%d() { return this._c%d; }""".
+          format(letter(i), i, i)
+      }
+      val psc = for (i ← 0 until n) yield "_c%d".format(i)
 
       IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w ⇒
         // Generate by substitution on each line of template
@@ -176,9 +190,13 @@ public final class Rows {""")
               replaceAll("#CS#", cs.mkString(", ")).
               replaceAll("#AP#", ap.mkString(", ")).
               replaceAll("#AV#", cp.map(_.toLowerCase).mkString(", ")).
-              replaceAll("#PS#", ps.mkString("\n\n    ")).
-              replaceAll("#IC#", ic.mkString("\n\n        ")).
-              replaceAll("#AC#", ac.mkString("\n\n        ")).
+              replaceAll("#PS#", ps.mkString("\n\n        ")).
+              replaceAll("#AGS#", ags.mkString("\n\n    ")).
+              replaceAll("#GC#", gc.mkString(", ")).
+              replaceAll("#GS#", gs.mkString("\n\n        ")).
+              replaceAll("#PSC#", psc.mkString(", ")).
+              replaceAll("#IC#", ic.mkString("\n\n            ")).
+              replaceAll("#AC#", ac.mkString("\n\n            ")).
               replaceAll("#CA#", ca.mkString(", "))).
               append("\n")
           }
@@ -196,14 +214,14 @@ public final class Rows {""")
         val funcs = (1 to lim).foldLeft(Nil: List[String]) { (l, n) ⇒
           val g = for (i ← 0 until n) yield letter(i)
           val ps = for (i ← 0 until n) yield {
-            "final Class<%s> c%d".format(letter(i), i)
+            "final Class<%s> _c%d".format(letter(i), i)
           }
           val cs = for (i ← 0 until n) yield {
-            "final RowList.Column<%s> c%d".format(letter(i), i)
+            "final RowList.Column<%s> _c%d".format(letter(i), i)
           }
-          val as = for (i ← 0 until n) yield "c%d".format(i)
+          val as = for (i ← 0 until n) yield "_c%d".format(i)
           val ls = for (i ← 0 until n) yield {
-            "withLabel(%d, c%d.name)".format(i + 1, i)
+            "withLabel(%d, _c%d.name)".format(i + 1, i)
           }
           val gp = g.mkString(",")
 
@@ -211,11 +229,11 @@ public final class Rows {""")
     /**
      * Returns list of row with %d column(s).
      */
-    public static <%s> RowList%d<%s> rowList%d(%s) { return new RowList%d<%s>(%s); }""".format(n, gp, n, gp, n, ps.mkString(", "), n, gp, as.mkString(", ")) :+ """
+    public static <%s> RowList%d.Impl<%s> rowList%d(%s) { return new RowList%d.Impl<%s>(%s); }""".format(n, gp, n, gp, n, ps.mkString(", "), n, gp, as.mkString(", ")) :+ """
     /**
      * Returns list of row with %d column(s).
      */
-    public static <%s> RowList%d<%s> rowList%d(%s) { return new RowList%d<%s>(%s.columnClass).%s; }""".format(n, gp, n, gp, n, cs.mkString(", "), n, gp, as.mkString(".columnClass, "), ls.mkString("."))
+    public static <%s> RowList%d.Impl<%s> rowList%d(%s) { return new RowList%d.Impl<%s>(%s.columnClass).%s; }""".format(n, gp, n, gp, n, cs.mkString(", "), n, gp, as.mkString(".columnClass, "), ls.mkString("."))
 
         }
 
