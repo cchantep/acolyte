@@ -1,0 +1,45 @@
+// -*- mode: scala -*-
+package acolyte
+
+import java.util.{ ArrayList, List ⇒ JList, Map ⇒ JMap }
+
+/** Scala implementation of RowList#N#. */
+private[acolyte] final class ScalaRowList#N#[#TC#](#CV#, rows: JList[Row#N#[#TC#]], colNames: JMap[String, Integer]) extends RowList#N#[#TC#, ScalaRowList#N#[#TC#]] {
+
+  lazy val factory: RowList#N#.Factory[#TC#, ScalaRowList#N#[#TC#]] =
+    new RowList#N#.Factory[#TC#, ScalaRowList#N#[#TC#]]() {
+      def rowList(#CA#, rows: JList[Row#N#[#TC#]], colNames: JMap[String, Integer]): ScalaRowList#N#[#TC#] = new ScalaRowList#N#[#TC#](#CC#, rows, colNames)
+    }
+
+  /** Rows */
+  lazy val getRows: JList[Row#N#[#TC#]] = rows
+
+  /** Column labels */
+  lazy val getColumnLabels: JMap[String, Integer] = colNames
+
+  /** Column classes */
+  lazy val getColumnClasses: JList[Class[_]] = {
+    val list: JList[Class[_]] = new ArrayList[Class[_]]()
+    #AC#
+    list
+  }
+
+  /**
+   * Symbolic alias for `append` operation.
+   *
+   * {{{
+   * rowList :+ (#VS#)
+   * }}}
+   */
+  def :+(#VA#): ScalaRowList#N#[#TC#] = append(#VS#)
+
+  /**
+   * Defines column label(s) per position(s) (> 0).
+   *
+   * {{{
+   * rowList.withLabels(1 -> "label1", 2 -> "label2")
+   * }}}
+   */
+  def withLabels(labels: (Int, String)*): ScalaRowList#N#[#TC#] =
+    labels.foldLeft(this) { (l, t) ⇒ l.withLabel(t._1, t._2) }
+}

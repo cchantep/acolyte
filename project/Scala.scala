@@ -22,74 +22,101 @@ trait Scala {
       generateRowClasses(base, managed)
     }),
     pomExtra := (
-  <url>https://github.com/cchantep/acolyte/</url>
-  <licenses>
-    <license>
-      <name>GNU Lesser General Public License, Version 2.1</name>
-      <url>
-        https://raw.github.com/cchantep/acolyte/master/LICENSE.txt
-      </url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-  <scm>
-    <connection>scm:git:git@github.com:cchantep/acolyte.git</connection>
-    <developerConnection>
-      scm:git:git@github.com:cchantep/acolyte.git
-    </developerConnection>
-    <url>git@github.com:cchantep/acolyte.git</url>
-  </scm>
-  <issueManagement>
-    <system>GitHub</system>
-    <url>https://github.com/cchantep/acolyte/issues</url>
-  </issueManagement>
-  <ciManagement>
-    <system>Travis CI</system>
-    <url>https://travis-ci.org/cchantep/acolyte</url>
-  </ciManagement>
-  <developers>
-    <developer>
-      <id>cchantep</id>
-      <name>Cedric Chantepie</name>
-    </developer>
-  </developers>)).dependsOn(core)
+      <url>https://github.com/cchantep/acolyte/</url>
+      <licenses>
+        <license>
+          <name>GNU Lesser General Public License, Version 2.1</name>
+          <url>
+            https://raw.github.com/cchantep/acolyte/master/LICENSE.txt
+          </url>
+          <distribution>repo</distribution>
+        </license>
+      </licenses>
+      <scm>
+        <connection>scm:git:git@github.com:cchantep/acolyte.git</connection>
+        <developerConnection>
+          scm:git:git@github.com:cchantep/acolyte.git
+        </developerConnection>
+        <url>git@github.com:cchantep/acolyte.git</url>
+      </scm>
+      <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/cchantep/acolyte/issues</url>
+      </issueManagement>
+      <ciManagement>
+        <system>Travis CI</system>
+        <url>https://travis-ci.org/cchantep/acolyte</url>
+      </ciManagement>
+      <developers>
+        <developer>
+          <id>cchantep</id>
+          <name>Cedric Chantepie</name>
+        </developer>
+      </developers>)).dependsOn(core)
 
   // Source generator
   private def generateRowClasses(base: File, managed: File): Seq[File] = {
+    val letterAZ = 'A' to 'Z'
+    val letter = letterAZ.map(_.toString) ++: letterAZ.map(l ⇒ "A" + l)
+    val lim = letter.size
+
+    val listTmpl = base / "src" / "main" / "templates" / "RowList.tmpl"
+    val rowLists: Seq[java.io.File] = for (n ← 1 to lim) yield {
+      val f = managed / "acolyte" / "ScalaRowList%d.scala".format(n)
+
+      val tc = for (i ← 0 until n) yield letter(i)
+      val cv = for (i ← 0 until n) yield { 
+        "val c%d: Class[%s]".format(i, letter(i))
+      }
+      val ca = for (i ← 0 until n) yield "c%d: Class[%s]".format(i, letter(i))
+      val cc = for (i ← 0 until n) yield "c%d".format(i)
+      val ac = for (i ← 0 until n) yield "list.add(c%d)".format(i)
+      val vs = for (i ← 0 until n) yield letter(i).toLowerCase
+      val va = for (i ← 0 until n) yield {
+        "%s: %s".format(letter(i).toLowerCase, letter(i))
+      }
+
+      IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w ⇒
+        // Generate by substitution on each line of template
+        IO.reader[Unit](listTmpl) { r ⇒
+          IO.foreachLine(r) { l ⇒
+            w.append(l.replaceAll("#N#", n.toString).
+              replaceAll("#TC#", tc.mkString(", ")).
+              replaceAll("#CV#", cv.mkString(", ")).
+              replaceAll("#CC#", cc.mkString(", ")).
+              replaceAll("#AC#", ac.mkString("\r\n    ")).
+              replaceAll("#VS#", vs.mkString(", ")).
+              replaceAll("#VA#", va.mkString(", ")).
+              replaceAll("#CA#", ca.mkString(", "))).
+              append("\n")
+          }
+        }
+
+        f
+      }
+    }
+
     val rlf = managed / "acolyte" / "RowLists.scala"
     IO.writer[java.io.File](rlf, "", IO.defaultCharset, false) { w ⇒
-      val letter = ('A' to 'Z').map(_.toString) ++: ('A' to 'Z').map(l ⇒ "A" + l)
-      val lim = letter.size
-      val conv = Nil ++: Seq("implicit def RowList1AsScala[A](l: RowList1[A]): ScalaRowList1[A] = new ScalaRowList1[A](l)") ++: (for (n ← 2 to lim) yield {
+      val conv = Nil ++: (for (n ← 1 to lim) yield {
         val gp = (for (i ← 0 until n) yield letter(i)).mkString(", ")
-        """implicit def RowList%dAsScala[%s](l: RowList%d[%s]): ScalaRowList[RowList%d[%s], Row%d[%s]] = new ScalaRowList[RowList%d[%s], Row%d[%s]](l)""".format(n, gp, n, gp, n, gp, n, gp, n, gp, n, gp)
+        val ca = (for (i ← 0 until n) yield "l.c%d".format(i)).mkString(", ")
+
+        "implicit def RowList%dAsScala[%s](l: RowList%d.Impl[%s]): ScalaRowList%d[%s] = new ScalaRowList%d[%s](%s, l.rows, l.colNames)".format(n, gp, n, gp, n, gp, n, gp, ca)
+
       })
       val tmpl = base / "src" / "main" / "templates" / "RowLists.tmpl"
+
       IO.reader[Unit](tmpl) { r ⇒
         IO.foreachLine(r) { l ⇒
           w.append(l.replace("#SRL#", conv.mkString("\r\n  "))).
             append("\r\n")
         }
       }
+
       rlf
     }
-    val rf = managed / "acolyte" / "Rows.scala"
-    IO.writer[java.io.File](rf, "", IO.defaultCharset, false) { w ⇒
-      val letter = 'A' to 'Z' dropRight 4
-      val conv = for (n ← 1 to 22) yield {
-        val gp = (for (i ← 0 until n) yield letter(i)).mkString(", ")
-        val ps = for (i ← 1 to n) yield "p._%d".format(i)
-        """implicit def Product%dAsRow[%s](p: Product%d[%s]): Row%d[%s] = Rows.row%d(%s)""".format(n, gp, n, gp, n, gp, n, ps.mkString(", "))
-      }
-      val tmpl = base / "src" / "main" / "templates" / "Rows.tmpl"
-      IO.reader[Unit](tmpl) { r ⇒
-        IO.foreachLine(r) { l ⇒
-          w.append(l.replace("#SR#", conv.mkString("\r\n  "))).
-            append("\r\n")
-        }
-      }
-      rf
-    }
-    Seq(rlf, rf)
+
+    rowLists :+ rlf
   }
 }

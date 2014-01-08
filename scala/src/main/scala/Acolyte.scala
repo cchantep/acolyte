@@ -101,18 +101,7 @@ object Acolyte {
  * import acolyte.Implicits._
  * }}}
  */
-object Implicits
-    extends ScalaRowLists with ScalaRows with CompositeHandlerImplicits {
-
-  /**
-   * Pimps result row.
-   *
-   * {{{
-   * row.list // Scala list equivalent to .cells
-   * }}}
-   */
-  implicit def ResultRowAsScala[R <: Row](r: R): ScalaResultRow =
-    new ScalaResultRow(r)
+object Implicits extends ScalaRowLists with CompositeHandlerImplicits {
 
   /**
    * Converts tuple to column definition.
@@ -258,6 +247,13 @@ trait CompositeHandlerImplicits { srl: ScalaRowLists ⇒
    */
   implicit def RowListAsResult[R <: RowList[_]](r: R): QueryResult = r.asResult
 
+  /**
+   * Allows to directly use string as query result.
+   *
+   * {{{
+   * val qr: QueryResult = "str"
+   * }}}
+   */
   implicit def StringAsResult(v: String): QueryResult =
     (RowLists.stringList :+ v).asResult
 
@@ -294,95 +290,33 @@ trait CompositeHandlerImplicits { srl: ScalaRowLists ⇒
   implicit def SqlDateAsTimestampResult(v: java.sql.Timestamp): QueryResult =
     (RowLists.timestampList :+ v).asResult
 
-  /**
-   * Converts a single value as row, so that it can be added to row list.
-   *
-   * {{{
-   * stringList :+ "singleVal" // SingleValueRow("singleVal")
-   * }}}
-   */
-  implicit def SingleValueRow[A, B](value: A)(implicit f: A ⇒ B): Row.Row1[B] =
-    Rows.row1[B](f(value))
-
 }
 
 private object ScalaCompositeHandler {
   def empty = new ScalaCompositeHandler(null, null, null)
 }
 
-final class ScalaResultRow(r: Row) extends Row {
-  lazy val cells = r.cells
-
-  lazy val list: List[Any] =
-    JavaConversions.iterableAsScalaIterable(cells).foldLeft(List[Any]()) {
-      (l, v) ⇒ l :+ v
-    }
-
-}
-
-// TODO: Move ScalaRowListX to separate file
-// TODO: Gather common :+(RowN[_] and withLabels
-import acolyte.Row.Row1
-
 /**
- * Pimped row list.
+ * Convertions from Java datatypes to Scala.
  */
-final class ScalaRowList1[A](l: RowList1[A]) {
-  /**
-   * Symbolic alias for `append` operation with null as single value
-   * (inferred as expected row type).
-   * !! If value is not null, usual `:+` is called.
-   *
-   */
-  def :+(n: Null)(implicit f: A ⇒ Row.Row1[A]): RowList1[A] =
-    l.append(f(null.asInstanceOf[A])).asInstanceOf[RowList1[A]]
+@deprecated("Direct manipulation of row is no longer required", "1.0.12")
+object JavaConverters {
 
   /**
-   * Symbolic alias for `append` operation.
+   * Pimps result row.
    *
    * {{{
-   * rowList :+ row
+   * row.list // Scala list equivalent to .cells
    * }}}
    */
-  def :+(row: Row1[A]): RowList1[A] = l.append(row).asInstanceOf[RowList1[A]]
+  implicit def rowAsScala[R <: Row](r: R): ScalaRow = new ScalaRow(r)
 
-  /**
-   * Defines column label(s) per position(s) (> 0).
-   *
-   * {{{
-   * rowList.withLabels(1 -> "label1", 2 -> "label2")
-   * }}}
-   */
-  def withLabels(labels: (Int, String)*): RowList1[A] =
-    labels.foldLeft(l) { (l, t) ⇒
-      l.withLabel(t._1, t._2).asInstanceOf[RowList1[A]]
-    }
+  final class ScalaRow(r: Row) extends Row {
+    lazy val cells = r.cells
 
-}
-
-/**
- * Pimped row list.
- */
-final class ScalaRowList[L <: RowList[R], R <: Row](l: L) {
-
-  /**
-   * Symbolic alias for `append` operation.
-   *
-   * {{{
-   * rowList :+ row
-   * }}}
-   */
-  def :+(row: R): L = l.append(row).asInstanceOf[L]
-  // TODO: Remove asInstanceOf (implicit?)
-
-  /**
-   * Defines column label(s) per position(s) (> 0).
-   *
-   * {{{
-   * rowList.withLabels(1 -> "label1", 2 -> "label2")
-   * }}}
-   */
-  def withLabels(labels: (Int, String)*): L =
-    labels.foldLeft(l) { (l, t) ⇒ l.withLabel(t._1, t._2).asInstanceOf[L] }
-
+    lazy val list: List[Any] =
+      JavaConversions.iterableAsScalaIterable(cells).foldLeft(List[Any]()) {
+        (l, v) ⇒ l :+ v
+      }
+  }
 }

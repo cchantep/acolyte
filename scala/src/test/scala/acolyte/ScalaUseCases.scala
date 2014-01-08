@@ -21,7 +21,7 @@ object ScalaUseCases {
     // Configure in anyway JDBC with following url,
     // declaring handler registered with 'handler1' will be used.
     val jdbcUrl =
-      "jdbc:acolyte:anything-you-want?handler=handler1";
+      "jdbc:acolyte:anything-you-want?handler=handler1"
 
     // Prepare handler
     val handler: ScalaCompositeHandler = handleStatement.
@@ -31,10 +31,10 @@ object ScalaUseCases {
         withUpdateHandler { e: UpdateExecution ⇒
           if (e.sql.startsWith("DELETE ")) {
             // Process deletion ...
-            /* deleted = */ 2;
+            /* deleted = */ 2
           } else {
             // ... Process ...
-            /* count = */ 1;
+            /* count = */ 1
           }
         } withQueryHandler { e: QueryExecution ⇒
           if (e.sql.startsWith("SELECT ")) {
@@ -45,13 +45,12 @@ object ScalaUseCases {
 
             // Prepare list of 2 rows
             // with 3 columns of types String, Float, Date
-            val rows: RowList3[String, Float, Date] =
-              rowList3(classOf[String], classOf[Float], classOf[Date]).
-                withLabels( // Optional: set labels
-                  1 -> "String",
-                  3 -> "Date") :+
-                  ("str", 1.2f, new Date(1l)) :+
-                  row3[String, Float, Date]("val", 2.34f, null)
+            val rows: ScalaRowList3[String, Float, Date] = rowList3(
+              classOf[String], classOf[Float], classOf[Date]).
+              withLabels( // Optional: set labels
+                1 -> "String",
+                3 -> "Date") :+
+                ("str", 1.2f, new Date(1l)) :+ ("val", 2.34f, null)
 
             rows.asResult
           }
@@ -68,15 +67,15 @@ object ScalaUseCases {
    * Use case #2 - Columns definition
    */
   def useCase2: SqlConnection = {
-    val jdbcUrl = "jdbc:acolyte:anything-you-want?handler=handler2";
+    val jdbcUrl = "jdbc:acolyte:anything-you-want?handler=handler2"
 
     val handler: ScalaCompositeHandler = handleStatement.
       withQueryDetection("^SELECT ") withQueryHandler { execution ⇒
         rowList3(classOf[String] -> "str",
           classOf[Float] -> "f",
           classOf[Date] -> "date").
-          append(row3("text", 2.3f, new Date(3l))).
-          append(row3("label", 4.56f, new Date(4l)))
+          append("text", 2.3f, new Date(3l)).
+          append("label", 4.56f, new Date(4l))
 
       }
 
@@ -84,14 +83,14 @@ object ScalaUseCases {
     acolyte.Driver.register("handler2", handler)
 
     // ... then connection is managed through |handler|
-    return DriverManager.getConnection(jdbcUrl);
+    return DriverManager.getConnection(jdbcUrl)
   } // end of useCase2
 
   /**
    * Use case #3 - Pattern matching
    */
   def useCase3: SqlConnection = {
-    val jdbcUrl = "jdbc:acolyte:anything-you-want?handler=handler3";
+    val jdbcUrl = "jdbc:acolyte:anything-you-want?handler=handler3"
 
     val handler: ScalaCompositeHandler = handleStatement.
       withQueryDetection("^SELECT ") withQueryHandler {
@@ -101,7 +100,7 @@ object ScalaUseCases {
 
           case QueryExecution(s,
             DefinedParameter("id", _) :: DefinedParameter(3, _) :: Nil) ⇒
-            (rowList3(classOf[String], classOf[Int], classOf[Long]) :+ row3(
+            (rowList3(classOf[String], classOf[Int], classOf[Long]) :+ (
               "useCase_3str", 2, 3l)).asResult
 
           case q ⇒ QueryResult.Nil withWarning "Now you're warned"
@@ -112,7 +111,7 @@ object ScalaUseCases {
     acolyte.Driver.register("handler3", handler)
 
     // ... then connection is managed through |handler|
-    return DriverManager.getConnection(jdbcUrl);
+    return DriverManager.getConnection(jdbcUrl)
   } // end of useCase3
 
   /**
