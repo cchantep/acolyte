@@ -2,10 +2,7 @@ import sbt._
 import Keys._
 
 // Multi-module project build
-object Acolyte extends Build with Core with Studio {
-
-  lazy val scala = Project(id = "scala", base = file("scala")).dependsOn(core)
-
+object Acolyte extends Build with Core with Scala with Studio {
   lazy val root = Project(id = "acolyte", base = file(".")).
     aggregate(core, scala, studio).settings(
       version := "1.0.12",
