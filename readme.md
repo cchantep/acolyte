@@ -468,10 +468,8 @@ import acolyte.RowLists.{ rowList1, rowList3 }
 
 // ...
 
-val list1: RowList1[String] = RowLists.rowList1(String.class)
-
-val list2: RowList3[Int, Float, Char] = RowLists.
-  rowList3(classOf[Int], classOf[Float], classOf[Char])
+val list1 = RowLists.rowList1(String.class)
+val list2 = RowLists.rowList3(classOf[Int], classOf[Float], classOf[Char])
 ```
 
 Column names/labels can also be setup (column first index is 1):
@@ -490,10 +488,10 @@ import acolyte.{ RowLists, RowList1, RowList3 }
 
 // ...
 
-val list1: RowList1[String] = RowLists.rowList1(
+val list1 = RowLists.rowList1(
   classOf[String] -> "first label")
 
-val list2: RowList3[Int, Float, Char] = RowLists.rowList3(
+val list2 = RowLists.rowList3(
   classOf[Int] -> "1st",
   classOf[Float] -> "2nd",
   classOf[Char] -> "3rd")
@@ -550,6 +548,18 @@ import acolyte.Rows.row1
 
 val rs1: ResultSet = list1.append("str").resultSet()
 val rs2: ResultSet = list2.resultSet()
+```
+
+### Converters
+
+Row instance can be maid more Scala-friendly using converter.
+
+```scala
+import acolyte.Rows.row2
+import acolyte.JavaConverters.rowAsScala
+
+val row = row2(classOf[String], classOf[Float])
+val cells = row.list // implicit convert while getting Scala list of cells
 ```
 
 ### Specs2
