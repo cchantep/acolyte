@@ -215,17 +215,6 @@ public abstract class RowList<R extends Row> {
     } // end of Column
 
     /**
-     * Cell on a row.
-     */
-    private static final class Cell<C> { // TODO: Remove useless Cell class
-        public final C value;
-
-        public Cell(final C v) {
-            this.value = v;
-        } // end of <init>
-    } // end of class Cell
-
-    /**
      * Result set made from list of row.
      *
      * @param R Row
@@ -235,7 +224,7 @@ public abstract class RowList<R extends Row> {
         final Map<String,Integer> columnLabels;
         final List<R> rows;
         final Statement statement;
-        private Cell<?> last;
+        private Object last;
 
         // --- Constructors ---
 
@@ -260,7 +249,7 @@ public abstract class RowList<R extends Row> {
          * Copy constructor.
          */
         private RowResultSet(final List<R> rows,
-                             final Cell<?> last,
+                             final Object last,
                              final Statement statement) {
 
             if (rows == null) {
@@ -351,7 +340,7 @@ public abstract class RowList<R extends Row> {
         public boolean wasNull() throws SQLException {
             checkClosed();
 
-            return (this.last != null && this.last.value == null);
+            return (this.last != null);
         } // end of wasNull
 
         /**
@@ -373,11 +362,7 @@ public abstract class RowList<R extends Row> {
 
             // ---
 
-            final Object val = cells.get(idx);
-
-            this.last = new Cell<Object>(val);
-            
-            return val;
+            return this.last = cells.get(idx);
         } // end of getObject
 
         /**
@@ -408,11 +393,7 @@ public abstract class RowList<R extends Row> {
 
             // ---
 
-            final Object val = cells.get(idx);
-
-            this.last = new Cell<Object>(val);
-            
-            return val;
+            return this.last = cells.get(idx);
         } // end of getObject            
 
         /**
