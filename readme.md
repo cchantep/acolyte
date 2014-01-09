@@ -95,7 +95,7 @@ StatementHandler handler = new CompositeHandler().
         rowList3(String.class, Float.class, Date.class).
         withLabel(1, "String").withLabel(3, "Date"). // Optional: set labels
         append("str", 1.2f, new Date(1, 2, 3)). // values append
-        append(row3("val", 2.34f, (Date)null));
+        append("val", 2.34f, null);
 
       return rows.asResult();
     }
@@ -210,7 +210,7 @@ import static acolyte.Rows.row1;
 
 // we have declared list1 and list2 (see previous example)
 
-list1 = list1.append(row1("str"));
+list1 = list1.append("str");
 
 ResultSet rs1 = list1.resultSet();
 ResultSet rs2 = list2.resultSet();
@@ -218,10 +218,10 @@ ResultSet rs2 = list2.resultSet();
 
 From previous example, result set `rs1` will contain 1 row, whereas `rs2` is empty.
 
-Take care to `list1 = list1.append(row1("str"));`. As provided `RowList` classes are immutable, you should get updated instance from `append` to work on the list containing added row. This is more safe, and allow to rewrite previous example like:
+Take care to `list1 = list1.append("str");`. As provided `RowList` classes are immutable, you should get updated instance from `append` to work on the list containing added row. This is more safe, and allow to rewrite previous example like:
 
 ```java
-ResultSet rs1 = list1.append(row1("str")).resultSet();
+ResultSet rs1 = list1.append("str").resultSet();
 ResultSet rs2 = list2.resultSet();
 ```
 
@@ -275,48 +275,6 @@ RowLists.timeList(time/* ... */);
 // Instead of RowLists.rowList1(Timestamp.class).append(ts) ...
 RowLists.timestampList().append(tsRow);
 RowLists.timestampList(tsRow/* ... */);
-```
-
-On single column row list, it's also possible to directly append unwrapped value, instead of row object wrapping a single value:
-
-```java
-RowLists.stringList().append("stringVal")
-
-// ... instead of ...
-//RowLists.stringList().append(Rows.row1("stringVal"))
-```
-
-##### NULL values
-
-To be able to add a row with a `null` values, types must be explicitly given, 
-otherwise `java.lang.Object` will be used.
-
-There are various ways to do so:
-
-```java
-import acolyte.RowList2;
-import acolyte.RowLists;
-import acolyte.Row2;
-import acolyte.Rows;
-
-// ...
-
-RowList2<String,Float> list = RowLists.rowList2(String.class, Float.class);
-
-// Indicates types through row constructor
-list.append(new Row2<String,Float>(null, null));
-
-// Indicates types through row factory
-list.append(Rows.<String,Float>row2(null, null));
-
-// Indicates types by cast
-list.append(Rows.row2((String) null, (Float) null));
-```
-
-Type inference works well for `null` with multiple-args-append:
-
-```java
-list.append(null, null);
 ```
 
 #### SQL Warnings
@@ -394,7 +352,7 @@ val handler: CompositeHandler = Acolyte.handleStatement.
           1 -> "String",
           3 -> "Date")
         :+ ("str", 1.2f, new Date(1l)) // tuple as row 
-        :+ row3[String,Float,Date]("val", 2.34f, null)).
+        :+ ("val", 2.34f, null)).
         asResult
 
     }
@@ -581,15 +539,6 @@ RowLists.timeList() :+ timeRow
 RowLists.timestampList() :+ tsRow
 ```
 
-On single column row list, it's also possible to directly append unwrapped value, instead of row object wrapping a single value:
-
-```java
-RowLists.stringList :+ "stringVal"
-
-// ... instead of ...
-//RowLists.stringList() :+ Rows.row1("stringVal")
-```
-
 Once you have declared your row list, and before turning it as result set, you can either add rows to it, or leave it empty.
 
 ```scala
@@ -599,39 +548,8 @@ import acolyte.Rows.row1
 
 // ...
 
-val rs1: ResultSet = list1.append(row1("str")).resultSet()
+val rs1: ResultSet = list1.append("str").resultSet()
 val rs2: ResultSet = list2.resultSet()
-```
-
-##### NULL values
-
-To be able to add a row with a `null` values, types must be explicitly given, 
-otherwise `Any` will be used.
-
-There are various ways to do so:
-
-```scala
-import acolyte.{ RowList2, RowLists, Row2, Rows }
-
-// ...
-
-val list: RowList2[String,Float] = 
-  RowLists.rowList2(classOf[String], classOf[Float])
-
-// Indicates types through row constructor
-list.append(new Row2[String,Float](null, null))
-
-// Indicates types through row factory
-list :+ Rows.row2[String,Float](null, null)
-
-// Indicates types by cast
-list :+ Rows.row2(null.asInstanceOf[String], null.asInstanceOf[Float])
-```
-
-Type inference works well for `null` with multiple-args-append:
-
-```scala
-list :+ (null, null)
 ```
 
 ### Specs2
@@ -752,8 +670,7 @@ public class ZooTest {
                      withQueryHandler(new QueryHandler() {
                              public QueryResult apply(String sql, List<Parameter> parameters) throws SQLException {
                                  return zooSchema.
-                                     append(row5("dog", 1, "Scooby", 
-                                                 (Boolean)null, "red")).
+                                     append("dog", 1, "Scooby", null, "red").
                                      asResult();
 
                              }
@@ -782,8 +699,7 @@ public class ZooTest {
                      withQueryHandler(new QueryHandler() {
                              public QueryResult apply(String sql, List<Parameter> parameters) throws SQLException {
                                  return zooSchema.
-                                     append(row5("bird", 2, "Ostrich", 
-                                                 false, (String)null)).
+                                     append("bird", 2, "Ostrich", false, null)).
                                      asResult();
 
                              }

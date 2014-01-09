@@ -74,7 +74,7 @@ public final class JavaUseCases {
                             withLabel(1, "String"). // Optional: set labels
                             withLabel(3, "Date"). 
                             append("str", 1.2f, new Date(1l)).
-                            append(row3("val", 2.34f, (Date)null)).
+                            append("val", 2.34f, null).
                             asResult();
                     }
                 });
@@ -101,8 +101,8 @@ public final class JavaUseCases {
                         return rowList3(Column(String.class, "str"),
                                         Column(Float.class, "f"), 
                                         Column(Date.class, "date")).
-                            append(row3("text", 2.3f, new Date(3l))).
-                            append(row3("label", 4.56f, new Date(4l))).
+                            append("text", 2.3f, new Date(3l)).
+                            append("label", 4.56f, new Date(4l)).
                             asResult();
                     }
                 });

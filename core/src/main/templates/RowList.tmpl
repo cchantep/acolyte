@@ -32,8 +32,9 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
 
     /**
      * {@inheritDoc}
+     * @deprecated Use append operation with multiple column values.
      */
-    public UPDATED append(final Row#N#<#CP#> row) {
+    protected UPDATED append(final Row#N#<#CP#> row) {
         final ArrayList<Row#N#<#CP#>> copy = new ArrayList<Row#N#<#CP#>>(getRows());
             
         copy.add(row);

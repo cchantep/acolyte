@@ -36,8 +36,9 @@ public abstract class RowList<R extends Row> {
      * Appends |row|.
      *
      * @return Updated row list
+     * @deprecated Append operation with multiple column values provided by sub-classes.
      */
-    public abstract RowList<R> append(R row);
+    protected abstract RowList<R> append(R row);
 
     /**
      * Returns copy of row list with updated column names/labels.
