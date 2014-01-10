@@ -1,6 +1,7 @@
-import acolyte.Acolyte._
 import acolyte.QueryResult
 import acolyte.RowLists.rowList3
+import acolyte.Acolyte.withQueryResult
+import acolyte.Implicits._
 
 object PersistenceSpec extends org.specs2.mutable.Specification {
   "Persistence" title
@@ -35,19 +36,19 @@ object PersistenceSpec extends org.specs2.mutable.Specification {
         SectionOption("option 2")))))
 
   "Form" should {
-    "not be found if data is missing" in withResult(QueryResult.Nil) {
+    "not be found if data is missing" in withQueryResult(QueryResult.Nil) {
       // Acolyte pushes empty form data into used JDBC connection
       implicit con ⇒ Persistence.form aka "loaded form" must beRight(None)
     }
 
-    "be successfully loaded from valid data" in withResult(formFixtures) {
+    "be successfully loaded from valid data" in withQueryResult(formFixtures) {
       implicit con ⇒
         Persistence.form aka "loaded form" must beRight(Some(expectedForm))
     }
   }
 
   "Form error" should {
-    "be detected when first row is an option" in withResult(
+    "be detected when first row is an option" in withQueryResult(
       // Inject a single option row
       formTable :+ ("opt", 2, "option")) { implicit con ⇒
         Persistence.form must beLeft { err: String ⇒
@@ -55,7 +56,7 @@ object PersistenceSpec extends org.specs2.mutable.Specification {
         }
       }
 
-    "be detected when first row is a sub-option" in withResult(
+    "be detected when first row is a sub-option" in withQueryResult(
       // Inject a single sub-option row
       formTable :+ ("sub", 3, "sub-option")) { implicit con ⇒
         Persistence.form must beLeft { err: String ⇒
@@ -63,7 +64,7 @@ object PersistenceSpec extends org.specs2.mutable.Specification {
         }
       }
 
-    "be detected when first row of section is a sub-option" in withResult(
+    "be detected when first row of section is a sub-option" in withQueryResult(
       // Inject section row followed by a sub-option one
       formTable :+ ("sec", 1, "section") :+ ("sub", 3, "sub-option")) {
         implicit con ⇒
@@ -72,12 +73,4 @@ object PersistenceSpec extends org.specs2.mutable.Specification {
           }
       }
   }
-
-  /**
-   * Creates simple Acolyte connection returns result |r|,
-   * for each and any JDBC statement.
-   */
-  def withResult[A](r: QueryResult)(f: java.sql.Connection ⇒ A): A =
-    f(connection(handleQuery withQueryHandler { _ ⇒ r }))
-
 }
