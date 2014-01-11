@@ -217,11 +217,14 @@ public final class Rows {""")
             "final Class<%s> _c%d".format(letter(i), i)
           }
           val cs = for (i ← 0 until n) yield {
-            "final RowList.Column<%s> _c%d".format(letter(i), i)
+            "final Column<%s> _c%d".format(letter(i), i)
           }
           val as = for (i ← 0 until n) yield "_c%d".format(i)
           val ls = for (i ← 0 until n) yield {
             "withLabel(%d, _c%d.name)".format(i + 1, i)
+          }
+          val ns = for (i ← 0 until n) yield {
+            "withNullable(%d, _c%d.nullable)".format(i + 1, i)
           }
           val gp = g.mkString(",")
 
@@ -233,7 +236,7 @@ public final class Rows {""")
     /**
      * Returns list of row with %d column(s).
      */
-    public static <%s> RowList%d.Impl<%s> rowList%d(%s) { return new RowList%d.Impl<%s>(%s.columnClass).%s; }""".format(n, gp, n, gp, n, cs.mkString(", "), n, gp, as.mkString(".columnClass, "), ls.mkString("."))
+    public static <%s> RowList%d.Impl<%s> rowList%d(%s) { return new RowList%d.Impl<%s>(%s.columnClass).%s.%s; }""".format(n, gp, n, gp, n, cs.mkString(", "), n, gp, as.mkString(".columnClass, "), ls.mkString("."), ns.mkString("."))
 
         }
 

@@ -15,6 +15,7 @@ import java.sql.{
 import org.specs2.mutable.Specification
 
 import acolyte.Rows.{ row1, row2 }
+import acolyte.RowList.{ Column ⇒ Col }
 
 object RowListSpec extends Specification with RowListTest {
   "Row list" title
@@ -22,16 +23,68 @@ object RowListSpec extends Specification with RowListTest {
   "Creation" should {
     "not accept null list" in {
       new RowList1.Impl(classOf[String], null,
-        new java.util.HashMap[String, Integer]()).
+        new java.util.HashMap[String, Integer](),
+        new java.util.HashMap[Integer, java.lang.Boolean]()).
         aka("ctor") must throwA[IllegalArgumentException](
           message = "Invalid rows")
     }
 
     "not accept null map" in {
       new RowList2.Impl(classOf[String], classOf[Float],
-        new java.util.ArrayList[Row2[String, Float]](), null).
+        new java.util.ArrayList[Row2[String, Float]](), null,
+        new java.util.HashMap[Integer, java.lang.Boolean]()).
         aka("ctor") must throwA[IllegalArgumentException](
           message = "Invalid names")
+    }
+
+    "not accept null nullables" in {
+      new RowList2.Impl(classOf[String], classOf[Float],
+        new java.util.ArrayList[Row2[String, Float]](),
+        new java.util.HashMap[String, Integer](), null).
+        aka("ctor") must throwA[IllegalArgumentException](
+          message = "Invalid nullable flags")
+    }
+  }
+
+  "Factory" should {
+    "create list with given classes" in {
+      RowLists.rowList2(classOf[String], classOf[Int]) aka "list" must beLike {
+        case list ⇒
+          val cs = list.getColumnClasses
+
+          (cs.get(0), cs.get(1)) aka "col classes" mustEqual {
+            classOf[String] -> classOf[Int]
+          }
+      }
+    }
+
+    lazy val meta = (Col(classOf[String], "a"), Col(classOf[Int], "b"))
+
+    "create list with given labels" in {
+      RowLists.rowList2(meta._1, meta._2) aka "list" must beLike {
+        case list ⇒
+          val cs = list.getColumnClasses
+          val ls = list.getColumnLabels
+
+          ((cs.get(0), cs.get(1)) aka "col classes" mustEqual {
+            classOf[String] -> classOf[Int]
+          }).and((ls.get("a"), ls.get("b")) aka "labels" mustEqual (1, 2))
+      }
+    }
+
+    "create list with given meta-data" in {
+      RowLists.rowList2(meta._1, meta._2.withNullable(true)) must beLike {
+        case list ⇒
+          val cs = list.getColumnClasses
+          val ls = list.getColumnLabels
+          val ns = list.getColumnNullables
+
+          ((cs.get(0), cs.get(1)) aka "col classes" mustEqual {
+            classOf[String] -> classOf[Int]
+          }).and((ls.get("a"), ls.get("b")) aka "labels" mustEqual (1, 2)).
+            and((ns.get(1), ns.get(2)) aka "nullables" mustEqual (false, true))
+
+      }
     }
   }
 
@@ -39,6 +92,7 @@ object RowListSpec extends Specification with RowListTest {
     lazy val meta = RowLists.rowList3(
       classOf[Float], classOf[String], classOf[Time]).
       withLabel(2, "title").
+      withNullable(1, false).withNullable(3, true).
       append(Rows.row3(1.23f, "str", new Time(1, 2, 3))).
       resultSet.getMetaData
 
@@ -109,10 +163,24 @@ object RowListSpec extends Specification with RowListTest {
       }
     }
 
-    "have expected nullable flag" in {
-      meta.isNullable(1).
-        aka("nullable") mustEqual ResultSetMetaData.columnNullableUnknown
+    "have expected nullable flag" >> {
+      import ResultSetMetaData.{
+        columnNoNulls,
+        columnNullable,
+        columnNullableUnknown
+      }
 
+      "for column #1" in {
+        meta.isNullable(1) aka "nullable" mustEqual columnNoNulls
+      }
+
+      "for column #2" in {
+        meta.isNullable(2) aka "nullable" mustEqual columnNullableUnknown
+      }
+
+      "for column #3" in {
+        meta.isNullable(3) aka "nullable" mustEqual columnNullable
+      }
     }
 
     "not support currency" in {

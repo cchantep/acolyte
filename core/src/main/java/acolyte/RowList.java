@@ -23,7 +23,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
  * Type-safe list of row.
  *
  * @author Cedric Chantepie
- * @todo Add nullable property to Column
  */
 public abstract class RowList<R extends Row> {
 
@@ -45,8 +44,19 @@ public abstract class RowList<R extends Row> {
      *
      * @param columnIndex Index of column (first index is 1)
      * @param label Column name/label
+     * @see Column#name
      */
     public abstract RowList<R> withLabel(int columnIndex, String label);
+
+    /**
+     * Returns copy of row list with updated metadata, 
+     * including whether specified column is |nullable|.
+     *
+     * @param columnIndex Index of column (first index is 1)
+     * @param nullable Is column nullable?
+     * @see Column#nullable
+     */
+    public abstract RowList<R> withNullable(int columnIndex, boolean nullable);
 
     /**
      * Returns result set from these rows.
@@ -91,6 +101,13 @@ public abstract class RowList<R extends Row> {
      */
     public abstract Map<String,Integer> getColumnLabels();
 
+    /**
+     * Gets column mappings, from index to nullable flag.
+     *
+     * @return Column mappings, or empty map (not null) if none
+     */
+    public abstract Map<Integer,Boolean> getColumnNullables();
+
     // --- Shared ---
 
     /**
@@ -123,6 +140,12 @@ public abstract class RowList<R extends Row> {
         private final Map<String,Integer> labels = 
             new HashMap<String,Integer>(0);
 
+        /**
+         * Empty flags
+         */
+        private final Map<Integer,Boolean> nullables = 
+            new HashMap<Integer,Boolean>(0);
+
         // --- Constructors ---
 
         /**
@@ -142,18 +165,23 @@ public abstract class RowList<R extends Row> {
         /**
          * Returns unchanged nil row list.
          */
-        public RowList<Row.Nothing> append(final Row.Nothing row) {
-            return this;
-        } // end of append
+        public NilRowList append(final Row.Nothing row) { return this; }
 
         /**
          * Returns unchanged nil row list.
          */
-        public RowList<Row.Nothing> withLabel(final int columnIndex, 
-                                              final String label) {
-
+        public NilRowList withLabel(final int columnIndex, final String label) {
             return this;
         } // end of withLabel
+
+        /**
+         * Returns unchanged nil row list.
+         */
+        public NilRowList withNullable(final int columnIndex, 
+                                       final boolean nullable) {
+
+            return this;
+        } // end of withNullable
 
         /**
          * Returns empty list of columns classes.
@@ -168,6 +196,13 @@ public abstract class RowList<R extends Row> {
         public Map<String,Integer> getColumnLabels() {
             return this.labels;
         } // end of getColumnLabels
+
+        /**
+         * Returns empty list of nullable flags.
+         */
+        public Map<Integer,Boolean> getColumnNullables() {
+            return this.nullables;
+        } // end of getColumnNullables
     } // end of class Nil
 
     /**
@@ -181,39 +216,6 @@ public abstract class RowList<R extends Row> {
         
         return new Column<T>(columnClass, name);
     } // end of column
-
-    /**
-     * Column definition.
-     */
-    public static final class Column<T> {
-        /**
-         * Column class
-         */
-        public final Class<T> columnClass;
-
-        /**
-         * Column name/label
-         */
-        public final String name;
-
-        /**
-         * Bulk constructor.
-         */
-        private Column(final Class<T> columnClass, final String name) {
-            if (columnClass == null) {
-                throw new IllegalArgumentException("No column class");
-            } // end of if
-
-            if (name == null || name.length() == 0) {
-                throw new IllegalArgumentException("Invalid column name: " + 
-                                                   name);
-
-            } // end of if
-
-            this.columnClass = columnClass;
-            this.name = name;
-        } // end of <init>
-    } // end of Column
 
     /**
      * Result set made from list of row.
@@ -1138,6 +1140,7 @@ public abstract class RowList<R extends Row> {
     public final class RowListMetaData implements ResultSetMetaData {
         final List<Class<?>> columnClasses;
         final Map<String,Integer> columnLabels;
+        final Map<Integer,Boolean> columnNullables;
 
         // --- Constructors ---
 
@@ -1147,6 +1150,7 @@ public abstract class RowList<R extends Row> {
         private RowListMetaData() {
             this.columnClasses = getColumnClasses();
             this.columnLabels = getColumnLabels();
+            this.columnNullables = getColumnNullables();
         } // end of <init>
 
         // ---
@@ -1236,8 +1240,13 @@ public abstract class RowList<R extends Row> {
          * {@inheritDoc}
          */
         public int isNullable(final int column) throws SQLException {
-            // TODO: See anorm.RowSpec
-            return ResultSetMetaData.columnNullableUnknown;
+            final Boolean b = this.columnNullables.get(column);
+
+            return (b == null) ? ResultSetMetaData.columnNullableUnknown :
+                (Boolean.TRUE.equals(b))
+                ? ResultSetMetaData.columnNullable 
+                : ResultSetMetaData.columnNoNulls;
+
         } // end of isNullable
 
         /**

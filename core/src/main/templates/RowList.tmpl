@@ -39,7 +39,7 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
             
         copy.add(row);
 
-        return factory().rowList(#GC#, copy, getColumnLabels());
+        return factory().rowList(#GC#, copy, getColumnLabels(), getColumnNullables());
     } // end of append
 
     /**
@@ -57,8 +57,20 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
 
         cols.put(label, (Integer) columnIndex);
 
-        return factory().rowList(#GC#, getRows(), cols);
+        return factory().rowList(#GC#, getRows(), cols, getColumnNullables());
     } // end of withLabel
+
+    /**
+     * {@inheritDoc}
+     */
+    public UPDATED withNullable(final int columnIndex, final boolean nullable) {
+        final HashMap<Integer,Boolean> nls = 
+            new HashMap<Integer,Boolean>(getColumnNullables());
+
+        nls.put(columnIndex, nullable);
+
+        return factory().rowList(#GC#, getRows(), getColumnLabels(), nls);
+    } // end of withNullable
 
     // --- Inner classes ---
 
@@ -69,8 +81,11 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
 
         /**
          * Build row list, including |rows| with given column |labels|.
+         *
+         * @param nullables Nullable flags.
          */
-        public ROWLIST rowList(#CS#, final List<Row#N#<#CP#>> rows, final Map<String,Integer> labels);
+        public ROWLIST rowList(#CS#, final List<Row#N#<#CP#>> rows, final Map<String,Integer> labels, final Map<Integer,Boolean> nullables);
+
     } // end of interface Factory
 
     /**
@@ -89,6 +104,11 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
          */
         final Map<String,Integer> colNames;
 
+        /**
+         * Nullable flags
+         */
+        final Map<Integer,Boolean> colNullables;
+
         #PS#
 
         /**
@@ -103,7 +123,7 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
          *
          * @throws IllegalArgumentException if rows is null
          */
-        Impl(#CS#, final List<Row#N#<#CP#>> rows, final Map<String,Integer> colNames) {
+        Impl(#CS#, final List<Row#N#<#CP#>> rows, final Map<String,Integer> colNames, final Map<Integer,Boolean> colNullables) {
 
             #IC#
 
@@ -115,8 +135,13 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
                 throw new IllegalArgumentException("Invalid names");
             } // end of if
 
+            if (colNullables == null) {
+                throw new IllegalArgumentException("Invalid nullable flags");
+            } // end of if
+
             this.rows = Collections.unmodifiableList(rows);
             this.colNames = Collections.unmodifiableMap(colNames);
+            this.colNullables = Collections.unmodifiableMap(colNullables);
 
             // Column classes
             final ArrayList<Class<?>> colClasses = new ArrayList<Class<?>>();
@@ -130,7 +155,7 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
          * No-arg constructor.
          */
         Impl(#CS#) {
-            this(#CA#, new ArrayList<Row#N#<#CP#>>(), new HashMap<String,Integer>());
+            this(#CA#, new ArrayList<Row#N#<#CP#>>(), new HashMap<String,Integer>(), new HashMap<Integer,Boolean>());
         } // end of <init>
 
         // ---
@@ -142,8 +167,8 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
          */
         RowList#N#.Factory<#CP#, Impl<#CP#>> factory() {
             return new RowList#N#.Factory<#CP#,Impl<#CP#>>() {
-                public Impl<#CP#> rowList(#CS#, final List<Row#N#<#CP#>> rows, final Map<String,Integer> colNames) {
-                    return new Impl(#PSC#, rows, colNames);
+                public Impl<#CP#> rowList(#CS#, final List<Row#N#<#CP#>> rows, final Map<String,Integer> colNames, final Map<Integer,Boolean> colNullables) {
+                    return new Impl(#PSC#, rows, colNames, colNullables);
                 }
             };
         } // end of factory
@@ -162,5 +187,10 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
          * {@inheritDoc}
          */
         public List<Class<?>> getColumnClasses() { return this.colClasses; }
+
+        /**
+         * {@inheritDoc}
+         */
+        public Map<Integer,Boolean> getColumnNullables() { return this.colNullables; }
     } // end of class Impl
 } // end of class RowList#N#

@@ -2,33 +2,56 @@ package acolyte
 
 import org.specs2.mutable.Specification
 
-import acolyte.RowList.Column
+import acolyte.RowList.{ Column ⇒ Col }
 
 object ColumnSpec extends Specification {
   "Column" title
 
   "Definition" should {
     "refuse null class" in {
-      Column(null, "col") aka "define" must throwA[IllegalArgumentException](
+      Col(null, "col") aka "define" must throwA[IllegalArgumentException](
         message = "No column class")
 
     }
 
     "refuse empty name" in {
-      (Column(classOf[String], null).
+      (Col(classOf[String], null).
         aka("null name") must throwA[IllegalArgumentException](
           message = "Invalid column name: null")).
-          and(Column(classOf[String], "").
+          and(Col(classOf[String], "").
             aka("empty name") must throwA[IllegalArgumentException](
               message = "Invalid column name: "))
 
     }
 
-    "be successful" in {
-      Column(classOf[Int], "int") aka "define" must beLike {
-        case col ⇒ (col.columnClass aka "class" mustEqual classOf[Int]).
-          and(col.name aka "name" mustEqual "int")
+    "be successful" >> {
+      lazy val col1 = Col(classOf[Int], "int")
+      lazy val col2 = new Column(classOf[Int], "int", true)
 
+      "and not nullable" in {
+        col1 aka "define" must beLike {
+          case col ⇒ (col.columnClass aka "class" mustEqual classOf[Int]).
+            and(col.name aka "name" mustEqual "int").
+            and(col.nullable aka "nullable" must beFalse)
+
+        }
+      }
+
+      "and nullable" in {
+        col2 aka "define" must beLike {
+          case col ⇒ (col.columnClass aka "class" mustEqual classOf[Int]).
+            and(col.name aka "name" mustEqual "int").
+            and(col.nullable aka "nullable" must beTrue)
+
+        }
+      }
+
+      "and updated as not nullable" in {
+        col2.withNullable(false) must beLike {
+          case col ⇒ (col.columnClass aka "class" mustEqual classOf[Int]).
+            and(col.name aka "name" mustEqual "int").
+            and(col.nullable aka "nullable" must beFalse)
+        }
       }
     }
   }
