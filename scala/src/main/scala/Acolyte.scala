@@ -11,7 +11,7 @@ import scala.collection.JavaConversions
 import acolyte.ParameterMetaData.ParameterDef
 import acolyte.StatementHandler.Parameter
 import acolyte.AbstractCompositeHandler.{ QueryHandler, UpdateHandler }
-import acolyte.RowList.Column
+import acolyte.RowList.{ Column ⇒ Col }
 
 /**
  * Acolyte DSL.
@@ -113,7 +113,7 @@ object Implicits extends ScalaRowLists with CompositeHandlerImplicits {
    * }}}
    */
   implicit def PairAsColumn[T](c: (Class[T], String)): Column[T] =
-    Column(c._1, c._2)
+    Col(c._1, c._2)
 
 }
 

@@ -102,7 +102,7 @@ trait Scala {
         val gp = (for (i ← 0 until n) yield letter(i)).mkString(", ")
         val ca = (for (i ← 0 until n) yield "l.c%d".format(i)).mkString(", ")
 
-        "implicit def RowList%dAsScala[%s](l: RowList%d.Impl[%s]): ScalaRowList%d[%s] = new ScalaRowList%d[%s](%s, l.rows, l.colNames)".format(n, gp, n, gp, n, gp, n, gp, ca)
+        "implicit def RowList%dAsScala[%s](l: RowList%d.Impl[%s]): ScalaRowList%d[%s] = new ScalaRowList%d[%s](%s, l.rows, l.colNames, l.colNullables)".format(n, gp, n, gp, n, gp, n, gp, ca)
 
       })
       val tmpl = base / "src" / "main" / "templates" / "RowLists.tmpl"

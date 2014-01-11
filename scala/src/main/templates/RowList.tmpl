@@ -1,14 +1,15 @@
 // -*- mode: scala -*-
 package acolyte
 
+import java.lang.{Boolean=>JBool}
 import java.util.{ ArrayList, List ⇒ JList, Map ⇒ JMap }
 
 /** Scala implementation of RowList#N#. */
-private[acolyte] final class ScalaRowList#N#[#TC#](#CV#, rows: JList[Row#N#[#TC#]], colNames: JMap[String, Integer]) extends RowList#N#[#TC#, ScalaRowList#N#[#TC#]] {
+private[acolyte] final class ScalaRowList#N#[#TC#](#CV#, rows: JList[Row#N#[#TC#]], colNames: JMap[String, Integer], colNullables: JMap[Integer, JBool]) extends RowList#N#[#TC#, ScalaRowList#N#[#TC#]] {
 
   lazy val factory: RowList#N#.Factory[#TC#, ScalaRowList#N#[#TC#]] =
     new RowList#N#.Factory[#TC#, ScalaRowList#N#[#TC#]]() {
-      def rowList(#CA#, rows: JList[Row#N#[#TC#]], colNames: JMap[String, Integer]): ScalaRowList#N#[#TC#] = new ScalaRowList#N#[#TC#](#CC#, rows, colNames)
+      def rowList(#CA#, rows: JList[Row#N#[#TC#]], colNames: JMap[String, Integer], colNullables: JMap[Integer,JBool]): ScalaRowList#N#[#TC#] = new ScalaRowList#N#[#TC#](#CC#, rows, colNames, colNullables)
     }
 
   /** Rows */
@@ -16,6 +17,9 @@ private[acolyte] final class ScalaRowList#N#[#TC#](#CV#, rows: JList[Row#N#[#TC#
 
   /** Column labels */
   lazy val getColumnLabels: JMap[String, Integer] = colNames
+
+  /** Column nullables */
+  lazy val getColumnNullables: JMap[Integer, JBool] = colNullables
 
   /** Column classes */
   lazy val getColumnClasses: JList[Class[_]] = {
