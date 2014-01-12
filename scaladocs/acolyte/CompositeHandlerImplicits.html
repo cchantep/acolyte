@@ -309,19 +309,6 @@
       </span>
       </h4>
       
-    </li><li name="acolyte.CompositeHandlerImplicits#SingleValueRow" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="SingleValueRow[A,B](value:A)(implicitf:A=&gt;B):acolyte.Row.Row1[B]"></a>
-      <a id="SingleValueRow[A,B](A)((A)⇒B):Row1[B]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">SingleValueRow</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="value">value: <span class="extype" name="acolyte.CompositeHandlerImplicits.SingleValueRow.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="f">f: (<span class="extype" name="acolyte.CompositeHandlerImplicits.SingleValueRow.A">A</span>) ⇒ <span class="extype" name="acolyte.CompositeHandlerImplicits.SingleValueRow.B">B</span></span>)</span><span class="result">: <span class="extype" name="acolyte.Row.Row1">Row1</span>[<span class="extype" name="acolyte.CompositeHandlerImplicits.SingleValueRow.B">B</span>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Converts a single value as row, so that it can be added to row list.</p><div class="fullcomment"><div class="comment cmt"><p>Converts a single value as row, so that it can be added to row list.</p><pre>stringList :+ <span class="lit">"singleVal"</span> <span class="cmt">// SingleValueRow("singleVal")</span></pre></div></div>
     </li><li name="acolyte.CompositeHandlerImplicits#SqlDateAsTimestampResult" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="SqlDateAsTimestampResult(v:java.sql.Timestamp):acolyte.QueryResult"></a>
       <a id="SqlDateAsTimestampResult(Timestamp):QueryResult"></a>
@@ -335,7 +322,7 @@
       </span>
       </h4>
       
-    </li><li name="acolyte.CompositeHandlerImplicits#StringAsResult" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="acolyte.CompositeHandlerImplicits#StringAsResult" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="StringAsResult(v:String):acolyte.QueryResult"></a>
       <a id="StringAsResult(String):QueryResult"></a>
       <h4 class="signature">
@@ -347,7 +334,7 @@
         <span class="name">StringAsResult</span><span class="params">(<span name="v">v: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="acolyte.QueryResult">QueryResult</span></span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt">Allows to directly use string as query result.</p><div class="fullcomment"><div class="comment cmt"><p>Allows to directly use string as query result.</p><pre><span class="kw">val</span> qr: QueryResult = <span class="lit">"str"</span></pre></div></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>

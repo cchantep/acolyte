@@ -461,6 +461,23 @@ connection { handleStatement }</pre></div></div>
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="acolyte.Acolyte#withQueryResult" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withQueryResult[A](res:acolyte.QueryResult)(f:java.sql.Connection=&gt;A):A"></a>
+      <a id="withQueryResult[A](QueryResult)((java.sql.Connection)⇒A):A"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withQueryResult</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="res">res: <span class="extype" name="acolyte.QueryResult">QueryResult</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="java.sql.Connection">java.sql.Connection</span>) ⇒ <span class="extype" name="acolyte.Acolyte.withQueryResult.A">A</span></span>)</span><span class="result">: <span class="extype" name="acolyte.Acolyte.withQueryResult.A">A</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Executes |f| using connection accepting only queries,
+and answering with |result| to any query.</p><div class="fullcomment"><div class="comment cmt"><p>Executes |f| using connection accepting only queries,
+and answering with |result| to any query.</p><pre><span class="kw">import</span> acolyte.Acolyte.withQueryResult
+
+<span class="kw">val</span> str: <span class="std">String</span> = withQueryResult(queryRes) { con <span class="kw">=&gt;</span> <span class="lit">"str"</span> }</pre></div></div>
     </li></ol>
             </div>
 
