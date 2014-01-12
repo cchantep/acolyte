@@ -1,3 +1,114 @@
+## 1.0.12
+
+([f33f9c82f4e64bc3b83c9f64ab82319b47af873e](https://github.com/cchantep/acolyte/commit/f33f9c82f4e64bc3b83c9f64ab82319b47af873e) @ [scala](https://github.com/cchantep/acolyte/tree/master/scala)) Single result case connection using `withQueryResult` in DSL:
+
+```scala
+import acolyte.Acolyte
+
+// res: acolyte.QueryResult
+val str: String = Acolyte.withQueryResult(res) { connection ⇒ … }
+```
+
+([38f0b52dc120488d1bae3a4e830a849958146fe3](https://github.com/cchantep/acolyte/commit/38f0b52dc120488d1bae3a4e830a849958146fe3) @ [scala](https://github.com/cchantep/acolyte/tree/master/scala)) Support nullable flag for column of row list
+
+([4edb03ec7b48e89e3219fe898f667c63cdd356a8](https://github.com/cchantep/acolyte/commit/4edb03ec7b48e89e3219fe898f667c63cdd356a8) @ [core](https://github.com/cchantep/acolyte/tree/master/core)) Support nullable flag for meta-data of row column.
+
+```java
+import acolyte.RowList2;
+import acolyte.RowLists;
+
+RowList2.Impl<String,Float> l1 =
+  RowLists.rowList2(String.class, Float.class).
+  withNullable(1, true); // First column is nullable
+
+import acolyte.RowList;
+import acolyte.Column;
+
+Column<String> meta1 = new Column<String>(String.class, "a", true);
+
+RowList2.Impl<String,Float> l2 =
+  RowLists.rowLists2(meta1, RowList.Column(Float.class, "b"));
+
+import static acolyte.RowList.Column
+
+RowList2.Impl<String,Float> l3 =
+  RowLists.rowLists2(Column(String.class, "a").withNullable(true),
+    Column(Float.class, "b"));
+```
+
+([c68afc6a732f50c4e8b7cea9628a335caf38583b](https://github.com/cchantep/acolyte/commit/c68afc6a732f50c4e8b7cea9628a335caf38583b) @ [core](https://github.com/cchantep/acolyte/tree/master/core)) Deprecates append-row operation on RowList, replaced by multivalue-append.
+Prevents null inference issues.
+
+```java
+import acolyte.RowLists;
+import acolyte.Rows;
+
+// Before
+RowLists.rowList2(String.class, Integer.class).
+  append(Rows.row2("str", 1)); // now deprecated
+
+RowLists.rowList2(String.class, Integer.class).
+  append("str", 1);
+```
+
+([dd64b526794625a65c1ca06e12492e2a4f692bd9](https://github.com/cchantep/acolyte/commit/dd64b526794625a65c1ca06e12492e2a4f692bd9) @ [scala](https://github.com/cchantep/acolyte/tree/master/scala)) Refactor Scala RowList with self-types, for better inference and implicits (operation on ScalaRowList returning ScalaRowList, not core RowList which would be converted again on next operation).
+
+```scala
+// Before
+val l1a: RowList1[String] = rowList1(classOf[String])
+val l1b: RowList1[String] = l1a :+ "B" // convert on :+ ...
+// but core type RowList1 is returned
+
+// Now
+val l1a = rowList1(classOf[String])
+val l1b: ScalaRowList1[A] = l1a :+ "B" // convert on :+ ...
+// and keep it as pimped Scala type
+val l1c: ScalaRowList1[A] = l1b :+ "C" // no conversion required
+```
+
+Typesafe append operations are generated along with generated row lists, so append-row operation and related Row implicits are no longer required.
+
+```scala
+// Before
+rowList3 :+ row3(a, b, c) // no supported due to inference issues
+
+// Now
+rowList3 :+ (a, b, c)
+```
+
+([b4d944aaee23afbeeb8aa09cd97c3741c83f7fd8](https://github.com/cchantep/acolyte/commit/b4d944aaee23afbeeb8aa09cd97c3741c83f7fd8) @ [core](https://github.com/cchantep/acolyte/tree/master/core)) Refactor RowList with self-type trick on append/labeling operation.
+
+```java
+// Before this change
+RowList1<String> l1 = new RowList1<String>(String.class);
+RowList<Row1<A>> l1updated = l1.append("str");
+// Self-type RowList1<A> of l1 is lost in append operation
+
+// Now
+RowList1.Impl<String> l2 = new RowList1.Impl<String>(String.class);
+RowList1.Impl<String> l2updated = l2.append("str");
+// Implementation self-type is kept
+```
+
+([a447ac9436f4c020e6bb48a58f5e8d6558da9b75](https://github.com/cchantep/acolyte/commit/a447ac9436f4c020e6bb48a58f5e8d6558da9b75) @ [core](https://github.com/cchantep/acolyte/tree/master/core)) Fix row classes naming: move Row1 from acolyte.Row.Row1 up to acolyte.Row1.
+
+([f87782144a691847cf4a390cced9a838cdfa2db8](https://github.com/cchantep/acolyte/commit/f87782144a691847cf4a390cced9a838cdfa2db8) @ [scala](https://github.com/cchantep/acolyte/tree/master/scala)) Fix inference of  on scala RowList1:
+
+```scala
+import acolyte.Implicits._
+import acolyte.RowLists.stringList
+
+stringList :+ null // fixed inference of null (as String there)
+```
+
+([2397517f22e7642851e10f490abd2d2f99a8301f](https://github.com/cchantep/acolyte/commit/2397517f22e7642851e10f490abd2d2f99a8301f) @ [core](https://github.com/cchantep/acolyte/tree/master/core)) Refactor RowList.Column.defineCol as RowList.Column:
+
+```java
+import static acolyte.RowList.Column;
+
+Column(String.class, "colName");
+```
+
 ## 1.0.11
 
 ([b079c0ca31f3006ce3b8e779f5e778319ce4ed72](https://github.com/cchantep/acolyte/commit/b079c0ca31f3006ce3b8e779f5e778319ce4ed72) @ [studio](https://github.com/cchantep/acolyte/tree/master/studio)) First GUI release

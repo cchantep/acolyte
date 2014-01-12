@@ -3,7 +3,7 @@ package acolyte
 
 import java.util.{ ArrayList, List ⇒ JList }
 import java.util.regex.Pattern
-import java.sql.{ Connection, Statement, SQLWarning }
+import java.sql.{ Connection ⇒ SqlConnection, Statement, SQLWarning }
 
 import scala.language.implicitConversions
 import scala.collection.JavaConversions
@@ -101,7 +101,7 @@ object Acolyte {
    * val str: String = withQueryResult(queryRes) { con => "str" }
    * }}}
    */
-  def withQueryResult[A](res: QueryResult)(f: Connection ⇒ A): A =
+  def withQueryResult[A](res: QueryResult)(f: SqlConnection ⇒ A): A =
     f(connection(handleQuery(_ ⇒ res)))
 
 }

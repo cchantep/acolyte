@@ -215,7 +215,7 @@ public final class StudioModel {
     /**
      * Sets whether connection is |validated|.
      *
-     * @param validate Connection validated?
+     * @param validated Connection validated?
      * @see #isConnectionValidated
      */
     public void setConnectionValidated(final boolean validated) {
