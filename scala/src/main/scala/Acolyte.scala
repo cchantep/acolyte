@@ -3,7 +3,7 @@ package acolyte
 
 import java.util.{ ArrayList, List ⇒ JList }
 import java.util.regex.Pattern
-import java.sql.{ Statement, SQLWarning }
+import java.sql.{ Connection, Statement, SQLWarning }
 
 import scala.language.implicitConversions
 import scala.collection.JavaConversions
@@ -90,7 +90,19 @@ object Acolyte {
    */
   def handleQuery(h: QueryExecution ⇒ QueryResult): ScalaCompositeHandler =
     handleStatement withQueryDetection ".*" withQueryHandler h
-  // TODO? (h: QueryExec => A)(implicit c: A => QueryResult)
+
+  /**
+   * Executes |f| using connection accepting only queries,
+   * and answering with |result| to any query.
+   *
+   * {{{
+   * import acolyte.Acolyte.withQueryResult
+   *
+   * val str: String = withQueryResult(queryRes) { con => "str" }
+   * }}}
+   */
+  def withQueryResult[A](res: QueryResult)(f: Connection ⇒ A): A =
+    f(connection(handleQuery(_ ⇒ res)))
 
 }
 

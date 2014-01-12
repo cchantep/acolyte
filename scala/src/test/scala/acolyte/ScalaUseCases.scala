@@ -115,8 +115,7 @@ object ScalaUseCases {
   } // end of useCase3
 
   /**
-   * Use case #4 - Row list convinience constructor
-   * and query handler convertion.
+   * Use case #4 - Connection with only query handler.
    */
   def useCase4: SqlConnection = connection { handleQuery { e ⇒ true } }
 

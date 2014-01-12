@@ -403,6 +403,15 @@ can be used:
 handleQuery withQueryHandler { e ⇒ … }
 ```
 
+When you only need connection for a single result case, `withQueryResult` is useful:
+
+```scala
+import acolyte.Acolyte
+
+// res: acolyte.QueryResult
+val str: String = Acolyte.withQueryResult(res) { connection ⇒ … }
+```
+
 ### Anorm
 
 Acolyte is useful to write test about persistence in projects using [Anorm](http://www.playframework.com/documentation/2.2.x/ScalaAnorm): read [10 minutes tutorial about Acolyte with Anorm](https://github.com/cchantep/acolyte/tree/10m-anorm-tutorial#acolyteanorm-10-minutes-tutorial).
@@ -619,12 +628,10 @@ object ZooSpec extends org.specs2.mutable.Specification {
     classOf[String] -> "color")
 
   "Dog" should {
-    "be found at location 1, and be red" in {
-      val conn = connection(handleQuery { _ ⇒
-        zooSchema :+ ("dog", 1, "Scooby", null.asInstanceOf[Boolean], "red")
-      })
-
-      atLocation(conn)(1) aka "animal" must beSome(Dog("Scooby", "red"))
+    "be found at location 1, and be red" in withQueryResult(
+      zooSchema :+ ("dog", 1, "Scooby", null.asInstanceOf[Boolean], "red")) {
+        conn ⇒
+          atLocation(conn)(1) aka "animal" must beSome(Dog("Scooby", "red"))
     }
   }
 
@@ -854,17 +861,20 @@ mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scala/target/scala-2.10/ac
 At Sonatype:
 
 ```
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=core/target/acolyte-core-$VERSION.pom -Dfile=core/target/acolyte-core-$VERSION.jar -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=sonatype-nexus-staging
+export REPO="https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+# or https://oss.sonatype.org/content/repositories/snapshots/
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=core/target/acolyte-core-$VERSION.pom -Dfile=core/target/acolyte-core-$VERSION-javadoc.jar -Dclassifier=javadoc -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=sonatype-nexus-staging
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=core/target/acolyte-core-$VERSION.pom -Dfile=core/target/acolyte-core-$VERSION.jar -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=core/target/acolyte-core-$VERSION.pom -Dfile=core/target/acolyte-core-$VERSION-sources.jar -Dclassifier=sources -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=sonatype-nexus-staging
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=core/target/acolyte-core-$VERSION.pom -Dfile=core/target/acolyte-core-$VERSION-javadoc.jar -Dclassifier=javadoc -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.pom -Dfile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.jar -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=sonatype-nexus-staging
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=core/target/acolyte-core-$VERSION.pom -Dfile=core/target/acolyte-core-$VERSION-sources.jar -Dclassifier=sources -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.pom -Dfile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION-javadoc.jar -Dclassifier=javadoc -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=sonatype-nexus-staging
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.pom -Dfile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.jar -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.pom -Dfile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION-sources.jar -Dclassifier=sources -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=sonatype-nexus-staging
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.pom -Dfile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION-javadoc.jar -Dclassifier=javadoc -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.pom -Dfile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION-sources.jar -Dclassifier=sources -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 ```
 
 Authentication should be configured in `~/.m2/settings.xml`:

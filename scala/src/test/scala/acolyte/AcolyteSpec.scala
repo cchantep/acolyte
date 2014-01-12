@@ -171,4 +171,34 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
 
     }
   }
+
+  "Single-case query context" should {
+    def query(sql: String, c: java.sql.Connection): java.sql.ResultSet = {
+      val rs = c.prepareStatement(sql).executeQuery
+      rs.next(); rs
+    }
+
+    lazy val res1: QueryResult =
+      RowLists.rowList2(classOf[String], classOf[Float]).
+        append("test", 3.45f).asResult
+
+    "always return provided result" >> {
+      "for SELECT" in {
+        val str: String = Acolyte.withQueryResult(res1) { c ⇒
+          val rs = query("SELECT * FROM table", c)
+          s"${rs.getString(1)} -> ${rs.getFloat(2) + 1f}"
+        }
+
+        str aka "from query result" mustEqual "test -> 4.45"
+      }
+
+      "for EXEC" in Acolyte.withQueryResult(res1) { c ⇒
+        query("EXEC proc", c) aka "proc result" must beLike {
+          case rs ⇒
+            (rs.getString(1) aka "col #1" mustEqual "test").
+              and(rs.getFloat(2) aka "col #2" mustEqual 3.45f)
+        }
+      }
+    }
+  }
 }
