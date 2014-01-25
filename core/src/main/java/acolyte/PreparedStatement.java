@@ -406,7 +406,7 @@ public class PreparedStatement
         final String className = x.getClass().getName();
 
         if (!Defaults.jdbcTypeClasses.containsKey(className)) {
-            throw new SQLFeatureNotSupportedException();
+            throw new SQLFeatureNotSupportedException("Unsupported parameter type: " + className);
         } // end of if
         
         // ---
