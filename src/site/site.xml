@@ -23,6 +23,10 @@
       <item name="Changelog" href="./changelog.html" />
     </menu>
 
+    <menu name="Tutorials">
+      <item name="10m with Anorm" href="https://github.com/cchantep/acolyte/tree/10m-anorm-tutorial#acolyteanorm-10-minutes-tutorial" />
+    </menu>
+
     <menu ref="reports" />
   </body>
 

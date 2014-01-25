@@ -5,7 +5,7 @@ import Keys._
 object Acolyte extends Build with Core with Scala with Studio {
   lazy val root = Project(id = "acolyte", base = file(".")).
     aggregate(core, scala, studio).settings(
-      version := "1.0.12",
+      version := "1.0.13",
       scalaVersion := "2.10.3",
       publishTo := Some(Resolver.file("file", 
         new File(Path.userHome.absolutePath+"/.m2/repository"))))

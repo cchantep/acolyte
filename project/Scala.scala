@@ -7,14 +7,14 @@ trait Scala {
   lazy val scala = Project(id = "scala", base = file("scala")).settings(
     name := "acolyte-scala",
     organization := "org.eu.acolyte",
-    version := "1.0.12",
+    version := "1.0.13",
     scalaVersion := "2.10.3",
     javaOptions ++= Seq("-source", "1.6", "-target", "1.6"),
     javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
     scalacOptions ++= Seq("-feature", "-deprecation"),
     resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
     libraryDependencies ++= Seq(
-      "org.eu.acolyte" % "acolyte-core" % "1.0.12",
+      "org.eu.acolyte" % "acolyte-core" % "1.0.13",
       "org.specs2" %% "specs2" % "2.3.2" % "test"),
     publishTo := Some(Resolver.file("file", new File(Path.userHome.absolutePath + "/.m2/repository"))),
     sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {

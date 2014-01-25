@@ -5,7 +5,7 @@ trait Core {
   lazy val core = Project(id = "core", base = file("core")).settings(
     name := "acolyte-core",
     organization := "org.eu.acolyte",
-    version := "1.0.12",
+    version := "1.0.13",
     scalaVersion := "2.10.3",
     javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
     autoScalaLibrary := false,
