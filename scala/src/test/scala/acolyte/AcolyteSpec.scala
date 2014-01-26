@@ -10,6 +10,42 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
   "Scala use case #1" should {
     val con = ScalaUseCases.useCase1
 
+    case class Foo(sql: String, ps: Seq[String])
+
+    trait PartialHandler {
+      def apply(x: Foo): Option[String]
+      def :+(next: PartialHandler): Seq[PartialHandler] = Seq(this, next)
+    }
+
+    object PartialHandler {
+      def matchStatement(e: String)(f: Foo ⇒ String) = new PartialHandler {
+        lazy val re = e.r
+        def apply(x: Foo) = re.findFirstIn(x.sql).map(_ ⇒ f(x))
+      }
+    }
+
+    final case class RegexMatcher(e: String)(f: Foo ⇒ String)
+        extends PartialHandler {
+
+      lazy val re = e.r
+      def apply(x: Foo) = re.findFirstIn(x.sql).map(_ ⇒ f(x))
+    }
+
+    def handle(f: Foo, h: PartialHandler): String = handle(f, Seq(h))
+
+    @annotation.tailrec
+    def handle(f: Foo, hs: Traversable[PartialHandler]): String = {
+      hs.headOption match {
+        case Some(h) ⇒ h(f) match {
+          case Some(r) ⇒ r
+          case _       ⇒ handle(f, hs.tail)
+        }
+        case _ ⇒ sys.error(s"Fail: $f")
+      }
+    }
+
+    handle(Foo("test", Nil), RegexMatcher(".*")(_ ⇒ "x"))
+
     "return 2 for DELETE statement" in {
       con.prepareStatement("DELETE * FROM table").
         executeUpdate aka "update count" mustEqual 2
