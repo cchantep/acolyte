@@ -75,7 +75,7 @@ Otherwise, arguments #1 to #4 are omitted, values loaded from configuration file
 
 File `studio.properties` uses Java properties syntax, with following keys:
 
-- jdbc.url: JDBC URL
-- jdbc.driverPath: Path to JDBC driver JAR
-- db.user: Name of database user
-- db.charset: Database character set
+- `jdbc.url`: JDBC URL
+- `jdbc.driverPath`: Path to JDBC driver JAR
+- `db.user`: Name of database user
+- `db.charset`: Database character set
