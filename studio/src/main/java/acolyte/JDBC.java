@@ -53,7 +53,17 @@ public final class JDBC {
 
         // ---
 
-        return iter.next();
+        Driver d;
+        while (iter.hasNext()) {
+            d = iter.next();
+
+            if (driverCl.equals(d.getClass().getClassLoader())) {
+                return d; // Ignore driver at system classloader
+                // e.g. sun.jdbc.odbc.JdbcOdbcDriver
+            } // end of if
+        } // end of while
+
+        return null;
     } // end of loadDriver
 
     /**
