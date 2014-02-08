@@ -74,7 +74,6 @@ public final class StudioModel {
         pcs.registerDependency("driver", new String[] { "connectionConfig" });
         pcs.registerDependency("url", new String[] { "connectionConfig" });
         pcs.registerDependency("user", new String[] { "connectionConfig" });
-        pcs.registerDependency("password", new String[] { "connectionConfig" });
         pcs.registerDependency("charset", new String[] { "connectionConfig" });
 
         pcs.registerDependency("connectionConfig", 
@@ -147,13 +146,7 @@ public final class StudioModel {
      * @see #getPassword
      */
     public void setPassword(final String password) {
-        final String old = this.password;
-
         this.password = password;
-        this.connectionConfig = System.currentTimeMillis();
-        this.connectionValidated = false;
-
-        this.pcs.firePropertyChange("password", old, this.password);
     } // end of setPassword
 
     /**
