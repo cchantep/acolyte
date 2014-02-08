@@ -216,7 +216,7 @@ public final class Studio {
             try {
                 this.model.setDriver(JDBC.loadDriver(driverFile));
                 driverField.setText(driverPath);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
             } // end of catch
         } else {
@@ -983,7 +983,6 @@ public final class Studio {
                     }));
 
         Binder.bind("user", this.model, "enabled[]", checkCon, txtLenOpts);
-        Binder.bind("password", this.model, "enabled[]", checkCon, txtLenOpts);
 
         // Bindings for SQL test action
 	Binder.bind("text", sqlArea, "enabled[]", testSql, txtLenOpts);
