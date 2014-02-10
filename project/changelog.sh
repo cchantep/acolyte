@@ -1,6 +1,7 @@
 #! /bin/sh
 
-LIMIT="f33f9c82f4e64bc3b83c9f64ab82319b47af873e"
+#LIMIT="f33f9c82f4e64bc3b83c9f64ab82319b47af873e"
+LIMIT="924ef57d29285ad49c8674d76ceee97630a25c1a"
 
 echo "## $1\n"
 

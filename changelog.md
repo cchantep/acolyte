@@ -1,3 +1,9 @@
+## 1.0.13
+
+([924ef57d29285ad49c8674d76ceee97630a25c1a](https://github.com/cchantep/acolyte/commit/924ef57d29285ad49c8674d76ceee97630a25c1a) @ [studio](https://github.com/cchantep/acolyte/tree/master/studio)) Allow Studio to connection without password (fix #14)
+
+([965bc416990b54b0d9421c72af769bfe75e3f31e](https://github.com/cchantep/acolyte/commit/965bc416990b54b0d9421c72af769bfe75e3f31e) @ [studio](https://github.com/cchantep/acolyte/tree/master/studio)) Fix issue with driver at system classloader (overloading those in selected driver JAR)
+
 ## 1.0.12
 
 ([f33f9c82f4e64bc3b83c9f64ab82319b47af873e](https://github.com/cchantep/acolyte/commit/f33f9c82f4e64bc3b83c9f64ab82319b47af873e) @ [scala](https://github.com/cchantep/acolyte/tree/master/scala)) Single result case connection using `withQueryResult` in DSL:

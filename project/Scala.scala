@@ -14,7 +14,6 @@ trait Scala {
     scalacOptions ++= Seq("-feature", "-deprecation"),
     resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
     libraryDependencies ++= Seq(
-      "org.eu.acolyte" %% "scala-macros" % "1.0.13" changing() /* Under dev */,
       "org.eu.acolyte" % "acolyte-core" % "1.0.13",
       "org.scalaz" % "scalaz-core_2.10" % "7.0.5",
       "org.specs2" %% "specs2" % "2.3.2" % "test"),
