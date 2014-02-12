@@ -4,6 +4,8 @@
 
 ([965bc416990b54b0d9421c72af769bfe75e3f31e](https://github.com/cchantep/acolyte/commit/965bc416990b54b0d9421c72af769bfe75e3f31e) @ [studio](https://github.com/cchantep/acolyte/tree/master/studio)) Fix issue with driver at system classloader (overloading those in selected driver JAR)
 
+([6a526416ca73ffee884ad1744f6c2f3376264781](https://github.com/cchantep/acolyte/commit/6a526416ca73ffee884ad1744f6c2f3376264781) @ [studio](https://github.com/cchantep/acolyte/tree/master/studio)) Fix row column cursor in formatting
+
 ## 1.0.12
 
 ([f33f9c82f4e64bc3b83c9f64ab82319b47af873e](https://github.com/cchantep/acolyte/commit/f33f9c82f4e64bc3b83c9f64ab82319b47af873e) @ [scala](https://github.com/cchantep/acolyte/tree/master/scala)) Single result case connection using `withQueryResult` in DSL:

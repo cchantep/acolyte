@@ -6,7 +6,7 @@ trait ScalaMacros {
     id = "scala-macros", base = file("scala-macros")).settings(
     name := "scala-macros",
     organization := "org.eu.acolyte",
-    version := "1.0.13",
+    version := "1.0.14",
     scalaVersion := "2.10.3",
     javaOptions ++= Seq("-source", "1.6", "-target", "1.6"),
     javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),

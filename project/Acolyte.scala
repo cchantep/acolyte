@@ -7,7 +7,7 @@ object Acolyte extends Build
 
   lazy val root = Project(id = "acolyte", base = file(".")).
     aggregate(core, scalaMacros, scala, studio).settings(
-      version := "1.0.13",
+      version := "1.0.14",
       scalaVersion := "2.10.3",
       publishTo := Some(Resolver.file("file", 
         new File(Path.userHome.absolutePath+"/.m2/repository"))))
