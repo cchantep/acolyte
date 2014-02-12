@@ -223,7 +223,7 @@ public final class RowFormatter {
     /**
      * Result set values.
      */
-    static void appendValues(final Iterator<ResultRow> it,
+    static void appendValues(final ResultRow rs,
                              final Appender ap,
                              final Charset charset,
                              final Formatting fmt,
@@ -241,11 +241,10 @@ public final class RowFormatter {
         } // end of if
 
         final ColumnType col = cols.next();
-        final ResultRow rs = it.next();
 
         if (rs.isNull(colIndex)) {
             appendNull(ap, fmt, col);
-            appendValues(it, ap, charset, fmt, cols, colIndex+1);
+            appendValues(rs, ap, charset, fmt, cols, colIndex+1);
 
             return;
         } // end of if
@@ -316,7 +315,7 @@ public final class RowFormatter {
             break;
         } // end of switch
 
-        appendValues(it, ap, charset, fmt, cols, colIndex+1);
+        appendValues(rs, ap, charset, fmt, cols, colIndex+1);
     } // end of appendValues
 
     /**
@@ -336,7 +335,7 @@ public final class RowFormatter {
 
             ap.append("  ");
             ap.append(fmt.rowStart);
-            appendValues(it, ap, charset, fmt, cols.iterator(), 0);
+            appendValues(it.next(), ap, charset, fmt, cols.iterator(), 0);
             ap.append(fmt.rowEnd);
         } // end of while
 
