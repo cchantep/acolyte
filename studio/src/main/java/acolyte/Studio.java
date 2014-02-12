@@ -16,6 +16,8 @@ import java.io.OutputStreamWriter;
 import java.io.InputStreamReader;
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
+import java.io.BufferedReader;
+import java.io.StringReader;
 import java.io.File;
 
 import java.nio.charset.Charset;
@@ -90,6 +92,8 @@ import javax.swing.table.TableColumn;
 
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Clipboard;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import melasse.StringLengthToBooleanTransformer;
 import melasse.IntegerToBooleanTransformer;
@@ -466,6 +470,36 @@ public final class Studio {
                 }
             });
 
+        final UnaryFunction<ImmutablePair<Vector<String>,Vector<ColumnType>>,Void> updateCols = new UnaryFunction<ImmutablePair<Vector<String>,Vector<ColumnType>>,Void>() {
+            public Void apply(final ImmutablePair<Vector<String>,Vector<ColumnType>> d) {
+                final PropertyEditSession s = colModel.willChange();
+
+                colNames.clear();
+                colNames.addAll(d.left);
+
+                colData.clear();
+                colData.add(d.right);
+
+                colModel.fireTableStructureChanged();
+                colModel.fireTableDataChanged();
+                s.propertyDidChange();
+
+                return null;
+            }
+        };
+
+        final AbstractAction editCols = new AbstractAction() {
+                public void actionPerformed(final ActionEvent e) { 
+                    editColumns(frm, colNames, 
+                                colData.elementAt(0), updateCols);
+                }
+            };
+        editCols.putValue(Action.NAME, "Edit as CSV");
+        editCols.putValue(Action.SHORT_DESCRIPTION,
+                          "Edit column mappings as CSV");
+        editCols.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_E);
+        final JButton editColsBut = new JButton(editCols);
+
         final DefaultTableColumnModel resCols = new DefaultTableColumnModel();
         final Vector<Vector<Object>> resData = new Vector<Vector<Object>>();
         final NotEditableTableModel resModel = 
@@ -619,7 +653,11 @@ public final class Studio {
                                e.getKeyCode() == KeyEvent.VK_C) {
 
                         convertBut.doClick();
-                    } // end of else if
+                    } else if (e.isControlDown() &&
+                               e.getKeyCode() == KeyEvent.VK_E) {
+
+                        editColsBut.doClick();
+                    }
                 }
             });
 
@@ -695,7 +733,10 @@ public final class Studio {
                          colTableHeight, 
                          GroupLayout.DEFAULT_SIZE, 
                          colTableHeight).
-            addComponent(removeColBut).
+            addGroup(layout.
+                     createParallelGroup(Alignment.BASELINE).
+                     addComponent(removeColBut).
+                     addComponent(editColsBut)).
             addGroup(layout.
                      createParallelGroup(Alignment.BASELINE).
                      addComponent(extractLabel1).
@@ -801,10 +842,15 @@ public final class Studio {
                                   GroupLayout.DEFAULT_SIZE,
                                   GroupLayout.PREFERRED_SIZE)).
             addComponent(colPanel).
-            addComponent(removeColBut,
-                         GroupLayout.PREFERRED_SIZE,
-                         GroupLayout.DEFAULT_SIZE,
-                         GroupLayout.PREFERRED_SIZE).
+            addGroup(layout.createSequentialGroup().
+                     addComponent(removeColBut,
+                                  GroupLayout.PREFERRED_SIZE,
+                                  GroupLayout.DEFAULT_SIZE,
+                                  GroupLayout.PREFERRED_SIZE).
+                     addComponent(editColsBut,
+                                  GroupLayout.PREFERRED_SIZE,
+                                  GroupLayout.DEFAULT_SIZE,
+                                  GroupLayout.PREFERRED_SIZE)).
             addGroup(layout.createSequentialGroup().
                      addComponent(extractLabel1,
                                   GroupLayout.PREFERRED_SIZE,
@@ -1559,6 +1605,195 @@ public final class Studio {
 
         createConvertDialog(frm, fmt, f, end);
     } // end of displayRows
+
+    /**
+     * Edit column mappings.
+     */
+    private static void editColumns(final JFrame frm, final Vector<String> colNames, final Vector<ColumnType> colTypes, final UnaryFunction<ImmutablePair<Vector<String>,Vector<ColumnType>>,Void> cf) {
+
+        // Prepares UI components
+        final JLabel dialogLabel = 
+            new JLabel("<html><b>Column mappings as CSV</b></html>");
+        dialogLabel.setHorizontalTextPosition(SwingConstants.LEFT);
+
+        final JLabel useLabel = new JLabel("<html>Simplified CSV syntax, with no quoting required.<br />For each line: <tt>type;name</tt> (e.g. <tt>string;Column name</tt>)</html>");
+        useLabel.setHorizontalTextPosition(SwingConstants.LEFT);
+
+        final JEditorPane csvArea = new JEditorPane();
+        csvArea.setEditable(false);
+        dialogLabel.setLabelFor(csvArea);
+        final JScrollPane csvPanel = 
+            new JScrollPane(csvArea, 
+                            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        csvPanel.setBorder(BorderFactory.createLoweredBevelBorder());
+        csvArea.setContentType("text/csv");
+
+        final Document doc = csvArea.getDocument();
+        final JDialog dlg = new JDialog(frm, "Edit columns");
+        final Container content = dlg.getContentPane();
+        final GroupLayout layout = new GroupLayout(content);
+
+        final AbstractAction update = new AbstractAction() {
+                public void actionPerformed(final ActionEvent evt) {
+                    BufferedReader r = null;
+                    final Vector<String> ns = new Vector<String>();
+                    final Vector<ColumnType> ts = new Vector<ColumnType>();
+
+                    try {
+                        final StringReader sr = 
+                            new StringReader(csvArea.getText());
+
+                        r = new BufferedReader(sr);
+
+                        String line, n;
+                        ColumnType t;
+                        for (int i = 1, o = 0, l = 0, x = -1; 
+                             (line = r.readLine()) != null; i++) {
+
+                            l = line.length();
+
+                            if ((x = line.indexOf(";")) == -1) {
+                                JOptionPane.showMessageDialog(dlg, "Invalid CSV line #" + i, "Invalid line", JOptionPane.ERROR_MESSAGE);
+
+                                csvArea.select(o, o+l);
+                                return;
+                            } // end of if
+
+                            // ---
+                            
+                            t = ColumnType.typeFor(line.substring(0, x));
+
+                            if (t == null) {
+                                JOptionPane.showMessageDialog(dlg, "Invalid column type at line #" + i + ": " + line.substring(0, x), "Invalid type", JOptionPane.ERROR_MESSAGE);
+
+                                csvArea.select(o, o+x);
+                                return;
+                            } // end of if
+
+                            n = line.substring(x+1);
+
+                            if (n.length() == 0) {
+                                JOptionPane.showMessageDialog(dlg, "Invalid column name at line #" + i, "Invalid name", JOptionPane.ERROR_MESSAGE);
+
+                                csvArea.setCaretPosition(o+x+1);
+                                return;
+                            } // end of if
+
+                            ns.add(n);
+                            ts.add(t);
+
+                            o += l + 1;
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException("Fails to update", e);
+                    } finally {
+                        if (r != null) {
+                            try {
+                                r.close();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            } // end of catch
+                        } // end of if
+                    } // end of finally
+
+                    cf.apply(ImmutablePair.of(ns, ts));
+                    dlg.dispose();
+                }
+            };
+        update.putValue(Action.NAME, "Update");
+        update.putValue(Action.SHORT_DESCRIPTION, "Update column mappings");
+        update.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_U);
+        update.setEnabled(false);
+        final JButton updateBut = new JButton(update);
+
+        Binder.bind("text", csvArea, "enabled", update, 
+                    new BindingOptionMap().
+                    add(BindingKey.INPUT_TRANSFORMER,
+                        StringLengthToBooleanTransformer.
+                        getTrimmingInstance()).
+                    add(TextBindingKey.CONTINUOUSLY_UPDATE_VALUE));
+
+        // Lays out UI component
+        content.setLayout(layout);
+
+	layout.setAutoCreateGaps(true);
+	layout.setAutoCreateContainerGaps(true);
+
+        final GroupLayout.SequentialGroup vgroup = 
+            layout.createSequentialGroup().
+            addComponent(dialogLabel).
+            addComponent(useLabel).
+            addComponent(csvPanel,
+                         GroupLayout.PREFERRED_SIZE,
+                         GroupLayout.DEFAULT_SIZE,
+                         Short.MAX_VALUE).
+            addComponent(updateBut);
+
+        final GroupLayout.ParallelGroup hgroup = 
+            layout.createParallelGroup(Alignment.LEADING).
+            addComponent(dialogLabel).
+            addComponent(useLabel).
+            addComponent(csvPanel).
+            addGroup(layout.createSequentialGroup().
+                     addPreferredGap(LayoutStyle.ComponentPlacement.RELATED,
+                                     GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).
+                     addComponent(updateBut));
+
+        layout.setVerticalGroup(vgroup);
+        layout.setHorizontalGroup(hgroup);
+
+        dlg.setModal(true);
+        dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dlg.setMinimumSize(new Dimension(frm.getWidth(), frm.getHeight()/3));
+
+        final KeyAdapter kl = new KeyAdapter() {
+            public void keyReleased(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) dlg.dispose();
+            }
+        };
+
+        dlg.addKeyListener(kl);
+        content.addKeyListener(kl);
+        csvArea.addKeyListener(kl);
+
+        final KeyAdapter editKeys = new KeyAdapter() {
+                public void keyReleased(final KeyEvent e) {
+                    if (e.getKeyCode() == KeyEvent.VK_U && e.isControlDown()) 
+                        updateBut.doClick();
+                }
+            };
+
+        content.addKeyListener(editKeys);
+        csvArea.addKeyListener(editKeys);
+
+        csvArea.grabFocus();
+
+        // Load as CSV
+        final int len = colNames.size();
+                
+        StringBuffer line = new StringBuffer();
+        for (int i = 0, o = 0; i < len; i++) {
+            line.setLength(0);
+            line.append(colTypes.elementAt(i)).
+                append(';').append(colNames.elementAt(i)).
+                append("\n");
+                    
+            try {
+                doc.insertString(o, line.toString(), null);
+            } catch (Exception e) {
+                throw new RuntimeException("Fails to append CSV line", e);
+            }
+                    
+            o += line.length();
+        }
+                
+        csvArea.setEditable(true);
+
+        dlg.pack();
+        dlg.setLocationRelativeTo(null);
+        dlg.setVisible(true);
+    } // end of editColumns
 
     // ---
 

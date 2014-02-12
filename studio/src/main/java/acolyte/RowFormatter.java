@@ -242,6 +242,8 @@ public final class RowFormatter {
 
         final ColumnType col = cols.next();
 
+        System.out.println("#col=" + col);
+
         if (rs.isNull(colIndex)) {
             appendNull(ap, fmt, col);
             appendValues(rs, ap, charset, fmt, cols, colIndex+1);
@@ -326,6 +328,8 @@ public final class RowFormatter {
                                      final Charset charset,
                                      final Formatting fmt,
                                      final Iterable<ColumnType> cols) {
+
+        System.out.println("#cols=" + cols);
 
         int i = 0;
         while (it.hasNext()) {
