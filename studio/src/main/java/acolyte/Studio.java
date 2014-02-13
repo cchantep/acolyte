@@ -2,6 +2,7 @@ package acolyte;
 
 import java.math.BigDecimal;
 
+import java.util.LinkedHashMap;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.ArrayList;
@@ -524,8 +525,8 @@ public final class Studio {
                     final Number n = xlm.getNumber();
                     final Vector<ColumnType> cd = colData.elementAt(0);
                     final int len = cd.size();
-                    final HashMap<String,ColumnType> map = 
-                        new HashMap<String,ColumnType>(len);
+                    final LinkedHashMap<String,ColumnType> map = 
+                        new LinkedHashMap<String,ColumnType>(len);
 
                     for (int c = 0; c < len; c++) { // zip col data
                         map.put(colNames.elementAt(c), cd.elementAt(c));
@@ -1524,6 +1525,9 @@ public final class Studio {
                 public Void doInBackground() throws Exception {
                     try {
                         f.call();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        throw e;
                     } finally {
                         try { end.call(); } catch (Exception e) { }
                     }
@@ -1958,6 +1962,9 @@ public final class Studio {
         public Time getTime(int p) { return (Time) v.elementAt(p); }
         public Timestamp getTimestamp(int p) {
             return (Timestamp) v.elementAt(p);
+        }
+        public BigDecimal getBigDecimal(int p) { 
+            return (BigDecimal) v.elementAt(p);
         }
         public boolean isNull(int p) { return v.elementAt(p) == null; }
     } // end of class VectorRow

@@ -1,5 +1,7 @@
 package acolyte;
 
+import java.math.BigDecimal;
+
 import java.util.Properties;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -242,8 +244,6 @@ public final class RowFormatter {
 
         final ColumnType col = cols.next();
 
-        System.out.println("#col=" + col);
-
         if (rs.isNull(colIndex)) {
             appendNull(ap, fmt, col);
             appendValues(rs, ap, charset, fmt, cols, colIndex+1);
@@ -256,7 +256,8 @@ public final class RowFormatter {
         switch (col) {
         case BigDecimal:
             ap.append(String.format(fmt.someBigDecimal, 
-                                    rs.getString(colIndex)));
+                                    rs.getBigDecimal(colIndex)));
+            
             break;
 
         case Boolean:
@@ -328,8 +329,6 @@ public final class RowFormatter {
                                      final Charset charset,
                                      final Formatting fmt,
                                      final Iterable<ColumnType> cols) {
-
-        System.out.println("#cols=" + cols);
 
         int i = 0;
         while (it.hasNext()) {
@@ -515,6 +514,7 @@ public final class RowFormatter {
         public java.sql.Time getTime(int p);
         public java.sql.Timestamp getTimestamp(int p);
         public boolean isNull(int p);
+        public BigDecimal getBigDecimal(int p);
     } // end of interface ResultRow
 
     /**
@@ -613,6 +613,14 @@ public final class RowFormatter {
         public java.sql.Timestamp getTimestamp(int p) { 
             try {
                 return rs.getTimestamp(p+1); 
+            } catch (SQLException e) {
+                throw new RuntimeException("Fails to get value", e);
+            }
+        }
+
+        public BigDecimal getBigDecimal(int p) {
+            try {
+                return rs.getBigDecimal(p+1);
             } catch (SQLException e) {
                 throw new RuntimeException("Fails to get value", e);
             }
