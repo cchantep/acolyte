@@ -501,12 +501,12 @@ public final class Studio {
         editCols.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_E);
         final JButton editColsBut = new JButton(editCols);
 
-        final DefaultTableColumnModel resCols = new DefaultTableColumnModel();
         final Vector<Vector<Object>> resData = new Vector<Vector<Object>>();
-        final NotEditableTableModel resModel =
-            new NotEditableTableModel(resData, new Vector<String>());
-        final JTable resTable = withColRenderers(new JTable(resModel, resCols));
-        final TableCellRenderer headerRenderer = headerRenderer(resTable);
+        final Vector<Map.Entry<String,ColumnType>> resCols = 
+            new Vector<Map.Entry<String,ColumnType>>();
+        final NotEditableTableModel resModel = 
+            new NotEditableTableModel(resData, resCols);
+        final JTable resTable = withColRenderers(new JTable(resModel));
         final JLabel extractLabel1 = new JLabel("Fetch", SwingConstants.RIGHT);
         final JLabel extractLabel2 =
             new JLabel("result rows executing query and", SwingConstants.LEFT);
@@ -545,32 +545,23 @@ public final class Studio {
                         rs = stmt.executeQuery(sqlArea.getText());
 
                         final PropertyEditSession s = resModel.willChange();
-                        final Enumeration<TableColumn> cols =
-                            resCols.getColumns();
 
-                        while (cols.hasMoreElements()) {
-                            resCols.removeColumn(cols.nextElement());
-                        } // end of for
-
+                        resCols.clear();
                         resData.clear();
 
                         if (rs.next()) {
                             final TableData<Object> td = tableData(rs, f);
 
                             for (final Map.Entry<String,ColumnType> c : map.entrySet()) {
-                                final TableColumn tc = new TableColumn();
 
-                                tc.setHeaderValue(c);
-                                tc.setHeaderRenderer(headerRenderer);
-
-                                resCols.addColumn(tc);
+                                resCols.add(new TableHeaderEntry(c));
                             } // end of for
 
                             for (final ArrayList<Object> r : td.rows) {
                                 resData.add(new Vector<Object>(r));
                             } // end of for
                         } // end of if
-
+                        
                         resModel.fireTableStructureChanged();
                         resModel.fireTableDataChanged();
                         s.propertyDidChange();
@@ -1117,33 +1108,6 @@ public final class Studio {
     } // end of closeKeyStrokes
 
     /**
-     * Header renderer for result table
-     */
-    private static TableCellRenderer headerRenderer(final JTable t) {
-        final TableCellRenderer defaultRenderer =
-            t.getTableHeader().getDefaultRenderer();
-
-        return new TableCellRenderer() {
-            public Component getTableCellRendererComponent(final JTable table,
-                                                           final Object value,
-                                                           final boolean sel,
-                                                           final boolean foc,
-                                                           final int row,
-                                                           final int column) {
-
-                @SuppressWarnings("unchecked")
-                final Map.Entry<String,ColumnType> headerVal =
-                    (Map.Entry<String,ColumnType>) value;
-
-                return defaultRenderer.
-                    getTableCellRendererComponent(table, headerVal.getKey(),
-                                                  sel, foc, row, column);
-
-            }
-        };
-    } // end of headerRenderer
-
-    /**
      * Updates application configuration.
      */
     private void updateConfig() {
@@ -1547,12 +1511,7 @@ public final class Studio {
     /**
      * Displays formatted rows.
      */
-    private static void displayRows(final JFrame frm,
-                                    final TableColumnModel colModel,
-                                    final Vector<Vector<Object>> data,
-                                    final Charset charset,
-                                    final Formatting fmt,
-                                    final Callable<Void> end) {
+    private static void displayRows(final JFrame frm, final Vector<Map.Entry<String,ColumnType>> cols, final Vector<Vector<Object>> data, final Charset charset, final Formatting fmt, final Callable<Void> end) {
 
         final UnaryFunction<Document,Callable<Void>> f =
             new UnaryFunction<Document,Callable<Void>>() {
@@ -1563,19 +1522,13 @@ public final class Studio {
                 final ArrayList<String> cnames = new ArrayList<String>();
                 final ArrayList<ColumnType> ctypes =
                 new ArrayList<ColumnType>();
-                final Enumeration<TableColumn> n = colModel.getColumns();
-                final int c = colModel.getColumnCount();
+                final int c = cols.size();
 
                 ap.append(fmt.imports);
                 ap.append("\r\n\r\nRowLists.rowList" + c + "(");
 
                 int i = 0;
-                while (n.hasMoreElements()) {
-                    @SuppressWarnings("unchecked")
-                    final Map.Entry<String,ColumnType> e =
-                        (Map.Entry<String,ColumnType>) n.
-                        nextElement().getHeaderValue();
-
+                for (final Map.Entry<String,ColumnType> e : cols) {
                     final String name = e.getKey();
                     final ColumnType type = e.getValue();
 
@@ -1969,4 +1922,70 @@ public final class Studio {
         }
         public boolean isNull(int p) { return v.elementAt(p) == null; }
     } // end of class VectorRow
+
+    /**
+     * Map entry as table column.
+     */
+    private final class TableHeaderEntry 
+        implements Map.Entry<String,ColumnType> {
+
+        private final Map.Entry<String,ColumnType> wrappee;
+
+        /**
+         * Value constructor
+         */
+        TableHeaderEntry(final Map.Entry<String,ColumnType> v) {
+            this.wrappee = v;
+        } // end of <init>
+
+        // ---
+
+        /**
+         * {@inheritDoc}
+         */
+        public boolean equals(final Object o) {
+            if (o == null || !(o instanceof TableHeaderEntry)) {
+                return false;
+            } // end of if
+
+            final TableHeaderEntry other = (TableHeaderEntry) o;
+
+            return this.wrappee.equals(other.wrappee);
+        } // end of equals
+
+        /**
+         * {@inheritDoc}
+         */
+        public int hashCode() {
+            return this.wrappee.hashCode();
+        } // end of hashCode
+
+        /**
+         * Returns name as string representation.
+         */
+        public String toString() {
+            return this.wrappee.getKey();
+        } // end of toString
+
+        /**
+         * Throws exception.
+         */
+        public ColumnType setValue(ColumnType v) {
+            throw new UnsupportedOperationException();
+        } // end of setValue
+
+        /**
+         * {@inheritDoc}
+         */
+        public String getKey() { 
+            return this.wrappee.getKey();
+        } // end of getKey
+
+        /**
+         * {@inheritDoc}
+         */
+        public ColumnType getValue() {
+            return this.wrappee.getValue();
+        } // end of getValue
+    } // end of class TableHeaderEntry
 } // end of class Studio
