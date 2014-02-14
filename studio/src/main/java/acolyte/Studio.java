@@ -158,7 +158,7 @@ public final class Studio {
             Configuration.loadConfig(this.conf, prefFile);
         } // end of if
 
-        this.saveConf = (prefFile == null) 
+        this.saveConf = (prefFile == null)
             ? retFalse : new Callable<Boolean>() {
             public Boolean call() {
                 OutputStreamWriter w = null;
@@ -208,13 +208,13 @@ public final class Studio {
         final String jdbcUrl = conf.getProperty("jdbc.url");
         final String dbUser = conf.getProperty("db.user");
         final String dbCharset = conf.getProperty("db.charset");
-        final Charset charset = 
+        final Charset charset =
             (dbCharset != null && Charset.isSupported(dbCharset))
             ? Charset.forName(dbCharset) : Charset.defaultCharset();
 
         final JTextField driverField = new JTextField();
         driverField.setEditable(false);
-        
+
         if (driverPath != null) {
             final File driverFile = new File(driverPath);
 
@@ -229,7 +229,7 @@ public final class Studio {
             driverField.setText("Path to driver.jar");
         } // end of else
 
-        // 
+        //
         final Container content = frm.getContentPane();
         final GroupLayout layout = new GroupLayout(content);
 
@@ -253,10 +253,10 @@ public final class Studio {
         passLabel.setLabelFor(passField);
         final JLabel charsetLabel = new JLabel("Charset");
         charsetLabel.setToolTipText("Character set");
-        final JComboBox charsets = 
+        final JComboBox charsets =
             new JComboBox(Charset.availableCharsets().values().toArray());
         charsets.setSelectedItem(charset);
-        final JLabel invalidCred = 
+        final JLabel invalidCred =
             new JLabel("Can't connect using these credentials");
         invalidCred.setForeground(Color.RED);
         invalidCred.setVisible(false);
@@ -271,8 +271,8 @@ public final class Studio {
         chooseDriver.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_O);
         final JButton driverBut = new JButton(chooseDriver);
         driverField.addMouseListener(new MouseAdapter() {
-                public void mouseClicked(final MouseEvent e) { 
-                    chooseDriver(frm, driverField); 
+                public void mouseClicked(final MouseEvent e) {
+                    chooseDriver(frm, driverField);
                 }
             });
 
@@ -296,15 +296,15 @@ public final class Studio {
                                 return false;
                             } finally {
                                 if (con != null) {
-                                    try { 
-                                        con.close(); 
+                                    try {
+                                        con.close();
                                     } catch (Exception ex) { }
                                 } // end of if
                             } // end of finally
                         } // end of call
                     };
 
-                    final UnaryFunction<Callable<Boolean>,Boolean> tx = 
+                    final UnaryFunction<Callable<Boolean>,Boolean> tx =
                         new UnaryFunction<Callable<Boolean>,Boolean>() {
                         public Boolean apply(final Callable<Boolean> x) {
                             Boolean res = null;
@@ -328,7 +328,7 @@ public final class Studio {
                 }
             };
         checkCon.putValue(Action.NAME, "Check connection...");
-        checkCon.putValue(Action.SHORT_DESCRIPTION, 
+        checkCon.putValue(Action.SHORT_DESCRIPTION,
                           "Check connection to database");
         checkCon.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_K);
         final JButton checkConBut = new JButton(checkCon);
@@ -340,8 +340,8 @@ public final class Studio {
         // SQL test UI
         final JLabel sqlLabel = new JLabel("<html><b>SQL query</b></html>");
         final JEditorPane sqlArea = new JEditorPane();
-        final JScrollPane sqlPanel = 
-            new JScrollPane(sqlArea, 
+        final JScrollPane sqlPanel =
+            new JScrollPane(sqlArea,
                             JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         sqlPanel.setBorder(BorderFactory.createLoweredBevelBorder());
@@ -353,10 +353,10 @@ public final class Studio {
         final AbstractAction testSql = new AbstractAction() {
                 public void actionPerformed(final ActionEvent e) {
                     model.setProcessing(true);
-                
+
                     final ImageIcon waitIco = setWaitIcon(testSqlLabel);
                     final String sql = sqlArea.getText();
-                
+
                     try {
                         testSql(frm, sql, 100);
                     } finally {
@@ -367,25 +367,25 @@ public final class Studio {
                 }
             };
         testSql.putValue(Action.NAME, "Test query");
-        testSql.putValue(Action.SHORT_DESCRIPTION, 
+        testSql.putValue(Action.SHORT_DESCRIPTION,
                          "Test SQL query and get raw result");
         testSql.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_T);
         final JButton testBut = new JButton(testSql);
         sqlArea.addKeyListener(new KeyAdapter() {
                 public void keyReleased(final KeyEvent e) {
-                    if (e.getKeyCode() == KeyEvent.VK_T && e.isControlDown()) 
+                    if (e.getKeyCode() == KeyEvent.VK_T && e.isControlDown())
                         testBut.doClick();
                 }
             });
 
         // Column mappings UI
-        final JLabel colLabel = 
+        final JLabel colLabel =
             new JLabel("<html><b>Column mappings</b></html>");
         final JTextField colName = new JTextField();
         final Vector<String> colNames = new Vector<String>();
-        final Vector<Vector<ColumnType>> colData = 
+        final Vector<Vector<ColumnType>> colData =
             new Vector<Vector<ColumnType>>();
-        final NotEditableTableModel colModel = 
+        final NotEditableTableModel colModel =
             new NotEditableTableModel(colData, colNames);
         final JTable colTable = new JTable(colModel);
         colTable.setRowSelectionAllowed(false);
@@ -398,11 +398,11 @@ public final class Studio {
         final AbstractAction addCol = new AbstractAction() {
                 public void actionPerformed(final ActionEvent e) {
                     final String name = colName.getText();
-                    
+
                     if (colNames.contains(name)) {
                         JOptionPane.
                             showMessageDialog(frm, "Column is already mapped",
-                                              "Duplicate column", 
+                                              "Duplicate column",
                                               JOptionPane.ERROR_MESSAGE);
 
                         return;
@@ -410,7 +410,7 @@ public final class Studio {
 
                     // ---
 
-                    final ColumnType type = 
+                    final ColumnType type =
                         (ColumnType) colTypes.getSelectedItem();
                     final Vector<ColumnType> cd = colData.elementAt(0);
                     final PropertyEditSession s = colModel.willChange();
@@ -444,17 +444,17 @@ public final class Studio {
 
                     final Vector<ColumnType> cd = colData.get(0);
                     final PropertyEditSession s = colModel.willChange();
-                        
+
                     colNames.removeElementAt(col);
                     cd.removeElementAt(col);
 
                     colModel.fireTableStructureChanged();
                     colModel.fireTableDataChanged();
                     s.propertyDidChange();
-                } 
+                }
             };
         removeCol.putValue(Action.NAME, "Remove selected");
-        removeCol.putValue(Action.SHORT_DESCRIPTION, 
+        removeCol.putValue(Action.SHORT_DESCRIPTION,
                            "Remove column selected in list");
         removeCol.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
         final JButton removeColBut = new JButton(removeCol);
@@ -490,8 +490,8 @@ public final class Studio {
         };
 
         final AbstractAction editCols = new AbstractAction() {
-                public void actionPerformed(final ActionEvent e) { 
-                    editColumns(frm, colNames, 
+                public void actionPerformed(final ActionEvent e) {
+                    editColumns(frm, colNames,
                                 colData.elementAt(0), updateCols);
                 }
             };
@@ -503,29 +503,29 @@ public final class Studio {
 
         final DefaultTableColumnModel resCols = new DefaultTableColumnModel();
         final Vector<Vector<Object>> resData = new Vector<Vector<Object>>();
-        final NotEditableTableModel resModel = 
+        final NotEditableTableModel resModel =
             new NotEditableTableModel(resData, new Vector<String>());
         final JTable resTable = withColRenderers(new JTable(resModel, resCols));
         final TableCellRenderer headerRenderer = headerRenderer(resTable);
         final JLabel extractLabel1 = new JLabel("Fetch", SwingConstants.RIGHT);
-        final JLabel extractLabel2 = 
+        final JLabel extractLabel2 =
             new JLabel("result rows executing query and", SwingConstants.LEFT);
         extractLabel1.setForeground(Color.DARK_GRAY);
         extractLabel2.setForeground(Color.DARK_GRAY);
-        final SpinnerNumberModel xlm = 
+        final SpinnerNumberModel xlm =
             new SpinnerNumberModel(100, 1, Integer.MAX_VALUE, 1);
         final JSpinner extractLimField = new JSpinner(xlm);
-        final JSpinner.NumberEditor xlf = 
+        final JSpinner.NumberEditor xlf =
             new JSpinner.NumberEditor(extractLimField);
         final AbstractAction extract = new AbstractAction() {
-                public void actionPerformed(final ActionEvent e) { 
+                public void actionPerformed(final ActionEvent e) {
                     model.setProcessing(true);
 
                     final ImageIcon waitIco = setWaitIcon(extractLabel1);
                     final Number n = xlm.getNumber();
                     final Vector<ColumnType> cd = colData.elementAt(0);
                     final int len = cd.size();
-                    final LinkedHashMap<String,ColumnType> map = 
+                    final LinkedHashMap<String,ColumnType> map =
                         new LinkedHashMap<String,ColumnType>(len);
 
                     for (int c = 0; c < len; c++) { // zip col data
@@ -545,7 +545,7 @@ public final class Studio {
                         rs = stmt.executeQuery(sqlArea.getText());
 
                         final PropertyEditSession s = resModel.willChange();
-                        final Enumeration<TableColumn> cols = 
+                        final Enumeration<TableColumn> cols =
                             resCols.getColumns();
 
                         while (cols.hasMoreElements()) {
@@ -557,7 +557,7 @@ public final class Studio {
                         if (rs.next()) {
                             final TableData<Object> td = tableData(rs, f);
 
-                            for (final Map.Entry<String,ColumnType> c : map.entrySet()) { 
+                            for (final Map.Entry<String,ColumnType> c : map.entrySet()) {
                                 final TableColumn tc = new TableColumn();
 
                                 tc.setHeaderValue(c);
@@ -565,7 +565,7 @@ public final class Studio {
 
                                 resCols.addColumn(tc);
                             } // end of for
-                            
+
                             for (final ArrayList<Object> r : td.rows) {
                                 resData.add(new Vector<Object>(r));
                             } // end of for
@@ -577,9 +577,9 @@ public final class Studio {
                     } catch (Exception ex) {
                         JOptionPane.
                             showMessageDialog(frm, ex.getMessage(),
-                                              "Query error", 
+                                              "Query error",
                                               JOptionPane.ERROR_MESSAGE);
-                        
+
                     } finally {
                         if (rs != null) {
                             try { rs.close(); } catch (Exception ex) {}
@@ -600,7 +600,7 @@ public final class Studio {
                 }
             };
         extract.putValue(Action.NAME, "Extract");
-        extract.putValue(Action.SHORT_DESCRIPTION, 
+        extract.putValue(Action.SHORT_DESCRIPTION,
                          "Extract result using column mappings");
         extract.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_X);
         final JButton extractBut = new JButton(extract);
@@ -608,16 +608,16 @@ public final class Studio {
         // Mapped result UI
         final JLabel resLabel = new JLabel("<html><b>Mapped result</b></html>");
 
-        final JScrollPane resPanel = 
-            new JScrollPane(resTable, 
+        final JScrollPane resPanel =
+            new JScrollPane(resTable,
                             JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        
+
         final JLabel resCountLabel = new JLabel();
         resCountLabel.setForeground(Color.DARK_GRAY);
         final JComboBox convertFormats = new JComboBox(Formatting.values());
         final AbstractAction convert = new AbstractAction() {
-                public void actionPerformed(final ActionEvent e) { 
+                public void actionPerformed(final ActionEvent e) {
                     final Charset charset = model.getCharset();
                     final Formatting fmt = (Formatting) convertFormats.
                         getSelectedItem();
@@ -641,7 +641,7 @@ public final class Studio {
                 }
             };
         convert.putValue(Action.NAME, "Convert");
-        convert.putValue(Action.SHORT_DESCRIPTION, 
+        convert.putValue(Action.SHORT_DESCRIPTION,
                          "Convert extracted data to some Acolyte syntax");
         convert.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_C);
         final JButton convertBut = new JButton(convert);
@@ -671,7 +671,7 @@ public final class Studio {
         final JSeparator zeroSep = new JSeparator();
         final JSeparator firstSep = new JSeparator();
         final JSeparator secondSep = new JSeparator();
-        final GroupLayout.SequentialGroup vgroup = 
+        final GroupLayout.SequentialGroup vgroup =
             layout.createSequentialGroup().
             addGroup(layout.createParallelGroup(Alignment.BASELINE).
                      addComponent(confLabel,
@@ -703,25 +703,25 @@ public final class Studio {
                      addComponent(checkConLabel).
                      addComponent(checkConBut)).
             addComponent(zeroSep,
-                         GroupLayout.PREFERRED_SIZE, 
+                         GroupLayout.PREFERRED_SIZE,
                          GroupLayout.DEFAULT_SIZE,
                          GroupLayout.PREFERRED_SIZE).
             addComponent(sqlLabel).
-            addComponent(sqlPanel, 
+            addComponent(sqlPanel,
                          (int) (screenSize.getHeight()/13.75f),
                          GroupLayout.DEFAULT_SIZE,
                          GroupLayout.PREFERRED_SIZE).
             addGroup(layout.createParallelGroup(Alignment.TRAILING).
-                     addComponent(testBut, 
+                     addComponent(testBut,
                                   GroupLayout.PREFERRED_SIZE,
                                   GroupLayout.DEFAULT_SIZE,
                                   GroupLayout.PREFERRED_SIZE).
-                     addComponent(testSqlLabel, 
+                     addComponent(testSqlLabel,
                                   GroupLayout.PREFERRED_SIZE,
                                   GroupLayout.DEFAULT_SIZE,
                                   GroupLayout.PREFERRED_SIZE)).
             addComponent(firstSep,
-                         GroupLayout.PREFERRED_SIZE, 
+                         GroupLayout.PREFERRED_SIZE,
                          GroupLayout.DEFAULT_SIZE,
                          GroupLayout.PREFERRED_SIZE).
             addComponent(colLabel).
@@ -731,8 +731,8 @@ public final class Studio {
                      addComponent(colTypes).
                      addComponent(colBut)).
             addComponent(colPanel,
-                         colTableHeight, 
-                         GroupLayout.DEFAULT_SIZE, 
+                         colTableHeight,
+                         GroupLayout.DEFAULT_SIZE,
                          colTableHeight).
             addGroup(layout.
                      createParallelGroup(Alignment.BASELINE).
@@ -745,7 +745,7 @@ public final class Studio {
                      addComponent(extractLabel2).
                      addComponent(extractBut)).
             addComponent(secondSep,
-                         GroupLayout.PREFERRED_SIZE, 
+                         GroupLayout.PREFERRED_SIZE,
                          GroupLayout.DEFAULT_SIZE,
                          GroupLayout.PREFERRED_SIZE).
             addGroup(layout.createParallelGroup(Alignment.BASELINE).
@@ -759,14 +759,14 @@ public final class Studio {
                      addComponent(convertFormats).
                      addComponent(convertBut));
 
-        final GroupLayout.ParallelGroup hgroup = 
+        final GroupLayout.ParallelGroup hgroup =
             layout.createParallelGroup(Alignment.LEADING).
             addGroup(layout.createSequentialGroup().
                      addComponent(confLabel,
                                   GroupLayout.PREFERRED_SIZE,
                                   GroupLayout.DEFAULT_SIZE,
                                   GroupLayout.PREFERRED_SIZE).
-                     addComponent(confValidated, 
+                     addComponent(confValidated,
                                   GroupLayout.PREFERRED_SIZE,
                                   GroupLayout.DEFAULT_SIZE,
                                   Short.MAX_VALUE)).
@@ -794,11 +794,11 @@ public final class Studio {
                      addPreferredGap(LayoutStyle.ComponentPlacement.RELATED,
                                      GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).
                      addComponent(checkConLabel,
-                                  GroupLayout.PREFERRED_SIZE, 
+                                  GroupLayout.PREFERRED_SIZE,
                                   GroupLayout.DEFAULT_SIZE,
                                   GroupLayout.PREFERRED_SIZE).
                      addComponent(checkConBut,
-                                  GroupLayout.PREFERRED_SIZE, 
+                                  GroupLayout.PREFERRED_SIZE,
                                   GroupLayout.DEFAULT_SIZE,
                                   GroupLayout.PREFERRED_SIZE)).
             addComponent(zeroSep).
@@ -820,18 +820,18 @@ public final class Studio {
             addComponent(sqlPanel).
             addGroup(layout.createSequentialGroup().
                      addComponent(testBut,
-                                  GroupLayout.PREFERRED_SIZE, 
+                                  GroupLayout.PREFERRED_SIZE,
                                   GroupLayout.DEFAULT_SIZE,
                                   GroupLayout.PREFERRED_SIZE).
                      addComponent(testSqlLabel,
-                                  GroupLayout.PREFERRED_SIZE, 
+                                  GroupLayout.PREFERRED_SIZE,
                                   GroupLayout.DEFAULT_SIZE,
                                   GroupLayout.PREFERRED_SIZE)).
             addComponent(firstSep).
             addComponent(colLabel).
             addGroup(layout.createSequentialGroup().
                      addComponent(colName,
-                                  GroupLayout.PREFERRED_SIZE, 
+                                  GroupLayout.PREFERRED_SIZE,
                                   GroupLayout.DEFAULT_SIZE,
                                   Short.MAX_VALUE).
                      addComponent(colTypes,
@@ -858,8 +858,8 @@ public final class Studio {
                                   GroupLayout.DEFAULT_SIZE,
                                   Short.MAX_VALUE).
                      addComponent(extractLimField,
-                                  GroupLayout.PREFERRED_SIZE, 
-                                  GroupLayout.DEFAULT_SIZE, 
+                                  GroupLayout.PREFERRED_SIZE,
+                                  GroupLayout.DEFAULT_SIZE,
                                   GroupLayout.PREFERRED_SIZE).
                      addComponent(extractLabel2,
                                   GroupLayout.PREFERRED_SIZE,
@@ -879,7 +879,7 @@ public final class Studio {
                                   GroupLayout.DEFAULT_SIZE,
                                   GroupLayout.PREFERRED_SIZE).
                      addPreferredGap(LayoutStyle.ComponentPlacement.RELATED,
-                                     GroupLayout.DEFAULT_SIZE, 
+                                     GroupLayout.DEFAULT_SIZE,
                                      Short.MAX_VALUE)).
             addComponent(resPanel).
             addGroup(layout.createSequentialGroup().
@@ -893,16 +893,16 @@ public final class Studio {
                                   GroupLayout.PREFERRED_SIZE,
                                   GroupLayout.DEFAULT_SIZE,
                                   GroupLayout.PREFERRED_SIZE));
-                     
+
         layout.setVerticalGroup(vgroup);
         layout.setHorizontalGroup(hgroup);
 
-        layout.linkSize(SwingConstants.HORIZONTAL, 
+        layout.linkSize(SwingConstants.HORIZONTAL,
                         driverLabel, urlLabel, userLabel, charsetLabel);
 
         layout.linkSize(SwingConstants.HORIZONTAL, userField, charsets);
 
-        layout.linkSize(SwingConstants.VERTICAL, 
+        layout.linkSize(SwingConstants.VERTICAL,
                         invalidCred, checkConBut, checkConLabel);
 
         layout.linkSize(SwingConstants.VERTICAL, testBut, testSqlLabel);
@@ -938,7 +938,7 @@ public final class Studio {
         } else {
             passField.grabFocus();
         } // end of else
-        
+
         // Sets up model bindings
         final BindingOptionMap txtOpts = new BindingOptionMap().
             add(TextBindingKey.CONTINUOUSLY_UPDATE_VALUE);
@@ -950,33 +950,33 @@ public final class Studio {
 
         // Sets up binding to disable action while processing
         final BindingOptionMap negOpts = new BindingOptionMap().
-            add(BindingKey.INPUT_TRANSFORMER, 
+            add(BindingKey.INPUT_TRANSFORMER,
                 NegateBooleanTransformer.getInstance());
-        
+
         Binder.bind("processing", this.model, "enabled", chooseDriver, negOpts);
         Binder.bind("processing", this.model, "enabled", driverLabel, negOpts);
         Binder.bind("processing", this.model, "enabled", urlField, negOpts);
         Binder.bind("processing", this.model, "enabled", userField, negOpts);
         Binder.bind("processing", this.model, "enabled", passField, negOpts);
-        
+
         Binder.bind("processing", this.model, "enabled[]", checkCon, negOpts);
         Binder.bind("processing", this.model, "enabled[]", testSql, negOpts);
         Binder.bind("processing", this.model, "enabled[]", extract, negOpts);
         Binder.bind("processing", this.model, "enabled[]", convert, negOpts);
-        
+
         // Sets up binding to disable action until connection validated
-        Binder.bind("connectionValidated", this.model, "enabled[]", testSql, 
+        Binder.bind("connectionValidated", this.model, "enabled[]", testSql,
                     BindingOptionMap.targetModeOptions);
-        
-        Binder.bind("connectionValidated", this.model, "enabled[]", extract, 
+
+        Binder.bind("connectionValidated", this.model, "enabled[]", extract,
                     BindingOptionMap.targetModeOptions);
-        
-        Binder.bind("connectionValidated", this.model, 
-                    "visible", confValidated, 
+
+        Binder.bind("connectionValidated", this.model,
+                    "visible", confValidated,
                     BindingOptionMap.targetModeOptions);
-        
+
         // Sets up bindings
-        final BindingOptionMap txtLenOpts = 
+        final BindingOptionMap txtLenOpts =
             new BindingOptionMap().
             add(BindingKey.INPUT_TRANSFORMER,
                 StringLengthToBooleanTransformer.
@@ -986,9 +986,9 @@ public final class Studio {
 	Binder.bind("text", colName, "enabled", addCol, txtLenOpts);
 
         Binder.bind("selectionModel.selectionEmpty", colTable,
-                    "enabled", removeCol, 
+                    "enabled", removeCol,
                     new BindingOptionMap().
-                    add(BindingKey.INPUT_TRANSFORMER, 
+                    add(BindingKey.INPUT_TRANSFORMER,
                         NegateBooleanTransformer.getInstance()));
 
 	Binder.bind("connectionConfig", this.model, "visible", invalidUrl,
@@ -1012,7 +1012,7 @@ public final class Studio {
         // Bindings for check connection action
 	Binder.bind("connectionConfig", this.model, "enabled[]", checkCon,
 		    new BindingOptionMap().
-		    add(BindingKey.INPUT_TRANSFORMER, 
+		    add(BindingKey.INPUT_TRANSFORMER,
                         new UnaryFunction<Long,Boolean>() {
                             public Boolean apply(final Long r) {
                                 final Driver d = model.getDriver();
@@ -1045,7 +1045,7 @@ public final class Studio {
         // Bindings for convert action
         Binder.bind("rowCount", resModel, "text", resCountLabel,
                     new BindingOptionMap().
-                    add(BindingKey.INPUT_TRANSFORMER, 
+                    add(BindingKey.INPUT_TRANSFORMER,
                         NumberToStringTransformer.getInstance(new MessageFormat("{0,choice,0#no row|1#1 row|1<{0,number,integer} rows}"))));
 
         Binder.bind("rowCount", resModel, "enabled[]", convert, intBoolOpts);
@@ -1056,7 +1056,7 @@ public final class Studio {
      */
     static File preferencesFile() {
         final File userDir = new File(System.getProperty("user.home"));
-        final File prefDir = (userDir.canWrite()) 
+        final File prefDir = (userDir.canWrite())
             ? new File(userDir, ".acolyte") : null;
 
         if (prefDir != null && !prefDir.exists()) {
@@ -1083,7 +1083,7 @@ public final class Studio {
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 } // end of catch
-                
+
                 return null;
             }
         };
@@ -1095,7 +1095,7 @@ public final class Studio {
                 } finally {
                     model.setProcessing(false);
                 } // end of finally
-                
+
                 return null;
             }
         };
@@ -1108,7 +1108,7 @@ public final class Studio {
         return new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
                 final int kc = e.getKeyCode();
-                if (kc == KeyEvent.VK_ESCAPE || 
+                if (kc == KeyEvent.VK_ESCAPE ||
                     kc == KeyEvent.VK_ENTER) {
                     window.dispose();
                 }
@@ -1120,25 +1120,25 @@ public final class Studio {
      * Header renderer for result table
      */
     private static TableCellRenderer headerRenderer(final JTable t) {
-        final TableCellRenderer defaultRenderer = 
+        final TableCellRenderer defaultRenderer =
             t.getTableHeader().getDefaultRenderer();
 
         return new TableCellRenderer() {
-            public Component getTableCellRendererComponent(final JTable table, 
-                                                           final Object value, 
-                                                           final boolean sel, 
-                                                           final boolean foc, 
-                                                           final int row, 
+            public Component getTableCellRendererComponent(final JTable table,
+                                                           final Object value,
+                                                           final boolean sel,
+                                                           final boolean foc,
+                                                           final int row,
                                                            final int column) {
-                
+
                 @SuppressWarnings("unchecked")
-                final Map.Entry<String,ColumnType> headerVal = 
+                final Map.Entry<String,ColumnType> headerVal =
                     (Map.Entry<String,ColumnType>) value;
 
                 return defaultRenderer.
                     getTableCellRendererComponent(table, headerVal.getKey(),
                                                   sel, foc, row, column);
-                
+
             }
         };
     } // end of headerRenderer
@@ -1194,7 +1194,7 @@ public final class Studio {
 
         try {
             con = getConnection();
-                        
+
             stmt = con.createStatement();
             stmt.setMaxRows(limit);
             rs = stmt.executeQuery(sql);
@@ -1203,7 +1203,7 @@ public final class Studio {
                 JOptionPane.
                     showMessageDialog(frm, "No result fetched for this query.",
                                       "No result", JOptionPane.WARNING_MESSAGE);
-                                              
+
                 return;
             } // end of if
 
@@ -1229,8 +1229,8 @@ public final class Studio {
             final AbstractTableModel tm = new AbstractTableModel() {
                     public int getColumnCount() { return c; }
                     public int getRowCount() { return rc; }
-                    public String getColumnName(int i) { 
-                        return td.columns.get(i); 
+                    public String getColumnName(int i) {
+                        return td.columns.get(i);
                     }
                     public Class<String> getColumnClass(int i) {
                         return String.class;
@@ -1272,20 +1272,20 @@ public final class Studio {
             ex.printStackTrace();
         } finally {
             if (rs != null) {
-                try { 
-                    rs.close(); 
+                try {
+                    rs.close();
                 } catch (Exception ex) { }
             } // end of if
 
             if (stmt != null) {
-                try { 
-                    stmt.close(); 
+                try {
+                    stmt.close();
                 } catch (Exception ex) { }
             } // end of if
 
             if (con != null) {
-                try { 
-                    con.close(); 
+                try {
+                    con.close();
                 } catch (Exception ex) { }
             } // end of if
         } // end of finally
@@ -1301,10 +1301,10 @@ public final class Studio {
     } // end of getConnection
 
     /**
-     * Returns table data from |result| set. 
+     * Returns table data from |result| set.
      */
-    private <A> TableData<A> tableData(final ResultSet rs, 
-                                       final RowFunction<A> f) 
+    private <A> TableData<A> tableData(final ResultSet rs,
+                                       final RowFunction<A> f)
         throws SQLException {
 
         final ResultSetMetaData meta = rs.getMetaData();
@@ -1315,7 +1315,7 @@ public final class Studio {
             final String n = meta.getColumnLabel(p);
             td.columns.add((n == null || "".equals(n)) ? "col" + p : n);
         } // end of for
-        
+
         // First row
         td.rows.add(f.apply(rs));
 
@@ -1323,7 +1323,7 @@ public final class Studio {
         while (rs.next()) {
             td.rows.add(f.apply(rs));
         } // end of if
-        
+
         return td;
     } // end of tableData
 
@@ -1331,7 +1331,7 @@ public final class Studio {
      * Sets wait icon on |label|.
      */
     private static ImageIcon setWaitIcon(final JLabel label) {
-        final ImageIcon ico = 
+        final ImageIcon ico =
             new ImageIcon(Studio.class.getResource("loader.gif"));
 
         label.setIcon(ico);
@@ -1410,6 +1410,7 @@ public final class Studio {
             chooser.removeChoosableFileFilter(ff); // clean choosable filters
         } // end of for
 
+        chooser.setFileHidingEnabled(false);
         chooser.setDialogTitle("Chooser JDBC driver");
         chooser.setMultiSelectionEnabled(false);
         chooser.setFileFilter(new JDBCDriverFileFilter());
@@ -1444,15 +1445,15 @@ public final class Studio {
     private static <T> void createConvertDialog(final JFrame frm, final Formatting fmt, final UnaryFunction<Document,Callable<T>> init, final Callable<Void> end) {
 
         // Prepares UI components
-        final JLabel dialogLabel = 
+        final JLabel dialogLabel =
             new JLabel("<html><b>Formatted data</b></html>");
         dialogLabel.setHorizontalTextPosition(SwingConstants.LEFT);
 
         final JEditorPane rowArea = new JEditorPane();
         rowArea.setEditable(false);
         dialogLabel.setLabelFor(rowArea);
-        final JScrollPane rowPanel = 
-            new JScrollPane(rowArea, 
+        final JScrollPane rowPanel =
+            new JScrollPane(rowArea,
                             JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         rowPanel.setBorder(BorderFactory.createLoweredBevelBorder());
@@ -1465,7 +1466,7 @@ public final class Studio {
         final Clipboard pb = Toolkit.getDefaultToolkit().getSystemClipboard();
         final AbstractAction pbcopy = new AbstractAction() {
                 public void actionPerformed(final ActionEvent evt) {
-                    final StringSelection codeSel = 
+                    final StringSelection codeSel =
                         new StringSelection(rowArea.getText());
 
                     pb.setContents(codeSel, null);
@@ -1481,7 +1482,7 @@ public final class Studio {
 	layout.setAutoCreateGaps(true);
 	layout.setAutoCreateContainerGaps(true);
 
-        final GroupLayout.SequentialGroup vgroup = 
+        final GroupLayout.SequentialGroup vgroup =
             layout.createSequentialGroup().
             addComponent(dialogLabel).
             addComponent(rowPanel,
@@ -1490,7 +1491,7 @@ public final class Studio {
                          Short.MAX_VALUE).
             addComponent(copyBut);
 
-        final GroupLayout.ParallelGroup hgroup = 
+        final GroupLayout.ParallelGroup hgroup =
             layout.createParallelGroup(Alignment.LEADING).
             addComponent(dialogLabel).
             addComponent(rowPanel).
@@ -1547,20 +1548,20 @@ public final class Studio {
      * Displays formatted rows.
      */
     private static void displayRows(final JFrame frm,
-                                    final TableColumnModel colModel, 
+                                    final TableColumnModel colModel,
                                     final Vector<Vector<Object>> data,
                                     final Charset charset,
                                     final Formatting fmt,
                                     final Callable<Void> end) {
 
-        final UnaryFunction<Document,Callable<Void>> f = 
+        final UnaryFunction<Document,Callable<Void>> f =
             new UnaryFunction<Document,Callable<Void>>() {
             public Callable<Void> apply(final Document doc) {
                 final DocumentAppender ap = new DocumentAppender(doc);
 
                 // Column definitions
                 final ArrayList<String> cnames = new ArrayList<String>();
-                final ArrayList<ColumnType> ctypes = 
+                final ArrayList<ColumnType> ctypes =
                 new ArrayList<ColumnType>();
                 final Enumeration<TableColumn> n = colModel.getColumns();
                 final int c = colModel.getColumnCount();
@@ -1571,36 +1572,36 @@ public final class Studio {
                 int i = 0;
                 while (n.hasMoreElements()) {
                     @SuppressWarnings("unchecked")
-                    final Map.Entry<String,ColumnType> e = 
+                    final Map.Entry<String,ColumnType> e =
                         (Map.Entry<String,ColumnType>) n.
                         nextElement().getHeaderValue();
 
                     final String name = e.getKey();
                     final ColumnType type = e.getValue();
-                    
+
                     cnames.add(name);
                     ctypes.add(type);
-                    
+
                     if (i++ > 0) {
                         ap.append(", ");
                     } // end of if
-                    
+
                     final String tname = (fmt.typeMap.containsKey(type))
                         ? fmt.typeMap.get(type) : "String";
-                    
+
                     ap.append(String.format(fmt.colDef, tname, name));
                 } // end of while
 
                 ap.append(")\r\n");
 
                 // --
-                
+
                 return new Callable<Void>() {
                     public Void call() {
                         RowFormatter.
-                            appendRows(new VectorIterator(data), ap, charset, 
+                            appendRows(new VectorIterator(data), ap, charset,
                                        fmt, ctypes);
-                        
+
                         return null;
                     }
                 };
@@ -1616,7 +1617,7 @@ public final class Studio {
     private static void editColumns(final JFrame frm, final Vector<String> colNames, final Vector<ColumnType> colTypes, final UnaryFunction<ImmutablePair<Vector<String>,Vector<ColumnType>>,Void> cf) {
 
         // Prepares UI components
-        final JLabel dialogLabel = 
+        final JLabel dialogLabel =
             new JLabel("<html><b>Column mappings as CSV</b></html>");
         dialogLabel.setHorizontalTextPosition(SwingConstants.LEFT);
 
@@ -1626,8 +1627,8 @@ public final class Studio {
         final JEditorPane csvArea = new JEditorPane();
         csvArea.setEditable(false);
         dialogLabel.setLabelFor(csvArea);
-        final JScrollPane csvPanel = 
-            new JScrollPane(csvArea, 
+        final JScrollPane csvPanel =
+            new JScrollPane(csvArea,
                             JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         csvPanel.setBorder(BorderFactory.createLoweredBevelBorder());
@@ -1645,14 +1646,14 @@ public final class Studio {
                     final Vector<ColumnType> ts = new Vector<ColumnType>();
 
                     try {
-                        final StringReader sr = 
+                        final StringReader sr =
                             new StringReader(csvArea.getText());
 
                         r = new BufferedReader(sr);
 
                         String line, n;
                         ColumnType t;
-                        for (int i = 1, o = 0, l = 0, x = -1; 
+                        for (int i = 1, o = 0, l = 0, x = -1;
                              (line = r.readLine()) != null; i++) {
 
                             l = line.length();
@@ -1665,7 +1666,7 @@ public final class Studio {
                             } // end of if
 
                             // ---
-                            
+
                             t = ColumnType.typeFor(line.substring(0, x));
 
                             if (t == null) {
@@ -1711,7 +1712,7 @@ public final class Studio {
         update.setEnabled(false);
         final JButton updateBut = new JButton(update);
 
-        Binder.bind("text", csvArea, "enabled", update, 
+        Binder.bind("text", csvArea, "enabled", update,
                     new BindingOptionMap().
                     add(BindingKey.INPUT_TRANSFORMER,
                         StringLengthToBooleanTransformer.
@@ -1724,7 +1725,7 @@ public final class Studio {
 	layout.setAutoCreateGaps(true);
 	layout.setAutoCreateContainerGaps(true);
 
-        final GroupLayout.SequentialGroup vgroup = 
+        final GroupLayout.SequentialGroup vgroup =
             layout.createSequentialGroup().
             addComponent(dialogLabel).
             addComponent(useLabel).
@@ -1734,7 +1735,7 @@ public final class Studio {
                          Short.MAX_VALUE).
             addComponent(updateBut);
 
-        final GroupLayout.ParallelGroup hgroup = 
+        final GroupLayout.ParallelGroup hgroup =
             layout.createParallelGroup(Alignment.LEADING).
             addComponent(dialogLabel).
             addComponent(useLabel).
@@ -1763,7 +1764,7 @@ public final class Studio {
 
         final KeyAdapter editKeys = new KeyAdapter() {
                 public void keyReleased(final KeyEvent e) {
-                    if (e.getKeyCode() == KeyEvent.VK_U && e.isControlDown()) 
+                    if (e.getKeyCode() == KeyEvent.VK_U && e.isControlDown())
                         updateBut.doClick();
                 }
             };
@@ -1775,23 +1776,23 @@ public final class Studio {
 
         // Load as CSV
         final int len = colNames.size();
-                
+
         StringBuffer line = new StringBuffer();
         for (int i = 0, o = 0; i < len; i++) {
             line.setLength(0);
             line.append(colTypes.elementAt(i)).
                 append(';').append(colNames.elementAt(i)).
                 append("\n");
-                    
+
             try {
                 doc.insertString(o, line.toString(), null);
             } catch (Exception e) {
                 throw new RuntimeException("Fails to append CSV line", e);
             }
-                    
+
             o += line.length();
         }
-                
+
         csvArea.setEditable(true);
 
         dlg.pack();
@@ -1815,7 +1816,7 @@ public final class Studio {
     /**
      * Returns list of formatted strings from a result set.
      */
-    private interface RowFunction<A> 
+    private interface RowFunction<A>
         extends UnaryFunction<ResultSet,ArrayList<A>> { }
 
     /**
@@ -1866,7 +1867,7 @@ public final class Studio {
     /**
      * Document appender.
      */
-    private static final class DocumentAppender 
+    private static final class DocumentAppender
         implements RowFormatter.Appender {
 
         private final Document doc;
@@ -1899,7 +1900,7 @@ public final class Studio {
     /**
      * Iterator if row from vector.
      */
-    private static final class VectorIterator 
+    private static final class VectorIterator
         implements java.util.Iterator<RowFormatter.ResultRow> {
 
         private Iterator<Vector<Object>> it;
@@ -1952,7 +1953,7 @@ public final class Studio {
         public boolean getBoolean(int p) { return (Boolean) v.elementAt(p); }
         public byte getByte(int p) { return (Byte) v.elementAt(p); }
         public short getShort(int p) { return (Short) v.elementAt(p); }
-        public java.sql.Date getDate(int p) { 
+        public java.sql.Date getDate(int p) {
             return (java.sql.Date) v.elementAt(p);
         }
         public double getDouble(int p) { return (Double) v.elementAt(p); }
@@ -1963,7 +1964,7 @@ public final class Studio {
         public Timestamp getTimestamp(int p) {
             return (Timestamp) v.elementAt(p);
         }
-        public BigDecimal getBigDecimal(int p) { 
+        public BigDecimal getBigDecimal(int p) {
             return (BigDecimal) v.elementAt(p);
         }
         public boolean isNull(int p) { return v.elementAt(p) == null; }
