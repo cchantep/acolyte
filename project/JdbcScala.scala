@@ -1,11 +1,12 @@
 import sbt._
 import Keys._
 
-trait Scala {
-  def core: Project
+trait JdbcScala {
+  def jdbcDriver: Project
 
-  lazy val scala = Project(id = "scala", base = file("scala")).settings(
-    name := "acolyte-scala",
+  lazy val jdbcScala = 
+    Project(id = "jdbc-scala", base = file("scala")).settings(
+    name := "jdbc-scala",
     organization := "org.eu.acolyte",
     version := "1.0.14",
     scalaVersion := "2.10.3",
@@ -14,7 +15,7 @@ trait Scala {
     scalacOptions ++= Seq("-feature", "-deprecation"),
     resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
     libraryDependencies ++= Seq(
-      "org.eu.acolyte" % "acolyte-core" % "1.0.14",
+      "org.eu.acolyte" % "jdbc-driver" % "1.0.14",
       "org.scalaz" % "scalaz-core_2.10" % "7.0.5",
       "org.specs2" %% "specs2" % "2.3.2" % "test"),
     publishTo := Some(Resolver.file("file", new File(Path.userHome.absolutePath + "/.m2/repository"))),
@@ -53,7 +54,7 @@ trait Scala {
           <id>cchantep</id>
           <name>Cedric Chantepie</name>
         </developer>
-      </developers>)).dependsOn(core)
+      </developers>)).dependsOn(jdbcDriver)
 
   // Source generator
   private def generateRowClasses(base: File, managed: File): Seq[File] = {

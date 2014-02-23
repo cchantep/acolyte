@@ -1,9 +1,10 @@
 import sbt._
 import Keys._
 
-trait Core {
-  lazy val core = Project(id = "core", base = file("core")).settings(
-    name := "acolyte-core",
+trait JdbcDriver {
+  lazy val jdbcDriver = 
+    Project(id = "jdbc-driver", base = file("core")).settings(
+    name := "jdbc-driver",
     organization := "org.eu.acolyte",
     version := "1.0.14",
     scalaVersion := "2.10.3",

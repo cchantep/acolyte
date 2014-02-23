@@ -56,6 +56,15 @@ Otherwise, arguments #1 to #4 are omitted, values loaded from configuration file
 5. type of second column,
 6. ...
 
+### Column mappings editor
+
+Column mappings can be defined either adding mapping one after another in table, or using expert editor, with a pseudo CSV syntax:
+
+```csv
+columntype1;Name_of_col
+columntype2;Column_name
+```
+
 ### Column types
 
 - bigdecimal

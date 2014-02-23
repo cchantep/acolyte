@@ -30,7 +30,8 @@ Using Maven 2/3+, Acolyte dependency can be resolved as following from your POM:
 
   <repositories>
     <!-- ... -->
-    <repository><!-- Get Acolyte release quicker than Central repo -->
+    <repository>
+      <!-- Optional: Get Acolyte release quicker than Maven Central repo -->
       <id>applicius-releases</id>
       <name>Applicius Maven2 Snapshots Repository</name>
       <url>https://raw.github.com/applicius/mvn-repo/master/releases/</url>
@@ -41,7 +42,7 @@ Using Maven 2/3+, Acolyte dependency can be resolved as following from your POM:
     <!-- ... -->
     <dependency>
       <groupId>org.eu.acolyte</groupId>
-      <artifactId>acolyte-core</artifactId>
+      <artifactId>jdbc-driver</artifactId>
       <version>VERSION</version>
     </dependency>
   </dependencies>
@@ -309,7 +310,7 @@ Using SBT, Acolyte dependency can resolved as following:
 resolvers += 
   "Applicius Snapshots" at "https://raw.github.com/applicius/mvn-repo/master/snapshots/"
 
-libraryDependencies += "org.eu.acolyte" %% "acolyte-scala" % "VERSION" % "test"
+libraryDependencies += "org.eu.acolyte" %% "scala-jdbc" % "VERSION" % "test"
 ```
 
 Then code could be:

@@ -3,10 +3,10 @@ import Keys._
 
 // Multi-module project build
 object Acolyte extends Build 
-    with Core with ScalaCompiler with Scala with Studio {
+    with JdbcDriver with ScalaCompiler with JdbcScala with Studio {
 
   lazy val root = Project(id = "acolyte", base = file(".")).
-    aggregate(core, scalaCompiler, scala, studio).
+    aggregate(jdbcDriver, scalaCompiler, jdbcScala, studio).
     settings(
       version := "1.0.14",
       scalaVersion := "2.10.3",
