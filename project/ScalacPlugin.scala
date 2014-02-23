@@ -1,24 +1,24 @@
 import sbt._
 import Keys._
 
-trait ScalaCompiler {
-  lazy val scalaCompiler = 
-    Project(id = "scala-compiler", base = file("scala-compiler")).
+trait ScalacPlugin {
+  lazy val scalacPlugin = 
+    Project(id = "scalac-plugin", base = file("scalac-plugin")).
     aggregate(plugin, specs).settings(
-      version in ThisBuild := "1.0.14")
+      version in ThisBuild := "1.0.14",
+      organization in ThisBuild := "org.eu.acolyte",
+      publishTo in ThisBuild := Some(Resolver.file("file", new File(Path.userHome.absolutePath + "/.m2/repository"))))
 
   private lazy val plugin = Project(
     id = "scala-compiler-plugin", 
-    base = file("scala-compiler/plugin")).settings(
-      name := "scala-compiler-plugin",
-      organization := "org.eu.acolyte",
+    base = file("scalac-plugin/plugin")).settings(
+      name := "scalac-plugin",
       scalaVersion := "2.10.3",
       javaOptions ++= Seq("-source", "1.6", "-target", "1.6"),
       javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
       scalacOptions ++= Seq("-feature", "-deprecation"),
       resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
       libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.10.3",
-      publishTo := Some(Resolver.file("file", new File(Path.userHome.absolutePath + "/.m2/repository"))),
       pomExtra := (
       <url>https://github.com/cchantep/acolyte/</url>
       <licenses>
@@ -54,10 +54,9 @@ trait ScalaCompiler {
 
   private lazy val specs = Project(
     id = "scala-compiler-specs", 
-    base = file("scala-compiler/specs")).
+    base = file("scalac-plugin/specs")).
     settings(
       name := "scala-compiler-specs",
-      organization := "org.eu.acolyte",
       scalaVersion := "2.10.3",
       javaOptions ++= Seq("-source", "1.6", "-target", "1.6"),
       javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),

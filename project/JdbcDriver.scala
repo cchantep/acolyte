@@ -3,7 +3,7 @@ import Keys._
 
 trait JdbcDriver {
   lazy val jdbcDriver = 
-    Project(id = "jdbc-driver", base = file("core")).settings(
+    Project(id = "jdbc-driver", base = file("jdbc-driver")).settings(
     name := "jdbc-driver",
     organization := "org.eu.acolyte",
     version := "1.0.14",

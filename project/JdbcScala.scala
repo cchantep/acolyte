@@ -5,7 +5,7 @@ trait JdbcScala {
   def jdbcDriver: Project
 
   lazy val jdbcScala = 
-    Project(id = "jdbc-scala", base = file("scala")).settings(
+    Project(id = "jdbc-scala", base = file("jdbc-scala")).settings(
     name := "jdbc-scala",
     organization := "org.eu.acolyte",
     version := "1.0.14",
