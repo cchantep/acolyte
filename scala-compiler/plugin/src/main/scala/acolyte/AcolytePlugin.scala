@@ -4,13 +4,24 @@ import scala.tools.nsc.Global
 import scala.tools.nsc.plugins.{ Plugin, PluginComponent }
 import scala.tools.nsc.transform.Transform
 
-class MatchPlugin(val global: Global) extends Plugin {
-  val name = "rich-match"
-  val description = "Rich or refactored pattern matching"
+class AcolytePlugin(val global: Global) extends Plugin {
+  val name = "acolyte"
+  val description = "Syntax extensions: rich pattern matching"
   val components = List[PluginComponent](MatchComponent)
 
+  var debug: Boolean with NotNull = false
+
+  override def processOptions(options: List[String], error: String ⇒ Unit) {
+    for (o ← options) {
+      if (o == "debug") debug = true
+    }
+  }
+
+  override val optionsHelp: Option[String] = Some(
+    "  -P:acolyte:debug             Enable debug")
+
   private object MatchComponent extends PluginComponent with Transform {
-    val global: MatchPlugin.this.global.type = MatchPlugin.this.global
+    val global: AcolytePlugin.this.global.type = AcolytePlugin.this.global
     override val runsRightAfter = Some("parser")
     override val runsAfter = runsRightAfter.toList
     override val runsBefore = List[String]("typer")
@@ -21,7 +32,7 @@ class MatchPlugin(val global: Global) extends Plugin {
     object MatchTransformer extends global.Transformer {
       import scala.collection.mutable.ListBuffer
       import global.{
-        abort,
+        //abort,
         reporter,
         Block,
         CaseDef,
@@ -32,8 +43,15 @@ class MatchPlugin(val global: Global) extends Plugin {
       }
 
       override def transform(tree: Tree): Tree = tree match {
-        case m @ Match(_, _) ⇒ refactorMatch(m)
-        case _               ⇒ super.transform(tree)
+        case m @ Match(_, _) ⇒ {
+          val richMatch = refactorMatch(m)
+
+          if (debug) reporter.info(m.pos,
+            s"Rich Match refactored: ${global show richMatch}", true)
+
+          richMatch
+        }
+        case _ ⇒ super.transform(tree)
       }
 
       val tildeTerm = global.newTermName("$tilde")
@@ -52,9 +70,9 @@ class MatchPlugin(val global: Global) extends Plugin {
 
             val vds = ListBuffer[ValDef]()
             val cds = cs.map {
-              case ocd @ CaseDef(Apply(Ident(it), xt), g, by) if (
+              case ocd @ CaseDef(Apply(Ident(it), x), g, by) if (
                 it == tildeTerm) ⇒
-                (xt.headOption, xt.tail) match {
+                (x.headOption, x.tail) match {
                   case (Some(xt @ Apply(ex, xa)), Apply(_, ua) :: Nil) ⇒
                     val (vd, cd) = caseDef(vds.size, ocd.pos, xt.pos, ex, xa,
                       ua, g, by)
@@ -73,19 +91,17 @@ class MatchPlugin(val global: Global) extends Plugin {
                     vds += vd
                     cd
 
-                  /*
-                   case (Some(xt @ Apply(ex, xa)),
-                   Literal(Constant(())) :: Nil) ⇒
-                   val (vd, cd) = caseDef(vds.size, ocd.pos, xt.pos, ex, xa,
-                   List(Literal(Constant(()))), g, by)
-                   vds += vd
-                   cd
-                   */
+                  case (Some(xt @ Apply(ex, xa)), Nil) ⇒
+                    // no binding
+                    val (vd, cd) = caseDef(vds.size, ocd.pos, xt.pos, ex, xa,
+                      Nil, g, by)
+                    vds += vd
+                    cd
 
                   case _ ⇒
                     reporter.error(ocd.pos, "Invalid ~ pattern")
-                    abort("Invalid ~ pattern")
-
+                    //abort("Invalid ~ pattern"
+                    ocd
                 }
 
               case cd ⇒ cd
@@ -96,7 +112,8 @@ class MatchPlugin(val global: Global) extends Plugin {
           }
           case _ ⇒
             reporter.error(orig.pos, "Invalid Match")
-            abort("Invalid Match")
+            //abort("Invalid Match")
+            orig
         }
 
       @inline private def caseDef[T](i: Int, cp: Position, xp: Position, ex: Tree, xa: List[Tree], ua: List[Tree], g: Tree, b: Tree): (ValDef, CaseDef) = {
@@ -124,29 +141,12 @@ class MatchPlugin(val global: Global) extends Plugin {
 
         val vdp = xp.withPoint(0).withSource(new BatchSourceFile(file, vdc), 0)
 
-        /*
-[error] /path/to/file.scala#refactored-match-M:1: Compilation error.
-[error] Error details.
-[error] val Xtr1 = B() // generated from ln L, col C
-         */
-
         // CaseDef
-        /*
-        val pat = ua match {
-          case Literal(Constant(())) :: Nil ⇒ Apply(Ident(xn), Nil)
-          case _                            ⇒ Apply(Ident(xn), ua)
-        }
-         */
         val pat = Apply(Ident(xn), ua)
         val cd = CaseDef(pat, g, b)
         val cdc =
           s"${show(cd)} // generated from ln ${cp.line}, col ${cp.column - 5}"
         val cdp = cp.withPoint(0).withSource(new BatchSourceFile(file, cdc), 0)
-
-        /*
-[error] /path/to/file.scala#refactored-match-M:1: value Xtr0 is not a case class constructor, nor does it have an unapply/unapplySeq method
-[error] case Xtr1((a @ _)) => Nil // generated from ln L, col C
-         */
 
         (atPos(vdp)(vd), atPos(cdp)(cd))
       }

@@ -63,19 +63,17 @@ trait ScalaCompiler {
       javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
       compile in Test <<= (compile in Test).dependsOn(clean in Test).dependsOn(
         packageBin in (plugin, Compile)/* make sure plugin.jar is available */),
-      scalacOptions <++= (version in ThisBuild).
+      scalacOptions in Test <++= (version in ThisBuild).
         zip(baseDirectory in (plugin, Compile)).
         zip(name in (plugin, Compile)) map { d =>
           val ((v, b), n) = d
           val j = b / "target" / "scala-2.10" / "%s_2.10-%s.jar".format(n, v)
 
-          Seq("-feature", "-deprecation", 
+          Seq("-feature", "-deprecation", "-P:acolyte:debug",
             "-Xplugin:%s".format(j.getAbsolutePath))
         },
       resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
-      autoCompilerPlugins := true,
-      addCompilerPlugin("org.eu.acolyte" %% "scala-compiler-plugin" % "1.0.14"),
-      libraryDependencies ++= Seq("org.specs2" %% "specs2" % "2.3.2"),
+      libraryDependencies ++= Seq("org.specs2" %% "specs2" % "2.3.2" % "test"),
       publishTo := None).dependsOn(plugin)
 
 }

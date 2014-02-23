@@ -1,4 +1,4 @@
 <plugin>
-  <name>rich-match</name>
-  <classname>acolyte.MatchPlugin</classname>
+  <name>acolyte</name>
+  <classname>acolyte.AcolytePlugin</classname>
 </plugin>
