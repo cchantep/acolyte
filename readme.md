@@ -18,7 +18,7 @@ JDBC URL should match `jdbc:acolyte:anything-you-want?handler=id` (see after for
 
 Projects using Acolyte:
 
-- [Play Framework](http://www.playframework.com/) Anorm ([AnormSpec](https://github.com/playframework/playframework/blob/master/framework/src/anorm/src/test/scala/anorm/AnormSpec.scala)). 
+- [Play Framework](http://www.playframework.com/) Anorm ([AnormSpec](https://github.com/playframework/playframework/blob/master/framework/src/anorm/src/test/jdbc-scala/anorm/AnormSpec.scala)). 
 - [Cielago](https://github.com/cchantep/cielago-tracker) ([DispatchReportSpec](https://github.com/cchantep/cielago-tracker/blob/master/test/models/DispatchReportSpec.scala), [ListInfoSpec](https://github.com/cchantep/cielago-tracker/blob/master/test/models/ListInfoSpec.scala), [MainSpec](https://github.com/cchantep/cielago-tracker/blob/master/test/controllers/MainSpec.scala), …).
 
 ### Java
@@ -111,7 +111,7 @@ Connection con = DriverManager.getConnection(jdbcUrl);
 // ... Connection |con| is managed through |handler|
 ```
 
-You can see more [use cases](https://github.com/cchantep/acolyte/blob/master/core/src/test/java/usecase/JavaUseCases.java) whose expectations are visible in [specifications](https://github.com/cchantep/acolyte/blob/master/core/src/test/scala/acolyte/AcolyteSpec.scala).
+You can see more [use cases](https://github.com/cchantep/acolyte/blob/master/jdbc-driver/src/test/java/usecase/JavaUseCases.java) whose expectations are visible in [specifications](https://github.com/cchantep/acolyte/blob/master/jdbc-driver/src/test/jdbc-scala/acolyte/AcolyteSpec.scala).
 
 #### Connection 
 
@@ -302,7 +302,7 @@ QueryResult resWithWarning = aRowList.asResult().
 
 ### Scala
 
-Module `acolyte-scala` provide a Scala DSL to use more friendly Acolyte features.
+Module `jdbc-scala` provide a Scala DSL to use more friendly Acolyte features.
 
 Using SBT, Acolyte dependency can resolved as following:
 
@@ -310,7 +310,7 @@ Using SBT, Acolyte dependency can resolved as following:
 resolvers += 
   "Applicius Snapshots" at "https://raw.github.com/applicius/mvn-repo/master/snapshots/"
 
-libraryDependencies += "org.eu.acolyte" %% "scala-jdbc" % "VERSION" % "test"
+libraryDependencies += "org.eu.acolyte" %% "jdbc-scala" % "VERSION" % "test"
 ```
 
 Then code could be:
@@ -366,7 +366,7 @@ AcolyteDriver.register("my-handler-id", handler)
 DriverManager.getConnection(jdbcUrl)
 ```
 
-You can see detailed [use cases](https://github.com/cchantep/acolyte/blob/master/scala/src/test/scala/acolyte/ScalaUseCases.scala) whose expectations are visible in [specifications](https://github.com/cchantep/acolyte/blob/master/scala/src/test/scala/acolyte/AcolyteSpec.scala).
+You can see detailed [use cases](https://github.com/cchantep/acolyte/blob/master/jdbc-scala/src/test/jdbc-scala/acolyte/ScalaUseCases.scala) whose expectations are visible in [specifications](https://github.com/cchantep/acolyte/blob/master/jdbc-scala/src/test/jdbc-scala/acolyte/AcolyteSpec.scala).
 
 It's also possible to get directly get an Acolyte connection, without using JDBC driver registry:
 
@@ -854,9 +854,11 @@ Documentation is generated using Maven 3: `mvn -f site.xml site`
 To local repository:
 
 ```
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=core/target/acolyte-core-$VERSION.pom -Dfile=core/target/acolyte-core-$VERSION.jar -Durl=file://$REPOPATH
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=jdbc-driver/target/jdbc-driver-$VERSION.pom -Dfile=jdbc-driver/target/jdbc-driver-$VERSION.jar -Durl=file://$REPOPATH
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.pom -Dfile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.jar -Durl=file://$REPOPATH
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=jdbc-scala/target/scala-2.10/jdbc-scala_2.10-$VERSION.pom -Dfile=jdbc-scala/target/scala-2.10/jdbc-scala_2.10-$VERSION.jar -Durl=file://$REPOPATH
+
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scalac-plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION.pom -Dfile=scalac-plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION.jar -Durl=file://$REPOPATH
 ```
 
 At Sonatype:
@@ -865,17 +867,23 @@ At Sonatype:
 export REPO="https://oss.sonatype.org/service/local/staging/deploy/maven2/"
 # or https://oss.sonatype.org/content/repositories/snapshots/
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=core/target/acolyte-core-$VERSION.pom -Dfile=core/target/acolyte-core-$VERSION.jar -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=jdbc-driver/target/jdbc-driver-$VERSION.pom -Dfile=jdbc-driver/target/jdbc-driver-$VERSION.jar -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=core/target/acolyte-core-$VERSION.pom -Dfile=core/target/acolyte-core-$VERSION-javadoc.jar -Dclassifier=javadoc -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=jdbc-driver/target/jdbc-driver-$VERSION.pom -Dfile=jdbc-driver/target/jdbc-driver-$VERSION-javadoc.jar -Dclassifier=javadoc -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=core/target/acolyte-core-$VERSION.pom -Dfile=core/target/acolyte-core-$VERSION-sources.jar -Dclassifier=sources -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=jdbc-driver/target/jdbc-driver-$VERSION.pom -Dfile=jdbc-driver/target/jdbc-driver-$VERSION-sources.jar -Dclassifier=sources -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.pom -Dfile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.jar -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=jdbc-scala/target/scala-2.10/jdbc-scala_2.10-$VERSION.pom -Dfile=jdbc-scala/target/scala-2.10/jdbc-scala_2.10-$VERSION.jar -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.pom -Dfile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION-javadoc.jar -Dclassifier=javadoc -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=jdbc-scala/target/scala-2.10/jdbc-scala_2.10-$VERSION.pom -Dfile=jdbc-scala/target/scala-2.10/jdbc-scala_2.10-$VERSION-javadoc.jar -Dclassifier=javadoc -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION.pom -Dfile=scala/target/scala-2.10/acolyte-scala_2.10-$VERSION-sources.jar -Dclassifier=sources -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=jdbc-scala/target/scala-2.10/jdbc-scala_2.10-$VERSION.pom -Dfile=jdbc-scala/target/scala-2.10/jdbc-scala_2.10-$VERSION-sources.jar -Dclassifier=sources -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scalac-plugin/plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION.pom -Dfile=scalac-plugin/plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION.jar -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scalac-plugin/plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION.pom -Dfile=scalac-plugin/plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION-javadoc.jar -Dclassifier=javadoc -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scalac-plugin/plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION.pom -Dfile=scalac-plugin/plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION-sources.jar -Dclassifier=sources -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 ```
 
 Authentication should be configured in `~/.m2/settings.xml`:

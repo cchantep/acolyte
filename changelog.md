@@ -1,3 +1,17 @@
+## 1.0.14
+
+([9b813586190f6e5f8e7c3fdcde642bcc2234e1a4](https://github.com/cchantep/acolyte/commit/9b813586190f6e5f8e7c3fdcde642bcc2234e1a4) @ [[scalac-plugin]](https://github.com/cchantep/acolyte/tree/master/[scalac-plugin])) Documentation
+
+([b5994bd1773f63e7c04eccc2b24b6378c10b8f4d](https://github.com/cchantep/acolyte/commit/b5994bd1773f63e7c04eccc2b24b6378c10b8f4d) @ [[scalac-plugin]](https://github.com/cchantep/acolyte/tree/master/[scalac-plugin])) Match component specs
+
+([88aaedde8f2d6a90bcc3e012810701f72eac3781](https://github.com/cchantep/acolyte/commit/88aaedde8f2d6a90bcc3e012810701f72eac3781) @ [[scalac-plugin]](https://github.com/cchantep/acolyte/tree/master/[scalac-plugin])) Add MatchPlugin (rich pattern matching)
+
+([4b64595e37b5c2d70761d1a7c1307f06fdc771e6](https://github.com/cchantep/acolyte/commit/4b64595e37b5c2d70761d1a7c1307f06fdc771e6) @ [studio](https://github.com/cchantep/acolyte/tree/master/studio)) Fix display issue in extract table
+
+([654575844c3386a5471c01cf2c1710ab9a29d7e4](https://github.com/cchantep/acolyte/commit/654575844c3386a5471c01cf2c1710ab9a29d7e4) @ [studio](https://github.com/cchantep/acolyte/tree/master/studio)) Fix bigdecimal issue
+
+([c33c9b88cb58b3cce07d06f3b161eeb8fc9ff3d0](https://github.com/cchantep/acolyte/commit/c33c9b88cb58b3cce07d06f3b161eeb8fc9ff3d0) @ [studio](https://github.com/cchantep/acolyte/tree/master/studio)) Expert editor for column mappings.
+
 ## 1.0.13
 
 ([924ef57d29285ad49c8674d76ceee97630a25c1a](https://github.com/cchantep/acolyte/commit/924ef57d29285ad49c8674d76ceee97630a25c1a) @ [studio](https://github.com/cchantep/acolyte/tree/master/studio)) Allow Studio to connection without password (fix #14)

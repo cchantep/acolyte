@@ -15,6 +15,7 @@
 
     <menu name="Subprojects">
       <item name="Acolyte Studio" href="./studio.html" />
+      <item name="Scalac plugin" href="./scalac-plugin.html" />
     </menu>
 
     <menu name="Reference">

@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eu.acolyte</groupId>
   <artifactId>acolyte</artifactId>
-  <version>1.0.13</version>
+  <version>1.0.14</version>
   <packaging>pom</packaging>
   <name>Acolyte</name>
 
@@ -56,7 +56,7 @@
                 </copy>
 
                 <copy todir="${project.build.directory}/site/scaladocs">
-                  <fileset dir="${basedir}/scala/target/scala-2.10/api" />
+                  <fileset dir="${basedir}/jdbc-scala/target/scala-2.10/api" />
                 </copy>
                     
                 <copy file="${basedir}/readme.md" 
@@ -68,6 +68,9 @@
 
                 <copy file="${basedir}/studio/readme.md" 
                       tofile="${generatedSite}/markdown/studio.md" />
+
+                <copy file="${basedir}/scalac-plugin/readme.md" 
+                      tofile="${generatedSite}/markdown/scalac-plugin.md" />
 
                 <copy todir="${project.build.directory}/site/css">
                   <fileset dir="${basedir}/src/site/css" includes="*.css" />

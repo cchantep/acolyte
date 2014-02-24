@@ -56,8 +56,6 @@ str match {
 
 ## Usage
 
-This plugin is currently published as `1.0.14-SNAPSHOT` on repository `https://raw.github.com/applicius/mvn-repo/master/snapshots/`.
-
 > If you have another `~` symbol, it will have to be renamed at `import pkg.{ ~ ⇒ renamed }`.
 
 ### SBT usage
