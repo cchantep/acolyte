@@ -47,7 +47,7 @@ sealed trait MatchTest {
     case Integer(n)                            ⇒ List(s"num-$n")
     case ~(Regex("^a.*"))                      ⇒ List("no-binding")
     case ~(Regex("# ([A-Z]+).*"), a)           ⇒ List(a)
-    case ~(Regex("([0-9]+);([a-z]+)"), (a, b)) ⇒ List(b, a)
+    case re @ ~(Regex("([0-9]+);([a-z]+)"), (a, b)) ⇒ List(b, a)
     case x                                     ⇒ Nil
   }
 }

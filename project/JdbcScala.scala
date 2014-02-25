@@ -7,9 +7,6 @@ trait JdbcScala {
   lazy val jdbcScala = 
     Project(id = "jdbc-scala", base = file("jdbc-scala")).settings(
     name := "jdbc-scala",
-    organization := "org.eu.acolyte",
-    version := "1.0.14",
-    scalaVersion := "2.10.3",
     javaOptions ++= Seq("-source", "1.6", "-target", "1.6"),
     javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
     scalacOptions ++= Seq("-feature", "-deprecation"),
@@ -18,7 +15,6 @@ trait JdbcScala {
       "org.eu.acolyte" % "jdbc-driver" % "1.0.14",
       "org.scalaz" % "scalaz-core_2.10" % "7.0.5",
       "org.specs2" %% "specs2" % "2.3.2" % "test"),
-    publishTo := Some(Resolver.file("file", new File(Path.userHome.absolutePath + "/.m2/repository"))),
     sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
       val (base, managed) = dirs
       generateRowClasses(base, managed)

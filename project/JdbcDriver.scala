@@ -5,9 +5,6 @@ trait JdbcDriver {
   lazy val jdbcDriver = 
     Project(id = "jdbc-driver", base = file("jdbc-driver")).settings(
     name := "jdbc-driver",
-    organization := "org.eu.acolyte",
-    version := "1.0.14",
-    scalaVersion := "2.10.3",
     javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
     autoScalaLibrary := false,
     scalacOptions += "-feature",
@@ -19,40 +16,7 @@ trait JdbcDriver {
     sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
       val (base, managed) = dirs
       generateRowClasses(base, managed)
-    }),
-    pomExtra := (
-      <url>https://github.com/cchantep/acolyte/</url>
-      <licenses>
-        <license>
-          <name>GNU Lesser General Public License, Version 2.1</name>
-          <url>
-            https://raw.github.com/cchantep/acolyte/master/LICENSE.txt
-          </url>
-          <distribution>repo</distribution>
-        </license>
-      </licenses>
-      <scm>
-        <connection>scm:git:git@github.com:cchantep/acolyte.git</connection>
-        <developerConnection>
-          scm:git:git@github.com:cchantep/acolyte.git
-        </developerConnection>
-        <url>git@github.com:cchantep/acolyte.git</url>
-      </scm>
-      <issueManagement>
-        <system>GitHub</system>
-        <url>https://github.com/cchantep/acolyte/issues</url>
-      </issueManagement>
-      <ciManagement>
-        <system>Travis CI</system>
-        <url>https://travis-ci.org/cchantep/acolyte</url>
-      </ciManagement>
-      <developers>
-        <developer>
-          <id>cchantep</id>
-          <name>Cedric Chantepie</name>
-        </developer>
-      </developers>),
-    publishTo := Some(Resolver.file("file", new File(Path.userHome.absolutePath + "/.m2/repository"))))
+    }))
 
   // Source generator
   private def generateRowClasses(basedir: File, managedSources: File): Seq[File] = {

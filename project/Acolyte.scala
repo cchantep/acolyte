@@ -8,8 +8,45 @@ object Acolyte extends Build
   lazy val root = Project(id = "acolyte", base = file(".")).
     aggregate(jdbcDriver, scalacPlugin, jdbcScala, studio).
     settings(
-      version := "1.0.14",
-      scalaVersion := "2.10.3",
-      publishTo := Some(Resolver.file("file", 
-        new File(Path.userHome.absolutePath+"/.m2/repository"))))
+      organization in ThisBuild := "org.eu.acolyte",
+      version in ThisBuild := "1.0.15",
+      scalaVersion in ThisBuild := "2.10.3",
+      publishTo in ThisBuild := Some(Resolver.file("file", 
+        new File(Path.userHome.absolutePath+"/.m2/repository"))),
+      pomExtra in ThisBuild := (
+      <organization>
+        <name>Acolyte</name>
+        <url>http://acolyte.eu.org</url>
+      </organization>
+      <url>https://github.com/cchantep/acolyte/</url>
+      <licenses>
+        <license>
+          <name>GNU Lesser General Public License, Version 2.1</name>
+          <url>
+            https://raw.github.com/cchantep/acolyte/master/LICENSE.txt
+          </url>
+          <distribution>repo</distribution>
+        </license>
+      </licenses>
+      <scm>
+        <connection>scm:git:git@github.com:cchantep/acolyte.git</connection>
+        <developerConnection>
+          scm:git:git@github.com:cchantep/acolyte.git
+        </developerConnection>
+        <url>git@github.com:cchantep/acolyte.git</url>
+      </scm>
+      <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/cchantep/acolyte/issues</url>
+      </issueManagement>
+      <ciManagement>
+        <system>Travis CI</system>
+        <url>https://travis-ci.org/cchantep/acolyte</url>
+      </ciManagement>
+      <developers>
+        <developer>
+          <id>cchantep</id>
+          <name>Cedric Chantepie</name>
+        </developer>
+      </developers>))
 }
