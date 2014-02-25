@@ -35,20 +35,21 @@ object MatchComponentSpec
     }
 
     "rich match with several bindings: ~(Regex(re), (a, b))" in {
-      patternMatching("123;xyz") aka "matching" mustEqual List("xyz", "123")
+      patternMatching("123;xyz") aka "matching" mustEqual List(
+        "123;xyz", "xyz", "123")
     }
   }
 }
 
 sealed trait MatchTest {
   def patternMatching(s: String): List[String] = s match {
-    case ~(IntRange(5, 10))                    ⇒ List("5-to-10")
-    case ~(IntRange(10, 20), i)                ⇒ List(s"range:$i")
-    case Integer(n)                            ⇒ List(s"num-$n")
-    case ~(Regex("^a.*"))                      ⇒ List("no-binding")
-    case ~(Regex("# ([A-Z]+).*"), a)           ⇒ List(a)
-    case re @ ~(Regex("([0-9]+);([a-z]+)"), (a, b)) ⇒ List(b, a)
-    case x                                     ⇒ Nil
+    case ~(IntRange(5, 10)) ⇒ List("5-to-10")
+    case ~(IntRange(10, 20), i) ⇒ List(s"range:$i")
+    case Integer(n) ⇒ List(s"num-$n")
+    case ~(Regex("^a.*")) ⇒ List("no-binding")
+    case ~(Regex("# ([A-Z]+).*"), a) ⇒ List(a)
+    case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b)) ⇒ List(str, b, a)
+    case x ⇒ Nil
   }
 }
 

@@ -14,10 +14,6 @@ object Acolyte extends Build
       publishTo in ThisBuild := Some(Resolver.file("file", 
         new File(Path.userHome.absolutePath+"/.m2/repository"))),
       pomExtra in ThisBuild := (
-      <organization>
-        <name>Acolyte</name>
-        <url>http://acolyte.eu.org</url>
-      </organization>
       <url>https://github.com/cchantep/acolyte/</url>
       <licenses>
         <license>

@@ -34,6 +34,7 @@ class AcolytePlugin(val global: Global) extends Plugin {
       import global.{
         //abort,
         reporter,
+        Apply,
         Block,
         CaseDef,
         Match,
@@ -41,6 +42,8 @@ class AcolytePlugin(val global: Global) extends Plugin {
         Tree,
         ValDef
       }
+      import scala.reflect.io.VirtualFile
+      import scala.reflect.internal.util.BatchSourceFile
 
       override def transform(tree: Tree): Tree = tree match {
         case m @ Match(_, _) ⇒ {
@@ -59,51 +62,58 @@ class AcolytePlugin(val global: Global) extends Plugin {
       @inline private def refactorMatch(orig: Match): Tree =
         orig match {
           case Match(t, cs) ⇒ {
-            import global.{
-              Apply,
-              Bind,
-              Block,
-              Constant,
-              Ident,
-              Literal
-            }
+            import global.{ Bind, Ident }
 
             val vds = ListBuffer[ValDef]()
             val cds = cs.map {
-              case ocd @ CaseDef(Apply(Ident(it), x), g, by) if (
-                it == tildeTerm) ⇒
-                (x.headOption, x.tail) match {
-                  case (Some(xt @ Apply(ex, xa)), Apply(_, ua) :: Nil) ⇒
-                    val (vd, cd) = caseDef(vds.size, ocd.pos, xt.pos, ex, xa,
-                      ua, g, by)
-                    vds += vd
-                    cd
+              case ocd @ CaseDef(pat, g, by) ⇒ {
+                val ocp = ocd.pos // g, by
 
-                  case (Some(xt @ Apply(ex, xa)), Bind(uf, ua) :: Nil) ⇒
-                    val (vd, cd) = caseDef(vds.size, ocd.pos, xt.pos, ex, xa,
-                      List(Bind(uf, ua)), g, by)
-                    vds += vd
-                    cd
+                val tx = new global.Transformer {
+                  override def transform(tree: Tree): Tree = tree match {
+                    case oa @ Apply(Ident(it), x) if (it == tildeTerm) ⇒ {
+                      (x.headOption, x.tail) match {
+                        case (Some(xt @ Apply(ex, xa)), bs) ⇒ {
+                          val xpo: Option[List[Tree]] = bs.headOption match {
+                            case Some(Apply(_, ua))    ⇒ Some(ua)
+                            case Some(bn @ Bind(_, _)) ⇒ Some(bn :: Nil)
+                            case Some(id @ Ident(_))   ⇒ Some(id :: Nil)
+                            case None                  ⇒ Some(Nil)
+                            case _                     ⇒ None
+                          }
 
-                  case (Some(xt @ Apply(ex, xa)), Ident(i) :: Nil) ⇒
-                    val (vd, cd) = caseDef(vds.size, ocd.pos, xt.pos, ex, xa,
-                      List(Ident(i)), g, by)
-                    vds += vd
-                    cd
+                          xpo.fold({
+                            reporter.error(oa.pos, "Invalid ~ pattern")
+                            //abort("Invalid ~ pattern")
+                            oa
+                          }) { xp ⇒
+                            val (vd, rp) = refactorPattern(xt.pos, ex, xa, xp)
+                            vds += vd
+                            rp
+                          }
+                        }
+                        case _ ⇒
+                          reporter.error(oa.pos, "Invalid ~ pattern")
+                          //abort("Invalid ~ pattern")
+                          oa
 
-                  case (Some(xt @ Apply(ex, xa)), Nil) ⇒
-                    // no binding
-                    val (vd, cd) = caseDef(vds.size, ocd.pos, xt.pos, ex, xa,
-                      Nil, g, by)
-                    vds += vd
-                    cd
-
-                  case _ ⇒
-                    reporter.error(ocd.pos, "Invalid ~ pattern")
-                    //abort("Invalid ~ pattern"
-                    ocd
+                      }
+                    }
+                    case _ ⇒ super.transform(tree)
+                  }
                 }
 
+                val of = ocp.source.file
+                val file = new VirtualFile(of.name,
+                  s"${of.path}#refactored-match-${ocp.line}")
+
+                val nc = CaseDef(tx.transform(pat), g, by)
+                val cdc = s"${global.show(nc)} // generated from ln ${ocp.line}, col ${ocp.column - 5}"
+                val cdp = ocp.withPoint(0).
+                  withSource(new BatchSourceFile(file, cdc), 0)
+
+                global.atPos(cdp)(nc)
+              }
               case cd ⇒ cd
             }
 
@@ -116,39 +126,23 @@ class AcolytePlugin(val global: Global) extends Plugin {
             orig
         }
 
-      @inline private def caseDef[T](i: Int, cp: Position, xp: Position, ex: Tree, xa: List[Tree], ua: List[Tree], g: Tree, b: Tree): (ValDef, CaseDef) = {
+      @inline private def refactorPattern[T](xp: Position, ex: Tree, xa: List[Tree], ua: List[Tree]): (ValDef, Apply) = {
 
-        import scala.reflect.io.VirtualFile
-        import scala.reflect.internal.util.BatchSourceFile
-        import global.{
-          atPos,
-          show,
-          Apply,
-          Ident,
-          Literal,
-          Modifiers,
-          TypeTree
-        }
+        import global.{ atPos, show, Ident, Modifiers }
 
         val of = xp.source.file
-        val file = new VirtualFile(of.name, of.path + "#refactored-match-" + i)
+        val file = new VirtualFile(of.name,
+          s"${of.path}#refactored-match-${xp.line}")
 
         // ValDef
         val xn = global.treeBuilder.freshTermName("Xtr")
-        val vd = ValDef(Modifiers(), xn, TypeTree(), Apply(ex, xa))
+        val vd = ValDef(Modifiers(), xn, global.TypeTree(), Apply(ex, xa))
         val vdc =
           s"${show(vd)} // generated from ln ${xp.line}, col ${xp.column - 1}"
 
         val vdp = xp.withPoint(0).withSource(new BatchSourceFile(file, vdc), 0)
 
-        // CaseDef
-        val pat = Apply(Ident(xn), ua)
-        val cd = CaseDef(pat, g, b)
-        val cdc =
-          s"${show(cd)} // generated from ln ${cp.line}, col ${cp.column - 5}"
-        val cdp = cp.withPoint(0).withSource(new BatchSourceFile(file, cdc), 0)
-
-        (atPos(vdp)(vd), atPos(cdp)(cd))
+        (atPos(vdp)(vd), Apply(Ident(xn), ua))
       }
     }
   }
