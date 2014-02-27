@@ -1,7 +1,7 @@
 import sbt._
 import Keys._
 
-trait JdbcDriver {
+trait JdbcDriver { deps: Dependencies ⇒
   lazy val jdbcDriver = 
     Project(id = "jdbc-driver", base = file("jdbc-driver")).settings(
     name := "jdbc-driver",
@@ -10,8 +10,7 @@ trait JdbcDriver {
     scalacOptions += "-feature",
     resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
     libraryDependencies ++= Seq(
-      "org.apache.commons" % "commons-lang3" % "3.1",
-      "org.specs2" %% "specs2" % "2.3.2" % "test"),
+      "org.apache.commons" % "commons-lang3" % "3.1", specs2Test),
     crossPaths := false,
     sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
       val (base, managed) = dirs

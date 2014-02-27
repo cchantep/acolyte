@@ -1,56 +1,31 @@
 import sbt._
 import Keys._
 
-trait JdbcScala {
+trait JdbcScala { deps: Dependencies ⇒
+  // Dependencies
   def jdbcDriver: Project
+  def scalacPlugin: Project
 
   lazy val jdbcScala = 
     Project(id = "jdbc-scala", base = file("jdbc-scala")).settings(
-    name := "jdbc-scala",
-    javaOptions ++= Seq("-source", "1.6", "-target", "1.6"),
-    javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
-    scalacOptions ++= Seq("-feature", "-deprecation"),
-    resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
-    libraryDependencies ++= Seq(
-      "org.eu.acolyte" % "jdbc-driver" % "1.0.14",
-      "org.scalaz" % "scalaz-core_2.10" % "7.0.5",
-      "org.specs2" %% "specs2" % "2.3.2" % "test"),
-    sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
-      val (base, managed) = dirs
-      generateRowClasses(base, managed)
-    }),
-    pomExtra := (
-      <url>https://github.com/cchantep/acolyte/</url>
-      <licenses>
-        <license>
-          <name>GNU Lesser General Public License, Version 2.1</name>
-          <url>
-            https://raw.github.com/cchantep/acolyte/master/LICENSE.txt
-          </url>
-          <distribution>repo</distribution>
-        </license>
-      </licenses>
-      <scm>
-        <connection>scm:git:git@github.com:cchantep/acolyte.git</connection>
-        <developerConnection>
-          scm:git:git@github.com:cchantep/acolyte.git
-        </developerConnection>
-        <url>git@github.com:cchantep/acolyte.git</url>
-      </scm>
-      <issueManagement>
-        <system>GitHub</system>
-        <url>https://github.com/cchantep/acolyte/issues</url>
-      </issueManagement>
-      <ciManagement>
-        <system>Travis CI</system>
-        <url>https://travis-ci.org/cchantep/acolyte</url>
-      </ciManagement>
-      <developers>
-        <developer>
-          <id>cchantep</id>
-          <name>Cedric Chantepie</name>
-        </developer>
-      </developers>)).dependsOn(jdbcDriver)
+      name := "jdbc-scala",
+      javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
+      scalacOptions in Test <++= (version in ThisBuild).
+        zip(baseDirectory in (scalacPlugin, Compile)).
+        zip(name in (scalacPlugin, Compile)) map { d =>
+          val ((v, b), n) = d
+          val j = b / "target" / "scala-2.10" / "%s_2.10-%s.jar".format(n, v)
+
+          Seq("-feature", "-deprecation", 
+            "-Xplugin:%s".format(j.getAbsolutePath))
+        },
+      resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
+      libraryDependencies ++= Seq(
+        "org.eu.acolyte" % "jdbc-driver" % "1.0.15", specs2Test),
+      sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
+        val (base, managed) = dirs
+        generateRowClasses(base, managed)
+      })).dependsOn(scalacPlugin, jdbcDriver)
 
   // Source generator
   private def generateRowClasses(base: File, managed: File): Seq[File] = {

@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 
 // Multi-module project build
-object Acolyte extends Build 
+object Acolyte extends Build with Dependencies 
     with JdbcDriver with ScalacPlugin with JdbcScala with Studio {
 
   lazy val root = Project(id = "acolyte", base = file(".")).
@@ -10,6 +10,7 @@ object Acolyte extends Build
     settings(
       organization in ThisBuild := "org.eu.acolyte",
       version in ThisBuild := "1.0.15",
+      javaOptions in ThisBuild ++= Seq("-source", "1.6", "-target", "1.6"),
       scalaVersion in ThisBuild := "2.10.3",
       publishTo in ThisBuild := Some(Resolver.file("file", 
         new File(Path.userHome.absolutePath+"/.m2/repository"))),
@@ -45,4 +46,8 @@ object Acolyte extends Build
           <name>Cedric Chantepie</name>
         </developer>
       </developers>))
+}
+
+trait Dependencies {
+  val specs2Test = "org.specs2" %% "specs2" % "2.3.8" % "test"
 }

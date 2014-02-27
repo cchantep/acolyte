@@ -8,7 +8,6 @@ import java.sql.{ Connection ⇒ SqlConnection, Statement, SQLWarning }
 import scala.language.implicitConversions
 import scala.collection.JavaConversions
 
-import acolyte.ParameterMetaData.ParameterDef
 import acolyte.StatementHandler.Parameter
 import acolyte.AbstractCompositeHandler.{ QueryHandler, UpdateHandler }
 import acolyte.RowList.{ Column ⇒ Col }
@@ -22,8 +21,8 @@ import acolyte.RowList.{ Column ⇒ Col }
  *
  * connection {
  *   handleStatement.withQueryDetection("...").
- *     withQueryHandler({ e: Execution => ... }).
- *     withUpdateHandler({ e: Execution => ... })
+ *     withQueryHandler({ e: QueryExecution => ... }).
+ *     withUpdateHandler({ e: UpdateExecution => ... })
  * }
  * }}}
  */
@@ -129,36 +128,6 @@ object Implicits extends ScalaRowLists with CompositeHandlerImplicits {
 
 }
 
-sealed trait Execution
-
-case class QueryExecution(
-  sql: String,
-  parameters: List[ExecutedParameter]) extends Execution
-
-case class UpdateExecution(
-  sql: String,
-  parameters: List[ExecutedParameter]) extends Execution
-
-trait ExecutedParameter {
-  def value: Any
-}
-
-case class DefinedParameter(
-    value: Any,
-    definition: ParameterDef) extends ExecutedParameter {
-
-  override lazy val toString = s"Param($value, ${definition.sqlTypeName})"
-}
-
-object ParameterVal {
-  def apply(v: Any): ExecutedParameter = new ExecutedParameter {
-    val value = v
-    override lazy val toString = s"Param($value)"
-  }
-
-  def unapply(p: ExecutedParameter): Option[Any] = Some(p.value)
-}
-
 final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: UpdateHandler) extends AbstractCompositeHandler[ScalaCompositeHandler](qd, qh, uh) {
 
   /**
@@ -247,8 +216,7 @@ trait CompositeHandlerImplicits { srl: ScalaRowLists ⇒
    * ScalaCompositeHandler.empty withUpdateHandler { exec ⇒ 1/*count*/ }
    * }}}
    */
-  implicit def IntUpdateResult(updateCount: Int): UpdateResult =
-    new UpdateResult(updateCount)
+  implicit def IntUpdateResult(updateCount: Int) = new UpdateResult(updateCount)
 
   /**
    * Allows to directly use row list as query result.

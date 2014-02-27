@@ -28,13 +28,12 @@ object ScalaUseCases {
       withQueryDetection(
         "^SELECT ", // regex test from beginning
         "EXEC that_proc"). // second detection regex
-        withUpdateHandler { e: UpdateExecution ⇒
-          if (e.sql.startsWith("DELETE ")) {
-            // Process deletion ...
-            /* deleted = */ 2
-          } else {
-            // ... Process ...
-            /* count = */ 1
+        withUpdateHandler {
+          _ match {
+            case ~(ExecutedStatement("^DELETE "), (sql, ps)) ⇒
+              /* Process deletion ... deleted = */ 2
+
+            case _ ⇒ /* ... Process ... count = */ 1
           }
         } withQueryHandler { e: QueryExecution ⇒
           if (e.sql.startsWith("SELECT ")) {
@@ -95,7 +94,7 @@ object ScalaUseCases {
     val handler: ScalaCompositeHandler = handleStatement.
       withQueryDetection("^SELECT ") withQueryHandler {
         _ match { // QueryExecution
-          case QueryExecution(s, ParameterVal("id") :: Nil) ⇒
+          case QueryExecution(s, ExecutedParameter("id") :: Nil) ⇒
             (stringList :+ "useCase_3a").asResult
 
           case QueryExecution(s,

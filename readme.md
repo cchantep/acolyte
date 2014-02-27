@@ -381,24 +381,33 @@ val con = connection(handler)
 In Scala query handler, pattern matching can be use to easily describe result case:
 
 ```scala
-import acolyte.{ Execution, DefinedParameter, ParameterVal }
+import acolyte.{ QueryExecution, DefinedParameter, ExecutedParameter }
 
 handleStatement.withQueryDetection("^SELECT").
-  withQueryHandler { e: Execution ⇒ e match {
-      case Execution(sql, DefinedParameter("str", _) :: Nil)
+  withQueryHandler { e: QueryExecution ⇒ e match {
+      case QueryExecution(sql, DefinedParameter("str", _) :: Nil)
         if sql.startsWith("SELECT") ⇒
-        // result when sql starts with SQL 
+        // result when sql starts with SELECT
         // and there is only 1 parameter with "str" value
 
-      case Execution(_, ParameterVal(_) :: ParameterVal(2) :: _) ⇒
+      case QueryExecution(_, 
+        ExecutedParameter(_) :: ExecutedParameter(2) :: _) ⇒
         // result when there is at least 2 parameters for any sql
         // with the second having integer value 2
     }
   }
 ```
 
-If you plan only to handle query (not update) statements, `handleQuery` 
-can be used:
+With [scalac plugin](./scalac-plugin.html), extractor `ExecutedStatement(regex, params)` can be used with [rich pattern matching](https://github.com/cchantep/acolyte/blob/master/jdbc-driver/src/test/jdbc-scala/acolyte/ExecutionSpec.scala):
+
+```scala
+e/*: Execution match {
+  case ~(ExecutedStatement("^SELECT"), // if sql starts with SELECT
+    (matchingSql, ExecutedParameter("strVal") :: Nil)) => /* ... */
+}
+```
+
+If you plan only to handle query (not update) statements, `handleQuery` can be used:
 
 ```scala
 handleQuery withQueryHandler { e ⇒ … }
