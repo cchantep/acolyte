@@ -11,17 +11,22 @@ trait JdbcScala { deps: Dependencies ⇒
       name := "jdbc-scala",
       javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
       scalacOptions in Test <++= (version in ThisBuild).
+        zip(scalaVersion in ThisBuild).
         zip(baseDirectory in (scalacPlugin, Compile)).
         zip(name in (scalacPlugin, Compile)) map { d =>
-          val ((v, b), n) = d
-          val j = b / "target" / "scala-2.10" / "%s_2.10-%s.jar".format(n, v)
+          val (((v, sv), b), n) = d
+          val msv = if (sv startsWith "2.10") "2.10" else sv
+          val td = b / "target" / "scala-%s".format(msv)
+          val j = td / "%s_%s-%s.jar".format(n, msv, v)
 
           Seq("-feature", "-deprecation", 
             "-Xplugin:%s".format(j.getAbsolutePath))
         },
-      resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
+      compile in Test <<= (compile in Test).
+        dependsOn(compile in (scalacPlugin, Test)), // make sure plugin is there
       libraryDependencies ++= Seq(
-        "org.eu.acolyte" % "jdbc-driver" % "1.0.15", specs2Test),
+        "org.eu.acolyte" % "jdbc-driver" % (version in ThisBuild).value, 
+        specs2Test),
       sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
         val (base, managed) = dirs
         generateRowClasses(base, managed)
