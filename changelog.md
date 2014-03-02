@@ -1,10 +1,22 @@
+## 1.0.15
+
+([65a7e3313ab5681b77cba502c0aa945ef645f68c](https://github.com/cchantep/acolyte/commit/65a7e3313ab5681b77cba502c0aa945ef645f68c) @ [[jdbc-scala]](https://github.com/cchantep/acolyte/tree/master/jdbc-scala)) Regex extractor for executed statement, usable with rich pattern:
+
+```scala
+e/* : QueryExecution */ match {
+  case ~(ExecutedStatement("^SELECT"), (sql, parameters)) => // ...
+}
+```
+
+([7bc9b546b3a3d05008b8ace84f3d2e47ba18d367](https://github.com/cchantep/acolyte/commit/7bc9b546b3a3d05008b8ace84f3d2e47ba18d367) @ [[scalac-plugin]](https://github.com/cchantep/acolyte/tree/master/scalac-plugin)) Support binding over rich pattern matching (e.g. `case binding @ ~(..., ...) => ...`; [Fix #20](https://github.com/cchantep/acolyte/issues/20))
+
 ## 1.0.14
 
-([9b813586190f6e5f8e7c3fdcde642bcc2234e1a4](https://github.com/cchantep/acolyte/commit/9b813586190f6e5f8e7c3fdcde642bcc2234e1a4) @ [[scalac-plugin]](https://github.com/cchantep/acolyte/tree/master/[scalac-plugin])) Documentation
+([9b813586190f6e5f8e7c3fdcde642bcc2234e1a4](https://github.com/cchantep/acolyte/commit/9b813586190f6e5f8e7c3fdcde642bcc2234e1a4) @ [[scalac-plugin]](https://github.com/cchantep/acolyte/tree/master/scalac-plugin)) Documentation
 
-([b5994bd1773f63e7c04eccc2b24b6378c10b8f4d](https://github.com/cchantep/acolyte/commit/b5994bd1773f63e7c04eccc2b24b6378c10b8f4d) @ [[scalac-plugin]](https://github.com/cchantep/acolyte/tree/master/[scalac-plugin])) Match component specs
+([b5994bd1773f63e7c04eccc2b24b6378c10b8f4d](https://github.com/cchantep/acolyte/commit/b5994bd1773f63e7c04eccc2b24b6378c10b8f4d) @ [[scalac-plugin]](https://github.com/cchantep/acolyte/tree/master/scalac-plugin)) Match component specs
 
-([88aaedde8f2d6a90bcc3e012810701f72eac3781](https://github.com/cchantep/acolyte/commit/88aaedde8f2d6a90bcc3e012810701f72eac3781) @ [[scalac-plugin]](https://github.com/cchantep/acolyte/tree/master/[scalac-plugin])) Add MatchPlugin (rich pattern matching)
+([88aaedde8f2d6a90bcc3e012810701f72eac3781](https://github.com/cchantep/acolyte/commit/88aaedde8f2d6a90bcc3e012810701f72eac3781) @ [[scalac-plugin]](https://github.com/cchantep/acolyte/tree/master/scalac-plugin)) Add MatchPlugin (rich pattern matching)
 
 ([4b64595e37b5c2d70761d1a7c1307f06fdc771e6](https://github.com/cchantep/acolyte/commit/4b64595e37b5c2d70761d1a7c1307f06fdc771e6) @ [studio](https://github.com/cchantep/acolyte/tree/master/studio)) Fix display issue in extract table
 
@@ -14,7 +26,7 @@
 
 ## 1.0.13
 
-([924ef57d29285ad49c8674d76ceee97630a25c1a](https://github.com/cchantep/acolyte/commit/924ef57d29285ad49c8674d76ceee97630a25c1a) @ [studio](https://github.com/cchantep/acolyte/tree/master/studio)) Allow Studio to connection without password (fix #14)
+([924ef57d29285ad49c8674d76ceee97630a25c1a](https://github.com/cchantep/acolyte/commit/924ef57d29285ad49c8674d76ceee97630a25c1a) @ [studio](https://github.com/cchantep/acolyte/tree/master/studio)) Allow Studio to connection without password (Fix #14)
 
 ([965bc416990b54b0d9421c72af769bfe75e3f31e](https://github.com/cchantep/acolyte/commit/965bc416990b54b0d9421c72af769bfe75e3f31e) @ [studio](https://github.com/cchantep/acolyte/tree/master/studio)) Fix issue with driver at system classloader (overloading those in selected driver JAR)
 

@@ -888,11 +888,11 @@ mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=jdbc-scala/target/scala-2.
 
 mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=jdbc-scala/target/scala-2.10/jdbc-scala_2.10-$VERSION.pom -Dfile=jdbc-scala/target/scala-2.10/jdbc-scala_2.10-$VERSION-sources.jar -Dclassifier=sources -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scalac-plugin/plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION.pom -Dfile=scalac-plugin/plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION.jar -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scalac-plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION.pom -Dfile=scalac-plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION.jar -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scalac-plugin/plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION.pom -Dfile=scalac-plugin/plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION-javadoc.jar -Dclassifier=javadoc -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scalac-plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION.pom -Dfile=scalac-plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION-javadoc.jar -Dclassifier=javadoc -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scalac-plugin/plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION.pom -Dfile=scalac-plugin/plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION-sources.jar -Dclassifier=sources -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scalac-plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION.pom -Dfile=scalac-plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION-sources.jar -Dclassifier=sources -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 ```
 
 Authentication should be configured in `~/.m2/settings.xml`:
