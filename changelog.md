@@ -1,6 +1,6 @@
 ## 1.0.15
 
-([65a7e3313ab5681b77cba502c0aa945ef645f68c](https://github.com/cchantep/acolyte/commit/65a7e3313ab5681b77cba502c0aa945ef645f68c) @ [[jdbc-scala]](https://github.com/cchantep/acolyte/tree/master/jdbc-scala)) Regex extractor for executed statement, usable with rich pattern:
+([65a7e3313ab5681b77cba502c0aa945ef645f68c](https://github.com/cchantep/acolyte/commit/65a7e3313ab5681b77cba502c0aa945ef645f68c) @ [jdbc-scala](https://github.com/cchantep/acolyte/tree/master/jdbc-scala)) Regex extractor for executed statement, usable with rich pattern:
 
 ```scala
 e/* : QueryExecution */ match {
@@ -8,15 +8,15 @@ e/* : QueryExecution */ match {
 }
 ```
 
-([7bc9b546b3a3d05008b8ace84f3d2e47ba18d367](https://github.com/cchantep/acolyte/commit/7bc9b546b3a3d05008b8ace84f3d2e47ba18d367) @ [[scalac-plugin]](https://github.com/cchantep/acolyte/tree/master/scalac-plugin)) Support binding over rich pattern matching (e.g. `case binding @ ~(..., ...) => ...`; [Fix #20](https://github.com/cchantep/acolyte/issues/20))
+([7bc9b546b3a3d05008b8ace84f3d2e47ba18d367](https://github.com/cchantep/acolyte/commit/7bc9b546b3a3d05008b8ace84f3d2e47ba18d367) @ [scalac-plugin](https://github.com/cchantep/acolyte/tree/master/scalac-plugin)) Support binding over rich pattern matching (e.g. `case binding @ ~(..., ...) => ...`; [Fix #20](https://github.com/cchantep/acolyte/issues/20))
 
 ## 1.0.14
 
-([9b813586190f6e5f8e7c3fdcde642bcc2234e1a4](https://github.com/cchantep/acolyte/commit/9b813586190f6e5f8e7c3fdcde642bcc2234e1a4) @ [[scalac-plugin]](https://github.com/cchantep/acolyte/tree/master/scalac-plugin)) Documentation
+([9b813586190f6e5f8e7c3fdcde642bcc2234e1a4](https://github.com/cchantep/acolyte/commit/9b813586190f6e5f8e7c3fdcde642bcc2234e1a4) @ [scalac-plugin](https://github.com/cchantep/acolyte/tree/master/scalac-plugin)) Documentation
 
-([b5994bd1773f63e7c04eccc2b24b6378c10b8f4d](https://github.com/cchantep/acolyte/commit/b5994bd1773f63e7c04eccc2b24b6378c10b8f4d) @ [[scalac-plugin]](https://github.com/cchantep/acolyte/tree/master/scalac-plugin)) Match component specs
+([b5994bd1773f63e7c04eccc2b24b6378c10b8f4d](https://github.com/cchantep/acolyte/commit/b5994bd1773f63e7c04eccc2b24b6378c10b8f4d) @ [scalac-plugin](https://github.com/cchantep/acolyte/tree/master/scalac-plugin)) Match component specs
 
-([88aaedde8f2d6a90bcc3e012810701f72eac3781](https://github.com/cchantep/acolyte/commit/88aaedde8f2d6a90bcc3e012810701f72eac3781) @ [[scalac-plugin]](https://github.com/cchantep/acolyte/tree/master/scalac-plugin)) Add MatchPlugin (rich pattern matching)
+([88aaedde8f2d6a90bcc3e012810701f72eac3781](https://github.com/cchantep/acolyte/commit/88aaedde8f2d6a90bcc3e012810701f72eac3781) @ [scalac-plugin](https://github.com/cchantep/acolyte/tree/master/scalac-plugin)) Add MatchPlugin (rich pattern matching)
 
 ([4b64595e37b5c2d70761d1a7c1307f06fdc771e6](https://github.com/cchantep/acolyte/commit/4b64595e37b5c2d70761d1a7c1307f06fdc771e6) @ [studio](https://github.com/cchantep/acolyte/tree/master/studio)) Fix display issue in extract table
 
