@@ -24,15 +24,27 @@ public final class UpdateResult implements Result<UpdateResult> {
 
     public final int count;
     public final SQLWarning warning;
+    public final RowList<?> generatedKeys;
 
     // --- Constructors ---
 
     /**
      * Bulk constructor.
      */
-    private UpdateResult(final int count, final SQLWarning warning) {
+    private UpdateResult(final int count, 
+                         final RowList<?> generatedKeys,
+                         final SQLWarning warning) {
+
         this.count = count;
+        this.generatedKeys = generatedKeys;
         this.warning = warning;
+    } // end of <init>
+
+    /**
+     * With-warning constructor.
+     */
+    private UpdateResult(final int count, final SQLWarning warning) {
+        this(count, null, warning);
     } // end of <init>
 
     /**
@@ -52,11 +64,27 @@ public final class UpdateResult implements Result<UpdateResult> {
     // ---
 
     /**
+     * Returns either null if there is no row resulting from update, 
+     * or associated row list.
+     */
+    public RowList<?> getGeneratedKeys() {
+        return this.generatedKeys;
+    } // end of getGeneratedKeys
+
+    /**
      * Returns update count.
      */
     public int getUpdateCount() {
         return this.count;
     } // end of getUpdateCount
+
+    /**
+     * Returns result with updated row |keys|.
+     * @param keys Generated keys
+     */
+    public UpdateResult withGeneratedKeys(final RowList<?> keys) {
+        return new UpdateResult(this.count, keys, this.warning);
+    } // end of withGeneratedKeys
 
     /**
      * {@inheritDoc}

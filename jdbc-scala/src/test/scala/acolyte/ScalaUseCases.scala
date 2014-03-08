@@ -3,7 +3,7 @@ package acolyte
 import java.sql.{ Connection ⇒ SqlConnection, Date, DriverManager }
 
 import acolyte.{ Driver ⇒ AcolyteDriver }
-import acolyte.RowLists.{ rowList1, rowList3, stringList }
+import acolyte.RowLists.{ rowList1, rowList3, stringList, intList }
 import acolyte.Rows.{ row1, row3 }
 import acolyte.Acolyte.{ connection, handleQuery, handleStatement } // DSL
 import acolyte.Implicits._
@@ -116,6 +116,14 @@ object ScalaUseCases {
   /**
    * Use case #4 - Connection with only query handler.
    */
-  def useCase4: SqlConnection = connection { handleQuery { e ⇒ true } }
+  def useCase4: SqlConnection = connection { handleQuery { _ ⇒ true } }
 
+  /**
+   * Use case #5 - Generated keys
+   */
+  def useCase5: SqlConnection = connection {
+    handleStatement withUpdateHandler {
+      _ ⇒ UpdateResult.One.withGeneratedKeys(intList :+ 100)
+    }
+  }
 } // end of class ScalaUseCases

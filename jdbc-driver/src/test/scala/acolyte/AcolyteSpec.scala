@@ -166,4 +166,20 @@ object AcolyteSpec extends Specification {
 
     }
   }
+
+  "Java use case #5" should {
+    val con = usecase.JavaUseCases.useCase5
+
+    "return expected boolean result" in {
+      lazy val s = con.prepareStatement("INSERT INTO table(x) VALUE('y')")
+      s.executeUpdate()
+
+      val keys = s.getGeneratedKeys
+
+      (keys.next aka "has generated key" must beTrue).
+        and(keys.getInt(1) aka "first key" must_== 100).
+        and(keys.next aka "has second key" must beFalse)
+
+    }
+  }
 }

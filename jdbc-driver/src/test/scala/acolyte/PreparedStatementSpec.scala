@@ -10,7 +10,7 @@ import acolyte.StatementHandler.Parameter
 import acolyte.test.{ EmptyConnectionHandler, Params }
 
 object PreparedStatementSpec
-    extends Specification with StatementSpecification[PreparedStatement] {
+  extends Specification with StatementSpecification[PreparedStatement] {
 
   "Prepared statement specification" title
 
@@ -1099,7 +1099,6 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
   "Query execution" should {
     lazy val h = new StatementHandler {
-      def getGeneratedKeys = null
       def isQuery(s: String) = true
       def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
       def whenSQLQuery(s: String, p: Params) = {
@@ -1112,10 +1111,12 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
     }
 
     "return resultset" in {
-      lazy val query = statement(h = h).executeQuery()
+      lazy val s = statement(h = h)
+      lazy val query = s.executeQuery()
 
       (query aka "execution" must not(throwA[SQLException])).
-        and(query aka "resultset" must not beNull)
+        and(query aka "resultset" must not beNull).
+        and(s.getGeneratedKeys.next aka "has generated keys" must beFalse)
     }
 
     "fail with update statement" in {
@@ -1134,9 +1135,26 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       statement().executeUpdate() aka "execution" must not(throwA[SQLException])
     }
 
+    "has generated keys" in {
+      lazy val h = new StatementHandler {
+        def isQuery(s: String) = false
+        def whenSQLQuery(s: String, p: Params) = sys.error("Not")
+        def whenSQLUpdate(s: String, p: Params) =
+          UpdateResult.One.withGeneratedKeys(RowLists.intList.append(200))
+
+      }
+      lazy val s = statement(h = h)
+
+      (s.executeUpdate aka "update count" must_== 1).
+        and(s.getGeneratedKeys aka "generated keys" must beLike {
+          case ks => (ks.next aka "has first key" must beTrue).
+            and(ks.getInt(1) aka "first key" must_== 200).
+            and(ks.next aka "has second key" must beFalse)
+        })
+    }
+
     "fail with query statement" in {
       lazy val h = new StatementHandler {
-        def getGeneratedKeys = null
         def isQuery(s: String) = true
         def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
         def whenSQLQuery(s: String, p: Params) = {
@@ -1152,7 +1170,6 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
   "Execution" should {
     lazy val h = new StatementHandler {
-      def getGeneratedKeys = null
       def isQuery(s: String) = true
       def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
       def whenSQLQuery(s: String, p: Params) = {
@@ -1203,7 +1220,6 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
     "be found for query" in {
       lazy val h = new StatementHandler {
-        def getGeneratedKeys = null
         def isQuery(s: String) = true
         def whenSQLUpdate(s: String, p: Params) = sys.error("Not")
         def whenSQLQuery(s: String, p: Params) =
@@ -1219,7 +1235,6 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
     "be found for update" in {
       lazy val h = new StatementHandler {
-        def getGeneratedKeys = null
         def isQuery(s: String) = false
         def whenSQLQuery(s: String, p: Params) = sys.error("Not")
         def whenSQLUpdate(s: String, p: Params) =
@@ -1240,7 +1255,6 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
     var sql: String = null
     var param: Parameter = null
     lazy val h = new StatementHandler {
-      def getGeneratedKeys = null
       def isQuery(s: String) = false
       def whenSQLUpdate(s: String, p: Params) = {
         sql = s; param = p.get(0); new UpdateResult(1)
@@ -1260,7 +1274,6 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
     var sql: String = null
     var param: Parameter = null
     lazy val h = new StatementHandler {
-      def getGeneratedKeys = null
       def isQuery(s: String) = true
       def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
       def whenSQLQuery(s: String, p: Params) = {

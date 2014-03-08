@@ -100,14 +100,6 @@ public abstract class AbstractCompositeHandler<T extends AbstractCompositeHandle
         return false;
     } // end of isQuery
 
-    /**
-     * {@inheritDoc}
-     * @throws RuntimeException Not supported
-     */
-    public ResultSet getGeneratedKeys() {
-        throw new RuntimeException("Not supported");
-    } // end of getGeneratedKeys
-
     // ---
 
     /**

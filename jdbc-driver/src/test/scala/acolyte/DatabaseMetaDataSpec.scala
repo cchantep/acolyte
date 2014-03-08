@@ -41,7 +41,7 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
     }
 
     "not support getting generated keys" in {
-      metadata().supportsGetGeneratedKeys aka "flag" must beFalse
+      metadata().supportsGetGeneratedKeys aka "flag" must beTrue
     }
 
     "not support holding cursor over commit" in {

@@ -12,7 +12,6 @@ import acolyte.CompositeHandler;
 import acolyte.StatementHandler;
 import acolyte.UpdateResult;
 import acolyte.QueryResult;
-import acolyte.Rows;
 
 import acolyte.StatementHandler.Parameter;
 
@@ -20,8 +19,6 @@ import static acolyte.RowLists.booleanList;
 import static acolyte.RowLists.rowList1;
 import static acolyte.RowLists.rowList3;
 import static acolyte.RowList.Column;
-import static acolyte.Rows.row1;
-import static acolyte.Rows.row3;
 
 /**
  * Use cases for testing.
@@ -173,4 +170,24 @@ public final class JavaUseCases {
 
         
     } // end of useCase4
+
+    /**
+     * Use case #5 - Generated keys
+     */
+    public static Connection useCase5() throws SQLException {
+        return acolyte.Driver.
+            connection(new CompositeHandler().
+                       withUpdateHandler(new CompositeHandler.UpdateHandler() {
+                               public UpdateResult apply(String sql, 
+                                                         List<Parameter> ps) {
+
+                                   // One update with generated keys
+                                   return UpdateResult.One.
+                                       withGeneratedKeys(acolyte.RowLists.
+                                                         intList().append(100));
+                               }
+                           }));
+
+        
+    } // end of useCase5
 } // end of class JavaUseCases

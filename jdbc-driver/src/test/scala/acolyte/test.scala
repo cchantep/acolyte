@@ -14,11 +14,8 @@ package object test {
   }
 
   object EmptyStatementHandler extends StatementHandler {
-    def getGeneratedKeys(): ResultSet = 
-      RowLists.rowList1(classOf[String]).resultSet
-
     def isQuery(sql: String): Boolean = false
-    def whenSQLQuery(sql: String, params: Params) = 
+    def whenSQLQuery(sql: String, params: Params) =
       RowLists.rowList1(classOf[String]).asResult
 
     def whenSQLUpdate(sql: String, params: Params) = UpdateResult.Nothing

@@ -158,6 +158,7 @@ public class PreparedStatement
 
         this.updateCount = -1;
         this.warning = res.getWarning();
+        this.generatedKeys = NO_GENERATED_KEY;
 
         return (this.result = res.getRowList().resultSet().withStatement(this));
     } // end of executeQuery
@@ -189,6 +190,9 @@ public class PreparedStatement
 
         this.result = null;
         this.warning = res.getWarning();
+        this.generatedKeys = (res.generatedKeys == null) 
+            ? RowLists.stringList().resultSet()/* empty ResultSet */
+            : res.generatedKeys.resultSet();
 
         return (this.updateCount = res.getUpdateCount());
     } // end of executeUpdate

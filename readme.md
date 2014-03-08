@@ -300,6 +300,20 @@ QueryResult resWithWarning = aRowList.asResult().
   withWarning("Row list result with warning");
 ```
 
+### Generated keys
+
+Update case not only returning update count but also generated keys can be represented with `UpdateResult`:
+
+```java
+import acolyte.UpdateResult;
+import acolyte.RowLists;
+
+// Result with update count == 1 and a generated key 2L
+UpdateResult.One.withGeneratedKeys(RowLists.longList().append(2L));
+```
+
+Keys specified on result will be given to JDBC statement `.getGeneratedKeys()`.
+
 ### Scala
 
 Module `jdbc-scala` provide a Scala DSL to use more friendly Acolyte features.
@@ -471,7 +485,7 @@ TODO (Scala implicits)
 
 UpdateExec => Int
 UpdateExec => SQLWarning
-UpdateExec => UpdateResult (mixing Int|SQLWarning)
+UpdateExec => UpdateResult (mixing Int|SQLWarning|generatedKeys)
 
 QueryExec => singleVal
 QueryExec => RowList
@@ -842,7 +856,6 @@ class Dog implements Animal {
 
 - Limited datatype conversions.
 - Binary datatype are not currently supported.
-- `ResultSet.RETURN_GENERATED_KEYS` is not supported.
 - Pseudo-support for transaction.
 - Currency types.
 

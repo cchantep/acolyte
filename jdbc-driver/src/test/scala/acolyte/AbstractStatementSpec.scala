@@ -44,18 +44,17 @@ object AbstractStatementSpec extends Specification {
   "Query execution" should {
     var sql: String = null
     lazy val h = new StatementHandler {
-      def getGeneratedKeys = null
       def isQuery(s: String) = true
       def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
       def whenSQLQuery(s: String, p: Params) = {
         sql = s
-        RowLists.rowList1(classOf[String]).asResult
+        RowLists.stringList.asResult
       }
     }
 
     "return empty resultset" in {
       lazy val s = statement(h = h)
-      lazy val rows = RowLists.rowList1(classOf[String])
+      lazy val rows = RowLists.stringList
 
       (s.executeQuery("QUERY") aka "result" mustEqual rows.resultSet).
         and(s.getResultSet aka "resultset" mustEqual rows.resultSet).
@@ -78,7 +77,7 @@ object AbstractStatementSpec extends Specification {
       lazy val s = statement(h = h)
 
       (s.execute("QUERY") aka "flag" must beTrue).
-        and(s.getResultSet aka "resultset" mustEqual RowLists.rowList1(classOf[String]).resultSet).
+        and(s.getResultSet aka "resultset" mustEqual RowLists.stringList.resultSet).
         and(s.getUpdateCount aka "update count" mustEqual -1).
         and(sql aka "executed SQL" mustEqual "QUERY")
 
@@ -89,15 +88,15 @@ object AbstractStatementSpec extends Specification {
 
       ((s.execute("QUERY", Statement.RETURN_GENERATED_KEYS).
         aka("flag") must beTrue).
-        and(s.getResultSet aka "resultset" mustEqual RowLists.rowList1(classOf[String]).resultSet).
+        and(s.getResultSet aka "resultset" mustEqual RowLists.stringList.resultSet).
         and(s.getUpdateCount aka "update count" mustEqual -1).
         and(sql aka "executed SQL" mustEqual "QUERY")).
         /*2*/ and((s.execute("QUERY", Array[Int]()) aka "flag" must beTrue).
-          and(s.getResultSet aka "resultset" mustEqual RowLists.rowList1(classOf[String]).resultSet).
+          and(s.getResultSet aka "resultset" mustEqual RowLists.stringList.resultSet).
           and(s.getUpdateCount aka "update count" mustEqual -1).
           and(sql aka "executed SQL" mustEqual "QUERY")).
         /*3*/ and((s.execute("QUERY", Array[String]()) aka "flag" must beTrue).
-          and(s.getResultSet aka "resultset" mustEqual RowLists.rowList1(classOf[String]).resultSet).
+          and(s.getResultSet aka "resultset" mustEqual RowLists.stringList.resultSet).
           and(s.getUpdateCount aka "update count" mustEqual -1).
           and(sql aka "executed SQL" mustEqual "QUERY"))
 
@@ -108,19 +107,21 @@ object AbstractStatementSpec extends Specification {
 
       (s.execute("QUERY", Statement.NO_GENERATED_KEYS).
         aka("flag") must beTrue).
-        and(s.getResultSet aka "resultset" mustEqual RowLists.rowList1(classOf[String]).resultSet).
+        and(s.getResultSet aka "resultset" mustEqual RowLists.stringList.resultSet).
         and(s.getUpdateCount aka "update count" mustEqual -1).
         and(sql aka "executed SQL" mustEqual "QUERY")
 
     }
   }
 
-  "Update" should {
+  "Update execution" should {
+    lazy val genKeys = RowLists.intList.append(2).append(5)
     var sql: String = null
     lazy val h = new StatementHandler {
-      def getGeneratedKeys = null
       def isQuery(s: String) = false
-      def whenSQLUpdate(s: String, p: Params) = { sql = s; new UpdateResult(5) }
+      def whenSQLUpdate(s: String, p: Params) = {
+        sql = s; new UpdateResult(5).withGeneratedKeys(genKeys)
+      }
       def whenSQLQuery(s: String, p: Params) = sys.error("TEST")
     }
 
@@ -130,7 +131,13 @@ object AbstractStatementSpec extends Specification {
       (s.executeUpdate("UPDATE") aka "result" mustEqual 5).
         and(s.getUpdateCount aka "update count" mustEqual 5).
         and(s.getResultSet aka "resultset" must beNull).
-        and(sql aka "executed SQL" mustEqual "UPDATE")
+        and(s.getGeneratedKeys aka "generated keys" must beLike {
+          case ks => (ks.next aka "has first key" must beTrue).
+            and(ks.getInt(1) aka "first key" must_== 2).
+            and(ks.next aka "has second key" must beTrue).
+            and(ks.getInt(1) aka "second key" must_== 5).
+            and(ks.next aka "has third key" must beFalse)
+        }).and(sql aka "executed SQL" mustEqual "UPDATE")
 
     }
 
@@ -141,7 +148,9 @@ object AbstractStatementSpec extends Specification {
         aka("result") mustEqual 5).
         and(s.getUpdateCount aka "update count" mustEqual 5).
         and(s.getResultSet aka "resultset" must beNull).
-        and(sql aka "executed SQL" mustEqual "UPDATE")
+        and(s.getGeneratedKeys aka "generated keys" must beLike {
+          case ks => ks.next aka "has key" must beFalse
+        }).and(sql aka "executed SQL" mustEqual "UPDATE")
 
     }
 
@@ -160,6 +169,7 @@ object AbstractStatementSpec extends Specification {
       (s.execute("UPDATE") aka "result" must beFalse).
         and(s.getUpdateCount aka "update count" mustEqual 5).
         and(s.getResultSet aka "resultset" must beNull).
+        and(s.getGeneratedKeys aka "gen keys" mustEqual genKeys.resultSet).
         and(sql aka "executed SQL" mustEqual "UPDATE")
 
     }
@@ -171,6 +181,8 @@ object AbstractStatementSpec extends Specification {
         aka("result") must beFalse).
         and(s.getUpdateCount aka "update count" mustEqual 5).
         and(s.getResultSet aka "resultset" must beNull).
+        and(s.getGeneratedKeys aka "generated keys" mustEqual (
+          RowLists.stringList.resultSet)).
         and(sql aka "executed SQL" mustEqual "UPDATE")
 
     }
@@ -277,7 +289,6 @@ object AbstractStatementSpec extends Specification {
 
     "skip row #3 with max count 2" in {
       lazy val h = new StatementHandler {
-        def getGeneratedKeys = null
         def isQuery(s: String) = true
         def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
         def whenSQLQuery(s: String, p: Params) = {
@@ -315,17 +326,15 @@ object AbstractStatementSpec extends Specification {
   }
 
   "Generated keys" should {
-    "be empty when null is returned by handler" in {
+    "be initially empty" in {
       statement().getGeneratedKeys.
-        aka("keys") mustEqual RowLists.rowList1(classOf[String]).resultSet
+        aka("keys") mustEqual RowLists.stringList.resultSet
 
     }
 
     "not be returned from update" in {
-      (statement().executeUpdate("UPDATE", Statement.RETURN_GENERATED_KEYS).
-        aka("update 1") must throwA[SQLFeatureNotSupportedException]).
-        and(statement().executeUpdate("UPDATE", Array[Int]()).
-          aka("update 2") must throwA[SQLFeatureNotSupportedException]).
+      (statement().executeUpdate("UPDATE", Array[Int]()).
+        aka("update 2") must throwA[SQLFeatureNotSupportedException]).
         and(statement().executeUpdate("UPDATE", Array[String]()).
           aka("update 3") must throwA[SQLFeatureNotSupportedException])
 
@@ -345,11 +354,10 @@ object AbstractStatementSpec extends Specification {
 
     "be found for query" in {
       lazy val h = new StatementHandler {
-        def getGeneratedKeys = null
         def isQuery(s: String) = true
         def whenSQLUpdate(s: String, p: Params) = sys.error("Not")
         def whenSQLQuery(s: String, p: Params) =
-          RowLists.rowList1(classOf[String]).asResult.withWarning(warning)
+          RowLists.stringList.asResult.withWarning(warning)
 
       }
 
@@ -361,7 +369,6 @@ object AbstractStatementSpec extends Specification {
 
     "be found for update" in {
       lazy val h = new StatementHandler {
-        def getGeneratedKeys = null
         def isQuery(s: String) = false
         def whenSQLQuery(s: String, p: Params) = sys.error("Not")
         def whenSQLUpdate(s: String, p: Params) =

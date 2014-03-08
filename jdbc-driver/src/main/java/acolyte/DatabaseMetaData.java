@@ -1437,7 +1437,7 @@ public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
      * {@inheritDoc}
      */
     public boolean supportsGetGeneratedKeys() throws SQLException {
-        return false;
+        return true;
     } // end of supportsGetGeneratedKeys
 
     /**
