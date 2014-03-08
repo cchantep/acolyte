@@ -18,9 +18,11 @@ import java.text.SimpleDateFormat;
 import java.net.URL;
 
 import java.sql.SQLFeatureNotSupportedException;
+import java.sql.BatchUpdateException;
 import java.sql.ParameterMetaData;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.SQLWarning;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.sql.SQLXML;
@@ -34,6 +36,7 @@ import java.sql.Date;
 import java.sql.Time;
 import java.sql.Ref;
 
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import acolyte.ParameterMetaData.ParameterDef;
@@ -106,6 +109,11 @@ public class PreparedStatement
     private final TreeMap<Integer,Parameter> parameters = 
         new TreeMap<Integer,Parameter>();
 
+    /**
+     * Batch elements
+     */
+    private final ArrayList<ImmutablePair<String,TreeMap<Integer,Parameter>>> batch;
+
     // --- Constructors ---
 
     /**
@@ -127,6 +135,7 @@ public class PreparedStatement
 
         this.sql = sql;
         this.query = handler.isQuery(sql);
+        this.batch = new ArrayList<ImmutablePair<String,TreeMap<Integer,Parameter>>>();
     } // end of <init>
 
     // ---
@@ -154,19 +163,45 @@ public class PreparedStatement
         
         // ---
 
-        final QueryResult res = this.handler.whenSQLQuery(sql, params);
+        try {
+            final QueryResult res = this.handler.whenSQLQuery(sql, params);
+            
+            this.updateCount = -1;
+            this.warning = res.getWarning();
+            this.generatedKeys = NO_GENERATED_KEY;
+            
+            return (this.result = 
+                    res.getRowList().resultSet().withStatement(this));
 
-        this.updateCount = -1;
-        this.warning = res.getWarning();
-        this.generatedKeys = NO_GENERATED_KEY;
-
-        return (this.result = res.getRowList().resultSet().withStatement(this));
+        } catch (SQLException se) {
+            throw se;
+        } catch (Exception e) {
+            throw new SQLException(e);
+        } // end of catch
     } // end of executeQuery
 
     /**
      * {@inheritDoc}
      */
     public int executeUpdate() throws SQLException {
+        this.result = null;
+
+        final ImmutableTriple<Integer,ResultSet,SQLWarning> res = 
+            update(parameters);
+
+        this.warning = res.right;
+        this.generatedKeys = res.middle;
+
+        return (this.updateCount = res.left);
+    } // end of executeUpdate
+
+    /**
+     * Executes update.
+     * @return Triple of update count, generated keys (or null) 
+     * and optional warning
+     */
+    private ImmutableTriple<Integer,ResultSet,SQLWarning> update(final TreeMap<Integer,Parameter> parameters) throws SQLException {
+
         checkClosed();
 
         if (this.query) {
@@ -176,7 +211,7 @@ public class PreparedStatement
         // ---
 
         final ArrayList<Parameter> params = 
-            new ArrayList<Parameter>(this.parameters.values());
+            new ArrayList<Parameter>(parameters.values());
 
         final int idx = params.indexOf(null);
 
@@ -186,16 +221,20 @@ public class PreparedStatement
 
         // ---
 
-        final UpdateResult res = this.handler.whenSQLUpdate(sql, params);
-
-        this.result = null;
-        this.warning = res.getWarning();
-        this.generatedKeys = (res.generatedKeys == null) 
-            ? RowLists.stringList().resultSet()/* empty ResultSet */
-            : res.generatedKeys.resultSet();
-
-        return (this.updateCount = res.getUpdateCount());
-    } // end of executeUpdate
+        try {
+            final UpdateResult res = this.handler.whenSQLUpdate(sql, params);
+            final SQLWarning w = res.getWarning();
+            final ResultSet k = (res.generatedKeys == null) 
+                ? RowLists.stringList().resultSet()/* empty ResultSet */
+                : res.generatedKeys.resultSet();
+            
+            return ImmutableTriple.of(res.getUpdateCount(), k, w);
+        } catch (SQLException se) {
+            throw se;
+        } catch (Exception e) {
+            throw new SQLException(e);
+        } // end of catch
+    } // end of update
 
     /**
      * {@inheritDoc}
@@ -437,12 +476,62 @@ public class PreparedStatement
 
     /**
      * {@inheritDoc}
-     * @throws java.sql.SQLException Batch is not supported
-     * @see AbstractStatement#addBatch
+     * @throws java.sql.SQLException As cannot used SQL on already prepared statement.
+     */
+    public void addBatch(final String sql) throws SQLException {
+        throw new SQLException("Cannot add distinct SQL to prepared statement");
+    } // end of addBatch
+
+    /**
+     * {@inheritDoc}
      */
     public void addBatch() throws SQLException {
-        throw new SQLException("Batch is not supported");
+        checkClosed();
+
+        batch.add(ImmutablePair.
+                  of(sql, new TreeMap<Integer,Parameter>(parameters)));
+
     } // end of addBatch
+
+    /**
+     * {@inheritDoc}
+     */
+    public void clearBatch() throws SQLException {
+        this.batch.clear();
+    } // end of clearBatch
+
+    /**
+     * {@inheritDoc}
+     */
+    public int[] executeBatch() throws SQLException {
+        final int[] cs = new int[batch.size()];
+        java.util.Arrays.fill(cs, EXECUTE_FAILED);
+
+        final boolean cont = 
+            "true".equals(connection.getProperties().
+                          get("acolyte.batch.continueOnError"));
+
+        SQLException firstEx = null;  // if |cont| is true
+        SQLException lastEx = null;
+
+        int i = 0;
+        for (final ImmutablePair<String,TreeMap<Integer,Parameter>> b : batch) {
+            try {
+                cs[i++] = update(b.right).left;
+            } catch (SQLException se) {
+                if (!cont) throw new BatchUpdateException(se.getMessage(), se.getSQLState(), se.getErrorCode(), cs, se.getCause());
+                else {
+                    if (firstEx == null) firstEx = se;
+                    if (lastEx != null) lastEx.setNextException(se);
+                    lastEx = se;
+                } // end of else
+            } // end of catch
+        } // end of for
+
+        if (firstEx != null) throw new BatchUpdateException(firstEx.getMessage(), firstEx.getSQLState(), firstEx.getErrorCode(), cs, firstEx.getCause());
+
+        return cs;
+    } // end of executeBatch
 
     /**
      * {@inheritDoc}

@@ -2,20 +2,20 @@ import sbt._
 import Keys._
 
 trait JdbcDriver { deps: Dependencies ⇒
-  lazy val jdbcDriver = 
+  lazy val jdbcDriver =
     Project(id = "jdbc-driver", base = file("jdbc-driver")).settings(
-    name := "jdbc-driver",
-    javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
-    autoScalaLibrary := false,
-    scalacOptions += "-feature",
-    resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
-    libraryDependencies ++= Seq(
-      "org.apache.commons" % "commons-lang3" % "3.1", specs2Test),
-    crossPaths := false,
-    sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
-      val (base, managed) = dirs
-      generateRowClasses(base, managed)
-    }))
+      name := "jdbc-driver",
+      javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
+      autoScalaLibrary := false,
+      scalacOptions += "-feature",
+      resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
+      libraryDependencies ++= Seq(
+        "org.apache.commons" % "commons-lang3" % "3.2.1", specs2Test),
+      crossPaths := false,
+      sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
+        val (base, managed) = dirs
+        generateRowClasses(base, managed)
+      }))
 
   // Source generator
   private def generateRowClasses(basedir: File, managedSources: File): Seq[File] = {

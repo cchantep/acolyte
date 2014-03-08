@@ -1,8 +1,14 @@
 package acolyte
 
-import java.util.TimeZone // Force test default TZ
+import java.util.{ Properties, TimeZone }
 
-import java.sql.{ SQLException, SQLFeatureNotSupportedException, Types }
+import java.sql.{
+  BatchUpdateException,
+  SQLException,
+  SQLFeatureNotSupportedException,
+  Types
+}
+import java.sql.Statement.EXECUTE_FAILED
 
 import org.specs2.mutable.Specification
 
@@ -100,9 +106,150 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
   }
 
   "Batch" should {
-    "not be supported" in {
-      statement().addBatch() aka "batch" must throwA[SQLException](
-        message = "Batch is not supported")
+    class Handler extends StatementHandler {
+      var exed = Seq[(String, Array[Parameter])]()
+      def isQuery(s: String) = false
+      def whenSQLUpdate(s: String, p: Params) = {
+        exed = exed :+ (s -> p.toArray(Array[Parameter]()))
+        new UpdateResult(exed.size)
+      }
+      def whenSQLQuery(s: String, p: Params) = sys.error("TEST")
+    }
+
+    "not be added from raw SQL" in {
+      statement().addBatch("RAW") aka "add batch" must throwA[SQLException](
+        "Cannot add distinct SQL to prepared statement")
+    }
+
+    "not be added on closed statement" in {
+      lazy val s = statement()
+      s.close()
+
+      s.addBatch() aka "add batch" must throwA[SQLException](
+        message = "Statement is closed")
+    }
+
+    "be executed with 2 elements" in {
+      val h = new Handler()
+      lazy val s = statement(h = h)
+      s.setString(1, "A"); s.setInt(2, 3); s.addBatch()
+      s.setString(1, "B"); s.setInt(2, 4); s.addBatch()
+
+      val a = Array[Parameter](
+        Parameter.of(ParameterMetaData.Str, "A"),
+        Parameter.of(ParameterMetaData.Int, 3))
+
+      val b = Array[Parameter](
+        Parameter.of(ParameterMetaData.Str, "B"),
+        Parameter.of(ParameterMetaData.Int, 4))
+
+      s.executeBatch() aka "batch execution" mustEqual Array[Int](1, 2) and (
+        h.exed aka "executed" must beLike {
+          case ("TEST", x) :: ("TEST", y) :: Nil =>
+            (x aka "x" must_== a) and (y aka "y" must_== b)
+        })
+    }
+
+    "throw exception as error is raised while executing first element" in {
+      val h = new Handler {
+        override def whenSQLUpdate(s: String, p: Params) =
+          sys.error("Batch error")
+      }
+      lazy val s = statement(h = h)
+      s.setString(1, "A"); s.setInt(2, 3); s.addBatch()
+      s.setString(1, "B"); s.setInt(2, 4); s.addBatch()
+
+      s.executeBatch() aka "batch execution" must throwA[BatchUpdateException].
+        like {
+          case ex: BatchUpdateException =>
+            (ex.getUpdateCounts aka "update count" must_== Array[Int](
+              EXECUTE_FAILED, EXECUTE_FAILED)).
+              and(ex.getCause.getMessage aka "cause" mustEqual "Batch error")
+        }
+    }
+
+    "continue after error on first element (batch.continueOnError)" in {
+      val props = new Properties()
+      props.put("acolyte.batch.continueOnError", "true")
+
+      var i = 0
+      val h = new Handler {
+        override def whenSQLUpdate(s: String, p: Params) = {
+          i = i + 1
+          if (i == 1) sys.error(s"Batch error: $i")
+          new UpdateResult(i)
+        }
+      }
+      lazy val s = statement(
+        c = new acolyte.Connection(jdbcUrl, props, defaultHandler), h = h)
+      s.setString(1, "A"); s.setInt(2, 3); s.addBatch()
+      s.setString(1, "B"); s.setInt(2, 4); s.addBatch()
+
+      s.executeBatch() aka "batch execution" must throwA[BatchUpdateException].
+        like {
+          case ex: BatchUpdateException =>
+            (ex.getUpdateCounts aka "update count" must_== Array[Int](
+              EXECUTE_FAILED, 2)).
+              and(ex.getCause.getMessage aka "cause" mustEqual "Batch error: 1")
+        }
+    }
+
+    "throw exception as error is raised while executing second element" in {
+      var i = 0
+      val h = new Handler {
+        override def whenSQLUpdate(s: String, p: Params) = {
+          i = i + 1
+          if (i == 2) sys.error(s"Batch error: $i")
+          new UpdateResult(i)
+        }
+      }
+      lazy val s = statement(h = h)
+      s.setString(1, "A"); s.setInt(2, 3); s.addBatch()
+      s.setString(1, "B"); s.setInt(2, 4); s.addBatch()
+
+      s.executeBatch() aka "batch execution" must throwA[BatchUpdateException].
+        like {
+          case ex: BatchUpdateException =>
+            (ex.getUpdateCounts aka "update count" must_== Array[Int](
+              1, EXECUTE_FAILED)).
+              and(ex.getCause.getMessage aka "cause" mustEqual "Batch error: 2")
+        }
+    }
+
+    "throw exception executing second element (batch.continueOnError)" in {
+      val props = new Properties()
+      props.put("acolyte.batch.continueOnError", "true")
+
+      var i = 0
+      val h = new Handler {
+        override def whenSQLUpdate(s: String, p: Params) = {
+          i = i + 1
+          if (i == 2) sys.error(s"Batch error: $i")
+          new UpdateResult(i)
+        }
+      }
+      lazy val s = statement(
+        c = new acolyte.Connection(jdbcUrl, props, defaultHandler), h = h)
+      s.setString(1, "A"); s.setInt(2, 3); s.addBatch()
+      s.setString(1, "B"); s.setInt(2, 4); s.addBatch()
+
+      s.executeBatch() aka "batch execution" must throwA[BatchUpdateException].
+        like {
+          case ex: BatchUpdateException =>
+            (ex.getUpdateCounts aka "update count" must_== Array[Int](
+              1, EXECUTE_FAILED)).
+              and(ex.getCause.getMessage aka "cause" mustEqual "Batch error: 2")
+        }
+    }
+
+    "be cleared and not executed" in {
+      val h = new Handler()
+      lazy val s = statement(h = h)
+      s.setString(1, "A"); s.setInt(2, 3); s.addBatch()
+      s.setString(1, "B"); s.setInt(2, 4); s.addBatch()
+
+      s.clearBatch() aka "clear batch" must not(throwA[SQLException]) and (
+        h.exed.size aka "executed" must_== 0)
     }
   }
 
@@ -1124,6 +1271,17 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       s.executeQuery() aka "query" must throwA[SQLException]("Not a query")
     }
+
+    "fail on runtime exception" in {
+      lazy val h = new StatementHandler {
+        def isQuery(s: String) = true
+        def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
+        def whenSQLQuery(s: String, p: Params) = sys.error("Unexpected")
+      }
+
+      statement(h = h).executeQuery("SELECT").
+        aka("execution") must throwA[SQLException](message = "Unexpected")
+    }
   }
 
   "Update execution" should {
@@ -1165,6 +1323,17 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       statement(h = h).executeUpdate() aka "update" must throwA[SQLException](
         message = "Cannot update with query")
 
+    }
+
+    "fail on runtime exception" in {
+      lazy val h = new StatementHandler {
+        def isQuery(s: String) = false
+        def whenSQLUpdate(s: String, p: Params) = sys.error("Unexpected")
+        def whenSQLQuery(s: String, p: Params) = sys.error("Not query")
+      }
+
+      statement(h = h).executeUpdate("UPDATE").
+        aka("execution") must throwA[SQLException](message = "Unexpected")
     }
   }
 

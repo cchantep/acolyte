@@ -149,6 +149,7 @@ Connection con = acolyte.Driver.connection(handler, someJavaUtilProps);
 Acolyte specific properties are:
 
 - `acolyte.parameter.untypedNull`: If `"true"`, Acolyte fallbacks untyped null from `statement.setObject(p, null)` to null string (default: false).
+- `acolyte.batch.continueOnError`: If `"true"`, Acolyte doesn't stop executing batch on statement, but continue processing and finally throw `BatchUpdateException` with update counts of successfully executed elements (see [java.sql.Statement#executeBatch](http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#executeBatch%28%29)).
 
 #### Query result creation
 

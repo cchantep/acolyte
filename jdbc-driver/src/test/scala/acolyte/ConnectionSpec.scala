@@ -64,14 +64,13 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       val props = new java.util.Properties()
       props.put("_test", "_1")
 
-      val con = 
+      val con =
         connection(url = jdbcUrl, props = props, handler = defaultHandler)
 
-      (con.getProperties aka "properties" mustEqual props).
-        and {
-          props.put("_test", "_2")
-          con.getProperties.get("_test") aka "property" mustEqual "_1"
-        }
+      con.getProperties aka "properties" mustEqual props and {
+        props.put("_test", "_2")
+        con.getProperties.get("_test") aka "property" mustEqual "_1"
+      }
     }
   }
 
