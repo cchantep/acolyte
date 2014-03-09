@@ -167,10 +167,11 @@ final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: Upda
    * }
    * }}}
    */
-  def withQueryHandler(h: QueryExecution ⇒ QueryResult): ScalaCompositeHandler = new ScalaCompositeHandler(queryDetection, new QueryHandler {
-    def apply(sql: String, p: JList[Parameter]): QueryResult =
-      h(QueryExecution(sql, scalaParameters(p)))
-  }, updateHandler)
+  def withQueryHandler(h: QueryExecution ⇒ QueryResult) =
+    new ScalaCompositeHandler(queryDetection, new QueryHandler {
+      def apply(sql: String, p: JList[Parameter]): QueryResult =
+        h(QueryExecution(sql, scalaParameters(p)))
+    }, updateHandler)
 
   /**
    * Returns handler that delegates update execution to |h| function.
@@ -194,10 +195,11 @@ final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: Upda
    * }
    * }}}
    */
-  def withUpdateHandler(h: UpdateExecution ⇒ UpdateResult): ScalaCompositeHandler = new ScalaCompositeHandler(queryDetection, queryHandler, new UpdateHandler {
-    def apply(sql: String, p: JList[Parameter]): UpdateResult =
-      h(UpdateExecution(sql, scalaParameters(p)))
-  })
+  def withUpdateHandler(h: UpdateExecution ⇒ UpdateResult) =
+    new ScalaCompositeHandler(queryDetection, queryHandler, new UpdateHandler {
+      def apply(sql: String, p: JList[Parameter]): UpdateResult =
+        h(UpdateExecution(sql, scalaParameters(p)))
+    })
 
   private def scalaParameters(p: JList[Parameter]): List[ExecutedParameter] =
     JavaConversions.collectionAsScalaIterable(p).

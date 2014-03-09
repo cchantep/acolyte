@@ -10,7 +10,7 @@ trait JdbcDriver { deps: Dependencies ⇒
       scalacOptions += "-feature",
       resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
       libraryDependencies ++= Seq(
-        "org.apache.commons" % "commons-lang3" % "3.2.1", specs2Test),
+        "org.apache.commons" % "commons-lang3" % "3.3", specs2Test),
       crossPaths := false,
       sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
         val (base, managed) = dirs

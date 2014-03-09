@@ -169,7 +169,7 @@ abstract class AbstractStatement implements java.sql.Statement {
         } catch (SQLException se) {
             throw se;
         } catch (Exception e) {
-            throw new SQLException(e);
+            throw new SQLException(e.getMessage(), e);
         } // end of catch
     } // end of executeQuery
 
@@ -503,7 +503,7 @@ abstract class AbstractStatement implements java.sql.Statement {
         } catch (SQLException se) {
             throw se;
         } catch (Exception e) {
-            throw new SQLException(e);
+            throw new SQLException(e.getMessage(), e);
         } // end of catch
     } // end of update
 
