@@ -399,7 +399,10 @@ In Scala query handler, pattern matching can be use to easily describe result ca
 import acolyte.{ QueryExecution, DefinedParameter, ExecutedParameter }
 
 handleStatement.withQueryDetection("^SELECT").
-  withQueryHandler { e: QueryExecution ⇒ e match {
+  withQueryHandler { e: QueryExecution ⇒ 
+    // ...
+
+    e match {
       case QueryExecution(sql, DefinedParameter("str", _) :: Nil)
         if sql.startsWith("SELECT") ⇒
         // result when sql starts with SELECT
@@ -411,6 +414,16 @@ handleStatement.withQueryDetection("^SELECT").
         // with the second having integer value 2
     }
   }
+```
+
+Partial function can also be used to describe handled cases:
+
+```scala
+/* ... */ withUpdateHandler {
+  case UpdateExecution("SELECT 1", Nil) => /* case 1 */
+  case UpdateExecution("SELECT 2", p1 :: Nil) => /* case 2 */
+  /* ... */
+}
 ```
 
 With [scalac plugin](./scalac-plugin.html), extractor `ExecutedStatement(regex, params)` can be used with [rich pattern matching](https://github.com/cchantep/acolyte/blob/master/jdbc-driver/src/test/jdbc-scala/acolyte/ExecutionSpec.scala):
@@ -482,15 +495,37 @@ Helpers.running(fakeApp(handler)) {
 
 #### Update/query handlers
 
-TODO (Scala implicits)
+As implicit conversions are provided for `QueryResult`, query handler `QueryExecution => QueryResult` can be defined with following alternatives.
 
-UpdateExec => Int
-UpdateExec => SQLWarning
-UpdateExec => UpdateResult (mixing Int|SQLWarning|generatedKeys)
+- `QueryExecution => RowList`: query result as given row lists.
+- `QueryExecution => T`: one row with one column of type `T` as query result.
 
-QueryExec => singleVal
-QueryExec => RowList
-QueryExec => QueryResult (mixing singleVal|RowList)
+In same way, implicit conversions are provided for `UpdateResult` allowing update handler to defined as following.
+
+- `UpdateExecution => Int`: update count as update result.
+
+```scala
+import acolyte.{ QueryResult, RowLists, UpdateResult }
+import acolyte.Implicits._
+
+// Alternative definitions for query handler
+val qh1: QueryExecution => QueryResult = 
+  // Defined from QueryExecution => RowList
+  { ex: QueryExecution =>
+    RowLists.rowList2(classOf[String], classOf[Int]) :+ ("str", 2)
+  }
+
+val qh2: QueryExecution => QueryResult = // Defined from QueryExecution => T
+  { ex: QueryExecution => 
+    val ur: UpdateResult = "str" // as RowList1[String] with only one row
+    ur
+  }
+
+// Alternative definition for update handler
+val uh1: UpdateExecution => UpdateResult =
+  // Defined from UpdateExecution => Int
+  { ex: UpdateExecution => /* update count = */ 2 }
+```
 
 #### Result creation
 

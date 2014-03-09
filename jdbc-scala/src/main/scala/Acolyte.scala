@@ -3,7 +3,7 @@ package acolyte
 
 import java.util.{ ArrayList, List ⇒ JList }
 import java.util.regex.Pattern
-import java.sql.{ Connection ⇒ SqlConnection, Statement, SQLWarning }
+import java.sql.{ Connection ⇒ SqlConnection, Statement }
 
 import scala.language.implicitConversions
 import scala.collection.JavaConversions

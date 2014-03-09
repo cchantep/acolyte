@@ -93,17 +93,15 @@ object ScalaUseCases {
 
     val handler: ScalaCompositeHandler = handleStatement.
       withQueryDetection("^SELECT ") withQueryHandler {
-        _ match { // QueryExecution
-          case QueryExecution(s, ExecutedParameter("id") :: Nil) ⇒
-            (stringList :+ "useCase_3a").asResult
+        case QueryExecution(s, ExecutedParameter("id") :: Nil) ⇒
+          (stringList :+ "useCase_3a").asResult
 
-          case QueryExecution(s,
-            DefinedParameter("id", _) :: DefinedParameter(3, _) :: Nil) ⇒
-            (rowList3(classOf[String], classOf[Int], classOf[Long]) :+ (
-              "useCase_3str", 2, 3l)).asResult
+        case QueryExecution(s,
+          DefinedParameter("id", _) :: DefinedParameter(3, _) :: Nil) ⇒
+          (rowList3(classOf[String], classOf[Int], classOf[Long]) :+ (
+            "useCase_3str", 2, 3l)).asResult
 
-          case q ⇒ QueryResult.Nil withWarning "Now you're warned"
-        }
+        case q ⇒ QueryResult.Nil withWarning "Now you're warned"
       }
 
     // Register prepared handler with expected ID 'handler3'
