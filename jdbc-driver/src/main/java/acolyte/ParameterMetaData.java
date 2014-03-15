@@ -212,39 +212,29 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     } // end of Null
 
     /**
-     * Boolean constructor.
+     * Boolean definition
      */
-    public static ParameterDef Bool() {
-        return Default(Types.BOOLEAN);
-    } // end of Bool
+    public static final ParameterDef Bool = Default(Types.BOOLEAN);
 
     /**
-     * Byte constructor.
+     * Byte definition
      */
-    public static ParameterDef Byte() {
-        return Default(Types.TINYINT);
-    } // end of Byte
+    public static final ParameterDef Byte = Default(Types.TINYINT);
 
     /**
-     * Short constructor.
+     * Short definition
      */
-    public static ParameterDef Short() {
-        return Default(Types.SMALLINT);
-    } // end of Short
+    public static final ParameterDef Short = Default(Types.SMALLINT);
 
     /**
-     * Integer constructor.
+     * Integer definition
      */
-    public static ParameterDef Int() {
-        return Default(Types.INTEGER);
-    } // end of Int
+    public static final ParameterDef Int = Default(Types.INTEGER);
 
     /**
-     * Long constructor.
+     * Long definition
      */
-    public static ParameterDef Long() {
-        return Default(Types.BIGINT);
-    } // end of Long
+    public static final ParameterDef Long = Default(Types.BIGINT);
 
     /**
      * Float constructor.
@@ -275,11 +265,21 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     } // end of Double
 
     /**
+     * Numeric with default scale.
+     */
+    public static final ParameterDef Numeric = Default(Types.NUMERIC);
+
+    /**
      * BigDecimal constructor.
      */
     public static ParameterDef Numeric(final BigDecimal bd) {
         return Scaled(Types.NUMERIC, bd.scale());
-    } // end of BigDecimal
+    } // end of Numeric
+
+    /**
+     * Decimal with default scale.
+     */
+    public static final ParameterDef Decimal = Default(Types.DECIMAL);
 
     /**
      * BigDecimal constructor (as DECIMAL).
@@ -289,32 +289,24 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     } // end of Decimal
 
     /**
-     * String constructor.
+     * String definition
      */
-    public static ParameterDef Str() {
-        return Default(Types.VARCHAR);
-    } // end of Str
+    public static final ParameterDef Str = Default(Types.VARCHAR);
 
     /**
-     * Date constructor.
+     * Date definition
      */
-    public static ParameterDef Date() {
-        return Default(Types.DATE);
-    } // end of Date
+    public static final ParameterDef Date = Default(Types.DATE);
 
     /**
-     * Time constructor.
+     * Time definition
      */
-    public static ParameterDef Time() {
-        return Default(Types.TIME);
-    } // end of Time
+    public static final ParameterDef Time = Default(Types.TIME);
 
     /**
-     * Timestamp constructor.
+     * Timestamp definition
      */
-    public static ParameterDef Timestamp() {
-        return Default(Types.TIMESTAMP);
-    } // end of Timestamp
+    public static final ParameterDef Timestamp = Default(Types.TIMESTAMP);
 
     // --- Inner classes ---
 

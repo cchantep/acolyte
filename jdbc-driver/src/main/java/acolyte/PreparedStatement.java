@@ -251,7 +251,7 @@ public class PreparedStatement
     public void setBoolean(final int parameterIndex, 
                            final boolean x) throws SQLException {
 
-        setParam(parameterIndex, Bool(), (Object)x);
+        setParam(parameterIndex, Bool, x);
     } // end of setBoolean
 
     /**
@@ -260,7 +260,7 @@ public class PreparedStatement
     public void setByte(final int parameterIndex, 
                         final byte x) throws SQLException {
 
-        setParam(parameterIndex, Byte(), (Object)x);
+        setParam(parameterIndex, Byte, x);
     } // end of setByte
 
     /**
@@ -269,7 +269,7 @@ public class PreparedStatement
     public void setShort(final int parameterIndex, 
                          final short x) throws SQLException {
 
-        setParam(parameterIndex, Short(), (Object)x);
+        setParam(parameterIndex, Short, x);
     } // end of setShort
 
     /**
@@ -278,7 +278,7 @@ public class PreparedStatement
     public void setInt(final int parameterIndex, 
                        final int x) throws SQLException {
 
-        setParam(parameterIndex, Int(), (Object)x);
+        setParam(parameterIndex, Int, x);
     } // end of setInt
 
     /**
@@ -287,7 +287,7 @@ public class PreparedStatement
     public void setLong(final int parameterIndex, 
                         final long x) throws SQLException {
 
-        setParam(parameterIndex, Long(), (Object)x);
+        setParam(parameterIndex, Long, x);
     } // end of setLong
 
     /**
@@ -296,7 +296,7 @@ public class PreparedStatement
     public void setFloat(final int parameterIndex, 
                          final float x) throws SQLException {
 
-        setParam(parameterIndex, Float(x), (Object)x);
+        setParam(parameterIndex, Float(x), x);
     } // end of setFloat
 
     /**
@@ -305,7 +305,7 @@ public class PreparedStatement
     public void setDouble(final int parameterIndex, 
                           final double x) throws SQLException {
 
-        setParam(parameterIndex, Double(x), (Object)x);
+        setParam(parameterIndex, Double(x), x);
     } // end of setDouble
 
     /**
@@ -314,7 +314,9 @@ public class PreparedStatement
     public void setBigDecimal(final int parameterIndex, 
                               final BigDecimal x) throws SQLException {
 
-        setParam(parameterIndex, Numeric(x), (Object)x);
+        final ParameterDef def = (x == null) ? Numeric : Numeric(x);
+            
+        setParam(parameterIndex, def, x);
     } // end of setBigDecimal
 
     /**
@@ -323,7 +325,7 @@ public class PreparedStatement
     public void setString(final int parameterIndex, 
                           final String x) throws SQLException {
 
-        setParam(parameterIndex, Str(), (Object)x);
+        setParam(parameterIndex, Str, x);
     } // end of setString
 
     /**
@@ -587,7 +589,7 @@ public class PreparedStatement
     public void setDate(final int parameterIndex, 
                         final Date x) throws SQLException {
 
-        setParam(parameterIndex, Date(), (Object)x);
+        setParam(parameterIndex, Date, x);
     } // end of setDate
 
     /**
@@ -597,7 +599,7 @@ public class PreparedStatement
                         final Date x, 
                         final Calendar cal) throws SQLException {
 
-        setParam(parameterIndex, Date(), 
+        setParam(parameterIndex, Date, 
                  (Object)ImmutablePair.of(x, cal.getTimeZone()));
 
     } // end of setDate
@@ -608,7 +610,7 @@ public class PreparedStatement
     public void setTime(final int parameterIndex, 
                         final Time x) throws SQLException {
 
-        setParam(parameterIndex, Time(), (Object)x);
+        setParam(parameterIndex, Time, x);
     } // end of setTime
 
     /**
@@ -618,7 +620,7 @@ public class PreparedStatement
                         final Time x, 
                         final Calendar cal) throws SQLException {
 
-        setParam(parameterIndex, Time(), 
+        setParam(parameterIndex, Time, 
                  (Object)ImmutablePair.of(x, cal.getTimeZone()));
 
     } // end of setTime
@@ -629,7 +631,7 @@ public class PreparedStatement
     public void setTimestamp(final int parameterIndex, final Timestamp x) 
         throws SQLException {
 
-        setParam(parameterIndex, Timestamp(), (Object)x);
+        setParam(parameterIndex, Timestamp, x);
     } // end of setTimestamp
 
     /**
@@ -640,7 +642,7 @@ public class PreparedStatement
                              final Calendar cal) 
         throws SQLException {
 
-        setParam(parameterIndex, Timestamp(), 
+        setParam(parameterIndex, Timestamp, 
                  (Object)ImmutablePair.of(x, cal.getTimeZone()));
 
     } // end of setTimestamp
@@ -925,7 +927,9 @@ public class PreparedStatement
     void setDecimal(final int parameterIndex, 
                     final BigDecimal x) throws SQLException {
 
-        setParam(parameterIndex, Decimal(x), (Object)x);
+        final ParameterDef def = (x == null) ? Decimal : Decimal(x);
+
+        setParam(parameterIndex, def, x);
     } // end of setBigDecimal
 
     /**
@@ -934,7 +938,7 @@ public class PreparedStatement
     public void setReal(final int parameterIndex, 
                         final float x) throws SQLException {
 
-        setParam(parameterIndex, Real(x), (Object)x);
+        setParam(parameterIndex, Real(x), x);
     } // end of setReal
 
     // ---

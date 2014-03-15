@@ -841,6 +841,26 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
           aka("SQL query") mustEqual ("SELECT ? WHERE false" -> d2))
 
     }
+
+    "be null NUMERIC" in {
+      lazy val s = statement()
+      s.setBigDecimal(1, null.asInstanceOf[java.math.BigDecimal])
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.NUMERIC)
+    }
+
+    "be null DECIMAL" in {
+      lazy val s = statement()
+      s.setDecimal(1, null.asInstanceOf[java.math.BigDecimal])
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.DECIMAL)
+    }
   }
 
   "String" should {
