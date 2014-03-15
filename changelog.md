@@ -1,3 +1,18 @@
+## 1.0.16
+
+([2a2093606f5c4582efa2fea4aa18de357f4b8a1c](https://github.com/cchantep/acolyte/commit/2a2093606f5c4582efa2fea4aa18de357f4b8a1c) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Batch support on statement and prepared statement.
+
+([ce8a913be91b04759903e8dab843baf41cad7b86](https://github.com/cchantep/acolyte/commit/ce8a913be91b04759903e8dab843baf41cad7b86) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Generated keys support for statement:
+
+```java
+import acolyte.UpdateResult;
+import acolyte.RowLists;
+
+UpdateResult.One.withGeneratedKeys(RowLists.intList().append(4));
+// to be returned from an update handler:
+// update count = 1 and one generated key = 4
+```
+
 ## 1.0.15
 
 ([65a7e3313ab5681b77cba502c0aa945ef645f68c](https://github.com/cchantep/acolyte/commit/65a7e3313ab5681b77cba502c0aa945ef645f68c) @ [jdbc-scala](https://github.com/cchantep/acolyte/tree/master/jdbc-scala)) Regex extractor for executed statement, usable with rich pattern:
