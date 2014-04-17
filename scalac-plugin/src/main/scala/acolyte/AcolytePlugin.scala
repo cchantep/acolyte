@@ -6,8 +6,8 @@ import scala.tools.nsc.transform.Transform
 
 class AcolytePlugin(val global: Global) extends Plugin {
   val name = "acolyte"
-  val description = "Syntax extensions: rich pattern matching"
-  val components = List[PluginComponent](MatchComponent)
+  val description = "Syntax extensions: Extractors with arguments"
+  val components = List[PluginComponent](ExtractorComponent)
 
   var debug: Boolean with NotNull = false
 
@@ -20,7 +20,7 @@ class AcolytePlugin(val global: Global) extends Plugin {
   override val optionsHelp: Option[String] = Some(
     "  -P:acolyte:debug             Enable debug")
 
-  private object MatchComponent extends PluginComponent with Transform {
+  private object ExtractorComponent extends PluginComponent with Transform {
     val global: AcolytePlugin.this.global.type = AcolytePlugin.this.global
     override val runsRightAfter = Some("parser")
     override val runsAfter = runsRightAfter.toList
@@ -37,6 +37,7 @@ class AcolytePlugin(val global: Global) extends Plugin {
         Apply,
         Block,
         CaseDef,
+        DefDef,
         Match,
         Position,
         Tree,

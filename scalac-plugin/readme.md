@@ -27,7 +27,7 @@ case class Regex(e: String) {
 }
 ```
 
-Then provided rich syntax can be used as following:
+Then provided rich syntax can be used as following (see [complete example](./src/test/scala/acolyte/ExtractorComponentSpec.scala#L189)):
 
 ```scala
 str match {
@@ -51,6 +51,42 @@ val Xtr1 = Regex("^a.*")
 str match {
   case Xtr1 ⇒ 1 // no binding
   // ...
+}
+```
+
+It also works with partial function (see [more examples](./src/test/scala/acolyte/ExtractorComponentSpec.scala#L159)).
+
+```scala
+val partialFun: String ⇒ Int = {
+  case ~(Regex("^a.*"))                      ⇒ 1
+  case ~(Regex("# ([A-Z]+).*"), a)           ⇒ 2 
+  case ~(Regex("([0-9]+);([a-z]+)"), (a, b)) ⇒ 3
+  case _                                     ⇒ 4
+}
+// Or def partialFun: String => Int = ...
+```
+
+It will be refactored as:
+
+```scala
+val partialFun: String ⇒ Int = { str: String ⇒
+  val Xtr1 = Regex("^a.*")
+  // ...
+  str match {
+    case Xtr1 ⇒ 1
+    // ...
+  }
+}
+```
+
+Anonymous partial functions are refactored too (see [more examples](./src/test/scala/acolyte/ExtractorComponentSpec.scala#L178)):
+
+```scala
+def test(s: Option[String]): Option[Int] = s map {
+  case ~(Regex("^a.*"))                      ⇒ 1
+  case ~(Regex("# ([A-Z]+).*"), a)           ⇒ 2 
+  case ~(Regex("([0-9]+);([a-z]+)"), (a, b)) ⇒ 3
+  case _                                     ⇒ 4
 }
 ```
 
