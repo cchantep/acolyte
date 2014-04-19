@@ -1,9 +1,5 @@
-# Routes
-# This file defines all application routes (Higher priority routes first)
-# ~~~~
+GET /js/*file controllers.Assets.at(path="/public/js", file)
+GET /css/*file controllers.Assets.at(path="/public/css", file)
 
-# Home page
-GET     /                           controllers.Application.index
-
-# Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET / controllers.Pages.welcome
+GET /step1 controllers.Pages.step1

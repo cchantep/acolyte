@@ -1,0 +1,20 @@
+.panel { padding: 0 }
+
+.panel-heading .btn { padding: 2px 7px }
+
+@media (min-width: 768px) {
+  .spacer .fa-arrow-right { font-size: 60pt }
+  #case-rules .panel-body { height: 15em; overflow: auto }
+}
+
+.actions .tooltip-inner { background: #3498db }
+.actions .tooltip .tooltip-arrow { border-bottom-color: #3498db !important }
+
+.form-group .example { font-size: small }
+.form-group .example:hover { text-decoration: none }
+.form-group .example:before { content: '(e.g. ' }
+.form-group .example:after { content: ')' }
+
+#param-pattern .position:before { content: '#' }
+#param-value { background: #fff }
+#param-pattern .text-muted { margin-top: .5em }
