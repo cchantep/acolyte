@@ -1,8 +1,7 @@
-@()
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Acolyte &mdash; Tour Step #1</title>
+    <title>Acolyte &mdash; Setup connection</title>
     <meta charset="utf-8"></meta>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,21 +10,25 @@
     <link href="//netdna.bootstrapcdn.com/bootswatch/latest/flatly/bootstrap.min.css" rel="stylesheet" />
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet" />
 
-    <link href="css/step1.css" rel="stylesheet" />
+    <link href="css/datepicker.css" rel="stylesheet" />
+    <link href="css/setup.css" rel="stylesheet" />
   </head>
   <body>
     <div class="container-fluid">
       <div class="page-header">
-        <h1>Step #1 <small>Define access cases</small></h1>
+        <h1>Setup connection</h1>
 
-        <p>At this point, there are two approaches, <a href="https://github.com/cchantep/acolyte/blob/5dc4c00252b3a9ba14900560364f24cc02601573/src/test/scala/PersistenceSpec.scala#L51" title="See example" rel="me external">1 case = 1 connection</a> or <a href="https://github.com/cchantep/cielago-tracker/commit/a758541af62a47f1a7d7216c694afe3faad69ac5#diff-a18c61543e5d6b1f4f72ecc5e43c6a1fR94" title="See title" rel="me external">1 connection = many cases</a>.</p>
+        <ol>
+          <li><strong>Route access cases</strong>. At this point, there are two approaches, <a href="https://github.com/cchantep/acolyte/blob/5dc4c00252b3a9ba14900560364f24cc02601573/src/test/scala/PersistenceSpec.scala#L51" title="See example" rel="me external">1 case = 1 connection</a> or <a href="https://github.com/cchantep/cielago-tracker/commit/a758541af62a47f1a7d7216c694afe3faad69ac5#diff-a18c61543e5d6b1f4f72ecc5e43c6a1fR94" title="See title" rel="me external">1 connection = many cases</a>.</li>
+          <li><strong>Declare result for each case</strong>.</li>
+        </ol>
       </div>
 
       <div class="container-fluid">
         <div class="row">
           <div class="col-md-5 col-sm-12 panel panel-primary" id="case-rules">
             <div class="panel-heading">
-              <strong>Rules</strong> to dispatch cases
+              <strong>Route</strong> access cases
               <i class="fa fa-code-fork"></i>
 
               <div class="actions pull-right">
@@ -33,18 +36,13 @@
                   <i class="fa fa-plus-square"></i>
                   <span class="visible-sm">Add rule</span>
                 </a>
-
-                <a href="#remove-rule" data-placement="bottom" 
-                   class="btn btn-primary disabled has-tooltip"
-                   title="Select rule(s) for removal">
-                  <i class="fa fa-minus-square"></i>
-                  <span class="visible-sm">Remove rule(s)...</span>
-                </a>
               </div>
             </div>
 
-            <div class="panel-body">
+            <div class="panel-body has-tooltip" 
+                 title="Rules will be examined in given order">
               <em class="text-muted">No case rule</em>
+              <ol class="list-group"></ol>
             </div>
           </div><!-- /#case-rules -->
 
@@ -66,16 +64,20 @@
       </div><!-- /.container-fluid -->
     </div>
 
-    <div class="modal fade" id="rule-editor">
+    <div class="modal fade" id="route-editor">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">Rule editor</h4>
+            <h4 class="modal-title">Route</h4>
           </div>
           <div class="modal-body">
-            <form role="form" action="#add-rule">
-              <div class="form-group">
+            <form role="form" action="#add-rule" id="rule-form">
+              <p class="lead">
+                <strong>Which access case</strong> to be considered?
+              </p>
+
+              <div class="form-group has-tooltip" title="There are 2 major kinds of JDBC statement, it's either a query which fetches data result, or an update which alters stored data and returns count of updated rows." data-placement="bottom">
                 <label for="ruleKind" class="control-label">
                   Statement kind</label>
                 <select id="ruleKind" class="form-control">
@@ -89,7 +91,7 @@
                 <label for="ruleExp" class="control-label">
                   Statement pattern</label>
 
-                <a href="https://en.wikipedia.org/wiki/Regexp" rel="external" class="pull-right example"><tt>.*</tt> = Any statement</a>
+                <a href="https://en.wikipedia.org/wiki/Regexp" rel="external" class="pull-right">see regular expression syntax</a>
 
                 <input id="ruleExp" type="text" 
                        value=".*" class="form-control" />
@@ -99,6 +101,8 @@
                 <legend title="Parameter pattern allows to have distinct rules for cases statement is the same but parameters are different" class="has-tooltip">Parameter constraints 
                   <span class="badge badge-default">0</span></legend>
 
+                <ol></ol>
+
                 <div class="input-group">
                   <label for="param-type" class="input-group-addon">
                     <span>Constraint</span>
@@ -107,9 +111,6 @@
 
                   <select class="form-control has-tooltip" id="param-type"
                           data-trigger="focus" title="Parameter type">
-                    <option value="string">Text</option>
-                    <option value="int">Integer</option>
-                    <option value="float">Decimal</option>
                   </select>
 
                   <label for="param-value" 
@@ -128,12 +129,36 @@
                 <p class="text-muted">In this tour, types available for parameter detection are limited on purpose.<br />Acolyte can handle any <a href="http://docs.oracle.com/javase/6/docs/api/java/sql/Types.html" rel="external">JDBC type</a>.</p>
               </fieldset>
             </form>
+
+            <form role="form" action="#edit-result" id="result-form">
+              <p class="lead">
+                In this case, what is the <strong>result</strong>?
+              </p>
+
+              <div class="input-group has-tooltip"
+                   title="Execution of statement will throw a SQL exception">
+                <label class="input-group-addon">
+                  <input type="radio" name="result-type" 
+                         id="raise-error"> An error
+                </label>
+                <input type="text" disabled="disabled" 
+                       placeholder="A message error if result is error"
+                       id="result-error" class="form-control" />
+              </div><!-- /.input-group -->
+
+              <hr /><div id="result-data"></div>
+            </form>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" 
                     data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" 
-                    disabled="disabled">Apply</button>
+
+            <button type="button" class="btn btn-primary ac-next">
+              Next <i class="fa fa-chevron-right"></i></button>
+
+            <button type="button" class="btn btn-primary ac-apply">
+              Apply</button>
+
           </div>
         </div><!-- /.modal-content -->
       </div><!-- /.modal-dialog -->
@@ -142,6 +167,7 @@
     <script src="//codeorigin.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script src="js/link.js"></script>
-    <script src="js/step1.js"></script>
+    <script src="js/bootstrap-datepicker.js"></script>
+    <script src="js/setup.js"></script>
   </body>
 </html>

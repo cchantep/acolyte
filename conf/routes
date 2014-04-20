@@ -1,5 +1,5 @@
+GET /$file<.*\.html$> controllers.Assets.at(path="/public", file)
 GET /js/*file controllers.Assets.at(path="/public/js", file)
 GET /css/*file controllers.Assets.at(path="/public/css", file)
 
 GET / controllers.Pages.welcome
-GET /step1 controllers.Pages.step1
