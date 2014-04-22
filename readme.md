@@ -931,17 +931,19 @@ mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=jdbc-driver/target/jdbc-dr
 
 mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=jdbc-driver/target/jdbc-driver-$VERSION.pom -Dfile=jdbc-driver/target/jdbc-driver-$VERSION-sources.jar -Dclassifier=sources -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=jdbc-scala/target/scala-2.10/jdbc-scala_2.10-$VERSION.pom -Dfile=jdbc-scala/target/scala-2.10/jdbc-scala_2.10-$VERSION.jar -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+export SCALAVER="2.10"
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=jdbc-scala/target/scala-2.10/jdbc-scala_2.10-$VERSION.pom -Dfile=jdbc-scala/target/scala-2.10/jdbc-scala_2.10-$VERSION-javadoc.jar -Dclassifier=javadoc -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=jdbc-scala/target/scala-$SCALAVER/jdbc-scala_$SCALAVER-$VERSION.pom -Dfile=jdbc-scala/target/scala-$SCALAVER/jdbc-scala_$SCALAVER-$VERSION.jar -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=jdbc-scala/target/scala-2.10/jdbc-scala_2.10-$VERSION.pom -Dfile=jdbc-scala/target/scala-2.10/jdbc-scala_2.10-$VERSION-sources.jar -Dclassifier=sources -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=jdbc-scala/target/scala-$SCALAVER/jdbc-scala_$SCALAVER-$VERSION.pom -Dfile=jdbc-scala/target/scala-$SCALAVER/jdbc-scala_$SCALAVER-$VERSION-javadoc.jar -Dclassifier=javadoc -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scalac-plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION.pom -Dfile=scalac-plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION.jar -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=jdbc-scala/target/scala-$SCALAVER/jdbc-scala_$SCALAVER-$VERSION.pom -Dfile=jdbc-scala/target/scala-$SCALAVER/jdbc-scala_$SCALAVER-$VERSION-sources.jar -Dclassifier=sources -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scalac-plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION.pom -Dfile=scalac-plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION-javadoc.jar -Dclassifier=javadoc -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scalac-plugin/target/scala-$SCALAVER/scalac-plugin_$SCALAVER-$VERSION.pom -Dfile=scalac-plugin/target/scala-$SCALAVER/scalac-plugin_$SCALAVER-$VERSION.jar -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 
-mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scalac-plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION.pom -Dfile=scalac-plugin/target/scala-2.10/scalac-plugin_2.10-$VERSION-sources.jar -Dclassifier=sources -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scalac-plugin/target/scala-$SCALAVER/scalac-plugin_$SCALAVER-$VERSION.pom -Dfile=scalac-plugin/target/scala-$SCALAVER/scalac-plugin_$SCALAVER-$VERSION-javadoc.jar -Dclassifier=javadoc -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scalac-plugin/target/scala-$SCALAVER/scalac-plugin_$SCALAVER-$VERSION.pom -Dfile=scalac-plugin/target/scala-$SCALAVER/scalac-plugin_$SCALAVER-$VERSION-sources.jar -Dclassifier=sources -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 ```
 
 Authentication should be configured in `~/.m2/settings.xml`:

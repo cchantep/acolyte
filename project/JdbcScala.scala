@@ -15,7 +15,11 @@ trait JdbcScala { deps: Dependencies ⇒
         zip(baseDirectory in (scalacPlugin, Compile)).
         zip(name in (scalacPlugin, Compile)) map { d =>
           val (((v, sv), b), n) = d
-          val msv = if (sv startsWith "2.10") "2.10" else sv
+          val msv = 
+            if (sv startsWith "2.10") "2.10" 
+            else if (sv startsWith "2.11") "2.11" 
+            else sv
+
           val td = b / "target" / "scala-%s".format(msv)
           val j = td / "%s_%s-%s.jar".format(n, msv, v)
 

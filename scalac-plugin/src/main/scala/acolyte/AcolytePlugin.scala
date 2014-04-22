@@ -9,7 +9,7 @@ class AcolytePlugin(val global: Global) extends Plugin {
   val description = "Syntax extensions: Extractors with arguments"
   val components = List[PluginComponent](ExtractorComponent)
 
-  var debug: Boolean with NotNull = false
+  var debug: Boolean = false
 
   override def processOptions(options: List[String], error: String ⇒ Unit) {
     for (o ← options) {
@@ -27,9 +27,12 @@ class AcolytePlugin(val global: Global) extends Plugin {
     override val runsBefore = List[String]("typer")
     val phaseName = "rich-patmat"
 
-    def newTransformer(unit: global.CompilationUnit) = MatchTransformer
+    def newTransformer(unit: global.CompilationUnit) =
+      new MatchTransformer(unit)
 
-    object MatchTransformer extends global.Transformer {
+    class MatchTransformer(
+        unit: global.CompilationUnit) extends global.Transformer {
+
       import scala.collection.mutable.ListBuffer
       import global.{
         //abort,
@@ -129,19 +132,20 @@ class AcolytePlugin(val global: Global) extends Plugin {
 
       @inline private def refactorPattern[T](xp: Position, ex: Tree, xa: List[Tree], ua: List[Tree]): (ValDef, Apply) = {
 
-        import global.{ atPos, show, Ident, Modifiers }
+        import global.{ atPos, show, newTermName, Ident, Modifiers }
 
         val of = xp.source.file
         val file = new VirtualFile(of.name,
           s"${of.path}#refactored-match-${xp.line}")
 
         // ValDef
-        val xn = global.treeBuilder.freshTermName("Xtr")
+        val xn = unit.freshTermName("Xtr")
         val vd = ValDef(Modifiers(), xn, global.TypeTree(), Apply(ex, xa))
         val vdc =
           s"${show(vd)} // generated from ln ${xp.line}, col ${xp.column - 1}"
 
         val vdp = xp.withPoint(0).withSource(new BatchSourceFile(file, vdc), 0)
+        // TODO: Scala 2.11 -> withSource(new BatchSourceFile(file, vdc))
 
         (atPos(vdp)(vd), Apply(Ident(xn), ua))
       }
