@@ -142,7 +142,7 @@ final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: Upda
    * handleStatement.withQueryDetection("^SELECT ", "EXEC proc")
    * }}}
    */
-  def withQueryDetection(pattern: Pattern*) = new ScalaCompositeHandler(
+  def withQueryDetection(pattern: Array[Pattern]) = new ScalaCompositeHandler(
     queryDetectionPattern(pattern: _*), queryHandler, updateHandler)
 
   /**

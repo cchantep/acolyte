@@ -1,6 +1,6 @@
 package acolyte
 
-object ExtractorComponentSpec extends org.specs2.mutable.Specification 
+object ExtractorComponentSpec extends org.specs2.mutable.Specification
     with MatchTest with PartialFunctionTest {
 
   "Extractor component" title
@@ -157,7 +157,7 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
 
 sealed trait PartialFunctionTest {
   val partialFun1: String ⇒ List[String] = {
-    case ~(IntRange(5, 10))                          ⇒ List("5-to-10")
+    case ~(IntRange(5, 10), _)                       ⇒ List("5-to-10")
     case ~(IntRange(10, 20), i)                      ⇒ List(s"range:$i")
     case Integer(n)                                  ⇒ List(s"num-$n")
     case ~(Regex("^a.*"))                            ⇒ List("no-binding")
@@ -166,7 +166,7 @@ sealed trait PartialFunctionTest {
   }
 
   def partialFun2: String ⇒ List[String] = {
-    case ~(IntRange(5, 10))                          ⇒ List("5-to-10")
+    case ~(IntRange(5, 10), _)                       ⇒ List("5-to-10")
     case ~(IntRange(10, 20), i)                      ⇒ List(s"range:$i")
     case Integer(n)                                  ⇒ List(s"num-$n")
     case ~(Regex("^a.*"))                            ⇒ List("no-binding")
@@ -176,7 +176,7 @@ sealed trait PartialFunctionTest {
 
   /* Anonymous partial function */
   def partialFun3(s: Option[String]): Option[List[String]] = s map {
-    case ~(IntRange(5, 10))                          ⇒ List("5-to-10")
+    case ~(IntRange(5, 10), _)                       ⇒ List("5-to-10")
     case ~(IntRange(10, 20), i)                      ⇒ List(s"range:$i")
     case Integer(n)                                  ⇒ List(s"num-$n")
     case ~(Regex("^a.*"))                            ⇒ List("no-binding")
@@ -187,7 +187,7 @@ sealed trait PartialFunctionTest {
 
 sealed trait MatchTest {
   def patternMatching(s: String): List[String] = s match {
-    case ~(IntRange(5, 10)) ⇒ List("5-to-10")
+    case ~(IntRange(5, 10), _) ⇒ List("5-to-10")
     case ~(IntRange(10, 20), i) ⇒ List(s"range:$i")
     case Integer(n) ⇒ List(s"num-$n")
     case ~(Regex("^a.*")) ⇒ List("no-binding")
