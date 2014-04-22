@@ -218,14 +218,15 @@
             }))
         },
         cf = function() {
+            raiserr.one('click', function() {
+                uc.attr("disabled", "disabled");
+                nre.empty()
+            });
+
+            applyRoute.attr("disabled", "disabled");
             uc.removeAttr("disabled");
             rst()
         };
-
-        /* TODO: Update count selected
-           uc.attr("disabled", "disabled");
-           nre.empty()
-         */
 
         $('<div class="input-group"></div>').append(uc.change(rst)).prepend($('<label class="input-group-addon"> Result set</label>').tooltip({'title':"Execution is successful, then some rows are returned."}).prepend(qs.click(cf))).prependTo(red.append('<p class="text-muted">Column number is limited on purpose for this tour.</p>'));
 
