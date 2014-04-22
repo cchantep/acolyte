@@ -166,3 +166,9 @@ If there result from given extractor factory is not a valid extract, it will rai
 [error] /path/to/file.scala#refactored-match-M:1: value Xtr0 is not a case class constructor, nor does it have an unapply/unapplySeq method
 [error] case Xtr1((a @ _)) => Nil // generated from ln L, col C
 ```
+
+When using `~(Xtractor(params))`, following error can be raised if `unapply` from `Xtractor` wait at least one argument.
+
+```
+[error] /path/to/file.scala#refactored-match-M:1: not enough patterns for class Clazz offering Xtractor: expected 1, found 0
+```

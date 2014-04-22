@@ -4,7 +4,7 @@
   <artifactId>studio</artifactId>
   <packaging>jar</packaging>
   <name>Acolyte Studio</name>
-  <version>1.0.16</version>
+  <version>1.0.17</version>
   <url>https://github.com/cchantep/acolyte/</url>
 
   <scm>

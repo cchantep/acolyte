@@ -1,3 +1,7 @@
+## 1.0.17
+
+Cross compilation from Scala 2.10 to 2.11.
+
 ## 1.0.16
 
 ([2a2093606f5c4582efa2fea4aa18de357f4b8a1c](https://github.com/cchantep/acolyte/commit/2a2093606f5c4582efa2fea4aa18de357f4b8a1c) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Batch support on statement and prepared statement.

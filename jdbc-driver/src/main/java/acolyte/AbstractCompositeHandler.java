@@ -136,7 +136,7 @@ public abstract class AbstractCompositeHandler<T extends AbstractCompositeHandle
      * @param pattern Query detection pattern
      * @throws IllegalArgumentException if pattern is null
      */
-    public abstract T withQueryDetection(final Pattern... pattern);
+    public abstract T withQueryDetection(final Pattern[] pattern);
 
     /**
      * Appends given |pattern| to current query detection.
