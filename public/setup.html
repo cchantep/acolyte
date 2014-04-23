@@ -44,7 +44,7 @@
             <div class="panel-body has-tooltip" 
                  title="Rules will be examined in given order">
               <em class="text-muted">No case rule</em>
-              <ol class="list-group"></ol>
+              <div class="list-group"></div>
             </div>
           </div><!-- /#case-rules -->
 
@@ -60,6 +60,7 @@
 
             <div class="panel-body">
               <em class="text-muted">No case selected</em>
+              <ol class="list-unstyled list-group"></ol>
             </div>
           </div>
         </div><!-- /.row -->
@@ -146,7 +147,7 @@
                   <input type="radio" name="result-type" 
                          id="raise-error"> An error
                 </label>
-                <input type="text" disabled="disabled" 
+                <input type="text" readonly="readonly" 
                        placeholder="A message error if result is error"
                        id="result-error" class="form-control" />
               </div><!-- /.input-group -->

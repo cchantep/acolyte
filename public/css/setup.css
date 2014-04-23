@@ -4,7 +4,8 @@
 
 @media (min-width: 768px) {
   .spacer .fa-arrow-right { font-size: 60pt }
-  #case-rules .panel-body { height: 15em; overflow: auto }
+  #case-rules .panel-body,
+  #case-result .panel-body { height: 15em; overflow: auto }
 }
 
 .panel .tooltip-inner, .actions .tooltip-inner { background: #3498db }
@@ -29,3 +30,6 @@
 
 #param-pattern li > .fa { visibility: hidden; margin-right: .5em }
 #param-pattern li { cursor: pointer }
+
+#case-result .list-group-item { cursor: pointer }
+#case-result .fa-table { visibility: hidden; margin-right: .5em }

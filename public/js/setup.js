@@ -10,7 +10,7 @@
         })
     }, 
     getval = function(e) { return function() { return e.val() } },
-    rl = $("#case-rules ol"),
+    rl = $("#case-rules .list-group"),
     rd = $("#route-editor"), rf = $("#rule-form"), rsf = $("#result-form"),
     pc = $("#param-pattern .badge"), pp = $("#param-pattern .position"),
     pl = $("#param-pattern ol"),
@@ -37,10 +37,14 @@
             adp.attr("disabled", "disabled")
         }
     }),
-    raiserr = $("#raise-error"), rer = $("#result-error"), 
+    raiserr = $("#raise-error"), 
+    rer = $("#result-error").click(function(){
+        raiserr.trigger('click'); return false
+    }),
     red = $("#result-data"),
     applyRoute = $("#route-editor .ac-apply").click(function(){
-        var ps = [], res = null, typ = rk.val();
+        var pat = re.val(), ps = [], res = null, typ = rk.val(),
+        restxt = null, resovr = null;
 
         $("#param-pattern li").each(function(i,e){ 
             var p = $(e);
@@ -48,30 +52,66 @@
         });
 
         if (raiserr.is(":checked")) {
-            res = {'error':rer.val()}
+            var err = rer.val();
+
+            res = {'error':err};
+            restxt = "Error = <tt>" + err + "</tt>"
         } else if (typ == "update") {
-            res = {'updateCount':$("#update-count").val()}
+            var c = parseInt($("#update-count").val());
+            res = {'updateCount':c};
+            restxt = "<em>"+c+"</em> updated row" + (c>1?"s":"")
         } else {
             res = {'rows':[]};
+            var cts = "";
 
             $("#result-data .res-row").each(function(i,e){
                 var row = [];
 
                 $("td", e).each(function(j,x){ 
-                    if (j == 0) return true; 
-
                     var r = $(x);
 
-                    row.push({'_type':r.data("type"),'value':r.text()})
+                    if (j == 0) { r.remove(); return true }
+
+                    var ct = r.data("type");
+
+                    if (i == 0) {
+                        if (cts != "") cts += ", ";
+                        cts += pts[ct]
+                    }
+
+                    row.push({'_type':ct,'value':r.text()})
                 });
 
                 res.rows.push(row)
-            })
+            });
+
+            restxt = "Result set = " + res.rows.length + " x (" + cts + ')';
+
+            $("#result-data tbody > tr:not(.res-row)").remove();
+
+            resovr = { 
+                'placement': "top", 'trigger': "hover", 'html': true,
+                'content': '<table class="table table-striped"><tbody>' + 
+                    $('#result-data tbody').html() + '</tbody></table>'
+            }
         }
 
-        var rule = { '_type': typ, 'pattern': re.val(), 'result': res };
-            
-        console.debug("--> " + rule.toSource());
+        var rule = { '_type': typ, 'pattern': pat, 'result': res };
+        
+        $("#case-rules .text-muted").remove();
+        $('<a class="list-group-item active" href="#">' + typ + 
+          ' = <tt>' + pat + '</tt></a>').appendTo(rl);
+
+        $("#case-result .text-muted").remove();
+        var di = $('<i class="fa fa-table"></i>'),
+        dr = $('<li class="list-group-item">' + restxt + '</li>').
+            appendTo("#case-result .list-group").prepend(di);
+
+        if (resovr) dr.popover(resovr).
+            hover(function(){ di.css({'visibility':"visible"}) },
+                  function(){ di.css({'visibility':"hidden"}) });
+        
+        rd.modal('hide')
     }),
     addUpEd = function() {
         var uc = $('<input type="number" min="0" disabled="disabled" id="update-count" class="form-control" />'),
@@ -228,7 +268,7 @@
             rst()
         };
 
-        $('<div class="input-group"></div>').append(uc.change(rst)).prepend($('<label class="input-group-addon"> Result set</label>').tooltip({'title':"Execution is successful, then some rows are returned."}).prepend(qs.click(cf))).prependTo(red.append('<p class="text-muted">Column number is limited on purpose for this tour.</p>'));
+        $('<div class="input-group"></div>').append(uc.change(rst)).prepend($('<label class="input-group-addon"> Result set</label>').tooltip({'title':"Execution is successful, then some rows are returned."}).prepend(qs.click(cf))).prependTo(red.append('<p class="text-muted">Column number is limited on purpose for this tour.<br />Acolyte can also manage names for result columns.</p>'));
 
         $('<p class="text-muted">Acolyte <a href="http://acolyte.eu.org/studio.html" rel="external me" title="Acolyte Studio">Studio</a> allows to re-use data from existing database.</p>').prependTo(red)
 
@@ -344,7 +384,7 @@
 
     $("#raise-error").change(function(){
         var e = $(this);
-        if (e.is(":checked")) rer.removeAttr("disabled")
-        else rer.attr("disabled", "disabled")
+        if (e.is(":checked")) rer.removeAttr("readonly")
+        else rer.attr("readonly", "readonly")
     });
 })(jQuery);
