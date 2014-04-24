@@ -9,7 +9,9 @@
             'title': "Define a case by adding a rule", 'placement': "bottom"
         })
     }, 
-    getval = function(e) { return function() { return e.val() } },
+    colDef = function(n, t) { 
+        return function() { return {'name':n.val(), '_type':t.val()} }
+    },
     rl = $("#case-rules .list-group"),
     rd = $("#route-editor"), rf = $("#rule-form"), rsf = $("#result-form"),
     pc = $("#param-pattern .badge"), pp = $("#param-pattern .position"),
@@ -61,25 +63,25 @@
             res = {'updateCount':c};
             restxt = "<em>"+c+"</em> updated row" + (c>1?"s":"")
         } else {
-            res = {'rows':[]};
-            var cts = "";
+            res = {'schema':[],'rows':[]};
+            var cts = "", ph = "";
+
+            $("#result-data .res-row:first td:not(:first)").each(function(i,e){
+                var cd = $(e), ct = cd.data('type'), cn = cd.data("name");
+
+                if (cts != "") cts += ", ";
+                cts += ct;
+
+                ph += "<td>"+cn+"</td>";
+
+                res.schema.push({'_type':ct,'name':cn})
+            });
 
             $("#result-data .res-row").each(function(i,e){
                 var row = [];
 
-                $("td", e).each(function(j,x){ 
-                    var r = $(x);
-
-                    if (j == 0) { r.remove(); return true }
-
-                    var ct = r.data("type");
-
-                    if (i == 0) {
-                        if (cts != "") cts += ", ";
-                        cts += pts[ct]
-                    }
-
-                    row.push({'_type':ct,'value':r.text()})
+                $("td:not(:first)", e).each(function(j,r){ 
+                    row.push($(r).text())
                 });
 
                 res.rows.push(row)
@@ -88,19 +90,21 @@
             restxt = "Result set = " + res.rows.length + " x (" + cts + ')';
 
             $("#result-data tbody > tr:not(.res-row)").remove();
+            $("#result-data .res-row").
+                each(function(i,tr){ $("td:first", tr).remove() });
 
             resovr = { 
                 'placement': "top", 'trigger': "hover", 'html': true,
-                'content': '<table class="table table-striped"><tbody>' + 
-                    $('#result-data tbody').html() + '</tbody></table>'
+                'content': '<table class="table table-striped"><thead><tr>'+ph+'</tr></thead><tbody>' + $('#result-data tbody').html() + '</tbody></table>'
             }
         }
 
-        var rule = { '_type': typ, 'pattern': pat, 'result': res };
-        
         $("#case-rules .text-muted").remove();
         $('<a class="list-group-item active" href="#">' + typ + 
-          ' = <tt>' + pat + '</tt></a>').appendTo(rl);
+          ' = <tt>' + pat + '</tt></a>').appendTo(rl).
+            data('json', JSON.stringify({ 
+                '_type': typ, 'pattern': pat, 'result': res 
+            }));
 
         $("#case-result .text-muted").remove();
         var di = $('<i class="fa fa-table"></i>'),
@@ -147,20 +151,30 @@
             nre.empty().css({'display':"block"});
 
             for (j = 1; j <= cc; j++) {
-                var hs = $('<select id="col' + j + 
-                           'type" class="form-control"></select>');
+                var hn = $('<input type="text" class="form-control col-md-6 col-sm-12" id="col' + j + 'name" value="Column #'+j+'" />').
+                    on('keyup change', function(){
+                        var te = $(this);
+
+                        if (!notEmpty(te)) {
+                            te.addClass("has-error");
+                            crb.attr("disabled", "disabled");
+                            return false
+                        } else {
+                            te.removeClass("has-error");
+                            crb.removeAttr("disabled");
+                            return true
+                        }
+                    }).tooltip({'title':"Name of column #"+j}),
+                hs = $('<select id="col' + j + 'type" class="form-control col-md-6 col-sm-12"></select>').tooltip({'title':"Type of column #"+j});
 
                 $.each(pts, function(v, t) {
                     hs.append('<option value="'+v+'">'+t+'</option>')
                 });
 
-                gct.push(getval(hs));
+                gct.push(colDef(hn, hs));
 
-                $('<div class="form-group"></div>').
-                    append('<label class="control-label" for="col' + j +
-                           'type">Column #'+j+'</label>').
-                    append(hs).appendTo(nre).
-                    tooltip({'title':"Type of column #"+j})
+                $('<div class="row col-def"></div>').
+                    append(hn).append(hs).appendTo(nre)
             }
 
             nre.append(crb.click(function(){
@@ -184,11 +198,11 @@
                     if (ok) rab.removeAttr("disabled");
                     else rab.attr("disabled", "disabled")
                 },
-                gcv = [], gci = function(t, e) {
+                gcv = [], gci = function(n, ty, e) {
                     return function() {
                         var v = e.val();
                         e.val(null);
-                        return {'_type':t, 'val':v}
+                        return {'name':n, '_type':ty, 'val':v}
                     }
                 }, 
                 rmrow = function(){ 
@@ -207,8 +221,8 @@
                     for (j = 0; j < gcv.length; j++) {
                         var col = gcv[j]();
 
-                        $('<td>'+col.val+'</td>').
-                            data("type", col._type).appendTo(nr)
+                        $('<td>'+col.val+'</td>').appendTo(nr).
+                            data("type", col._type).data("name", col.name)
 
                     }
 
@@ -223,10 +237,11 @@
                 };
 
                 for (j = 1; j <= cc; j++) {
-                    var ct = gct[j-1](),
+                    var cd = gct[j-1](), // column definition
+                    cn = cd.name, ct = cd._type,
                     ce = $('<input type="text" class="form-control" />');
 
-                    th.append('<td class="text-center">Column #'+j+'</td>');
+                    th.append('<td class="text-center">'+cn+'</td>');
 
                     ce.appendTo($('<td></td>').appendTo(tbe));
 
@@ -235,20 +250,20 @@
                         ce.attr("readonly", "readonly").
                             datepicker({'format':"yyyy-mm-dd"}).
                             on('changeDate', rv).
-                            tooltip({'title':"Date for column #"+j})
+                            tooltip({'title':"Date for "+cn})
 
                     } else if (ct == "float") {
                         cvf.push(vnv(ce));
                         ce.on('keyup change', rav(isNum)).
                             on('keyup change', rv).
-                            tooltip({'title':"Number for column #"+j})
+                            tooltip({'title':"Number for "+cn})
 
                     } else {
                         ce.on('keyup change', rv).
-                            tooltip({'title':"Text for column #"+j})
+                            tooltip({'title':"Text for "+cn})
                     }
 
-                    gcv.push(gci(ct, ce))
+                    gcv.push(gci(cn, ct, ce))
                 }
 
                 rab.appendTo(nre.empty()).click(addrow);
@@ -268,7 +283,7 @@
             rst()
         };
 
-        $('<div class="input-group"></div>').append(uc.change(rst)).prepend($('<label class="input-group-addon"> Result set</label>').tooltip({'title':"Execution is successful, then some rows are returned."}).prepend(qs.click(cf))).prependTo(red.append('<p class="text-muted">Column number is limited on purpose for this tour.<br />Acolyte can also manage names for result columns.</p>'));
+        $('<div class="input-group"></div>').append(uc.change(rst)).prepend($('<label class="input-group-addon"> Result set</label>').tooltip({'title':"Execution is successful, then some rows are returned."}).prepend(qs.click(cf))).prependTo(red.append('<p class="text-muted">Column number is limited on purpose for this tour.</p>'));
 
         $('<p class="text-muted">Acolyte <a href="http://acolyte.eu.org/studio.html" rel="external me" title="Acolyte Studio">Studio</a> allows to re-use data from existing database.</p>').prependTo(red)
 

@@ -27,6 +27,7 @@
 #result-form .form-control.col-md-4 { width: 33.3333% }
 #result-form .form-control.col-md-6 { width: 50% }
 #result-data tbody tr:hover { cursor: pointer }
+#result-data .col-def { margin: .5em 0 }
 
 #param-pattern li > .fa { visibility: hidden; margin-right: .5em }
 #param-pattern li { cursor: pointer }
