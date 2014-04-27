@@ -44,25 +44,46 @@
         raiserr.trigger('click'); return false
     }),
     red = $("#result-data"),
+    testBut = $("#test-routes").click(function(){
+        var fr = $('<form action="test.html" method="POST"></form>'),
+        ar = new Array();
+
+        $('.list-group-item', rl).each(function(i,e){
+            ar.push($.parseJSON($(e).data('json')))
+        });
+
+        fr.append('<textarea name="json">'+JSON.stringify(ar)+'</textarea>').
+            css({'visibility':"hidden"}).appendTo('body').trigger('submit');
+
+        return false
+    }),
     rmRouteHov = function(e){
         $('.operations', e).html('<i class="fa fa-minus-circle"></i>')
     },
     rmRoute = function(e){
         $('#case-result .list-group-item:nth('+e.index()+')').remove();
-        e.remove() 
+        e.remove();
+
+        if ($('.list-group-item', rl).length == 0) {
+            testBut.attr("disabled", "disabled").
+                text("No route to prepare connection")
+        }
     },
     routeUp = function(e){
-        console.debug("UP -> " + e.html());
-
         var res = $('#case-result .list-group-item:nth('+e.index()+')'),
         pres = res.prev(), pr = e.prev();
 
-        res.removeClass("hover").remove().insertBefore(pres);
+        res.removeClass("hover").detach().insertBefore(pres);
         $('.operations', e).html(' ');
-        e.remove().insertBefore(pr)
+        e.detach().insertBefore(pr)
     },
     routeDown = function(e){
-        console.debug("DOWN -> " + e.html())
+        var res = $('#case-result .list-group-item:nth('+e.index()+')'),
+        nres = res.next(), nr = e.next();
+
+        res.removeClass("hover").detach().insertAfter(nres);
+        $('.operations', e).html(' ');
+        e.detach().insertAfter(nr);
     },
     mvRouteHov = function(e){
         var up = $('<i class="fa fa-long-arrow-up"></i>'),
@@ -70,18 +91,17 @@
         x = e.index();
 
         if (x == 0) up.addClass("text-muted");
-        else up.css({'cursor':"n-resize"}).click(function(){ routeUp(e) });
+        else up.css({'cursor':"n-resize"}).
+            click(function(){ routeUp(e); return false });
 
         if (e.next().length == 0) down.addClass("text-muted");
-        else down.css({'cursor':"s-resize"}).click(function(){ routeDown(e) });
+        else down.css({'cursor':"s-resize"}).
+            click(function(){ routeDown(e); return false });
 
         $('.operations', e).empty().append(up).append(down)
     },
     routeHov = rmRouteHov,
     routeOp = rmRoute,
-    routeEl = function(rul){
-        var op = $('.operations', rul);
-    },
     moveRoute = $("#move-rule"),
     applyRoute = $("#route-editor .ac-apply").click(function(){
         var pat = re.val(), ps = [], res = null, typ = rk.val(),
@@ -139,24 +159,24 @@
         }
 
         $("#case-rules .text-muted").remove();
-        var rul = $('<a class="list-group-item" href="#"><span class="operations"> </span>' + typ + ' = <tt>' + pat + '</tt></a>').appendTo(rl),
-        op = $('').prependTo(rul);
+        var rul = $('<a class="list-group-item" href="#">' + typ + ' = <tt>' + pat + '</tt></a>').appendTo(rl),
+        op = $('<span class="operations"> </span>').prependTo(rul);
 
         rul.hover(function(){
             $('#case-result .list-group-item:nth('+rul.index()+')').
                 addClass("hover");
 
             routeHov(rul);
-        },function(){ 
+        }, function(){ 
             $('#case-result .list-group-item:nth('+rul.index()+')').
                 removeClass("hover");
-
+        
             op.html(' ')
         }).click(function(){ routeOp(rul); return false }).
             data('json', JSON.stringify({ 
                 '_type': typ, 'pattern': pat, 'result': res 
             }));
-
+        
         $("#case-result .text-muted").remove();
         var di = $('<i class="fa fa-table"></i>'),
         dr = $('<li class="list-group-item">' + restxt + '</li>').
@@ -166,7 +186,9 @@
 
         if (resovr) dr.popover(resovr);
         
-        rd.modal('hide')
+        rd.modal('hide');
+        testBut.removeAttr("disabled").
+            html('Test connection to routes <i class="fa fa-arrow-right"></i>')
     }),
     addUpEd = function() {
         var uc = $('<input type="number" min="0" disabled="disabled" id="update-count" class="form-control" />'),

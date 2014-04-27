@@ -3,3 +3,5 @@ GET /js/*file controllers.Assets.at(path="/public/js", file)
 GET /css/*file controllers.Assets.at(path="/public/css", file)
 
 GET / controllers.Pages.welcome
+
+POST /test.html controllers.Pages.test
