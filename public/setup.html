@@ -18,9 +18,15 @@
       <div class="page-header">
         <h1>Setup connection</h1>
 
+        <p>Any JDBC driver provides abstraction for query/update result, so that driver can be change without having to alter code accessing data through JDBC. Consequently, your <strong>JDBC code will behave in the same way whatever is underlying persistence</strong>: RDBMS or Acolyte.</p>
+
+        <p>Thanks to that, Acolyte can be used to <strong>test persistence code is doing what's expected when it's provided expected result</strong> by JDBC connection.</p>
+
+        <p><small>Such testing approach can be done with following steps.</small></p>
+
         <ol>
           <li><strong>Route access cases</strong>. At this point, there are two approaches, <a href="https://github.com/cchantep/acolyte/blob/5dc4c00252b3a9ba14900560364f24cc02601573/src/test/scala/PersistenceSpec.scala#L51" title="See example" rel="me external">1 case = 1 connection</a> or <a href="https://github.com/cchantep/cielago-tracker/commit/a758541af62a47f1a7d7216c694afe3faad69ac5#diff-a18c61543e5d6b1f4f72ecc5e43c6a1fR94" title="See title" rel="me external">1 connection = many cases</a>.</li>
-          <li><strong>Declare result for each case</strong>.</li>
+          <li>For each case, you <strong>declare JDBC result</strong>.</li>
         </ol>
 
         <p>Once done, connection can be passed/referenced anywhere <a href="http://www.oracle.com/technetwork/java/overview-141217.html" rel="external">JDBC</a> one is used.</p>
@@ -34,10 +40,16 @@
               <i class="fa fa-code-fork"></i>
 
               <div class="actions pull-right">
-                <a href="#add-rule" class="btn btn-primary">
+                <button id="add-rule" class="btn btn-primary">
                   <i class="fa fa-plus-square"></i>
                   <span class="visible-sm">Add rule</span>
-                </a>
+                </button>
+
+                <button class="btn btn-primary" 
+                   id="move-rule" data-toggle="button">
+                  <i class="fa fa-arrows-v"></i> 
+                  <span class="visible-sm">Move rule</span>
+                </button>
               </div>
             </div>
 

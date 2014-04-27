@@ -2,6 +2,11 @@
 
 .panel-heading .btn { padding: 2px 7px }
 
+#case-rules .operations {
+  display: block; width:2em; overflow:hidden; float:left
+}
+#case-rules .operations .fa + .fa { margin-left: .5em }
+
 @media (min-width: 768px) {
   .spacer .fa-arrow-right { font-size: 60pt }
   #case-rules .panel-body,
@@ -34,3 +39,5 @@
 
 #case-result .list-group-item { cursor: pointer }
 #case-result .fa-table { visibility: hidden; margin-right: .5em }
+
+.list-group-item.hover { background: #ecf0f1 }

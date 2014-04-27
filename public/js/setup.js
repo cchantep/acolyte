@@ -1,7 +1,7 @@
 (function($) {
     $('.has-tooltip').one('mouseover', rt).tooltip()
 
-    var ar = $('a[href="#add-rule"]'),
+    var ar = $('#add-rule'),
     notEmpty = function(e) { return ($.trim(e.val()) == "") ? false : true },
     isNum = function(e) { return $.isNumeric(e.val()) },
     rt = function(){
@@ -44,6 +44,45 @@
         raiserr.trigger('click'); return false
     }),
     red = $("#result-data"),
+    rmRouteHov = function(e){
+        $('.operations', e).html('<i class="fa fa-minus-circle"></i>')
+    },
+    rmRoute = function(e){
+        $('#case-result .list-group-item:nth('+e.index()+')').remove();
+        e.remove() 
+    },
+    routeUp = function(e){
+        console.debug("UP -> " + e.html());
+
+        var res = $('#case-result .list-group-item:nth('+e.index()+')'),
+        pres = res.prev(), pr = e.prev();
+
+        res.removeClass("hover").remove().insertBefore(pres);
+        $('.operations', e).html(' ');
+        e.remove().insertBefore(pr)
+    },
+    routeDown = function(e){
+        console.debug("DOWN -> " + e.html())
+    },
+    mvRouteHov = function(e){
+        var up = $('<i class="fa fa-long-arrow-up"></i>'),
+        down = $('<i class="fa fa-long-arrow-down"></i>'),
+        x = e.index();
+
+        if (x == 0) up.addClass("text-muted");
+        else up.css({'cursor':"n-resize"}).click(function(){ routeUp(e) });
+
+        if (e.next().length == 0) down.addClass("text-muted");
+        else down.css({'cursor':"s-resize"}).click(function(){ routeDown(e) });
+
+        $('.operations', e).empty().append(up).append(down)
+    },
+    routeHov = rmRouteHov,
+    routeOp = rmRoute,
+    routeEl = function(rul){
+        var op = $('.operations', rul);
+    },
+    moveRoute = $("#move-rule"),
     applyRoute = $("#route-editor .ac-apply").click(function(){
         var pat = re.val(), ps = [], res = null, typ = rk.val(),
         restxt = null, resovr = null;
@@ -100,8 +139,20 @@
         }
 
         $("#case-rules .text-muted").remove();
-        $('<a class="list-group-item active" href="#">' + typ + 
-          ' = <tt>' + pat + '</tt></a>').appendTo(rl).
+        var rul = $('<a class="list-group-item" href="#"><span class="operations"> </span>' + typ + ' = <tt>' + pat + '</tt></a>').appendTo(rl),
+        op = $('').prependTo(rul);
+
+        rul.hover(function(){
+            $('#case-result .list-group-item:nth('+rul.index()+')').
+                addClass("hover");
+
+            routeHov(rul);
+        },function(){ 
+            $('#case-result .list-group-item:nth('+rul.index()+')').
+                removeClass("hover");
+
+            op.html(' ')
+        }).click(function(){ routeOp(rul); return false }).
             data('json', JSON.stringify({ 
                 '_type': typ, 'pattern': pat, 'result': res 
             }));
@@ -109,11 +160,11 @@
         $("#case-result .text-muted").remove();
         var di = $('<i class="fa fa-table"></i>'),
         dr = $('<li class="list-group-item">' + restxt + '</li>').
-            appendTo("#case-result .list-group").prepend(di);
-
-        if (resovr) dr.popover(resovr).
+            appendTo("#case-result .list-group").prepend(di).
             hover(function(){ di.css({'visibility':"visible"}) },
                   function(){ di.css({'visibility':"hidden"}) });
+
+        if (resovr) dr.popover(resovr);
         
         rd.modal('hide')
     }),
@@ -401,5 +452,15 @@
         var e = $(this);
         if (e.is(":checked")) rer.removeAttr("readonly")
         else rer.attr("readonly", "readonly")
+    });
+
+    moveRoute.click(function(){
+        if (!moveRoute.hasClass("active")) {
+            routeHov = mvRouteHov;
+            routeOp = function(){}
+        } else {
+            routeHov = rmRouteHov;
+            routeOp = rmRoute
+        }
     });
 })(jQuery);
