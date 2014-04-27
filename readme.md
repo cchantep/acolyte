@@ -6,6 +6,10 @@ Acolyte is a JDBC driver designed for cases like mockup, testing, or any case yo
 
 This documentation can be read [online](http://cchantep.github.io/acolyte/).
 
+## Advantages for testing
+
+TODO
+
 ## Requirements
 
 * Java 1.6
