@@ -6,7 +6,7 @@ scalaVersion := "2.10.4"
 
 libraryDependencies ++= Seq(
   // jdbc,
-  "org.eu.acolyte" %% "jdbc-scala" % "1.0.16" 
+  "org.eu.acolyte" %% "jdbc-scala" % "1.0.17" 
 )
 
 play.Project.playScalaSettings

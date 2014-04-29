@@ -27,27 +27,59 @@ package object controllers {
   case class ResultColumn(typ: Class[_], name: String)
   case class RowResult(rows: RowList[_ <: acolyte.Row]) extends QueryResult
 
+  val TextCol = classOf[String]
+  val NumberCol = classOf[Float]
+  val DateCol = classOf[Date]
+
   implicit val columnReads: Reads[ResultColumn] = (
     (__ \ '_type).read[String] map {
-      case "string" ⇒ classOf[String]
-      case "float"  ⇒ classOf[Float]
-      case "date"   ⇒ classOf[Date]
+      case "string" ⇒ TextCol
+      case "float"  ⇒ NumberCol
+      case "date"   ⇒ DateCol
     } and (__ \ 'name).read[String])(ResultColumn)
 
-  @inline def rows1Reads(list: RowList1[_, _]): Reads[QueryResult] =
+  @inline def dateFormat = new java.text.SimpleDateFormat("YYYY-MM-dd")
+
+  @inline def convertCol[T](typ: Class[T], s: String): T = typ match {
+    case TextCol   ⇒ s.asInstanceOf[T]
+    case NumberCol ⇒ s.toFloat.asInstanceOf[T]
+    case DateCol   ⇒ dateFormat.parse(s).asInstanceOf[T]
+    case _         ⇒ sys.error(s"Unsupported column ($typ): $s")
+  }
+
+  @inline def rows1Reads[A](a: (Class[A], String)): Reads[QueryResult] =
     (__ \ 'rows).read[Seq[Seq[String]]] map { raw ⇒
-      ???
+      RowResult(raw.foldLeft(rowList1(a)) { (l, r) ⇒
+        r match { case x :: Nil ⇒ l.append(convertCol(a._1, x)) }
+      })
+    }
+
+  @inline def rows2Reads[A, B](a: (Class[A], String), b: (Class[B], String)): Reads[QueryResult] =
+    (__ \ 'rows).read[Seq[Seq[String]]] map { raw ⇒
+      RowResult(raw.foldLeft(rowList2(a, b)) { (l, r) ⇒
+        r match {
+          case x :: y :: Nil ⇒ l.append(
+            convertCol(a._1, x), convertCol(b._1, y))
+        }
+      })
+    }
+
+  @inline def rows3Reads[A, B, C](a: (Class[A], String), b: (Class[B], String), c: (Class[C], String)): Reads[QueryResult] =
+    (__ \ 'rows).read[Seq[Seq[String]]] map { raw ⇒
+      RowResult(raw.foldLeft(rowList3(a, b, c)) { (l, r) ⇒
+        r match {
+          case x :: y :: z :: Nil ⇒ l.append(
+            convertCol(a._1, x), convertCol(b._1, y), convertCol(c._1, z))
+        }
+      })
     }
 
   private val rowResultReads: Reads[QueryResult] =
     (__ \ 'schema).read[Seq[ResultColumn]] flatMap {
-      case a :: Nil ⇒
-        val c: acolyte.Column[_] = a.typ -> a.name
-        rows1Reads(rowList1(a.typ -> a.name))
-      case a :: b :: Nil      ⇒ ???
-      //rowsReads(rowList2(a.typ -> a.name, b.typ -> b.name))
-      case a :: b :: c :: Nil ⇒ ???
-      //rowsReads(rowList3(a.typ -> a.name, b.typ -> b.name, c.typ -> c.name))
+      case a :: Nil      ⇒ rows1Reads(a.typ -> a.name)
+      case a :: b :: Nil ⇒ rows2Reads(a.typ -> a.name, b.typ -> b.name)
+      case a :: b :: c :: Nil ⇒
+        rows3Reads(a.typ -> a.name, b.typ -> b.name, c.typ -> c.name)
     }
 
   implicit def queryResultReads: Reads[QueryResult] =

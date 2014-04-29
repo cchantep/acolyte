@@ -44,6 +44,12 @@
         raiserr.trigger('click'); return false
     }),
     red = $("#result-data"),
+    loadRoutes = function(arr){
+        var i;
+        for (i = 0; i < arr.length; i++) {
+            displayRoute(arr[i]._type, arr[i].pattern, arr[i].result)
+        }
+    },
     testBut = $("#test-routes").click(function(){
         var fr = $('<form action="test.html" method="POST"></form>'),
         ar = new Array();
@@ -103,63 +109,37 @@
     routeHov = rmRouteHov,
     routeOp = rmRoute,
     moveRoute = $("#move-rule"),
-    applyRoute = $("#route-editor .ac-apply").click(function(){
-        var pat = re.val(), ps = [], res = null, typ = rk.val(),
-        restxt = null, resovr = null;
+    displayRoute = function(typ,pat,res){
+        // pat: Pattern = { 'expression': string, 'parameters': [{'_type': ..., 'value', ...}, ...]}
 
-        $("#param-pattern li").each(function(i,e){ 
-            var p = $(e);
-            ps.push({'_type':p.data('type'),'value':p.data('value')})
-        });
+        var restxt = null, resovr = null;
 
-        if (raiserr.is(":checked")) {
-            var err = rer.val();
-
-            res = {'error':err};
-            restxt = "Error = <tt>" + err + "</tt>"
+        if (res['error']) {
+            restxt = "Error = <tt>" + res.error + "</tt>"
         } else if (typ == "update") {
-            var c = parseInt($("#update-count").val());
-            res = {'updateCount':c};
-            restxt = "<em>"+c+"</em> updated row" + (c>1?"s":"")
+            restxt = "<em>" + res['updateCount'] 
+                + "</em> updated row" + (c>1?"s":"")
         } else {
-            res = {'schema':[],'rows':[]};
-            var cts = "", ph = "";
+            var cts = "", ph = "", i;
 
-            $("#result-data .res-row:first td:not(:first)").each(function(i,e){
-                var cd = $(e), ct = cd.data('type'), cn = cd.data("name");
+            for (i = 0; i < res.schema.length; i++) {
+                var ct = res.schema[i]._type, 
+                cn = res.schema[i].name;
 
                 if (cts != "") cts += ", ";
                 cts += ct;
 
-                ph += "<td>"+cn+"</td>";
-
-                res.schema.push({'_type':ct,'name':cn})
-            });
-
-            $("#result-data .res-row").each(function(i,e){
-                var row = [];
-
-                $("td:not(:first)", e).each(function(j,r){ 
-                    row.push($(r).text())
-                });
-
-                res.rows.push(row)
-            });
+                ph += "<td>"+cn+"</td>"
+            }
 
             restxt = "Result set = " + res.rows.length + " x (" + cts + ')';
-
-            $("#result-data tbody > tr:not(.res-row)").remove();
-            $("#result-data .res-row").
-                each(function(i,tr){ $("td:first", tr).remove() });
-
             resovr = { 
                 'placement': "top", 'trigger': "hover", 'html': true,
                 'content': '<table class="table table-striped"><thead><tr>'+ph+'</tr></thead><tbody>' + $('#result-data tbody').html() + '</tbody></table>'
             }
         }
 
-        $("#case-rules .text-muted").remove();
-        var rul = $('<a class="list-group-item" href="#">' + typ + ' = <tt>' + pat + '</tt></a>').appendTo(rl),
+        var rul = $('<a class="list-group-item" href="#">' + typ + ' = <tt>' + pat.expression + '</tt></a>').appendTo(rl),
         op = $('<span class="operations"> </span>').prependTo(rul);
 
         rul.hover(function(){
@@ -177,7 +157,6 @@
                 '_type': typ, 'pattern': pat, 'result': res 
             }));
         
-        $("#case-result .text-muted").remove();
         var di = $('<i class="fa fa-table"></i>'),
         dr = $('<li class="list-group-item">' + restxt + '</li>').
             appendTo("#case-result .list-group").prepend(di).
@@ -186,9 +165,55 @@
 
         if (resovr) dr.popover(resovr);
         
-        rd.modal('hide');
         testBut.removeAttr("disabled").
             html('Test connection to routes <i class="fa fa-arrow-right"></i>')
+
+    },
+    applyRoute = $("#route-editor .ac-apply").click(function(){
+        var pat, ps = [], res = null, typ = rk.val();
+
+        $("#param-pattern li").each(function(i,e){ 
+            var p = $(e);
+            ps.push({'_type':p.data('type'),'value':p.data('value')})
+        });
+
+        pat = {'expression':re.val(), 'parameters':ps};
+
+        if (raiserr.is(":checked")) {
+            res = {'error':rer.val()}
+        } else if (typ == "update") {
+            res = {'updateCount':parseInt($("#update-count").val())}
+        } else {
+            res = {'schema':[],'rows':[]};
+
+            $("#result-data .res-row:first td:not(:first)").each(function(i,e){
+                var cd = $(e), ct = cd.data('type'), cn = cd.data("name");
+
+                res.schema.push({'_type':ct,'name':cn})
+            });
+
+            $("#result-data .res-row").each(function(i,e){
+                var row = [];
+
+                $("td:not(:first)", e).each(function(j,r){ 
+                    row.push($(r).text())
+                });
+
+                res.rows.push(row)
+            });
+
+            $("#result-data tbody > tr:not(.res-row)").remove();
+            $("#result-data .res-row").
+                each(function(i,tr){ $("td:first", tr).remove() });
+
+        }
+
+        $("#case-rules .text-muted").remove();
+        
+        $("#case-result .text-muted").remove();
+        rd.modal('hide');
+
+        displayRoute(typ,pat,res)
     }),
     addUpEd = function() {
         var uc = $('<input type="number" min="0" disabled="disabled" id="update-count" class="form-control" />'),

@@ -10,18 +10,21 @@ object Pages extends Controller {
 
   def welcome = Assets.at(path = "/public", "index.html")
 
+  def setup = Action(Ok(views.html.setup()))
+
   sealed case class RouteData(json: String)
 
   def test = Action { request ⇒
     Form(mapping("json" -> nonEmptyText)(
       RouteData.apply)(RouteData.unapply)).bindFromRequest()(request).
-      fold[SimpleResult]({ f ⇒ Ok(s"f.errors") }, testWithData)
-
+      fold[SimpleResult]({ f ⇒ Ok(s"f.errors") }, { data ⇒
+        Reads.seq(routeReads).reads(Json.parse(data.json)).
+          fold[SimpleResult]({ e ⇒ PreconditionFailed(e.mkString) },
+            testWithRoutes)
+      })
   }
 
-  @inline def testWithData(data: RouteData): SimpleResult = {
-    val js = Json.parse(data.json)
-    val parser = Reads.seq(routeReads)
-    Ok(s"Y: ${parser reads js}")
-  }
+  @inline def testWithRoutes(routes: Seq[Route]): SimpleResult =
+    Ok(s"Routes: ${Json.toJson(routes)}")
+
 }
