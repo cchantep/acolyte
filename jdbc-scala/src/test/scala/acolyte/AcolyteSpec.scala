@@ -217,4 +217,21 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
 
     }
   }
+
+  "Update result" should {
+    "have generated keys" in {
+      Acolyte.updateResult(2, RowLists.intList(3, 4)).
+        aka("update result") must beLike {
+          case res ⇒ (res.getUpdateCount aka "count" must_== 2).
+            and(res.getGeneratedKeys.resultSet aka "keys" must beLike {
+              case genKeys ⇒
+                (genKeys.next aka "has first generated key" must beTrue).
+                  and(genKeys.getInt(1) aka "first key" must_== 3).
+                  and(genKeys.next aka "has second generated key" must beTrue).
+                  and(genKeys.getInt(1) aka "second key" must_== 4).
+                  and(genKeys.next aka "has third generated key" must beFalse)
+            })
+        }
+    }
+  }
 }

@@ -103,6 +103,20 @@ object Acolyte {
   def withQueryResult[A](res: QueryResult)(f: SqlConnection ⇒ A): A =
     f(connection(handleQuery(_ ⇒ res)))
 
+  /**
+   * Returns an update result with row |count| and generated |keys|.
+   * @param count Updated (row) count
+   * @param keys Generated keys
+   *
+   * {{{
+   * import acolyte.Acolyte.updateResult
+   * import acolyte.RowLists
+   *
+   * updateResult(2/* updated rows */, RowLists.stringList("a", "b"))
+   * }}}
+   */
+  def updateResult(count: Int, keys: RowList[_]): UpdateResult =
+    new UpdateResult(count) withGeneratedKeys keys
 }
 
 /**

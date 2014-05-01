@@ -141,7 +141,7 @@ If you just need/want to directly get connection from `acolyte.Driver`, without 
 Connection con = acolyte.Driver.connection(handler);
 ```
 
-### Connection properties
+#### Connection properties
 
 JDBC allows to pass properties to driver to customize connection creation:
 
@@ -305,7 +305,7 @@ QueryResult resWithWarning = aRowList.asResult().
   withWarning("Row list result with warning");
 ```
 
-### Generated keys
+#### Generated keys
 
 Update case not only returning update count but also generated keys can be represented with `UpdateResult`:
 
@@ -453,6 +453,19 @@ import acolyte.Acolyte
 // res: acolyte.QueryResult
 val str: String = Acolyte.withQueryResult(res) { connection ⇒ … }
 ```
+
+#### Generated keys
+
+Update case not only returning update count but also generated keys can be represented with `UpdateResult`:
+
+```java
+import acolyte.{ Acolyte, RowLists }
+
+// Result with update count == 1 and a generated key 2L
+Acolyte.updateResult(1, RowLists.longList.append(2L))
+```
+
+Keys specified on result will be given to JDBC statement `.getGeneratedKeys`.
 
 ### Anorm
 
