@@ -16,11 +16,11 @@ import acolyte.StatementHandler.Parameter
 import acolyte.test.{ EmptyConnectionHandler, Params }
 
 object PreparedStatementSpec
-  extends Specification with StatementSpecification[PreparedStatement] {
+    extends Specification with StatementSpecification[PreparedStatement] {
 
   "Prepared statement specification" title
 
-  def statement(c: Connection = defaultCon, s: String = "TEST", h: StatementHandler = defaultHandler.getStatementHandler) = new PreparedStatement(c, s, h)
+  def statement(c: Connection = defaultCon, s: String = "TEST", h: StatementHandler = defaultHandler.getStatementHandler) = new PreparedStatement(c, s, java.sql.Statement.RETURN_GENERATED_KEYS, h)
 
 }
 
@@ -145,7 +145,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       s.executeBatch() aka "batch execution" mustEqual Array[Int](1, 2) and (
         h.exed aka "executed" must beLike {
-          case ("TEST", x) :: ("TEST", y) :: Nil =>
+          case ("TEST", x) :: ("TEST", y) :: Nil ⇒
             (x aka "x" must_== a) and (y aka "y" must_== b)
         })
     }
@@ -161,7 +161,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       s.executeBatch() aka "batch execution" must throwA[BatchUpdateException].
         like {
-          case ex: BatchUpdateException =>
+          case ex: BatchUpdateException ⇒
             (ex.getUpdateCounts aka "update count" must_== Array[Int](
               EXECUTE_FAILED, EXECUTE_FAILED)).
               and(ex.getCause.getMessage aka "cause" mustEqual "Batch error")
@@ -187,7 +187,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       s.executeBatch() aka "batch execution" must throwA[BatchUpdateException].
         like {
-          case ex: BatchUpdateException =>
+          case ex: BatchUpdateException ⇒
             (ex.getUpdateCounts aka "update count" must_== Array[Int](
               EXECUTE_FAILED, 2)).
               and(ex.getCause.getMessage aka "cause" mustEqual "Batch error: 1")
@@ -209,7 +209,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       s.executeBatch() aka "batch execution" must throwA[BatchUpdateException].
         like {
-          case ex: BatchUpdateException =>
+          case ex: BatchUpdateException ⇒
             (ex.getUpdateCounts aka "update count" must_== Array[Int](
               1, EXECUTE_FAILED)).
               and(ex.getCause.getMessage aka "cause" mustEqual "Batch error: 2")
@@ -235,7 +235,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       s.executeBatch() aka "batch execution" must throwA[BatchUpdateException].
         like {
-          case ex: BatchUpdateException =>
+          case ex: BatchUpdateException ⇒
             (ex.getUpdateCounts aka "update count" must_== Array[Int](
               1, EXECUTE_FAILED)).
               and(ex.getCause.getMessage aka "cause" mustEqual "Batch error: 2")
@@ -1283,7 +1283,11 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       (query aka "execution" must not(throwA[SQLException])).
         and(query aka "resultset" must not beNull).
-        and(s.getGeneratedKeys.next aka "has generated keys" must beFalse)
+        and(s.getGeneratedKeys aka "generated keys" must beLike {
+          case genKeys ⇒
+            (genKeys.getStatement aka "keys statement" mustEqual s).
+              and(genKeys.next aka "has keys" must beFalse)
+        })
     }
 
     "fail with update statement" in {
@@ -1325,7 +1329,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       (s.executeUpdate aka "update count" must_== 1).
         and(s.getGeneratedKeys aka "generated keys" must beLike {
-          case ks => (ks.next aka "has first key" must beTrue).
+          case ks ⇒ (ks.getStatement aka "keys statement" mustEqual s).
+            and(ks.next aka "has first key" must beTrue).
             and(ks.getInt(1) aka "first key" must_== 200).
             and(ks.next aka "has second key" must beFalse)
         })

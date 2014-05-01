@@ -263,6 +263,7 @@ public abstract class RowList<R extends Row> {
             this.columnClasses = getColumnClasses();
             this.columnLabels = getColumnLabels();
             this.rows = Collections.unmodifiableList(rows);
+
             this.statement = statement;
             this.last = null;
             super.fetchSize = rows.size();

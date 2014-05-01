@@ -309,6 +309,6 @@ object CallableStatementSpec
     }
   }
 
-  override def statement(c: Connection = defaultCon, s: String = "TEST", h: StatementHandler = defaultHandler.getStatementHandler) = new CallableStatement(c, s, h)
+  override def statement(c: Connection = defaultCon, s: String = "TEST", h: StatementHandler = defaultHandler.getStatementHandler) = new CallableStatement(c, s, java.sql.Statement.NO_GENERATED_KEYS, h)
 
 }

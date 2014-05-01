@@ -57,13 +57,15 @@ public final class CallableStatement
      *
      * @param connection Owner connection
      * @param sql SQL statement
+     * @param generatedKeys Generated keys flag
      * @param handler Statement handler (not null)
      */
     protected CallableStatement(final acolyte.Connection connection,
                                 final String sql,
+                                final int generatedKeys,
                                 final StatementHandler handler) {
         
-        super(connection, sql, handler);
+        super(connection, sql, generatedKeys, handler);
     } // end of <init>
 
     // ---

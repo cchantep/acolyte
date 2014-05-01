@@ -104,6 +104,11 @@ public class PreparedStatement
     private final boolean query;
 
     /**
+     * Generated key flag
+     */
+    private final int generatedKeysFlag;
+
+    /**
      * Parameters
      */
     private final TreeMap<Integer,Parameter> parameters = 
@@ -121,10 +126,12 @@ public class PreparedStatement
      *
      * @param connection Owner connection
      * @param sql SQL statement
+     * @param generatedKeys Generated keys flag
      * @param handler Statement handler (not null)
      */
     protected PreparedStatement(final acolyte.Connection connection,
                                 final String sql,
+                                final int generatedKeys,
                                 final StatementHandler handler) {
 
         super(connection, handler);
@@ -135,6 +142,7 @@ public class PreparedStatement
 
         this.sql = sql;
         this.query = handler.isQuery(sql);
+        this.generatedKeysFlag = generatedKeys;
         this.batch = new ArrayList<ImmutablePair<String,TreeMap<Integer,Parameter>>>();
     } // end of <init>
 
@@ -168,7 +176,7 @@ public class PreparedStatement
             
             this.updateCount = -1;
             this.warning = res.getWarning();
-            this.generatedKeys = NO_GENERATED_KEY;
+            this.generatedKeys = EMPTY_GENERATED_KEYS.withStatement(this);
             
             return (this.result = 
                     res.getRowList().resultSet().withStatement(this));
@@ -225,8 +233,8 @@ public class PreparedStatement
             final UpdateResult res = this.handler.whenSQLUpdate(sql, params);
             final SQLWarning w = res.getWarning();
             final ResultSet k = (res.generatedKeys == null) 
-                ? RowLists.stringList().resultSet()/* empty ResultSet */
-                : res.generatedKeys.resultSet();
+                ? EMPTY_GENERATED_KEYS.withStatement(this)
+                : res.generatedKeys.resultSet().withStatement(this);
             
             return ImmutableTriple.of(res.getUpdateCount(), k, w);
         } catch (SQLException se) {

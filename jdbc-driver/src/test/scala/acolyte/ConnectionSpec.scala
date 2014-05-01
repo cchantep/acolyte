@@ -613,6 +613,8 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
         aka("statement connection") mustEqual c).
         and(c.prepareStatement("TEST", Statement.NO_GENERATED_KEYS).
           getConnection aka "statement connection" mustEqual c).
+        and(c.prepareStatement("TEST", Statement.RETURN_GENERATED_KEYS).
+          getConnection aka "statement connection" mustEqual c).
         and(c.prepareStatement("TEST", TYPE_FORWARD_ONLY, CONCUR_READ_ONLY).
           getConnection aka "statement connection" mustEqual c).
         and(c.prepareStatement("TEST",
@@ -628,6 +630,8 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       (c.prepareStatement("TEST") aka "creation" must throwA[SQLException](
         message = "Connection is closed")).
         and(c.prepareStatement("TEST", Statement.NO_GENERATED_KEYS).
+          aka("creation") must throwA[SQLException]("Connection is closed")).
+        and(c.prepareStatement("TEST", Statement.RETURN_GENERATED_KEYS).
           aka("creation") must throwA[SQLException]("Connection is closed")).
         and(c.prepareStatement("TEST", TYPE_FORWARD_ONLY, CONCUR_READ_ONLY).
           aka("creation") must throwA[SQLException]("Connection is closed")).
