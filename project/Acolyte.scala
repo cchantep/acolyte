@@ -9,9 +9,9 @@ object Acolyte extends Build with Dependencies
     aggregate(jdbcDriver, scalacPlugin, jdbcScala, studio).
     settings(
       organization in ThisBuild := "org.eu.acolyte",
-      version in ThisBuild := "1.0.17",
+      version in ThisBuild := "1.0.18",
       javaOptions in ThisBuild ++= Seq("-source", "1.6", "-target", "1.6"),
-      scalaVersion in ThisBuild := "2.10.3",
+      scalaVersion in ThisBuild := "2.10.4",
       crossScalaVersions in ThisBuild := Seq("2.10.4", "2.11.0"),
       publishTo in ThisBuild := Some(Resolver.file("file", 
         new File(Path.userHome.absolutePath+"/.m2/repository"))),

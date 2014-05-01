@@ -1,8 +1,24 @@
+## 1.0.18
+
+([ac3415cabc01f85de1d766c0de53f0ab7e8c6c38](https://github.com/cchantep/acolyte/commit/ac3415cabc01f85de1d766c0de53f0ab7e8c6c38) @ [jdbc-scala](https://github.com/cchantep/acolyte/tree/master/jdbc-scala)) Companion function for update result with generated keys.
+
+```scala
+import acolyte.{ Acolyte, RowLists }
+
+val res = Acolyte.updateResult(3/*count*/, RowLists.stringList("generatedKey"))
+```
+
+([99ac2f1d01681b01f2c236268061d498ba1217c1](https://github.com/cchantep/acolyte/commit/99ac2f1d01681b01f2c236268061d498ba1217c1) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Fix generated keys on update result.
+
 ## 1.0.17
 
-Cross compilation from Scala 2.10 to 2.11.
+([363aab2f67d2d7866626d750f442b61d4c728223](https://github.com/cchantep/acolyte/commit/363aab2f67d2d7866626d750f442b61d4c728223) @ [jdbc-scala](https://github.com/cchantep/acolyte/tree/master/jdbc-scala)) Cross build for Scala 2.11.
 
 ## 1.0.16
+
+([a0122044eb1125fe66899582c1eb1df617cf8351](https://github.com/cchantep/acolyte/commit/a0122044eb1125fe66899582c1eb1df617cf8351) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Fix parameter definition for null decimal/numeric (1.0.16-2).
+
+([bf89ecec5b9b1645c347c32cf334475e39e4155c](https://github.com/cchantep/acolyte/commit/bf89ecec5b9b1645c347c32cf334475e39e4155c) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Simplified exception message (1.0.16-1).
 
 ([2a2093606f5c4582efa2fea4aa18de357f4b8a1c](https://github.com/cchantep/acolyte/commit/2a2093606f5c4582efa2fea4aa18de357f4b8a1c) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Batch support on statement and prepared statement.
 
