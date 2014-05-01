@@ -6,9 +6,28 @@ Acolyte is a JDBC driver designed for cases like mockup, testing, or any case yo
 
 This documentation can be read [online](http://cchantep.github.io/acolyte/).
 
-## Advantages for testing
+## Motivation
 
-TODO
+Automated testing for persistence (JDBC related) code is not trivial.
+Using test DB requires tools (scripts) to set up environment repeatly, for each time tests are executed.
+
+Considering integration testing that's fine. It's different for unit testing.
+
+Unit tests must be isolated from each others so each unit can be validated independently.     
+
+A unit test can alter database as executed. Thus tests coming after would have to cope with this altered environment, without asserting which one is runned first (no order assumption).
+
+As tests can be runned in parallel while considering code accessing same data spaces. Without extra attention to isolation/transaction management, this can lead to tests conflicting between them.
+
+With Acolyte, connection behaviour can be built, defining which statement is supported with which (query or update) result.
+
+Each prepared connection can supports only queries and updates your code is interested in, and there is no need to simulate a whole data store structure/schema.
+
+As soon as Acolyte connections don't rely on data store, statement executions are isolated without extra effort.
+
+As a JDBC driver is provided you can simply update test configuration, so that Acolyte connections are resolved by persistence code without change throught standard mechanisms (JDBC URL, JNDI, ...).
+
+It also makes simple testing of DB edge cases (e.g. unrecoverable/unexpected error). It's easy to throw an exception from Acolyte connection, so that it can be validated persistence code is properly handling such case.
 
 ## Requirements
 
