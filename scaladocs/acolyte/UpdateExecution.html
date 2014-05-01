@@ -35,7 +35,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">UpdateExecution</span><span class="params">(<span name="sql">sql: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="parameters">parameters: <span class="extype" name="scala.List">List</span>[<a href="ExecutedParameter.html" class="extype" name="acolyte.ExecutedParameter">ExecutedParameter</a>]</span>)</span><span class="result"> extends <a href="Execution.html" class="extype" name="acolyte.Execution">Execution</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">UpdateExecution</span><span class="params">(<span name="sql">sql: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="parameters">parameters: <span class="extype" name="scala.List">List</span>[<a href="ExecutedParameter.html" class="extype" name="acolyte.ExecutedParameter">ExecutedParameter</a>] = <span class="symbol">immutable.this.Nil</span></span>)</span><span class="result"> extends <a href="Execution.html" class="extype" name="acolyte.Execution">Execution</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
@@ -88,7 +88,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">UpdateExecution</span><span class="params">(<span name="sql">sql: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="parameters">parameters: <span class="extype" name="scala.List">List</span>[<a href="ExecutedParameter.html" class="extype" name="acolyte.ExecutedParameter">ExecutedParameter</a>]</span>)</span>
+        <span class="name">UpdateExecution</span><span class="params">(<span name="sql">sql: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="parameters">parameters: <span class="extype" name="scala.List">List</span>[<a href="ExecutedParameter.html" class="extype" name="acolyte.ExecutedParameter">ExecutedParameter</a>] = <span class="symbol">immutable.this.Nil</span></span>)</span>
       </span>
       </h4>
       
@@ -295,7 +295,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="acolyte.UpdateExecution#parameters" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="acolyte.UpdateExecution#parameters" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="parameters:List[acolyte.ExecutedParameter]"></a>
       <a id="parameters:List[ExecutedParameter]"></a>
       <h4 class="signature">
@@ -307,8 +307,8 @@
         <span class="name">parameters</span><span class="result">: <span class="extype" name="scala.List">List</span>[<a href="ExecutedParameter.html" class="extype" name="acolyte.ExecutedParameter">ExecutedParameter</a>]</span>
       </span>
       </h4>
-      
-    </li><li name="acolyte.UpdateExecution#sql" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Execution parameters</p><div class="fullcomment"><div class="comment cmt"><p>Execution parameters</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="acolyte.UpdateExecution">UpdateExecution</a> → <a href="Execution.html" class="extype" name="acolyte.Execution">Execution</a></dd></dl></div>
+    </li><li name="acolyte.UpdateExecution#sql" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="sql:String"></a>
       <a id="sql:String"></a>
       <h4 class="signature">
@@ -320,7 +320,7 @@
         <span class="name">sql</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt">Executed SQL</p><div class="fullcomment"><div class="comment cmt"><p>Executed SQL</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="acolyte.UpdateExecution">UpdateExecution</a> → <a href="Execution.html" class="extype" name="acolyte.Execution">Execution</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>

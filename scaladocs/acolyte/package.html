@@ -83,13 +83,13 @@
         <a href="DefinedParameter.html"><span class="name">DefinedParameter</span></a><span class="params">(<span name="value">value: <span class="extype" name="scala.Any">Any</span></span>, <span name="definition">definition: <span class="extype" name="acolyte.ParameterMetaData.ParameterDef">ParameterDef</span></span>)</span><span class="result"> extends <a href="ExecutedParameter.html" class="extype" name="acolyte.ExecutedParameter">ExecutedParameter</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
-      
+      <p class="comment cmt">Parameter along with its definition.</p>
     </li><li name="acolyte.ExecutedParameter" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="ExecutedParameterextendsAnyRef"></a>
       <a id="ExecutedParameter:ExecutedParameter"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">sealed </span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
@@ -97,6 +97,19 @@
       </span>
       </h4>
       
+    </li><li name="acolyte.ExecutedStatement" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ExecutedStatementextendsProductwithSerializable"></a>
+      <a id="ExecutedStatement:ExecutedStatement"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ExecutedStatement.html"><span class="name">ExecutedStatement</span></a><span class="params">(<span name="p">p: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Statement extractor</p>
     </li><li name="acolyte.Execution" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="ExecutionextendsAnyRef"></a>
       <a id="Execution:Execution"></a>
@@ -109,7 +122,7 @@
         <a href="Execution.html"><span class="name">Execution</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
-      
+      <p class="comment cmt">Execution information</p>
     </li><li name="acolyte.QueryExecution" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="QueryExecutionextendsExecutionwithProductwithSerializable"></a>
       <a id="QueryExecution:QueryExecution"></a>
@@ -119,7 +132,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="QueryExecution.html"><span class="name">QueryExecution</span></a><span class="params">(<span name="sql">sql: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="parameters">parameters: <span class="extype" name="scala.List">List</span>[<a href="ExecutedParameter.html" class="extype" name="acolyte.ExecutedParameter">ExecutedParameter</a>]</span>)</span><span class="result"> extends <a href="Execution.html" class="extype" name="acolyte.Execution">Execution</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="QueryExecution.html"><span class="name">QueryExecution</span></a><span class="params">(<span name="sql">sql: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="parameters">parameters: <span class="extype" name="scala.List">List</span>[<a href="ExecutedParameter.html" class="extype" name="acolyte.ExecutedParameter">ExecutedParameter</a>] = <span class="symbol">immutable.this.Nil</span></span>)</span><span class="result"> extends <a href="Execution.html" class="extype" name="acolyte.Execution">Execution</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
@@ -145,7 +158,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="UpdateExecution.html"><span class="name">UpdateExecution</span></a><span class="params">(<span name="sql">sql: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="parameters">parameters: <span class="extype" name="scala.List">List</span>[<a href="ExecutedParameter.html" class="extype" name="acolyte.ExecutedParameter">ExecutedParameter</a>]</span>)</span><span class="result"> extends <a href="Execution.html" class="extype" name="acolyte.Execution">Execution</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="UpdateExecution.html"><span class="name">UpdateExecution</span></a><span class="params">(<span name="sql">sql: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="parameters">parameters: <span class="extype" name="scala.List">List</span>[<a href="ExecutedParameter.html" class="extype" name="acolyte.ExecutedParameter">ExecutedParameter</a>] = <span class="symbol">immutable.this.Nil</span></span>)</span><span class="result"> extends <a href="Execution.html" class="extype" name="acolyte.Execution">Execution</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
@@ -169,6 +182,19 @@
       </span>
       </h4>
       <p class="comment cmt">Acolyte DSL.</p>
+    </li><li name="acolyte.ExecutedParameter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ExecutedParameter"></a>
+      <a id="ExecutedParameter:ExecutedParameter"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ExecutedParameter$.html"><span class="name">ExecutedParameter</span></a>
+      </span>
+      </h4>
+      <p class="comment cmt">Executed parameter companion</p>
     </li><li name="acolyte.Implicits" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Implicits"></a>
       <a id="Implicits:Implicits"></a>
@@ -182,19 +208,6 @@
       </span>
       </h4>
       <p class="comment cmt">Acolyte implicit conversions for Scala use.</p>
-    </li><li name="acolyte.ParameterVal" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ParameterVal"></a>
-      <a id="ParameterVal:ParameterVal"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="ParameterVal$.html"><span class="name">ParameterVal</span></a>
-      </span>
-      </h4>
-      
     </li></ol>
             </div>
 
@@ -215,6 +228,19 @@
       </span>
       </h4>
       <p class="comment cmt">Convertions from Java datatypes to Scala.</p>
+    </li><li name="acolyte.ParameterVal" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ParameterVal"></a>
+      <a id="ParameterVal:ParameterVal"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ParameterVal$.html"><span class="name deprecated" title="Deprecated: (Since version 1.0.15) Use scala.tools.nsc.doc.base.MemberLookupBase$$anon$1@181b9095 extractor">ParameterVal</span></a>
+      </span>
+      </h4>
+      <p class="comment cmt">Value extractor for execution parameter.</p>
     </li></ol>
             </div>
         </div>

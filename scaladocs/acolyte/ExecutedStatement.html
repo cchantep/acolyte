@@ -2,9 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>Acolyte - acolyte.Acolyte</title>
-          <meta name="description" content="Acolyte - acolyte.Acolyte" />
-          <meta name="keywords" content="Acolyte acolyte.Acolyte" />
+          <title>ExecutedStatement - acolyte.ExecutedStatement</title>
+          <meta name="description" content="ExecutedStatement - acolyte.ExecutedStatement" />
+          <meta name="keywords" content="ExecutedStatement acolyte.ExecutedStatement" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -12,7 +12,7 @@
       <script type="text/javascript">
          if(top === self) {
             var url = '../index.html';
-            var hash = 'acolyte.Acolyte$';
+            var hash = 'acolyte.ExecutedStatement';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -22,33 +22,26 @@
    	  </script>
     
         </head>
-        <body class="value">
+        <body class="type">
       <div id="definition">
-        <img src="../lib/object_big.png" />
+        <img src="../lib/class_big.png" />
         <p id="owner"><a href="package.html" class="extype" name="acolyte">acolyte</a></p>
-        <h1>Acolyte</h1>
+        <h1>ExecutedStatement</h1>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">object</span>
+        <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">Acolyte</span>
+        <span class="name">ExecutedStatement</span><span class="params">(<span name="p">p: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Acolyte DSL.</p><pre><span class="kw">import</span> acolyte.Acolyte.{ connection, handleStatement }
-<span class="kw">import</span> acolyte.Implicits._
-
-connection {
-  handleStatement.withQueryDetection(<span class="lit">"..."</span>).
-    withQueryHandler({ e: QueryExecution <span class="kw">=&gt;</span> ... }).
-    withUpdateHandler({ e: UpdateExecution <span class="kw">=&gt;</span> ... })
-}</pre></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Statement extractor</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -66,7 +59,7 @@ connection {
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="acolyte.Acolyte"><span>Acolyte</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="acolyte.ExecutedStatement"><span>ExecutedStatement</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -84,7 +77,23 @@ connection {
 
       <div id="template">
         <div id="allMembers">
-        
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="acolyte.ExecutedStatement#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(p:String):acolyte.ExecutedStatement"></a>
+      <a id="&lt;init&gt;:ExecutedStatement"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ExecutedStatement</span><span class="params">(<span name="p">p: <span class="extype" name="scala.Predef.String">String</span></span>)</span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
 
         
 
@@ -189,40 +198,6 @@ connection {
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="acolyte.Acolyte#connection" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="connection(h:acolyte.ConnectionHandler,p:(String,String)*):acolyte.Connection"></a>
-      <a id="connection(ConnectionHandler,(String,String)*):Connection"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">connection</span><span class="params">(<span name="h">h: <span class="extype" name="acolyte.ConnectionHandler">ConnectionHandler</span></span>, <span name="p">p: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <span class="extype" name="acolyte.Connection">Connection</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Creates a connection, managed with given handler.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a connection, managed with given handler.
-</p></div><dl class="paramcmts block"><dt class="param">h</dt><dd class="cmt"><p>connection handler</p></dd><dt class="param">p</dt><dd class="cmt"><p>connection properties</p></dd><dt>returns</dt><dd class="cmt"><p>a new Acolyte connection</p><pre>connection(handler) <span class="cmt">// without connection properties</span>
-
-<span class="cmt">// With connection property to fallback untyped null</span>
-connection(handler, <span class="lit">"acolyte.parameter.untypedNull"</span> -&gt; <span class="lit">"true"</span>)</pre></dd></dl></div>
-    </li><li name="acolyte.Acolyte#connection" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="connection(h:acolyte.AbstractCompositeHandler[_],p:(String,String)*):acolyte.Connection"></a>
-      <a id="connection(AbstractCompositeHandler[_],(String,String)*):Connection"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">connection</span><span class="params">(<span name="h">h: <span class="extype" name="acolyte.AbstractCompositeHandler">AbstractCompositeHandler</span>[_]</span>, <span name="p">p: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <span class="extype" name="acolyte.Connection">Connection</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Creates a connection, whose statement will be passed to given handler.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a connection, whose statement will be passed to given handler.
-</p></div><dl class="paramcmts block"><dt class="param">h</dt><dd class="cmt"><p>statement handler</p></dd><dt class="param">p</dt><dd class="cmt"><p>connection properties</p></dd><dt>returns</dt><dd class="cmt"><p>a new Acolyte connection</p><pre>connection(handler) <span class="cmt">// without connection properties</span>
-
-<span class="cmt">// With connection property to fallback untyped null</span>
-connection(handler, <span class="lit">"acolyte.parameter.untypedNull"</span> -&gt; <span class="lit">"true"</span>)</pre></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -236,19 +211,6 @@ connection(handler, <span class="lit">"acolyte.parameter.untypedNull"</span> -&g
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="equals(x$1:Any):Boolean"></a>
-      <a id="equals(Any):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -278,51 +240,6 @@ connection(handler, <span class="lit">"acolyte.parameter.untypedNull"</span> -&g
       </span>
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="acolyte.Acolyte#handleQuery" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="handleQuery(h:acolyte.QueryExecution=&gt;acolyte.QueryResult):acolyte.ScalaCompositeHandler"></a>
-      <a id="handleQuery((QueryExecution)⇒QueryResult):ScalaCompositeHandler"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">handleQuery</span><span class="params">(<span name="h">h: (<a href="QueryExecution.html" class="extype" name="acolyte.QueryExecution">QueryExecution</a>) ⇒ <span class="extype" name="acolyte.QueryResult">QueryResult</span></span>)</span><span class="result">: <a href="ScalaCompositeHandler.html" class="extype" name="acolyte.ScalaCompositeHandler">ScalaCompositeHandler</a></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Creates a new handler detecting all statements as queries
-(like <code>handleStatement.withQueryDetection(&quot;.*&quot;).withQueryHandler(h)</code>).</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new handler detecting all statements as queries
-(like <code>handleStatement.withQueryDetection(&quot;.*&quot;).withQueryHandler(h)</code>).</p><pre><span class="kw">import</span> acolyte.Acolyte.{ connection, handleQuery }
-
-connection { handleQuery { _ <span class="kw">=&gt;</span> res }</pre></div></div>
-    </li><li name="acolyte.Acolyte#handleStatement" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="handleStatement:acolyte.ScalaCompositeHandler"></a>
-      <a id="handleStatement:ScalaCompositeHandler"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">handleStatement</span><span class="result">: <a href="ScalaCompositeHandler.html" class="extype" name="acolyte.ScalaCompositeHandler">ScalaCompositeHandler</a></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Creates an empty handler.</p><div class="fullcomment"><div class="comment cmt"><p>Creates an empty handler.</p><pre><span class="kw">import</span> acolyte.Acolyte.{ connection, handleStatement }
-
-connection { handleStatement }</pre></div></div>
-    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hashCode():Int"></a>
-      <a id="hashCode():Int"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -378,6 +295,32 @@ connection { handleStatement }</pre></div></div>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="acolyte.ExecutedStatement#p" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="p:String"></a>
+      <a id="p:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">p</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="acolyte.ExecutedStatement#re" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="re:scala.util.matching.Regex"></a>
+      <a id="re:Regex"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">re</span><span class="result">: <span class="extype" name="scala.util.matching.Regex">Regex</span></span>
+      </span>
+      </h4>
+      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -391,35 +334,19 @@ connection { handleStatement }</pre></div></div>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toString():String"></a>
-      <a id="toString():String"></a>
+    </li><li name="acolyte.ExecutedStatement#unapply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="unapply(x:acolyte.Execution):Option[(String,List[acolyte.ExecutedParameter])]"></a>
+      <a id="unapply(Execution):Option[(String,List[ExecutedParameter])]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+        <span class="name">unapply</span><span class="params">(<span name="x">x: <a href="Execution.html" class="extype" name="acolyte.Execution">Execution</a></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.List">List</span>[<a href="ExecutedParameter.html" class="extype" name="acolyte.ExecutedParameter">ExecutedParameter</a>])]</span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="acolyte.Acolyte#updateResult" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="updateResult(count:Int,keys:acolyte.RowList[_]):acolyte.UpdateResult"></a>
-      <a id="updateResult(Int,RowList[_]):UpdateResult"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">updateResult</span><span class="params">(<span name="count">count: <span class="extype" name="scala.Int">Int</span></span>, <span name="keys">keys: <span class="extype" name="acolyte.RowList">RowList</span>[_]</span>)</span><span class="result">: <span class="extype" name="acolyte.UpdateResult">UpdateResult</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Returns an update result with row |count| and generated |keys|.</p><div class="fullcomment"><div class="comment cmt"><p>Returns an update result with row |count| and generated |keys|.</p></div><dl class="paramcmts block"><dt class="param">count</dt><dd class="cmt"><p>Updated (row) count</p></dd><dt class="param">keys</dt><dd class="cmt"><p>Generated keys</p><pre><span class="kw">import</span> acolyte.Acolyte.updateResult
-<span class="kw">import</span> acolyte.RowLists
-
-updateResult(<span class="num">2</span><span class="cmt">/* updated rows */</span> RowLists.stringList(<span class="lit">"a"</span>, <span class="lit">"b"</span>))</pre></dd></dl></div>
+      
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>
@@ -477,23 +404,6 @@ updateResult(<span class="num">2</span><span class="cmt">/* updated rows */</spa
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="acolyte.Acolyte#withQueryResult" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withQueryResult[A](res:acolyte.QueryResult)(f:java.sql.Connection=&gt;A):A"></a>
-      <a id="withQueryResult[A](QueryResult)((java.sql.Connection)⇒A):A"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">withQueryResult</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="res">res: <span class="extype" name="acolyte.QueryResult">QueryResult</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="java.sql.Connection">java.sql.Connection</span>) ⇒ <span class="extype" name="acolyte.Acolyte.withQueryResult.A">A</span></span>)</span><span class="result">: <span class="extype" name="acolyte.Acolyte.withQueryResult.A">A</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Executes |f| using connection accepting only queries,
-and answering with |result| to any query.</p><div class="fullcomment"><div class="comment cmt"><p>Executes |f| using connection accepting only queries,
-and answering with |result| to any query.</p><pre><span class="kw">import</span> acolyte.Acolyte.withQueryResult
-
-<span class="kw">val</span> str: <span class="std">String</span> = withQueryResult(queryRes) { con <span class="kw">=&gt;</span> <span class="lit">"str"</span> }</pre></div></div>
     </li></ol>
             </div>
 
@@ -503,7 +413,15 @@ and answering with |result| to any query.</p><pre><span class="kw">import</span>
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

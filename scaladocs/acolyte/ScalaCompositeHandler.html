@@ -97,26 +97,10 @@
 
         
 
-        <div id="values" class="values members">
-              <h3>Abstract Value Members</h3>
-              <ol><li name="acolyte.AbstractCompositeHandler#withQueryDetection" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="withQueryDetection(x$1:&lt;repeated...&gt;[java.util.regex.Pattern]):T"></a>
-      <a id="withQueryDetection(&lt;repeated...&gt;[Pattern]):ScalaCompositeHandler"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">withQueryDetection</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.&lt;repeated...&gt;">&lt;repeated...&gt;</span>[<span class="extype" name="java.util.regex.Pattern">Pattern</span>]</span>)</span><span class="result">: <a href="" class="extype" name="acolyte.ScalaCompositeHandler">ScalaCompositeHandler</a></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AbstractCompositeHandler</dd></dl></div>
-    </li></ol>
-            </div>
+        
 
         <div id="values" class="values members">
-              <h3>Concrete Value Members</h3>
+              <h3>Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:AnyRef):Boolean"></a>
       <a id="!=(AnyRef):Boolean"></a>
@@ -272,19 +256,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="acolyte.AbstractCompositeHandler#getGeneratedKeys" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="getGeneratedKeys():java.sql.ResultSet"></a>
-      <a id="getGeneratedKeys():ResultSet"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">getGeneratedKeys</span><span class="params">()</span><span class="result">: <span class="extype" name="java.sql.ResultSet">ResultSet</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AbstractCompositeHandler → StatementHandler</dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <a id="hashCode():Int"></a>
@@ -498,15 +469,15 @@
               
         </dd></dl></div>
     </li><li name="acolyte.ScalaCompositeHandler#withQueryDetection" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withQueryDetection(pattern:java.util.regex.Pattern*):acolyte.ScalaCompositeHandler"></a>
-      <a id="withQueryDetection(Pattern*):ScalaCompositeHandler"></a>
+      <a id="withQueryDetection(pattern:Array[java.util.regex.Pattern]):acolyte.ScalaCompositeHandler"></a>
+      <a id="withQueryDetection(Array[Pattern]):ScalaCompositeHandler"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">withQueryDetection</span><span class="params">(<span name="pattern">pattern: <span class="extype" name="java.util.regex.Pattern">Pattern</span>*</span>)</span><span class="result">: <a href="" class="extype" name="acolyte.ScalaCompositeHandler">ScalaCompositeHandler</a></span>
+        <span class="name">withQueryDetection</span><span class="params">(<span name="pattern">pattern: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="java.util.regex.Pattern">Pattern</span>]</span>)</span><span class="result">: <a href="" class="extype" name="acolyte.ScalaCompositeHandler">ScalaCompositeHandler</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Returns handler that detects statement matching given pattern(s)
@@ -515,7 +486,7 @@ as query.</p><pre><span class="kw">import</span> acolyte.Acolyte.handleStatement
 
 <span class="cmt">// Created handle will detect as query statements</span>
 <span class="cmt">// either starting with 'SELECT ' or containing 'EXEC proc'.</span>
-handleStatement.withQueryDetection(<span class="lit">"^SELECT "</span>, <span class="lit">"EXEC proc"</span>)</pre></div></div>
+handleStatement.withQueryDetection(<span class="lit">"^SELECT "</span>, <span class="lit">"EXEC proc"</span>)</pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="acolyte.ScalaCompositeHandler">ScalaCompositeHandler</a> → AbstractCompositeHandler</dd></dl></div>
     </li><li name="acolyte.AbstractCompositeHandler#withQueryDetection" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withQueryDetection(x$1:&lt;repeated...&gt;[String]):T"></a>
       <a id="withQueryDetection(&lt;repeated...&gt;[String]):ScalaCompositeHandler"></a>
