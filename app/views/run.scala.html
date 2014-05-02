@@ -1,0 +1,104 @@
+@(json: String)
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Acolyte &mdash; Setup connection</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="//netdna.bootstrapcdn.com/bootswatch/latest/flatly/bootstrap.min.css" rel="stylesheet" />
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet" />
+
+    <link href="css/run.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="page-header">
+        <h1>Run connection</h1>
+
+        <p>Once connection is prepared, any JDBC code can be executed using it, without change.</p>
+
+        <div>
+          View Acolyte code
+          <div class="btn-group">
+            <button type="button" data-toggle="dropdown"
+                    class="btn btn-info dropdown-toggle">
+              
+              Java <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#viewJava">Java</a></li>
+              <li><a href="#viewScala">Scala</a></li>
+            </ul>
+          </div><!-- /.btn-group -->
+        </div>
+
+        <form action="./setup.html" id="go-back" method="POST">
+          <input type="hidden" name="json" value="@json" />
+          <a href="#back">
+            <i class="fa fa-chevron-left"></i> Back to Setup</a>
+        </form>
+      </div>
+
+      <div class="panel-group" id="accordion">
+        <div class="panel panel-info has-tooltip" id="connection">
+          <div class="panel-heading has-tooltip"
+               title="How current connection is configured to handle statements">
+            <h2 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" 
+                 href="#connection .panel-collapse">
+                <i class="fa fa-caret-right"></i> Connection</a>
+            </h2>
+          </div>
+          <div class="panel-collapse collapse">
+            <div id="queries">
+              <h3>Queries</h3>
+              <ul class="panel-body list-group"></ul>
+            </div>
+            
+            <div id="updates">
+              <h3>Updates</h3>
+              <ul class="panel-body list-group"></ul>
+            </div>
+          </div>
+        </div><!-- /#connection -->
+
+        <div class="panel panel-primary" id="execute">
+          <div class="panel-heading">
+            <h2 class="panel-title"><i class="fa fa-gear"></i> Execute</h2>
+          </div>
+          <div class="panel-body">
+            <form role="role" action="#exec">
+              <div class="form-group">
+                <label class="control-label text-muted" for="statement">Following statement will be executed using low level <a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html">java.sql.Statement</a>.</label>
+
+                <textarea id="statement" name="statement" class="form-control"></textarea>
+
+              </div>
+
+              <button class="btn btn-primary" disabled="disabled">Go</button>
+            </form>
+          </div>
+        </div><!-- /#execute -->
+
+        <div class="panel panel-default has-tooltip" id="result" 
+             title="Result of statement executed through JDBC.">
+          <div class="panel-heading">
+            <h2 class="panel-title">
+              <i class="fa fa-sort-amount-asc"></i> Result</h2>
+          </div>
+          <div class="panel-body panel-collapse collapse"></div>
+        </div><!-- /.panel -->
+      </div>
+    </div>
+
+    <script src="//codeorigin.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+      $._connection = @Html(json)
+    </script>
+    <script src="js/run.js"></script>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+#go-back { position:absolute; top:1em }
+
+#connection h2 > a { display: block }
+#connection h2 > a:hover, #connection h2 > a:focus { text-decoration: none }
+#connection h2 .fa { margin-right: .2em }
+#connection .list-group { margin: 0; border: 0; padding-top: 0 }
+#connection .list-group .table-bordered, #connection .list-group p { margin: 0 }
+#connection .list-group p > .fa { margin-right: .5em }
+#connection h3 { font-size: 12pt; margin: .5em; font-weight: bold }
+#queries, #updates { display: none }
+#connection .simple-result { display: inline }
+#connection .simple-result:before { content: ', ' }
+
+#statement { height: 10em }

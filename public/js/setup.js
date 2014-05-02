@@ -1,6 +1,4 @@
 (function($) {
-    $('.has-tooltip').one('mouseover', rt).tooltip()
-
     var ar = $('#add-rule'),
     notEmpty = function(e) { return ($.trim(e.val()) == "") ? false : true },
     isNum = function(e) { return $.isNumeric(e.val()) },
@@ -44,14 +42,8 @@
         raiserr.trigger('click'); return false
     }),
     red = $("#result-data"),
-    loadRoutes = function(arr){
-        var i;
-        for (i = 0; i < arr.length; i++) {
-            displayRoute(arr[i]._type, arr[i].pattern, arr[i].result)
-        }
-    },
     testBut = $("#test-routes").click(function(){
-        var fr = $('<form action="test.html" method="POST"></form>'),
+        var fr = $('<form action="run.html" method="POST"></form>'),
         ar = new Array();
 
         $('.list-group-item', rl).each(function(i,e){
@@ -109,16 +101,17 @@
     routeHov = rmRouteHov,
     routeOp = rmRoute,
     moveRoute = $("#move-rule"),
-    displayRoute = function(typ,pat,res){
+    loadRoute = function(typ,pat,res){
         // pat: Pattern = { 'expression': string, 'parameters': [{'_type': ..., 'value', ...}, ...]}
 
         var restxt = null, resovr = null;
 
         if (res['error']) {
-            restxt = "Error = <tt>" + res.error + "</tt>"
+            restxt = 'Error = <tt class="text-info">' + res.error + "</tt>"
         } else if (typ == "update") {
-            restxt = "<em>" + res['updateCount'] 
-                + "</em> updated row" + (c>1?"s":"")
+            var c = res['updateCount'];
+            restxt = "Updated row" + (c>1?"s":"") + 
+                ': <tt class="text-info">' + c + '</tt>'
         } else {
             var cts = "", ph = "", i;
 
@@ -139,7 +132,7 @@
             }
         }
 
-        var rul = $('<a class="list-group-item" href="#">' + typ + ' = <tt>' + pat.expression + '</tt></a>').appendTo(rl),
+        var rul = $('<a class="list-group-item" href="#">' + typ + ' = <tt class="text-info">' + pat.expression + '</tt></a>').appendTo(rl),
         op = $('<span class="operations"> </span>').prependTo(rul);
 
         rul.hover(function(){
@@ -166,7 +159,7 @@
         if (resovr) dr.popover(resovr);
         
         testBut.removeAttr("disabled").
-            html('Test connection to routes <i class="fa fa-arrow-right"></i>')
+            html('Run defined connection <i class="fa fa-chevron-right"></i>')
 
     },
     applyRoute = $("#route-editor .ac-apply").click(function(){
@@ -209,28 +202,28 @@
         }
 
         $("#case-rules .text-muted").remove();
-        
         $("#case-result .text-muted").remove();
+
         rd.modal('hide');
 
-        displayRoute(typ,pat,res)
+        loadRoute(typ,pat,res)
     }),
     addUpEd = function() {
-        var uc = $('<input type="number" min="0" disabled="disabled" id="update-count" class="form-control" />'),
+        var uc = $('<input type="number" min="0" id="update-count" class="form-control" />'),
         hasC = function() {
             if (isNum(uc)) applyRoute.removeAttr("disabled");
             else applyRoute.attr("disabled", "disabled")
         },
-        cf = function() {
+        ucr = $('<input type="radio" name="result-type" id="update-success"/>').on('keyup change', function() {
             var re = $(this);
-
+            
             if (re.is(":checked")) {
                 uc.removeAttr("disabled");
                 hasC()
             } else uc.attr("disabled", "disabled")
-        };
+        });
 
-        $('<div class="input-group"></div>').append(uc.on('keyup change', hasC)).prepend($('<label class="input-group-addon"> Update count</label>').prepend($('<input type="radio" name="result-type" id="update-success"/>').on('keyup change', cf))).tooltip({'title':"Execution is successful, then count of updated rows is returned."}).appendTo(red.empty())
+        $('<div class="input-group"></div>').append(uc.on('keyup change', hasC).click(function(){ ucr.trigger('click') })).prepend($('<label class="input-group-addon"> Update count</label>').prepend(ucr)).tooltip({'title':"Execution is successful, then count of updated rows is returned."}).appendTo(red.empty())
     },
     addRwEd = function() {
         var qs = $('<input type="radio" name="result-type" id="query-success"/>'),
@@ -510,4 +503,18 @@
             routeOp = rmRoute
         }
     });
+
+    $('.has-tooltip').one('mouseover', rt).tooltip();
+
+    $._loadRoutes = function(arr){
+        if (arr.length > 0) {
+            $("#case-rules .text-muted").remove();
+            $("#case-result .text-muted").remove()
+        }
+
+        var i;
+        for (i = 0; i < arr.length; i++) {
+            loadRoute(arr[i]._type, arr[i].pattern, arr[i].result)
+        }
+    }
 })(jQuery);

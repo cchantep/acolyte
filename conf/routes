@@ -6,4 +6,4 @@ GET / controllers.Pages.welcome
 POST /setup.html controllers.Pages.setup
 GET /setup.html controllers.Pages.setup
 
-POST /test.html controllers.Pages.test
+POST /run.html controllers.Pages.run
