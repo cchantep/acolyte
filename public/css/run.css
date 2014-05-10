@@ -1,14 +1,17 @@
-#go-back { position:absolute; top:1em }
+#go-back { position:absolute; top:6em }
 
-#connection h2 > a { display: block }
-#connection h2 > a:hover, #connection h2 > a:focus { text-decoration: none }
-#connection h2 .fa { margin-right: .2em }
-#connection .list-group { margin: 0; border: 0; padding-top: 0 }
-#connection .list-group .table-bordered, #connection .list-group p { margin: 0 }
-#connection .list-group p > .fa { margin-right: .5em }
-#connection h3 { font-size: 12pt; margin: .5em; font-weight: bold }
+#behaviour h2 > a { display: block }
+#behaviour h2 > a:hover, #behaviour h2 > a:focus { text-decoration: none }
+#behaviour h2 .fa { margin-right: .2em }
+#behaviour .list-group { margin: 0; border: 0; padding-top: 0 }
+#behaviour .list-group .table-bordered, #behaviour .list-group p { margin: 0 }
+#behaviour .list-group p > .fa { margin-right: .5em }
+#behaviour h3 { font-size: 12pt; margin: .5em; font-weight: bold }
 #queries, #updates { display: none }
-#connection .simple-result { display: inline }
-#connection .simple-result:before { content: ', ' }
+#behaviour .simple-result { display: inline }
+#behaviour .simple-result:before { content: ', ' }
+
+#config h2 > a { display: block }
+#config .tab-pane { padding-top: 1em }
 
 #statement { height: 10em }

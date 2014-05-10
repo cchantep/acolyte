@@ -11,29 +11,40 @@
     <link href="//netdna.bootstrapcdn.com/bootswatch/latest/flatly/bootstrap.min.css" rel="stylesheet" />
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet" />
 
-    <link href="css/run.css" rel="stylesheet" />
+    <link href="css/run.css" id="runStyles" rel="stylesheet" />
+    <link href="css/pygments.css" id="pygments" rel="stylesheet" />
   </head>
   <body>
+    <nav class="navbar navbar-default" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" 
+                  data-target="#top-menu">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Acolyte</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="top-menu">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="http://acolyte.eu.org" rel="external">
+                <i class="fa fa-info-circle"></i> Documentation</a></li>
+            <li><a href="https://github.com/cchantep/acolyte/"
+                   rel="external" title="Acolyte on GitHub">
+                <i class="fa fa-github"></i> Sources</a></li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav>
+
     <div class="container-fluid">
       <div class="page-header">
         <h1>Run connection</h1>
 
         <p>Once connection is prepared, any JDBC code can be executed using it, without change.</p>
-
-        <div>
-          View Acolyte code
-          <div class="btn-group">
-            <button type="button" data-toggle="dropdown"
-                    class="btn btn-info dropdown-toggle">
-              
-              Java <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" role="menu">
-              <li><a href="#viewJava">Java</a></li>
-              <li><a href="#viewScala">Scala</a></li>
-            </ul>
-          </div><!-- /.btn-group -->
-        </div>
 
         <form action="./setup.html" id="go-back" method="POST">
           <input type="hidden" name="json" value="@json" />
@@ -43,13 +54,12 @@
       </div>
 
       <div class="panel-group" id="accordion">
-        <div class="panel panel-info has-tooltip" id="connection">
-          <div class="panel-heading has-tooltip"
-               title="How current connection is configured to handle statements">
+        <div class="panel panel-info has-tooltip" id="behaviour">
+          <div class="panel-heading has-tooltip" title="How connection is should handle statements, which behaviour is expected by JDBC code using it.">
             <h2 class="panel-title">
               <a data-toggle="collapse" data-parent="#accordion" 
-                 href="#connection .panel-collapse">
-                <i class="fa fa-caret-right"></i> Connection</a>
+                 href="#behaviour .panel-collapse">
+                <i class="fa fa-caret-right"></i> Connection behaviour</a>
             </h2>
           </div>
           <div class="panel-collapse collapse">
@@ -63,7 +73,38 @@
               <ul class="panel-body list-group"></ul>
             </div>
           </div>
-        </div><!-- /#connection -->
+        </div><!-- /#behaviour -->
+
+        <div class="panel panel-info has-tooltip" id="config">
+          <div class="panel-heading has-tooltip" title="Acolyte code to configure connection for implementation of expected behaviour.">
+            <h2 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" 
+                 href="#config .panel-collapse">
+                <i class="fa fa-caret-right"></i> Acolyte configuration</a>
+            </h2>
+          </div>
+          <div class="panel-body panel-collapse collapse">
+            <ul class="nav nav-tabs">
+              <li class="active has-tooltip" 
+                  title="Vanilla Java code for Acolyte">
+                <a href="#java" data-toggle="tab">Java</a></li>
+              <li class="has-tooltip" title="Scala Acolyte DSL">
+                <a href="#scala" data-toggle="tab">Scala</a></li>
+            </ul><!-- /.nav -->
+
+            <div class="tab-content">
+              <div class="tab-pane active" id="java">
+                <pre class="code pre-scrollable">
+                </pre>
+              </div><!-- /#java -->
+
+              <div class="tab-pane" id="scala">
+                <pre class="code pre-scrollable">
+                </pre>
+              </div><!-- /#scala -->
+            </div>
+          </div>
+        </div><!-- /#config -->
 
         <div class="panel panel-primary" id="execute">
           <div class="panel-heading">
