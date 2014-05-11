@@ -2,9 +2,9 @@
 
 ## Why I need to specify a query detection pattern?
 
-A database engine manages 2 kinds of statement, query statement that fetchs rows or updates statement that update persistent data.
+JDBC manages 2 kinds of statement: query statement that fetchs rows, or updates statement that update persistent data.
 
-To simulate this behaviour, to allow you return rows when you consider statement to be a query, or update state/count when it should be an update, Acolyte should be taught how to detect these cases.
+To supports this behaviour, to return rows when you consider statement to be a query, or update state/count when it should be an update, Acolyte should be taught how to detect these cases.
 
 Using composite handler, you can specify it using detection pattern(s) (regular expressions):
 
@@ -18,7 +18,7 @@ CompositeHandler handler = CompositeHandler.empty().
   withQueryDetection(Pattern.compile("ORDER BY test$"));
 ```
 
-In previous example, handler is given different patterns. In such case, order in which patterns were given is used to check executed statement, until it matches at least one of them, or they are all checked.
+In previous example, handler is given different patterns. In such case, order in which patterns were given is used to check executed statement, until it matches at least one of them.
 
 Equivalent with the Scala DSL is:
 
@@ -45,8 +45,6 @@ val handler = handleQuery { e: QueryExecution =>
 ## What's the maximum number of column for a row?
 
 Implementations of [Row](http://cchantep.github.io/acolyte/apidocs/acolyte/Row.html) and [RowList](http://cchantep.github.io/acolyte/apidocs/acolyte/RowList.html) are provided up to 52 columns.
-
-As Scala tuples are limited to 22, syntax `rowList :+ tuple` is not available above this limit.
 
 ## How to simply return a single scalar row?
 
@@ -96,8 +94,7 @@ rowList6( // Now it's ok
 
 ## Why do I get error with null value in row?
 
-As type can always be inferred when using `null`, it can lead to ambiguity.
-e.g. error with the scala DSL:
+As type can't always be inferred when using `null`, it can lead to ambiguity:
 
 ```
 [error]  found   : Null(null)

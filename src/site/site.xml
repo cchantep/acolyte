@@ -7,11 +7,16 @@
     </head>
 
     <menu name="User guide">
-      <item name="Java" href="./index.html#Java" />
-      <item name="Scala" href="./index.html#Scala" />
-      <item name="Play Framework" href="./index.html#Play_Framework" />
+      <item name="Java" href="./java.html" />
+      <item name="Scala" href="./scala.html" />
       <item name="FAQ" href="./faq.html" />
     </menu>
+
+    <menu name="Integration">
+      <item name="Guide" href="./integration.html" />
+      <item name="Play Framework" href="./integration.html#Play_Framework" />
+    </menu>
+
 
     <menu name="Subprojects">
       <item name="Acolyte Studio" href="./studio.html" />
@@ -19,8 +24,9 @@
     </menu>
 
     <menu name="Reference">
-      <item name="Javadoc" href="./javadocs/index.html" />
+      <item name="Javadoc" href="./apidocs/index.html" />
       <item name="Scaladoc" href="./scaladocs/index.html" />
+      <item name="Build" href="./build.html" />
       <item name="Changelog" href="./changelog.html" />
     </menu>
 
@@ -32,24 +38,8 @@
   </body>
 
   <skin>
-    <groupId>org.apache.maven.skins</groupId>
-    <artifactId>maven-fluido-skin</artifactId>
-    <version>1.3.1</version>
+    <groupId>lt.velykis.maven.skins</groupId>
+    <artifactId>reflow-maven-skin</artifactId>
+    <version>1.1.0</version>
   </skin>
-
-  <custom>
-    <fluidoSkin>
-      <gitHub>
-        <projectId>cchantep/acolyte</projectId>
-        <ribbonOrientation>right</ribbonOrientation>
-        <ribbonColor>black</ribbonColor>
-      </gitHub>
-
-      <twitter>
-        <user>cchantep</user>
-        <showUser>true</showUser>
-        <showFollowers>true</showFollowers>
-      </twitter>
-    </fluidoSkin>
-  </custom>
 </project>
