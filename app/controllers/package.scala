@@ -8,9 +8,15 @@ import acolyte.{ RowList, RowList1 }
 import acolyte.RowLists.{ rowList1, rowList2, rowList3 }
 
 package object controllers {
-  sealed trait Route { def pattern: String }
-  case class UpdateRoute(pattern: String, res: UpdateResult) extends Route
-  case class QueryRoute(pattern: String, res: QueryResult) extends Route
+  sealed trait RouteParameter
+  case class StringParameter(value: String) extends RouteParameter
+  case class FloatParameter(value: Float) extends RouteParameter
+  case class DateParameter(value: Date) extends RouteParameter
+
+  case class RoutePattern(expr: String, params: Seq[RouteParameter])
+  sealed trait Route { def pattern: RoutePattern }
+  case class UpdateRoute(pattern: RoutePattern, res: UpdateResult) extends Route
+  case class QueryRoute(pattern: RoutePattern, res: QueryResult) extends Route
 
   sealed trait UpdateResult
   case class UpdateCount(count: Int) extends UpdateResult
@@ -38,7 +44,8 @@ package object controllers {
       case "date"   ⇒ DateCol
     } and (__ \ 'name).read[String])(ResultColumn)
 
-  @inline def dateFormat = new java.text.SimpleDateFormat("YYYY-MM-dd")
+  @inline def dateFormat = new java.text.SimpleDateFormat(
+    "YYYY-MM-dd", java.util.Locale.ENGLISH)
 
   @inline def convertCol[T](typ: Class[T], s: String): T = typ match {
     case TextCol   ⇒ s.asInstanceOf[T]
@@ -82,18 +89,31 @@ package object controllers {
         rows3Reads(a.typ -> a.name, b.typ -> b.name, c.typ -> c.name)
     }
 
-  implicit def queryResultReads: Reads[QueryResult] =
+  implicit val queryResultReads: Reads[QueryResult] =
     (__ \ 'error).readNullable[String] flatMap {
       case Some(err) ⇒ Reads.pure(QueryError(err))
       case _         ⇒ rowResultReads
     }
 
+  @inline val paramReads: Reads[String] = (__ \ 'value).read[String]
+  implicit val routeParamReads: Reads[RouteParameter] =
+    (__ \ '_type).read[String] flatMap {
+      case "float" ⇒ paramReads map { v ⇒ FloatParameter(v.toFloat) }
+      case "date"  ⇒ paramReads map { v ⇒ DateParameter(dateFormat parse v) }
+      case _       ⇒ paramReads.map(StringParameter)
+    }
+
+  implicit val routePatternReads: Reads[RoutePattern] = (
+    (__ \ 'expression).read[String] and
+    (__ \ 'parameters).read[Seq[RouteParameter]]
+  )(RoutePattern)
+
   val routeReads: Reads[Route] = (__ \ '_type).read[String] flatMap {
     case "update" ⇒ (
-      (__ \ 'pattern).read[String] and (__ \ 'result).read[UpdateResult]
+      (__ \ 'pattern).read[RoutePattern] and (__ \ 'result).read[UpdateResult]
     )(UpdateRoute)
     case _ ⇒ (
-      (__ \ 'pattern).read[String] and (__ \ 'result).read[QueryResult]
+      (__ \ 'pattern).read[RoutePattern] and (__ \ 'result).read[QueryResult]
     )(QueryRoute)
   }
 }

@@ -1,9 +1,10 @@
 GET /js/*file controllers.Assets.at(path="/public/js", file)
 GET /css/*file controllers.Assets.at(path="/public/css", file)
 
-GET / controllers.Pages.welcome
+GET / controllers.Acolyte.welcome
 
-POST /setup.html controllers.Pages.setup
-GET /setup.html controllers.Pages.setup
+POST /setup.html controllers.Acolyte.setup
+GET /setup.html controllers.Acolyte.setup
 
-POST /run.html controllers.Pages.run
+POST /run.html controllers.Acolyte.run
+POST /exec-stmt controllers.Acolyte.executeStatement

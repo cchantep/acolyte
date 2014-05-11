@@ -6,7 +6,7 @@ import play.api.data.Forms.{ mapping, nonEmptyText, optional }
 
 import play.api.libs.json.{ Json, Reads }
 
-object Pages extends Controller {
+object Acolyte extends Controller {
 
   def welcome = Assets.at(path = "/public", "index.html")
 
@@ -30,19 +30,18 @@ object Pages extends Controller {
       })
   }
 
-  /*
-
-  def test = Action { request ⇒
+  def executeStatement = Action { request ⇒
     Form(mapping("json" -> nonEmptyText)(
       RouteData.apply)(RouteData.unapply)).bindFromRequest()(request).
       fold[SimpleResult]({ f ⇒ Ok(s"f.errors") }, { data ⇒
         Reads.seq(routeReads).reads(Json.parse(data.json)).
           fold[SimpleResult]({ e ⇒ PreconditionFailed(e.mkString) },
-            testWithRoutes)
+            executeWithRoutes)
       })
   }
 
-  @inline def testWithRoutes(routes: Seq[Route]): SimpleResult =
-    Ok(s"Routes: ${Json.toJson(routes)}")
-   */
+  @inline def executeWithRoutes(routes: Seq[Route]): SimpleResult = {
+    println(s"routes = $routes")
+    Ok(Json toJson true)
+  }
 }

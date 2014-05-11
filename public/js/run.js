@@ -11,7 +11,8 @@
     stg = $("#execute .form-group"),
     stmt = $("#statement"),
     res = $("#result"),
-    resp = $("#result .panel-collapse");
+    resp = $("#result .panel-collapse"),
+    json = $('input[name="json"]');
 
     $('.has-tooltip').tooltip();
 
@@ -119,7 +120,17 @@
         res.removeClass("panel-default").addClass("panel-info");
         resp.collapse('toggle');
 
-        $(".panel-body", res).append('<p class="text-muted">No result</p>');
+        $._ajax({
+            url: "./exec-stmt", 
+            type: "POST",
+            cache: false,
+            dataType: "json",
+            data: { 'json': json.val(), 'statement': stmt.val() }
+        }, function(d){
+            console.debug("==> " + d);
+
+            $(".panel-body", res).append('<p class="text-muted">No result</p>');
+        });
 
         return false
     });
