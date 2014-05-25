@@ -15,3 +15,8 @@
 #config .tab-pane { padding-top: 1em }
 
 #statement { height: 10em }
+
+#aco-lock .alert-info { color: #000 }
+
+#aco-unexpected-error .modal-title,
+#aco-unexpected-error .modal-body { color: #e74c3c }

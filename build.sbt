@@ -1,14 +1,20 @@
+organization := "org.eu.acolyte"
+
 name := "play-demo"
 
 version := "1.0-SNAPSHOT"
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.10.5"
 
 libraryDependencies ++= Seq(
-  // jdbc,
-  "org.eu.acolyte" %% "jdbc-scala" % "1.0.17" 
+  "com.jsuereth" %% "scala-arm" % "1.4",
+  "org.eu.acolyte" %% "jdbc-scala" % "1.0.19" changing()
 )
 
 play.Project.playScalaSettings
 
-scalacOptions += "-feature"
+// scalacOptions ++= Seq("-feature", "-P:acolyte:debug")
+
+// autoCompilerPlugins := true
+
+// addCompilerPlugin("org.eu.acolyte" %% "scalac-plugin" % "1.0.19")

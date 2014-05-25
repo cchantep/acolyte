@@ -127,9 +127,8 @@
             dataType: "json",
             data: { 'json': json.val(), 'statement': stmt.val() }
         }, function(d){
-            console.debug("==> " + d);
-
-            $(".panel-body", res).append('<p class="text-muted">No result</p>');
+            $(".panel-body", res).empty().
+                append('<p class="text-muted">No result</p>');
         });
 
         return false

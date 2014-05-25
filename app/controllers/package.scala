@@ -18,7 +18,9 @@ package object controllers {
   case class UpdateRoute(pattern: RoutePattern, res: UpdateResult) extends Route
   case class QueryRoute(pattern: RoutePattern, res: QueryResult) extends Route
 
-  sealed trait UpdateResult
+  sealed trait Result
+
+  sealed trait UpdateResult extends Result
   case class UpdateCount(count: Int) extends UpdateResult
   case class UpdateError(message: String) extends UpdateResult
 
@@ -28,7 +30,7 @@ package object controllers {
       case _         ⇒ (__ \ 'updateCount).read[Int].map(UpdateCount)
     }
 
-  sealed trait QueryResult
+  sealed trait QueryResult extends Result
   case class QueryError(message: String) extends QueryResult
   case class ResultColumn(typ: Class[_], name: String)
   case class RowResult(rows: RowList[_ <: acolyte.Row]) extends QueryResult
@@ -44,13 +46,13 @@ package object controllers {
       case "date"   ⇒ DateCol
     } and (__ \ 'name).read[String])(ResultColumn)
 
-  @inline def dateFormat = new java.text.SimpleDateFormat(
+  @inline def DateFormat = new java.text.SimpleDateFormat(
     "YYYY-MM-dd", java.util.Locale.ENGLISH)
 
   @inline def convertCol[T](typ: Class[T], s: String): T = typ match {
     case TextCol   ⇒ s.asInstanceOf[T]
     case NumberCol ⇒ s.toFloat.asInstanceOf[T]
-    case DateCol   ⇒ dateFormat.parse(s).asInstanceOf[T]
+    case DateCol   ⇒ DateFormat.parse(s).asInstanceOf[T]
     case _         ⇒ sys.error(s"Unsupported column ($typ): $s")
   }
 
@@ -99,7 +101,7 @@ package object controllers {
   implicit val routeParamReads: Reads[RouteParameter] =
     (__ \ '_type).read[String] flatMap {
       case "float" ⇒ paramReads map { v ⇒ FloatParameter(v.toFloat) }
-      case "date"  ⇒ paramReads map { v ⇒ DateParameter(dateFormat parse v) }
+      case "date"  ⇒ paramReads map { v ⇒ DateParameter(DateFormat parse v) }
       case _       ⇒ paramReads.map(StringParameter)
     }
 
