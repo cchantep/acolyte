@@ -162,9 +162,9 @@ abstract class AbstractStatement implements java.sql.Statement {
             final QueryResult res = this.handler.whenSQLQuery(sql, NO_PARAMS);
             
             this.warning = res.getWarning();
-            
-            return (this.result = res.getRowList().
-                    resultSet(this.maxRows).withStatement(this));
+
+            return (this.result = res.getRowList().resultSet(this.maxRows).
+                    withStatement(this).withWarning(this.warning));
 
         } catch (SQLException se) {
             throw se;

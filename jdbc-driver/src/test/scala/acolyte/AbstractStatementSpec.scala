@@ -262,12 +262,6 @@ object AbstractStatementSpec extends Specification {
     }
   }
 
-  "Warning" should {
-    "initially be null" in {
-      statement().getWarnings aka "warning" must beNull
-    }
-  }
-
   "Fetch size" should {
     "initially be zero" in {
       statement().getFetchSize aka "initial size" mustEqual 0
@@ -483,6 +477,10 @@ object AbstractStatementSpec extends Specification {
   "Warning" should {
     lazy val warning = new java.sql.SQLWarning("TEST")
 
+    "initially be null" in {
+      statement().getWarnings aka "warning" must beNull
+    }
+
     "be found for query" in {
       lazy val h = new StatementHandler {
         def isQuery(s: String) = true
@@ -495,7 +493,10 @@ object AbstractStatementSpec extends Specification {
       lazy val s = statement(h = h)
       s.executeQuery("TEST")
 
-      s.getWarnings aka "warning" mustEqual warning
+      (s.getWarnings aka "warning" mustEqual warning).
+        and(Option(s.getResultSet) aka "resultset" must beSome.which { 
+          _.getWarnings aka "result warning" mustEqual warning
+        })
     }
 
     "be found for update" in {

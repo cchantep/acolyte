@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Date;
@@ -227,6 +228,7 @@ public abstract class RowList<R extends Row> {
         final Map<String,Integer> columnLabels;
         final List<R> rows;
         final Statement statement;
+        final SQLWarning warning;
         private Object last;
 
         // --- Constructors ---
@@ -244,6 +246,7 @@ public abstract class RowList<R extends Row> {
             this.columnLabels = getColumnLabels();
             this.rows = Collections.unmodifiableList(rows);
             this.statement = null; // dettached
+            this.warning = null;
             this.last = null;
             super.fetchSize = rows.size();
         } // end of <init>
@@ -253,7 +256,8 @@ public abstract class RowList<R extends Row> {
          */
         private RowResultSet(final List<R> rows,
                              final Object last,
-                             final Statement statement) {
+                             final Statement statement,
+                             final SQLWarning warning) {
 
             if (rows == null) {
                 // Impossible
@@ -265,6 +269,7 @@ public abstract class RowList<R extends Row> {
             this.rows = Collections.unmodifiableList(rows);
 
             this.statement = statement;
+            this.warning = warning;
             this.last = null;
             super.fetchSize = rows.size();
         } // end of <init>
@@ -275,8 +280,26 @@ public abstract class RowList<R extends Row> {
          * Returns updated resultset, attached with given |statement|.
          */
         public RowResultSet<R> withStatement(final Statement statement) {
-            return new RowResultSet<R>(this.rows, this.last, statement);
+            return new RowResultSet<R>(this.rows, this.last, 
+                                       statement, this.warning);
+
         } // end of withStatement
+
+        /**
+         * Returns updated resultset, with given |warning|.
+         */
+        public RowResultSet<R> withWarning(final SQLWarning warning) {
+            return new RowResultSet<R>(this.rows, this.last, 
+                                       this.statement, warning);
+
+        } // end of withWarning
+
+        /**
+         * {@inheritDoc}
+         */
+        public SQLWarning getWarnings() throws SQLException {
+            return this.warning;
+        } // end of getWarnings
 
         /**
          * {@inheritDoc}

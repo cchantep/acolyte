@@ -1424,7 +1424,11 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       lazy val s = statement(h = h)
       s.executeQuery("TEST")
 
-      s.getWarnings aka "warning" mustEqual warning
+      (s.getWarnings aka "warning" mustEqual warning).
+        and(Option(s.getResultSet) aka "resultset" must beSome.which { 
+          _.getWarnings aka "result warning" mustEqual warning
+        })
+
     }
 
     "be found for update" in {

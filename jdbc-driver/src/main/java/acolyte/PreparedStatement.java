@@ -178,8 +178,8 @@ public class PreparedStatement
             this.warning = res.getWarning();
             this.generatedKeys = EMPTY_GENERATED_KEYS.withStatement(this);
             
-            return (this.result = 
-                    res.getRowList().resultSet().withStatement(this));
+            return (this.result = res.getRowList().resultSet().
+                withStatement(this).withWarning(this.warning));
 
         } catch (SQLException se) {
             throw se;
