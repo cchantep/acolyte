@@ -42,6 +42,44 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
     }
   }
 
+  "Recursive match" >> {
+    "Basic Pattern matching" should {
+      "match extractor: Integer(n)" in {
+        recursivePatternMatching("456") aka "matching" mustEqual List("num-456")
+      }
+
+      "not match" in {
+        recursivePatternMatching("@") aka "matching" mustEqual Nil
+      }
+    }
+
+    "Extractor with unapply" should {
+      "rich match without binding: ~(IntRange(5, 10))" in {
+        recursivePatternMatching("7") aka "matching" mustEqual List("5-to-10")
+      }
+
+      "rich match without binding: ~(IntRange(10, 20), i)" in {
+        recursivePatternMatching("12") aka "matching" mustEqual List("range:12")
+      }
+    }
+
+    "Extractor with unapplySeq" should {
+      "rich match without binding: ~(Regex(re))" in {
+        recursivePatternMatching("abc").
+          aka("matching") mustEqual List("no-binding")
+      }
+
+      "rich match with one binding: ~(Regex(re), a)" in {
+        recursivePatternMatching("# BCD.") aka "matching" mustEqual List("BCD")
+      }
+
+      "rich match with several bindings: ~(Regex(re), (a, b))" in {
+        recursivePatternMatching("123;xyz") aka "matching" mustEqual List(
+          "123;xyz", "xyz", "123")
+      }
+    }
+  }
+
   "Partial function #1" >> {
     "Basic Pattern matching" should {
       "match extractor: Integer(n)" in {
@@ -194,6 +232,18 @@ sealed trait MatchTest {
     case ~(Regex("# ([A-Z]+).*"), a) ⇒ List(a)
     case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b)) ⇒ List(str, b, a)
     case x ⇒ Nil
+  }
+
+  def recursivePatternMatching(s: String): List[String] = s match {
+    case v ⇒ v match {
+      case ~(IntRange(5, 10), _) ⇒ List("5-to-10")
+      case ~(IntRange(10, 20), i) ⇒ List(s"range:$i")
+      case Integer(n) ⇒ List(s"num-$n")
+      case ~(Regex("^a.*")) ⇒ List("no-binding")
+      case ~(Regex("# ([A-Z]+).*"), a) ⇒ List(a)
+      case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b)) ⇒ List(str, b, a)
+      case x ⇒ Nil
+    }
   }
 }
 

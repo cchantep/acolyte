@@ -39,8 +39,10 @@ class AcolytePlugin(val global: Global) extends Plugin {
         reporter,
         Apply,
         Block,
+        Bind,
         CaseDef,
         DefDef,
+        Ident,
         Match,
         Position,
         Tree,
@@ -49,7 +51,9 @@ class AcolytePlugin(val global: Global) extends Plugin {
       import scala.reflect.io.VirtualFile
       import scala.reflect.internal.util.BatchSourceFile
 
-      override def transform(tree: Tree): Tree = tree match {
+      override def transform(tree: Tree): Tree = refactor(tree)
+
+      private def refactor(tree: Tree): Tree = tree match {
         case m @ Match(_, _) ⇒ {
           val richMatch = refactorMatch(m)
 
@@ -63,71 +67,71 @@ class AcolytePlugin(val global: Global) extends Plugin {
 
       val tildeTerm = global.newTermName("$tilde")
 
-      @inline private def refactorMatch(orig: Match): Tree =
-        orig match {
-          case Match(t, cs) ⇒ {
-            import global.{ Bind, Ident }
+      @inline private def refactorMatch(orig: Match): Tree = orig match {
+        case Match(t, cs) ⇒ {
+          val vds = ListBuffer[ValDef]()
+          val tx = caseDefTransformer(vds)
 
-            val vds = ListBuffer[ValDef]()
-            val cds = cs.map {
-              case ocd @ CaseDef(pat, g, by) ⇒ {
-                val ocp = ocd.pos // g, by
+          val cds = cs map {
+            case ocd @ CaseDef(pat, g, by) ⇒ {
+              val ocp = ocd.pos // g, by
 
-                val tx = new global.Transformer {
-                  override def transform(tree: Tree): Tree = tree match {
-                    case oa @ Apply(Ident(it), x) if (it == tildeTerm) ⇒ {
-                      (x.headOption, x.tail) match {
-                        case (Some(xt @ Apply(ex, xa)), bs) ⇒ {
-                          val xpo: Option[List[Tree]] = bs.headOption match {
-                            case Some(Apply(_, ua))    ⇒ Some(ua)
-                            case Some(bn @ Bind(_, _)) ⇒ Some(bn :: Nil)
-                            case Some(id @ Ident(_))   ⇒ Some(id :: Nil)
-                            case None                  ⇒ Some(Nil)
-                            case _                     ⇒ None
-                          }
+              val of = ocp.source.file
+              val file = new VirtualFile(of.name,
+                s"${of.path}#refactored-match-${ocp.line}")
 
-                          xpo.fold({
-                            reporter.error(oa.pos, "Invalid ~ pattern")
-                            //abort("Invalid ~ pattern")
-                            oa
-                          }) { xp ⇒
-                            val (vd, rp) = refactorPattern(xt.pos, ex, xa, xp)
-                            vds += vd
-                            rp
-                          }
-                        }
-                        case _ ⇒
-                          reporter.error(oa.pos, "Invalid ~ pattern")
-                          //abort("Invalid ~ pattern")
-                          oa
+              val nc = CaseDef(tx.transform(pat), g, refactor(by))
+              val cdc = s"${global show nc} // generated from ln ${ocp.line}, col ${ocp.column - 5}"
+              val cdp = ocp.withPoint(0).
+                withSource(new BatchSourceFile(file, cdc), 0)
 
-                      }
-                    }
-                    case _ ⇒ super.transform(tree)
+              global.atPos(cdp)(nc)
+            }
+            case cd ⇒ cd
+          }
+
+          if (vds.isEmpty) Match(t, cds)
+          else Block(vds.toList, Match(t, cds).setPos(orig.pos))
+        }
+        case _ ⇒
+          reporter.error(orig.pos, "Invalid Match")
+          //abort("Invalid Match")
+          orig
+      }
+
+      private def caseDefTransformer(vds: ListBuffer[ValDef]) =
+        new global.Transformer {
+          override def transform(tree: Tree): Tree = tree match {
+            case oa @ Apply(Ident(it), x) if (it == tildeTerm) ⇒ {
+              (x.headOption, x.tail) match {
+                case (Some(xt @ Apply(ex, xa)), bs) ⇒ {
+                  val xpo: Option[List[Tree]] = bs.headOption match {
+                    case Some(Apply(_, ua))    ⇒ Some(ua)
+                    case Some(bn @ Bind(_, _)) ⇒ Some(bn :: Nil)
+                    case Some(id @ Ident(_))   ⇒ Some(id :: Nil)
+                    case None                  ⇒ Some(Nil)
+                    case _                     ⇒ None
+                  }
+
+                  xpo.fold({
+                    reporter.error(oa.pos, "Invalid ~ pattern")
+                    //abort("Invalid ~ pattern")
+                    oa
+                  }) { xp ⇒
+                    val (vd, rp) = refactorPattern(xt.pos, ex, xa, xp)
+                    vds += vd
+                    rp
                   }
                 }
+                case _ ⇒
+                  reporter.error(oa.pos, "Invalid ~ pattern")
+                  //abort("Invalid ~ pattern")
+                  oa
 
-                val of = ocp.source.file
-                val file = new VirtualFile(of.name,
-                  s"${of.path}#refactored-match-${ocp.line}")
-
-                val nc = CaseDef(tx.transform(pat), g, by)
-                val cdc = s"${global.show(nc)} // generated from ln ${ocp.line}, col ${ocp.column - 5}"
-                val cdp = ocp.withPoint(0).
-                  withSource(new BatchSourceFile(file, cdc), 0)
-
-                global.atPos(cdp)(nc)
               }
-              case cd ⇒ cd
             }
-
-            if (vds.isEmpty) orig // revert to original Match
-            else Block(vds.toList, Match(t, cds).setPos(orig.pos))
+            case _ ⇒ super.transform(tree)
           }
-          case _ ⇒
-            reporter.error(orig.pos, "Invalid Match")
-            //abort("Invalid Match")
-            orig
         }
 
       @inline private def refactorPattern[T](xp: Position, ex: Tree, xa: List[Tree], ua: List[Tree]): (ValDef, Apply) = {
