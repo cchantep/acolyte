@@ -47,7 +47,7 @@ package object controllers {
     } and (__ \ 'name).read[String])(ResultColumn)
 
   @inline def DateFormat = new java.text.SimpleDateFormat(
-    "YYYY-MM-dd", java.util.Locale.ENGLISH)
+    "yyyy-MM-dd", java.util.Locale.ENGLISH)
 
   @inline def convertCol[T](typ: Class[T], s: String): T = typ match {
     case TextCol   ⇒ s.asInstanceOf[T]

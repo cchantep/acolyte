@@ -11,6 +11,7 @@
     <link href="//netdna.bootstrapcdn.com/bootswatch/latest/flatly/bootstrap.min.css" rel="stylesheet" />
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet" />
 
+    <link href="css/datepicker.css" rel="stylesheet" />
     <link href="css/run.css" id="runStyles" rel="stylesheet" />
     <link href="css/pygments.css" id="pygments" rel="stylesheet" />
   </head>
@@ -115,7 +116,30 @@
 
                 <textarea id="statement" name="statement" class="form-control"></textarea>
 
-              </div>
+              </div><!-- /.form-group -->
+
+              <strong>Parameters:</strong><ol></ol>
+
+              <div class="input-group form-group">
+                <label for="param-type" class="input-group-addon">
+                  New parameter</label>
+
+                <select class="form-control has-tooltip" id="param-type"
+                        data-trigger="focus" title="Parameter type">
+                </select>
+
+                <label for="param-value" 
+                       class="input-group-addon">Value</label>
+
+                <span id="param-value"></span>
+
+                <span class="input-group-btn">
+                  <button class="btn btn-default" id="add-param" 
+                          disabled="disabled">
+                    <i class="fa fa-plus-square"></i> 
+                  </button>
+                </span>
+              </div><!-- /.input-group -->
 
               <button class="btn btn-primary" disabled="disabled">Go</button>
             </form>
@@ -139,6 +163,7 @@
       $._connection = @Html(json)
     </script>
     <script src="js/ajax.js"></script>
+    <script src="js/bootstrap-datepicker.js"></script>
     <script src="js/run.js"></script>
   </body>
 </html>

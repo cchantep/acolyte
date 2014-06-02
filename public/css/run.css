@@ -1,5 +1,7 @@
 #go-back { position:absolute; top:6em }
 
+.form-control.has-error { border-color: #e74c3c }
+
 #behaviour h2 > a { display: block }
 #behaviour h2 > a:hover, #behaviour h2 > a:focus { text-decoration: none }
 #behaviour h2 .fa { margin-right: .2em }
@@ -20,3 +22,7 @@
 
 #aco-unexpected-error .modal-title,
 #aco-unexpected-error .modal-body { color: #e74c3c }
+
+#param-value { background: #fff }
+#execute li > .fa { visibility: hidden; margin-right: .5em }
+#execute li { cursor: pointer }

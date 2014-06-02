@@ -7,12 +7,44 @@
     us = $("#updates"), usl = $(".list-group", us),
     pts = { 'string': "Text", 'float': "Number", 'date': "Date" },
     jct = { 'string': "String", 'float': "Float", 'date': "Date" },
-    exb = $("#execute .btn"),
+    exb = $("#execute .btn-primary"),
     stg = $("#execute .form-group"),
     stmt = $("#statement"),
     res = $("#result"),
     resp = $("#result .panel-collapse"),
-    json = $('input[name="json"]');
+    json = $('input[name="json"]'),
+    adp = $("#add-param"), 
+    pl = $("#execute ol"),
+    pt = $("#param-type"),
+    vf = function(f) {
+        return function() {
+            var e = $(this);
+            if (!f(e)) { 
+                e.addClass("has-error"); 
+                adp.attr("disabled", "disabled")
+            } else { 
+                e.removeClass("has-error"); 
+
+                if ($("#execute li").length < 3) adp.removeAttr("disabled");
+                else adp.attr("disabled", "disabled")
+            }
+        }
+    },
+    isNum = function(e) { return $.isNumeric(e.val()) },
+    notEmpty = function(e) { return ($.trim(e.val()) == "") ? false : true },
+    pvs = vf(notEmpty),
+    pvi = vf(isNum),
+    pvt = {'title':"Expected value parameter",'trigger':"focus"},
+    pvr = function() {
+        var pv = $('<input type="text" class="form-control" id="param-value" />').tooltip(pvt).on('keyup change', pvs);
+        
+        $("#param-value").replaceWith(pv)
+    };
+
+    $.each(pts, function(v, t) {
+        pt.append('<option value="'+v+'">'+t+'</option>')
+    });
+    pvr(); // Parameter value for default type
 
     $('.has-tooltip').tooltip();
 
@@ -120,15 +152,29 @@
         res.removeClass("panel-default").addClass("panel-info");
         resp.collapse('toggle');
 
+        var ps = [];
+
+        pl.children().each(function(i,e){ 
+            var p = $(e); 
+            ps.push({'_type': p.data("type"), 'value': p.data("value")})
+        });
+
         $._ajax({
             url: "./exec-stmt", 
             type: "POST",
             cache: false,
             dataType: "json",
-            data: { 'json': json.val(), 'statement': stmt.val() }
+            data: { 
+                'json': json.val(), 
+                'statement': stmt.val(),
+                'parameters': JSON.stringify(ps)
+            }
         }, function(d){
             $(".panel-body", res).empty().
                 append('<p class="text-muted">No result</p>');
+        }, function(d){
+            console.debug("--> " + d.toSource());
+            return true
         });
 
         return false
@@ -280,4 +326,38 @@
             $('<div>&nbsp;</div>').insertBefore(suhe)
         }
     });
+
+    pt.change(function() {
+        var v = $(this).val();
+
+        adp.attr("disabled", "disabled");
+
+        if (v == "date") {
+            $("#param-value").replaceWith($('<input type="text" class="form-control ac-date" id="param-value" readonly="readonly" />').tooltip(pvt).datepicker({'format':"yyyy-mm-dd"}).one('changeDate', function() { adp.removeAttr("disabled") }))
+
+        } else if (v == "float") {
+            $("#param-value").replaceWith($('<input type="text" class="form-control" id="param-value" />').tooltip(pvt).on('keyup change', pvi))
+
+        } else pvr()
+    });
+
+    adp.click(function() {
+        var t = pt.val(), 
+        v = $("#param-value").val(),
+        i = $('<i class="fa fa-minus-circle"></i>');
+
+        $('<li>' + pts[t] + ' = <tt class="text-info">' + v + '</tt></li>').
+            prepend(i).data("type", t).data("value", v).appendTo(pl).
+            hover(function() { i.css({'visibility':"visible"}) },
+                  function() { i.css({'visibility':"hidden"}) }).
+            click(function(){ 
+                adp.removeAttr("disabled");
+                $(this).remove() 
+            });
+
+        if (pl.children().length == 3) adp.attr("disabled", "disabled");
+
+        return false
+    });
+
 })(jQuery);

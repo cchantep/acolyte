@@ -7,9 +7,9 @@ import resource.{ ManagedResource, managed }
 
 import play.api.mvc.{ Action, Controller, SimpleResult }
 import play.api.data.Form
-import play.api.data.Forms.{ mapping, nonEmptyText, optional }
+import play.api.data.Forms.{ mapping, nonEmptyText, optional, text }
 
-import play.api.libs.json.{ Json, JsValue, Reads, Writes }
+import play.api.libs.json.{ Json, JsResult, JsValue, Reads, Writes }
 
 import acolyte.Acolyte.{ connection ⇒ AcolyteConnection, handleStatement }
 import acolyte.{
@@ -44,17 +44,22 @@ object Acolyte extends Controller {
       })
   }
 
-  sealed case class ExecutionData(statement: String, json: String)
+  sealed case class ExecutionData(
+    statement: String, json: String, parameters: Option[String])
 
   def executeStatement = Action { request ⇒
-    Form(mapping("statement" -> nonEmptyText, "json" -> nonEmptyText)(
-      ExecutionData.apply)(ExecutionData.unapply)).bindFromRequest()(request).
-      fold[SimpleResult]({ f ⇒ Ok(s"f.errors") }, { data ⇒
-        Reads.seq(routeReads).reads(Json.parse(data.json)).
-          fold[SimpleResult]({ e ⇒ PreconditionFailed(e.mkString) }, {
-            case r :: rs ⇒ executeWithRoutes(data.statement, r :: rs)
-            case _       ⇒ Ok(Json toJson true)
-          })
+    Form(mapping("statement" -> nonEmptyText, "json" -> nonEmptyText,
+      "parameters" -> optional(text))(ExecutionData.apply)(
+        ExecutionData.unapply)).bindFromRequest()(request).fold[SimpleResult](
+      { f ⇒ Ok(s"f.errors") }, { data ⇒
+        (for {
+          ps ← Reads.seq[RouteParameter](routeParamReads).reads(Json.parse(
+            data.parameters getOrElse "[]"))
+          rs ← Reads.seq[Route](routeReads).reads(Json parse data.json)
+        } yield (ps -> rs)).fold[SimpleResult]({ e ⇒ PreconditionFailed(e.mkString) }, {
+          case (ps, r :: rs) ⇒ executeWithRoutes(data.statement, ps, r :: rs)
+          case _             ⇒ Ok(Json toJson false)
+        })
       })
   }
 
@@ -150,11 +155,11 @@ object Acolyte extends Controller {
     case e ⇒ sys.error(s"No route handler: $e")
   }
 
-  private def execResult(sql: String, routes: Seq[Route], f: Int ⇒ Unit): Either[String, ManagedResource[(PreparedStatement, Either[ResultSet, Int])]] =
+  private def execResult(sql: String, ps: Seq[RouteParameter], routes: Seq[Route], f: Int ⇒ Unit): Either[String, ManagedResource[(PreparedStatement, Either[ResultSet, Int])]] =
     handler(0, routes, f, Right(HandlerData())).right map { hd ⇒
       val handleQuery = hd.queryHandler.fold(handleStatement) { qh ⇒
         handleStatement.withQueryDetection(hd.queryPatterns: _*).
-          withQueryHandler(qh)
+          withQueryHandler(qh orElse { case e ⇒ sys.error(s"No route handler: $e") })
       }
 
       for {
@@ -163,7 +168,19 @@ object Acolyte extends Controller {
             handleQuery.withUpdateHandler(uh orElse fallbackHandler)
           }))
 
-        x ← managed(con.prepareStatement(sql)) map { st ⇒
+        x ← managed {
+          ps.foldLeft(1 -> con.prepareStatement(sql)) { (st, p) ⇒
+            (st, p) match {
+              case ((i, s), StringParameter(v)) ⇒
+                s.setString(i, v); (i + 1 -> s)
+              case ((i, s), FloatParameter(v)) ⇒
+                s.setFloat(i, v); (i + 1 -> s)
+              case ((i, s), DateParameter(v)) ⇒
+                s.setDate(i, new java.sql.Date(v.getTime)); (i + 1 -> s)
+              case _ ⇒ st
+            }
+          } _2
+        } map { st ⇒
           if (st.execute()) st -> Left(st.getResultSet)
           else st -> Right(st.getUpdateCount)
         }
@@ -192,11 +209,11 @@ object Acolyte extends Controller {
   }
 
   @inline
-  private def executeWithRoutes(stmt: String, routes: Seq[Route]): SimpleResult = {
+  private def executeWithRoutes(stmt: String, ps: Seq[RouteParameter], routes: Seq[Route]): SimpleResult = {
     var r: Int = -1
 
     (for {
-      exe ← execResult(stmt, routes, { r = _ }).right
+      exe ← execResult(stmt, ps, routes, { r = _ }).right
       state ← exe.acquireFor({ x ⇒
         val (st, res) = x
         res.fold[JsValue]({ rs ⇒
@@ -217,9 +234,8 @@ object Acolyte extends Controller {
           } else Json toJson Map("route" -> r, "updateCount" -> uc)
         })
       }).left.map(_.mkString).right
-
-    } yield state).fold(
-      { err ⇒ InternalServerError(Json toJson Map("exception" -> err)) },
-      Ok(_))
+    } yield state).fold({ err ⇒
+      InternalServerError(Json toJson Map("exception" -> err))
+    }, Ok(_))
   }
 }
