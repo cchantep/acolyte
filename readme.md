@@ -29,6 +29,8 @@ As a JDBC driver is provided you can simply update test configuration, so that A
 
 It also makes simple testing of DB edge cases (e.g. unrecoverable/unexpected error). It's easy to throw an exception from Acolyte connection, so that it can be validated persistence code is properly handling such case.
 
+You can also use Acolyte to fully benefit from data access abstraction, not only not having to wait persistence (DB) being setup to code accesses, but also not having to wait persistence to code tests for access code.
+
 ## Usage
 
 Acolyte is usable with any code relying on JDBC. It makes it available for any JVM language:
