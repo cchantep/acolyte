@@ -28,12 +28,9 @@ object Acolyte extends Controller {
 
   def setup = Action { request ⇒
     Form[Option[RouteData]](mapping("json" -> optional(nonEmptyText))(
-      { _.map(RouteData) })(_.map({ d ⇒ Some(d.json) }))).
-      bindFromRequest()(request).fold[SimpleResult]({
-        f ⇒ Ok(s"${f.errors}")
-      }, { data ⇒
-        Ok(views.html.setup(data.map(_.json)))
-      })
+      _.map(RouteData))(_.map({ d ⇒ Some(d.json) }))).
+      bindFromRequest()(request).fold[SimpleResult]({ f ⇒ Ok(s"${f.errors}") },
+        { data ⇒ Ok(views.html.setup(data.map(_.json))) })
   }
 
   def run = Action { request ⇒
@@ -190,8 +187,7 @@ object Acolyte extends Controller {
   @annotation.tailrec
   private def jsonResultSet(rs: ResultSet, c: Int, js: Seq[Traversable[JsValue]]): Seq[Traversable[JsValue]] = rs.next match {
     case true ⇒ jsonResultSet(rs, c, js :+ (for {
-      i ← 1 until c
-      // TODO: ResultSet meta-data column label
+      i ← 1 to c
     } yield (rs.getObject(i) match {
       case d: Date ⇒ Json.toJson(DateFormat format d)
       case v       ⇒ Json.toJson(v.toString)
@@ -222,8 +218,16 @@ object Acolyte extends Controller {
               "warning" -> Json.toJson(rs.getWarnings))
 
           } else {
-            val c = rs.getMetaData.getColumnCount
+            val meta = rs.getMetaData
+            val c = meta.getColumnCount
+
+            val ls = for { i ← 1 to c } yield {
+              Option(meta.getColumnLabel(i)).
+                orElse(Option(meta.getColumnName(i))) getOrElse s"Column #$i"
+            }
+
             Json toJson Map("route" -> Json.toJson(r),
+              "columns" -> Json.toJson(ls),
               "resultSet" -> Json.toJson(jsonResultSet(rs, c, Nil)))
 
           }

@@ -39,33 +39,8 @@
         var pv = $('<input type="text" class="form-control" id="param-value" />').tooltip(pvt).on('keyup change', pvs);
         
         $("#param-value").replaceWith(pv)
-    };
-
-    $.each(pts, function(v, t) {
-        pt.append('<option value="'+v+'">'+t+'</option>')
-    });
-    pvr(); // Parameter value for default type
-
-    $('.has-tooltip').tooltip();
-
-    $("a", bk).click(function(){ 
-        bk.trigger('submit'); 
-        return false 
-    });
-
-    $("#behaviour h2 > a").click(function(){ 
-        if (rti.hasClass("fa-caret-right")) {
-            rti.removeClass("fa-caret-right").addClass("fa-caret-down")
-        } else rti.removeClass("fa-caret-down").addClass("fa-caret-right");
-    });
-
-    $("#config h2 > a").click(function(){ 
-        if (cti.hasClass("fa-caret-right")) {
-            cti.removeClass("fa-caret-right").addClass("fa-caret-down")
-        } else cti.removeClass("fa-caret-down").addClass("fa-caret-right");
-    });
-
-    $.each($._connection, function(i,r){
+    },
+    renderRoute = function(i,r){
         var pat = $('<p>Pattern = <tt class="text-info">' + 
                     r.pattern.expression + '</tt></p>'),
         li = $('<li class="list-group-item"></li>').append(pat),
@@ -124,9 +99,34 @@
             })
         }
 
-        li.popover({
+        return li.popover({
             'placement': "top", 'trigger': "hover", 'html': true, 'content': pps
-        });
+        })
+    };
+
+    $.each(pts, function(v, t) {
+        pt.append('<option value="'+v+'">'+t+'</option>')
+    });
+    pvr(); // Parameter value for default type
+
+    $('.has-tooltip').tooltip();
+
+    $("a", bk).click(function(){ bk.trigger('submit'); return false });
+
+    $("#behaviour h2 > a").click(function(){ 
+        if (rti.hasClass("fa-caret-right")) {
+            rti.removeClass("fa-caret-right").addClass("fa-caret-down")
+        } else rti.removeClass("fa-caret-down").addClass("fa-caret-right");
+    });
+
+    $("#config h2 > a").click(function(){ 
+        if (cti.hasClass("fa-caret-right")) {
+            cti.removeClass("fa-caret-right").addClass("fa-caret-down")
+        } else cti.removeClass("fa-caret-down").addClass("fa-caret-right");
+    });
+
+    $.each($._connection, function(i,r){
+        var li = renderRoute(i, r);
 
         if (r._type == "update") usl.append(li);
         else qsl.append(li)
@@ -170,8 +170,19 @@
                 'parameters': JSON.stringify(ps)
             }
         }, function(d){
-            $(".panel-body", res).empty().
+            var pan = $(".panel-body", res).empty().
                 append('<p class="text-muted">No result</p>');
+
+            if (!d || !d['route']) return;
+
+            // ---
+
+            var r = $._connection[d.route],
+            re = renderRoute(d.route, r);
+
+            re.appendTo(pan.empty());
+
+            console.debug("==> " + pan.html());
         }, function(d){
             console.debug("--> " + d.toSource());
             return true
@@ -358,6 +369,5 @@
         if (pl.children().length == 3) adp.attr("disabled", "disabled");
 
         return false
-    });
-
+    })
 })(jQuery);
