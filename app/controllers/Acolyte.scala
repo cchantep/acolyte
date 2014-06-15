@@ -13,9 +13,11 @@ import play.api.libs.json.{ Json, JsResult, JsValue, Reads, Writes }
 
 import acolyte.Acolyte.{ connection ⇒ AcolyteConnection, handleStatement }
 import acolyte.{
+  DefinedParameter,
   Execution,
   ExecutedStatement,
   QueryExecution,
+  ParameterMetaData,
   Result ⇒ AcolyteResult,
   UpdateExecution
 }
@@ -29,14 +31,14 @@ object Acolyte extends Controller {
   def setup = Action { request ⇒
     Form[Option[RouteData]](mapping("json" -> optional(nonEmptyText))(
       _.map(RouteData))(_.map({ d ⇒ Some(d.json) }))).
-      bindFromRequest()(request).fold[SimpleResult]({ f ⇒ Ok(s"${f.errors}") },
+      bindFromRequest()(request).fold[SimpleResult](f ⇒ Ok(f.errors.toString),
         { data ⇒ Ok(views.html.setup(data.map(_.json))) })
   }
 
   def run = Action { request ⇒
     Form(mapping("json" -> nonEmptyText)(
       RouteData.apply)(RouteData.unapply)).bindFromRequest()(request).
-      fold[SimpleResult]({ f ⇒ Ok(s"${f.errors}") }, { data ⇒
+      fold[SimpleResult]({ f ⇒ Ok(f.errors.toString) }, { data ⇒
         Ok(views.html.run(data.json))
       })
   }
@@ -48,7 +50,7 @@ object Acolyte extends Controller {
     Form(mapping("statement" -> nonEmptyText, "json" -> nonEmptyText,
       "parameters" -> optional(text))(ExecutionData.apply)(
         ExecutionData.unapply)).bindFromRequest()(request).fold[SimpleResult](
-      { f ⇒ Ok(s"f.errors") }, { data ⇒
+      { f ⇒ Ok(f.errors.toString) }, { data ⇒
         (for {
           ps ← Reads.seq[RouteParameter](routeParamReads).reads(Json.parse(
             data.parameters getOrElse "[]"))
@@ -88,12 +90,13 @@ object Acolyte extends Controller {
   private def updateHandler(ur: UpdateRoute, f: ⇒ Unit): Either[String, UpdateHandler] = ur match {
     case UpdateRoute(RoutePattern(e, Nil), res) ⇒
       updateResult(res).right map { r ⇒
-        { case UpdateExecution(sql, _) if (e matches sql) ⇒ f; r }
+        { case UpdateExecution(sql, _) if (sql matches e) ⇒ f; r }
       }
 
     case UpdateRoute(RoutePattern(e, ps), res) ⇒
+      val Params = ps.map(executed)
       updateResult(res).right map { r ⇒
-        { case UpdateExecution(sql, ps) if (e matches sql) ⇒ f; r }
+        { case UpdateExecution(sql, Params) if (sql matches e) ⇒ f; r }
       }
 
     case _ ⇒ Left(s"Unexpected update route: $ur")
@@ -103,12 +106,13 @@ object Acolyte extends Controller {
   private def queryHandler(r: QueryRoute, f: ⇒ Unit): Either[String, QueryHandler] = r match {
     case QueryRoute(RoutePattern(e, Nil), res) ⇒
       queryResult(res).right map { r ⇒
-        { case QueryExecution(sql, _) if (e matches sql) ⇒ f; r }
+        { case QueryExecution(sql, _) if (sql matches e) ⇒ f; r }
       }
 
     case QueryRoute(RoutePattern(e, ps), res) ⇒
+      val Params = ps.map(executed)
       queryResult(res).right map { r ⇒
-        { case QueryExecution(sql, ps) if (e matches sql) ⇒ f; r }
+        { case QueryExecution(sql, Params) if (sql matches e) ⇒ f; r }
       }
 
     case _ ⇒ Left(s"Unexpected query route: $r")
@@ -148,8 +152,16 @@ object Acolyte extends Controller {
   }
 
   @inline
-  private val fallbackHandler: UpdateHandler = {
+  private def fallbackHandler: UpdateHandler = {
     case e ⇒ sys.error(s"No route handler: $e")
+  }
+
+  @inline
+  private def executed(p: RouteParameter): DefinedParameter = p match {
+    case DateParameter(d)  ⇒ DefinedParameter(d, ParameterMetaData.Date)
+    case FloatParameter(f) ⇒ DefinedParameter(f, ParameterMetaData.Float(f))
+    case _ ⇒ DefinedParameter(
+      p.asInstanceOf[StringParameter].value, ParameterMetaData.Str)
   }
 
   private def execResult(sql: String, ps: Seq[RouteParameter], routes: Seq[Route], f: Int ⇒ Unit): Either[String, ManagedResource[(PreparedStatement, Either[ResultSet, Int])]] =

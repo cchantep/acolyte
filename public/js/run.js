@@ -40,10 +40,10 @@
         
         $("#param-value").replaceWith(pv)
     },
-    renderRoute = function(i,r){
+    renderRoute = function(i,r, cf){
         var pat = $('<p>Pattern = <tt class="text-info">' + 
                     r.pattern.expression + '</tt></p>'),
-        li = $('<li class="list-group-item"></li>').append(pat),
+        li = cf().append(pat),
         pps = null;
 
         if (r.pattern['parameters'] && r.pattern.parameters['length'] &&
@@ -126,7 +126,8 @@
     });
 
     $.each($._connection, function(i,r){
-        var li = renderRoute(i, r);
+        var cf = function(){ return $('<li class="list-group-item"></li>') },
+        li = renderRoute(i, r, cf);
 
         if (r._type == "update") usl.append(li);
         else qsl.append(li)
@@ -150,7 +151,7 @@
 
     exb.click(function(){ 
         res.removeClass("panel-default").addClass("panel-info");
-        resp.collapse('toggle');
+        if (!resp.hasClass("in")) resp.collapse('toggle');
 
         var ps = [];
 
@@ -170,21 +171,33 @@
                 'parameters': JSON.stringify(ps)
             }
         }, function(d){
+            console.debug("#d=" + d.toSource());
+
             var pan = $(".panel-body", res).empty().
                 append('<p class="text-muted">No result</p>');
 
-            if (!d || !d['route']) return;
+            if (!d || (typeof d['route']) != "number") return;
 
             // ---
 
             var r = $._connection[d.route],
-            re = renderRoute(d.route, r);
+            re = renderRoute(d.route, r, function(){
+                return $('<p></p>')
+            }).appendTo($('<div><p><strong>Selected route:</strong></p></div>').
+                        appendTo(pan.empty())).addClass("route");
 
-            re.appendTo(pan.empty());
-
-            console.debug("==> " + pan.html());
+            console.debug("==> " + r.toSource())
         }, function(d){
-            console.debug("--> " + d.toSource());
+            console.debug("#err=" + d.toSource());
+
+            if ((typeof d) == "string" && d.indexOf("No route handler") != -1) {
+                resp.html('<em>No matching route</em>');
+                return true
+            }
+
+            // ---
+
+            resp.html('<p><strong>Raised error:</strong> <tt>'+d+'</tt></p>');
             return true
         });
 
