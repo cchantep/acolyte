@@ -1,5 +1,6 @@
 (function($) {
-    var bk = $("#go-back"),
+    var NOP = function(){},
+    bk = $("#go-back"),
     rlg = $("#behaviour .list-group"),
     rti = $("#behaviour h2 .fa"),
     cti = $("#config h2 .fa"),
@@ -40,7 +41,37 @@
         
         $("#param-value").replaceWith(pv)
     },
-    renderRoute = function(i,r, cf){
+    renderError = function(err){ // Returns element for error
+        return $('<p class="simple-result">Error = <tt class="text-info">' 
+                 + err + '</tt></p>')
+    }, 
+    renderUpdateCount = function(c){ // Returns element for update count
+        return $('<p class="simple-result">Update count = <tt class="text-info">' + c + '</tt></p>')
+    }, 
+    renderResultSet = function(schema,rows){
+        var cl = $('<div></div>'),
+        t = $('<table class="table table-striped table-bordered table-responsive"></table>').appendTo(cl), 
+        th = $('<tr></tr>').appendTo($('<thead></thead>').appendTo(t)),
+        tb = $('<tbody></tbody>').appendTo(t);
+        
+        $.each(schema, function(j,c){
+            $('<th>' + c.name + ' (' + pts[c._type] + ')</th>').appendTo(th)
+        });
+        
+        $.each(rows, function(j,row){
+            var re = $('<tr></tr>'), 
+            k;
+            
+            for (k = 0; k < row.length; k++) {
+                $('<td>'+row[k]+'</td>').appendTo(re)
+            }
+            
+            tb.append(re)
+        });
+        
+        return cl
+    },
+    renderRoute = function(i,r, cf, re, ru, rs){
         var pat = $('<p>Pattern = <tt class="text-info">' + 
                     r.pattern.expression + '</tt></p>'),
         li = cf().append(pat),
@@ -59,45 +90,9 @@
             })
         } else pps = $('<em>No parameter constraint</em>');
 
-        if (r.result['error']) {
-            $('<p class="simple-result">Error = <tt class="text-info">' + r.result.error + '</tt></p>').insertAfter(pat.prepend('<i class="fa fa-angle-right"></i>').css({'display':"inline"}))
-        } else if (r._type == "update") {
-            $('<p class="simple-result">Update count = <tt class="text-info">' + r.result['updateCount'] + '</tt></p>').insertAfter(pat.prepend('<i class="fa fa-angle-right"></i>').css({'display':"inline"}))
-            
-        } else {
-            var cl = $('<div></div>'),
-            t = $('<table class="table table-striped table-bordered table-responsive"></table>').appendTo(cl), 
-            th = $('<tr></tr>').appendTo($('<thead></thead>').appendTo(t)),
-            tb = $('<tbody></tbody>').appendTo(t),
-            pati = $('<i class="fa fa-caret-right"></i>').prependTo(pat);
-
-            $.each(r.result['schema'], function(j,c){
-                $('<th>' + c.name + ' (' + pts[c._type] + ')</th>').appendTo(th)
-            });
-
-            $.each(r.result['rows'], function(j,row){
-                var re = $('<tr></tr>'), 
-                k;
-
-                for (k = 0; k < row.length; k++) {
-                    $('<td>'+row[k]+'</td>').appendTo(re)
-                }
-
-                tb.append(re)
-            });
-
-            li.append(cl.collapse('toggle'));
-            
-            pat.css({'cursor':"pointer"}).click(function(){ 
-                if (pati.hasClass("fa-caret-right")) {
-                    pati.removeClass("fa-caret-right").addClass("fa-caret-down")
-                } else {
-                    pati.removeClass("fa-caret-down").addClass("fa-caret-right")
-                }
-
-                cl.collapse('toggle') 
-            })
-        }
+        if (r.result['error']) re(pat, r.result['error']);
+        else if (r._type == "update") ru(pat, r.result['updateCount']);
+        else rs(pat, r.result['schema'], r.result['rows']);
 
         return li.popover({
             'placement': "top", 'trigger': "hover", 'html': true, 'content': pps
@@ -125,9 +120,36 @@
         } else cti.removeClass("fa-caret-down").addClass("fa-caret-right");
     });
 
+    var cf = function(){ return $('<li class="list-group-item"></li>') },
+    re = function(pat,err){
+        renderError(err).
+            insertAfter(pat.prepend('<i class="fa fa-angle-right"></i>').
+                        css({'display':"inline"}))
+    },
+    ru = function(pat,c){
+        renderUpdateCount(c).
+            insertAfter(pat.prepend('<i class="fa fa-angle-right"></i>').
+                        css({'display':"inline"}))
+
+    },
+    rs = function(pat,schema,rows){
+        var cl = renderResultSet(schema, rows).
+            collapse('toggle').insertAfter(pat),
+        pati = $('<i class="fa fa-caret-right"></i>').prependTo(pat);
+        
+        pat.css({'cursor':"pointer"}).click(function(){ 
+            if (pati.hasClass("fa-caret-right")) {
+                pati.removeClass("fa-caret-right").addClass("fa-caret-down")
+            } else {
+                pati.removeClass("fa-caret-down").addClass("fa-caret-right")
+            }
+            
+            cl.collapse('toggle') 
+        })
+    };
+
     $.each($._connection, function(i,r){
-        var cf = function(){ return $('<li class="list-group-item"></li>') },
-        li = renderRoute(i, r, cf);
+        var li = renderRoute(i, r, cf, re, ru, rs);
 
         if (r._type == "update") usl.append(li);
         else qsl.append(li)
@@ -183,13 +205,19 @@
             var r = $._connection[d.route],
             re = renderRoute(d.route, r, function(){
                 return $('<p></p>')
-            }).appendTo($('<div><p><strong>Selected route:</strong></p></div>').
-                        appendTo(pan.empty())).addClass("route");
+            }, NOP, NOP, NOP).appendTo($('<div></div>').appendTo(pan.empty().append('<p><strong>Selected route:</strong></p>'))).addClass("route");
 
-            console.debug("==> " + r.toSource())
+             var efr = $('<div></div>').appendTo(pan.append('<p><strong>Effective result:</strong></p>'));
+
+            if (d['warning']) {
+                renderError((d['errorCode'] && d.errorCode > 0)
+                            ? d.warning.reason + " (" + d.errorCode + ')' 
+                            : d.warning.reason).appendTo(efr)
+            } else if (d['updateCount']) {
+                renderUpdateCount(d.updateCount).appendTo(efr)
+            }
+            
         }, function(d){
-            console.debug("#err=" + d.toSource());
-
             if ((typeof d) == "string" && d.indexOf("No route handler") != -1) {
                 resp.html('<em>No matching route</em>');
                 return true

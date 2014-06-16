@@ -12,8 +12,7 @@
 #queries, #updates { display: none }
 
 #behaviour .simple-result, #result .simple-result { display: inline }
-#behaviour .simple-result:before,
-#result .simple-result:before { content: ', ' }
+#behaviour .simple-result:before { content: ', ' }
 
 .panel-title > a { display: block }
 #config .tab-pane { padding-top: 1em }
