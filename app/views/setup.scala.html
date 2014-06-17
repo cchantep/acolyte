@@ -12,7 +12,7 @@
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet" />
 
     <link href="css/datepicker.css" rel="stylesheet" />
-    <link href="css/setup.css" rel="stylesheet" />
+    <link href="css/setup.min.css" rel="stylesheet" />
   </head>
   <body>
     <nav class="navbar navbar-default" role="navigation">
@@ -134,8 +134,7 @@
                 </select>
               </div><!-- /.form-group -->
 
-              <div class="form-group has-tooltip" 
-                   title="Pattern to detect statement; e.g. ^SELECT = Statement starting with SELECT">
+              <div class="form-group has-tooltip" title="Pattern to detect statement">
                 <label for="ruleExp" class="control-label">
                   Statement pattern</label>
 
@@ -143,6 +142,10 @@
 
                 <input id="ruleExp" type="text" 
                        value=".*" class="form-control" />
+
+                <p class="help-block">
+                  e.g. <tt>^SELECT</tt> to handle any statement starting with SELECT
+                </p>
               </div><!-- /.form-group -->
 
               <fieldset id="param-pattern">
@@ -179,8 +182,8 @@
             </form>
 
             <form role="form" action="#edit-result" id="result-form">
-              <p class="lead">
-                In this case, what is the <strong>result</strong>?
+              <p>
+                <span class="lead">In this case, what is the <strong>result</strong>?</span><br />What do you want the JDBC connection to return when matching statement is executed?
               </p>
 
               <div class="input-group has-tooltip"
@@ -214,7 +217,7 @@
 
     <script src="//codeorigin.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-    <script src="js/link.js"></script>
+    <script src="js/link.min.js"></script>
     <script src="js/bootstrap-datepicker.js"></script>
     <script src="js/setup.min.js"></script>
 @json.map{routes=>
