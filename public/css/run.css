@@ -1,5 +1,6 @@
 #go-back { position:absolute; top:6em }
 
+.list-group-item-success .text-info {color: green}
 .form-control.has-error { border-color: #e74c3c }
 
 #behaviour h2 > a { display: block }
@@ -29,3 +30,4 @@
 #execute li { cursor: pointer }
 
 #result .route .fa { margin-right: .5em }
+#result .panel-body > div { padding-left: 1em }

@@ -48,16 +48,18 @@
     renderUpdateCount = function(c){ // Returns element for update count
         return $('<p class="simple-result">Update count = <tt class="text-info">' + c + '</tt></p>')
     }, 
-    renderResultSet = function(schema,rows){
-        var cl = $('<div></div>'),
+    renderResultSet = function(resultSet){
+        var schema = resultSet.schema,
+        rows = resultSet.rows,
+        cl = $('<div></div>'),
         t = $('<table class="table table-striped table-bordered table-responsive"></table>').appendTo(cl), 
         th = $('<tr></tr>').appendTo($('<thead></thead>').appendTo(t)),
         tb = $('<tbody></tbody>').appendTo(t);
-        
+
         $.each(schema, function(j,c){
             $('<th>' + c.name + ' (' + pts[c._type] + ')</th>').appendTo(th)
         });
-        
+       
         $.each(rows, function(j,row){
             var re = $('<tr></tr>'), 
             k;
@@ -92,11 +94,18 @@
 
         if (r.result['error']) re(pat, r.result['error']);
         else if (r._type == "update") ru(pat, r.result['updateCount']);
-        else rs(pat, r.result['schema'], r.result['rows']);
+        else rs(pat, r.result);
 
         return li.popover({
             'placement': "top", 'trigger': "hover", 'html': true, 'content': pps
         })
+    },
+    bhc = $("#behaviour .panel-collapse"),
+    focusBehavRoute = function(i){
+        $("html").animate({scrollTop: bhc.parent().offset().top});
+        if (!bhc.hasClass("in")) bhc.collapse('toggle');
+        $(".route"+i, bhc).addClass("list-group-item-success");
+        return false
     };
 
     $.each(pts, function(v, t) {
@@ -132,9 +141,8 @@
                         css({'display':"inline"}))
 
     },
-    rs = function(pat,schema,rows){
-        var cl = renderResultSet(schema, rows).
-            collapse('toggle').insertAfter(pat),
+    rs = function(pat,rs){
+        var cl = renderResultSet(rs).collapse('toggle').insertAfter(pat),
         pati = $('<i class="fa fa-caret-right"></i>').prependTo(pat);
         
         pat.css({'cursor':"pointer"}).click(function(){ 
@@ -149,7 +157,7 @@
     };
 
     $.each($._connection, function(i,r){
-        var li = renderRoute(i, r, cf, re, ru, rs);
+        var li = renderRoute(i, r, cf, re, ru, rs).addClass("route"+i);
 
         if (r._type == "update") usl.append(li);
         else qsl.append(li)
@@ -175,6 +183,9 @@
         res.removeClass("panel-default").addClass("panel-info");
         if (!resp.hasClass("in")) resp.collapse('toggle');
 
+        $(".list-group-item-success", bhc).
+            removeClass("list-group-item-success");
+
         var ps = [];
 
         pl.children().each(function(i,e){ 
@@ -193,8 +204,6 @@
                 'parameters': JSON.stringify(ps)
             }
         }, function(d){
-            console.debug("#d=" + d.toSource());
-
             var pan = $(".panel-body", res).empty().
                 append('<p class="text-muted">No result</p>');
 
@@ -203,9 +212,12 @@
             // ---
 
             var r = $._connection[d.route],
+            rel = $('<p><strong>Selected route:</strong> </p>').
+                append($('<a href="#behaviour">(see Connection behaviour)</a>').
+                       click(function(){ focusBehavRoute(d.route) })),
             re = renderRoute(d.route, r, function(){
                 return $('<p></p>')
-            }, NOP, NOP, NOP).appendTo($('<div></div>').appendTo(pan.empty().append('<p><strong>Selected route:</strong></p>'))).addClass("route");
+            }, NOP, NOP, NOP).appendTo($('<div></div>').appendTo(pan.empty().append(rel))).addClass("route");
 
              var efr = $('<div></div>').appendTo(pan.append('<p><strong>Effective result:</strong></p>'));
 
@@ -215,9 +227,14 @@
                             : d.warning.reason).appendTo(efr)
             } else if (d['updateCount']) {
                 renderUpdateCount(d.updateCount).appendTo(efr)
+            } else if (d['schema'] && d['rows']) {
+                renderResultSet(d).appendTo(efr)
             }
-            
+
+            $("html").animate({scrollTop: res.offset().top})
         }, function(d){
+            $("html").animate({scrollTop: res.offset().top});
+
             if ((typeof d) == "string" && d.indexOf("No route handler") != -1) {
                 resp.html('<em>No matching route</em>');
                 return true

@@ -3,6 +3,8 @@ package controllers
 import java.util.Date
 import java.sql.{ PreparedStatement, ResultSet, SQLWarning }
 
+import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+
 import resource.{ ManagedResource, managed }
 
 import play.api.mvc.{ Action, Controller, SimpleResult }
@@ -232,15 +234,28 @@ object Acolyte extends Controller {
           } else {
             val meta = rs.getMetaData
             val c = meta.getColumnCount
+            val ts: Seq[String] = routes(r) match {
+              case QueryRoute(_, RowResult(rows)) ⇒
+                rows.getColumnClasses.asScala map { cl ⇒
+                  val n = cl.getName
 
-            val ls = for { i ← 1 to c } yield {
-              Option(meta.getColumnLabel(i)).
-                orElse(Option(meta.getColumnName(i))) getOrElse s"Column #$i"
+                  if (n == "java.util.Date") "date"
+                  else if (n == "java.lang.String") "string"
+                  else n
+                } toSeq
+              case _ ⇒ Nil
             }
 
+            val ls: Traversable[Map[String, String]] =
+              for { i ← 1 to c } yield {
+                Map("_type" -> ts.lift(i).getOrElse("string"),
+                  "name" -> Option(meta.getColumnLabel(i)).orElse(
+                    Option(meta.getColumnName(i))).getOrElse(s"Column #$i"))
+              }
+
             Json toJson Map("route" -> Json.toJson(r),
-              "columns" -> Json.toJson(ls),
-              "resultSet" -> Json.toJson(jsonResultSet(rs, c, Nil)))
+              "schema" -> Json.toJson(ls),
+              "rows" -> Json.toJson(jsonResultSet(rs, c, Nil)))
 
           }
         }, { uc ⇒
