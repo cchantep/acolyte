@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Array;
 import java.sql.Date;
 import java.sql.Time;
 
@@ -488,6 +489,32 @@ public abstract class RowList<R extends Row> {
 
             return convert(val, type);
         } // end of getObject
+
+        /**
+         * {@inheritDoc}
+         */
+        public Array getArray(final int columnIndex) throws SQLException {
+            final Object val = getObject(columnIndex);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            throw new RuntimeException("Not implemented");
+        } // end of getArray
+        
+        /**
+         * {@inheritDoc}
+         */
+        public Array getArray(final String columnLabel) throws SQLException {
+            final Object val = getObject(columnLabel);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            throw new RuntimeException("Not implemented");
+        } // end of getArray
 
         /**
          * {@inheritDoc}
