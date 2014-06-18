@@ -1,3 +1,17 @@
+## 1.0.19
+
+([28fff28e89368a64d4882efd7517abebc88c3edd](https://github.com/cchantep/acolyte/commit/28fff28e89368a64d4882efd7517abebc88c3edd) @ [scalac-plugin](https://github.com/cchantep/acolyte/tree/master/scalac-plugin)) Refactor recursive match:
+
+```scala
+x match {
+  case y => y match {
+    case ~(RichPat("x"), _) => ???
+  }
+}
+```
+
+([f4acc2dc143f0f584b9142c096e0194a91ad8bb9](https://github.com/cchantep/acolyte/commit/f4acc2dc143f0f584b9142c096e0194a91ad8bb9) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Make warning of query result accessible on raised ResultSet
+
 ## 1.0.18
 
 ([ac3415cabc01f85de1d766c0de53f0ab7e8c6c38](https://github.com/cchantep/acolyte/commit/ac3415cabc01f85de1d766c0de53f0ab7e8c6c38) @ [jdbc-scala](https://github.com/cchantep/acolyte/tree/master/jdbc-scala)) Companion function for update result with generated keys.
