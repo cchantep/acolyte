@@ -2,6 +2,8 @@
 
 Acolyte can be built from these sources using SBT (0.12.2+): `sbt publish`
 
+[![Build Status](https://secure.travis-ci.org/cchantep/acolyte.png?branch=master)](http://travis-ci.org/cchantep/acolyte)
+
 ## Documentation
 
 Documentation is generated using Maven 3: `mvn -f site.xml site`

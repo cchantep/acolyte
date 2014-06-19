@@ -2,10 +2,6 @@
 
 Acolyte is a JDBC driver designed for cases like mockup, testing, or any case you would like to be able to handle JDBC query by hand (or maybe that's only Chmeee's son on the Ringworld).
 
-[![Build Status](https://secure.travis-ci.org/cchantep/acolyte.png?branch=master)](http://travis-ci.org/cchantep/acolyte)
-
-This documentation can be read [online](http://cchantep.github.io/acolyte/).
-
 ## Motivation
 
 Automated testing for persistence (JDBC related) code is not trivial.
@@ -30,6 +26,8 @@ As a JDBC driver is provided you can simply update test configuration, so that A
 It also makes simple testing of DB edge cases (e.g. unrecoverable/unexpected error). It's easy to throw an exception from Acolyte connection, so that it can be validated persistence code is properly handling such case.
 
 You can also use Acolyte to fully benefit from data access abstraction, not only not having to wait persistence (DB) being setup to code accesses, but also not having to wait persistence to code tests for access code.
+
+You can get a quick interactive tour of Acolyte, online at [tour.acolyte.eu.org](http://tour.acolyte.eu.org).
 
 ## Usage
 
