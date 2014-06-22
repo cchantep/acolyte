@@ -3,7 +3,11 @@ package acolyte
 import java.lang.{ Float ⇒ JFloat }
 import java.sql.Types
 
-object ImmutableArraySpec extends org.specs2.mutable.Specification {
+import org.specs2.matcher.{ Expectable, Matcher, MatchersImplicits }
+
+object ImmutableArraySpec
+    extends org.specs2.mutable.Specification with MatchersImplicits {
+
   "Immutable array" title
 
   "Creation of empty array" should {
@@ -48,21 +52,8 @@ object ImmutableArraySpec extends org.specs2.mutable.Specification {
           throwA[IllegalArgumentException]("Invalid element array"))
     }
 
-    "be successful with given array" in {
-      ImmutableArray.getInstance(classOf[String], Array("Ab", "cD", "EF")).
-        aka("array copy") must beLike {
-          case strArr ⇒
-            (strArr.baseClass aka "base class" mustEqual classOf[String]) and
-              (strArr.getBaseType aka "base type" mustEqual Types.VARCHAR) and
-              (strArr.getBaseTypeName aka "base type name" mustEqual "VARCHAR").
-              and(strArr.getArray aka "element array" must beLike {
-                case elmts: Array[String] ⇒
-                  (elmts.size aka "size" must_== 3) and
-                    (elmts(0) aka "1st element" must_== "Ab") and
-                    (elmts(1) aka "2nd element" must_== "cD") and
-                    (elmts(2) aka "3rd element" must_== "EF")
-              })
-        }
+    "be successful with given array" in mustBeExpectedArray("array copy") {
+      ImmutableArray.getInstance(classOf[String], Array("Ab", "cD", "EF"))
     }
   }
 
@@ -73,28 +64,16 @@ object ImmutableArraySpec extends org.specs2.mutable.Specification {
           throwA[IllegalArgumentException]("Invalid element list"))
     }
 
-    /*
     "be successful with given list" in {
       lazy val list = {
         val l = new java.util.ArrayList[String]()
         l.add("Ab"); l.add("cD"); l.add("EF"); l
       }
-      ImmutableArray.getInstance(classOf[String], list).
-        aka("list copy") must beLike {
-          case strArr ⇒
-            (strArr.baseClass aka "base class" mustEqual classOf[String]) and
-              (strArr.getBaseType aka "base type" mustEqual Types.VARCHAR) and
-              (strArr.getBaseTypeName aka "base type name" mustEqual "VARCHAR").
-              and(strArr.getArray aka "element array" must beLike {
-                case elmts: Array[String] ⇒
-                  (elmts.size aka "size" must_== 3) and
-                    (elmts(0) aka "1st element" must_== "Ab") and
-                    (elmts(1) aka "2nd element" must_== "cD") and
-                    (elmts(2) aka "3rd element" must_== "EF")
-              })
-        }
+
+      mustBeExpectedArray("list copy") {
+        ImmutableArray.getInstance(classOf[String], list)
+      }
     }
-     */
   }
 
   "Free" should {
@@ -104,4 +83,69 @@ object ImmutableArraySpec extends org.specs2.mutable.Specification {
 
     }
   }
+
+  "Equals operation" should {
+    "respect Object contract" in {
+      ImmutableArray.getInstance(classOf[String], Array("a", "b")).
+        aka("string array") must_== ImmutableArray.getInstance(
+          classOf[String], Array("a", "b"))
+    }
+  }
+
+  @inline def mustBeExpectedArray[T](label: String)(array: ImmutableArray[T]) =
+    array aka label must beLike {
+      case strArr ⇒
+        (strArr.baseClass aka "base class" mustEqual classOf[String]) and
+          (strArr.getBaseType aka "base type" mustEqual Types.VARCHAR) and
+          (strArr.getBaseTypeName aka "base type name" mustEqual "VARCHAR").
+          and(strArr.getArray aka "element array" must beLike {
+            case elmts: Array[String] ⇒
+              (elmts.size aka "size" must_== 3) and
+                (elmts(0) aka "1st element" must_== "Ab") and
+                (elmts(1) aka "2nd element" must_== "cD") and
+                (elmts(2) aka "3rd element" must_== "EF")
+          }).and(strArr.getArray(1, 2) aka "element sub-array #1" must beLike {
+            case elmts: Array[String] ⇒
+              (elmts.size aka "size" must_== 2) and
+                (elmts(0) aka "1st element" must_== "cD") and
+                (elmts(1) aka "2nd element" must_== "EF")
+          }).and(strArr.getArray(0, 2) aka "element sub-array #2" must beLike {
+            case elmts: Array[String] ⇒
+              (elmts.size aka "size" must_== 2) and
+                (elmts(0) aka "1st element" must_== "Ab") and
+                (elmts(1) aka "2nd element" must_== "cD")
+          }).and(strArr.getArray(2, 1) aka "element sub-array #3" must beLike {
+            case elmts: Array[String] ⇒
+              (elmts.size aka "size" must_== 1) and
+                (elmts(0) aka "1st element" must_== "EF")
+          }).and(strArr.getResultSet aka "result set" must beLike {
+            case rs ⇒
+              (rs.next aka "has 1st element" must beTrue) and
+                (rs.getString(1) aka "1st element" must_== "Ab") and
+                (rs.next aka "has 2nd element" must beTrue) and
+                (rs.getString(1) aka "2nd element" must_== "cD") and
+                (rs.next aka "has 3rd element" must beTrue) and
+                (rs.getString(1) aka "3rd element" must_== "EF")
+          }).and(strArr.getResultSet(1, 2) aka "result set #1" must beLike {
+            case rs ⇒
+              (rs.next aka "has 1st element" must beTrue) and
+                (rs.getString(1) aka "1st element" must_== "cD") and
+                (rs.next aka "has 2nd element" must beTrue) and
+                (rs.getString(1) aka "2nd element" must_== "EF") and
+                (rs.next aka "has 3rd element" must beFalse)
+          }).and(strArr.getResultSet(0, 2) aka "result set #2" must beLike {
+            case rs ⇒
+              (rs.next aka "has 1st element" must beTrue) and
+                (rs.getString(1) aka "1st element" must_== "Ab") and
+                (rs.next aka "has 2nd element" must beTrue) and
+                (rs.getString(1) aka "2nd element" must_== "cD") and
+                (rs.next aka "has 3rd element" must beFalse)
+          }).and(strArr.getResultSet(2, 1) aka "result set #3" must beLike {
+            case rs ⇒
+              (rs.next aka "has 1st element" must beTrue) and
+                (rs.getString(1) aka "1st element" must_== "EF") and
+                (rs.next aka "has 2nd element" must beFalse)
+          })
+    }
+
 }

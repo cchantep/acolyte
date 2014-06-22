@@ -11,12 +11,15 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Array;
 
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 /**
  * Immu Array implementation.
  *
  * @author Cedric Chantepie
  */
-final class ImmutableArray<T> { //implements Array {
+public final class ImmutableArray<T> implements Array {
     // --- Properties ---
 
     /**
@@ -68,12 +71,12 @@ final class ImmutableArray<T> { //implements Array {
     /**
      * Returns empty array for given base class.
      */
-    protected static <A> ImmutableArray<A> getInstance(final Class<A> baseClass) { return new ImmutableArray<A>(baseClass, Collections.unmodifiableList(Collections.<A>emptyList())); }
+    public static <A> ImmutableArray<A> getInstance(final Class<A> baseClass) { return new ImmutableArray<A>(baseClass, Collections.unmodifiableList(Collections.<A>emptyList())); }
 
     /**
      * Returns array with copy of given |elements|.
      */
-    protected static <A> ImmutableArray<A> getInstance(final Class<A> baseClass, final A[] elements) { 
+    public static <A> ImmutableArray<A> getInstance(final Class<A> baseClass, final A[] elements) { 
         if (elements == null) {
             throw new IllegalArgumentException("Invalid element array");
         } // end of if
@@ -84,7 +87,7 @@ final class ImmutableArray<T> { //implements Array {
     /**
      * Returns array with copy of given |elements|.
      */
-    protected static <A> ImmutableArray<A> getInstance(final Class<A> baseClass, final List<A> elements) {
+    public static <A> ImmutableArray<A> getInstance(final Class<A> baseClass, final List<A> elements) {
         if (elements == null) {
             throw new IllegalArgumentException("Invalid element list");
         } // end of if
@@ -113,7 +116,11 @@ final class ImmutableArray<T> { //implements Array {
      * {@inheritDoc}
      */
     public Object getArray() throws SQLException {
-        return this.elements.toArray();
+        @SuppressWarnings("Unchecked")
+        final T[] arr = (T[]) java.lang.reflect.Array.
+            newInstance(baseClass, this.elements.size());
+
+        return this.elements.toArray(arr);
     } // end of getArray
 
     /**
@@ -124,15 +131,32 @@ final class ImmutableArray<T> { //implements Array {
         throw new SQLFeatureNotSupportedException();
     } // end of getArray
 
+    /**
+     * {@inheritDoc}
+     */
+    public Object getArray(final long index, final int count) 
+        throws SQLException {
 
-    //public Object getArray(long, int) throws SQLException;
+        final List<T> sub = subList(index, count);
+
+        if (sub == null) {
+            throw new SQLException("Invalid range: " + index + " + " + count);
+        } // end of if
+
+        // ---
+
+        @SuppressWarnings("Unchecked")
+        final T[] arr = (T[]) java.lang.reflect.Array.
+            newInstance(baseClass, sub.size());
+
+        return sub.toArray(arr);
+    } // end of getArray
 
     /**
      * @throws SQLFeatureNotSupportedException as array convertion 
      * is not supported
      */
-    public Object getArray(long index, 
-                           int count, 
+    public Object getArray(long index, int count, 
                            Map<String, Class<?>> map) throws SQLException {
 
         throw new SQLFeatureNotSupportedException();
@@ -150,6 +174,28 @@ final class ImmutableArray<T> { //implements Array {
     } // end of getResultSet
 
     /**
+     * {@inheritDoc}
+     */
+    public ResultSet getResultSet(final long index, final int count) 
+        throws SQLException {
+
+        // TODO: Test
+        final List<T> sub = subList(index, count);
+
+        if (sub == null) {
+            throw new SQLException("Invalid range: " + index + " + " + count);
+        } // end of if
+
+        // ---
+
+        RowList1<T,?> rows = RowLists.rowList1(this.baseClass);
+
+        for (final T elmt : sub) rows = rows.append(elmt);
+
+        return rows.resultSet();
+    } // end of getResultSet
+
+    /**
      * @throws SQLFeatureNotSupportedException as array convertion 
      * is not supported
      */
@@ -157,8 +203,6 @@ final class ImmutableArray<T> { //implements Array {
         throws SQLException {
         throw new SQLFeatureNotSupportedException();
     } // end of getResultSet
-
-    // public ResultSet getResultSet(long, int) throws SQLException;
 
     /**
      * @throws SQLFeatureNotSupportedException as array convertion 
@@ -177,12 +221,61 @@ final class ImmutableArray<T> { //implements Array {
      */
     public void free() throws SQLException {}
 
+    // --- Object support ---
+
+    /**
+     * {@inheritDoc}
+     */
+    public int hashCode() {
+        return new HashCodeBuilder(11, 7).
+            append(this.baseClass).append(this.baseType).
+            append(this.baseTypeName).append(this.elements).
+            toHashCode();
+
+    } // end of hashCode
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean equals(final Object o) {
+        if (o == null || !(o instanceof ImmutableArray)) {
+            return false;
+        } // end of if
+
+        final ImmutableArray<?> other = (ImmutableArray<?>) o;
+
+        return new EqualsBuilder().
+            append(this.baseClass, other.baseClass).
+            append(this.baseType, other.baseType).
+            append(this.baseTypeName, other.baseTypeName).
+            append(this.elements, other.elements).
+            isEquals();
+
+    } // end of equals 
+
+    /**
+     * {@inheritDoc}
+     */
+    public String toString() {
+        return String.format("ImmutableArray(%s)", this.elements);
+    } // end of toString
+
     // ---
 
     /**
      * Returns sub-list, or null if |index| is not valid.
      */
     private List<T> subList(final long index, int count) {
-        return null;
+        final int len = this.elements.size();
+
+        if (index < 0 || index >= len || count < 0) {
+            return null;
+        } // end of if
+
+        // ---
+
+        final long end = (index+count > len) ? len+1 : index+count;
+
+        return this.elements.subList((int)index, (int)end);
     } // end of subList
 } // end of class ImmutableArray

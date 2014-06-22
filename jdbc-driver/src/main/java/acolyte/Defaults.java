@@ -48,6 +48,11 @@ final class Defaults {
      */
     public static final Map<String,Integer> jdbcTypeClasses;
 
+    /**
+     * JDBC type name classes
+     */
+    public static final Map<String,String> jdbcTypeNameClasses;
+
     static {
         // JDBC type mappings
         final HashMap<Integer,String> mappings = new HashMap<Integer,String>();
@@ -108,6 +113,15 @@ final class Defaults {
         names.put(Types.VARCHAR, "VARCHAR");
 
         jdbcTypeNames = Collections.unmodifiableMap(names);
+
+        // Class for JDBC type name
+        final HashMap<String,String> nameClasses = new HashMap<String,String>();
+
+        for (final Map.Entry<Integer,String> e : jdbcTypeNames.entrySet()) {
+            nameClasses.put(e.getValue(), jdbcTypeMappings.get(e.getKey()));
+        } // end of for
+
+        jdbcTypeNameClasses = nameClasses;
 
         // JDBC type signs
         final HashMap<Integer,Boolean> signs = new HashMap<Integer,Boolean>();

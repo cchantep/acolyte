@@ -500,7 +500,13 @@ public abstract class RowList<R extends Row> {
                 return null;
             } // end of if
 
-            throw new RuntimeException("Not implemented");
+            // ---
+
+            try {
+                return convert(val, Array.class);
+            } catch (SQLException e) {
+                throw new SQLException("Not an Array: " + columnIndex);
+            } // end of catch
         } // end of getArray
         
         /**
@@ -513,7 +519,13 @@ public abstract class RowList<R extends Row> {
                 return null;
             } // end of if
 
-            throw new RuntimeException("Not implemented");
+            // ---
+
+            try {
+                return convert(val, Array.class);
+            } catch (SQLException e) {
+                throw new SQLException("Not an Array: " + columnLabel);
+            } // end of catch
         } // end of getArray
 
         /**
@@ -1164,6 +1176,22 @@ public abstract class RowList<R extends Row> {
                 } // end of if
 
                 throw new SQLException("Fails to convert numeric type");
+            } // end of if
+
+            if (Array.class.isAssignableFrom(type)) {
+                if (val instanceof Array) {
+                    return (T) val;
+                } // end of if
+
+                final Class c = val.getClass();
+
+                if (c.isArray()) {
+                    return (T) ImmutableArray.
+                        getInstance(c.getComponentType(), (Object[]) val);
+                    
+                } // end of if
+
+                throw new SQLException("Fails to convert array");
             } // end of if
 
             throw new SQLException("Incompatible type: " + type + ", " + clazz);

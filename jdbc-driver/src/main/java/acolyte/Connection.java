@@ -663,12 +663,25 @@ public final class Connection implements java.sql.Connection {
 
     /**
      * {@inheritDoc}
-     * @throws java.sql.SQLFeatureNotSupportedException
      */
     public Array createArrayOf(final String typeName, 
                                final Object[] elements) throws SQLException {
 
-        throw new SQLFeatureNotSupportedException();
+        final String jdbcClassName = Defaults.jdbcTypeNameClasses.get(typeName);
+
+        if (jdbcClassName == null) {
+            throw new SQLException("Unsupported type: " + typeName);
+        } // end of if
+
+        // ---
+
+        try {
+            final Class jdbcClass = Class.forName(jdbcClassName);
+
+            return ImmutableArray.getInstance(jdbcClass, elements);
+        } catch (ClassNotFoundException ce) {
+            throw new SQLException("Element type not found: " + jdbcClassName);
+        } // end of catch
     } // end of createArrayOf
 
     /**

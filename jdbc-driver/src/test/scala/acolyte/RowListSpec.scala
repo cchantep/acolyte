@@ -2,6 +2,7 @@ package acolyte
 
 import java.math.{ BigDecimal ⇒ JBigDec }
 
+import java.util.ArrayList
 import java.sql.{
   Date,
   ResultSet,
@@ -1048,6 +1049,83 @@ object RowListSpec extends Specification with RowListTest {
           s"from ${r._1}" in {
             r._2.getBigDecimal("n").doubleValue.
               aka("big decimal") mustEqual v.doubleValue
+          }
+        }
+      }
+    }
+  }
+
+  "Array column from result set" should {
+    val v = ImmutableArray.getInstance(classOf[String], Array("a", "b", "c"))
+
+    "not be read by index when not on a row" in {
+      (new RowList1.Impl(classOf[ImmutableArray[String]]).
+        append(row1(v)).resultSet.getArray(1) aka "get" must (
+          throwA[SQLException](message = "Not on a row"))).
+          and(new RowList1.Impl(classOf[ImmutableArray[String]]).
+            withLabel(1, "n").append(row1(v)).resultSet.getArray("n").
+            aka("get") must throwA[SQLException]("Not on a row"))
+
+    }
+
+    "be expected one" in {
+      val rs = new RowList1.Impl(classOf[ImmutableArray[String]]).
+        withLabel(1, "n").append(row1(v)).resultSet
+      rs.next
+
+      (rs.getArray(1) aka "array by index" mustEqual v).
+        and(rs.getArray("n") aka "array by name" mustEqual v)
+    }
+
+    "be null" in {
+      val rs = new RowList1.Impl(classOf[ImmutableArray[String]]).
+        withLabel(1, "n").append(row1(
+          null.asInstanceOf[ImmutableArray[String]])).resultSet
+      rs.next
+
+      (rs.getArray(1) aka "array" must beNull) and
+        (rs.getArray("n") aka "array" must beNull)
+    }
+
+    "be undefined" in {
+      val rs = new RowList1.Impl(classOf[String]).withLabel(1, "n").
+        append(row1("str")).resultSet
+      rs.next
+
+      (rs.getArray(1) aka "get array by index" must throwA[SQLException](
+        message = "Not an Array: 1")).
+        and(rs.getArray("n").aka("get array by name").must {
+          throwA[SQLException]("Not an Array: n")
+        })
+    }
+
+    "converted by index" >> {
+      val rs = Seq[(String, ResultSet)](
+        "raw array" -> (new RowList1.Impl(classOf[Array[String]])).
+          append(row1(Array("a", "b", "c"))).resultSet)
+
+      rs.foreach(_._2.next)
+
+      examplesBlock {
+        rs foreach { r ⇒
+          s"from ${r._1}" in {
+            r._2.getArray(1) aka "array" mustEqual v
+          }
+        }
+      }
+    }
+
+    "converted by label" >> {
+      val rs = Seq[(String, ResultSet)](
+        "raw array" -> (new RowList1.Impl(classOf[Array[String]])).
+          withLabel(1, "n").append(row1(Array("a", "b", "c"))).resultSet)
+
+      rs.foreach(_._2.next)
+
+      examplesBlock {
+        rs foreach { r ⇒
+          s"from ${r._1}" in {
+            r._2.getArray("n") aka "array" mustEqual v
           }
         }
       }

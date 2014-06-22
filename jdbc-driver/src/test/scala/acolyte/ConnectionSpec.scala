@@ -7,7 +7,8 @@ import java.sql.{
   ResultSet,
   SQLClientInfoException,
   SQLException,
-  SQLFeatureNotSupportedException
+  SQLFeatureNotSupportedException,
+  Types
 }
 import java.sql.ResultSet.{
   TYPE_FORWARD_ONLY,
@@ -540,9 +541,20 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
     }
 
-    "not be supported for ARRAY" in {
-      defaultCon.createArrayOf("CHAR", Array[Object]()).
-        aka("create array") must throwA[SQLFeatureNotSupportedException]
+    "be supported for ARRAY" in {
+      defaultCon.createArrayOf("VARCHAR", Array("Ab", "cD", "EF")).
+        aka("array") must beLike {
+          case strArr ⇒
+            (strArr.getBaseType aka "base type" mustEqual Types.VARCHAR) and
+              (strArr.getBaseTypeName aka "base type name" mustEqual "VARCHAR").
+              and(strArr.getArray aka "element array" must beLike {
+                case elmts: Array[String] ⇒
+                  (elmts.size aka "size" must_== 3) and
+                    (elmts(0) aka "1st element" must_== "Ab") and
+                    (elmts(1) aka "2nd element" must_== "cD") and
+                    (elmts(2) aka "3rd element" must_== "EF")
+              })
+        }
 
     }
   }

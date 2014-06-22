@@ -1,11 +1,16 @@
 package acolyte;
 
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 /**
  * Column meta data.
  *
  * @author Cedric Chantepie
  */
 public final class Column<T> {
+    // --- Properties ---
+
     /**
      * Column class
      */
@@ -62,4 +67,42 @@ public final class Column<T> {
     public Column withNullable(final boolean nullable) {
         return new Column(this.columnClass, this.name, nullable);
     } // end of withNullable
+
+    // --- Object support ---
+
+    /**
+     * {@inheritDoc}
+     */
+    public int hashCode() {
+        return new HashCodeBuilder(9, 3).
+            append(this.columnClass).append(this.name).append(this.nullable).
+            toHashCode();
+
+    } // end of hashCode
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean equals(final Object o) {
+        if (o == null || !(o instanceof Column)) {
+            return false;
+        } // end of if
+
+        final Column other = (Column) o;
+
+        return new EqualsBuilder().
+            append(this.columnClass, other.columnClass).
+            append(this.name, other.name).
+            append(this.nullable, other.nullable).isEquals();
+
+    } // end of equals 
+
+    /**
+     * {@inheritDoc}
+     */
+    public String toString() {
+        return String.format("Column(%s, %s, %s)", 
+                             this.columnClass, this.name, this.nullable);
+
+    } // end of toString
 } // end of class Column
