@@ -1,5 +1,0 @@
-@media (max-width: 480px) {
-  .row-fluid [class*="span"] {
-    float: none; clear: both; width: auto; overflow: auto 
-  }
-}

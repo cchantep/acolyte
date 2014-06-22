@@ -38,7 +38,7 @@ val handler: CompositeHandler = Acolyte.handleStatement.
   } withQueryHandler { e: QueryExecution ⇒
     if (e.sql.startsWith("SELECT ")) {
       // Empty resultset with 1 text column declared
-      rowList1(String.class).asResult
+      rowList1(classOf[String]).asResult
     } else {
       // ... EXEC that_proc
       // (see previous withQueryDetection)
@@ -174,7 +174,7 @@ import acolyte.RowLists.{ rowList1, rowList3 }
 
 // ...
 
-val list1 = RowLists.rowList1(String.class)
+val list1 = RowLists.rowList1(classOf[String])
 val list2 = RowLists.rowList3(classOf[Int], classOf[Float], classOf[Char])
 ```
 

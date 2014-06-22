@@ -30,8 +30,13 @@
       <item name="Changelog" href="./changelog.html" />
     </menu>
 
-    <menu name="Tutorials">
+    <menu name="Tutorial &#38; Demo">
+      <item name="Interactive tour" href="http://tour.acolyte.eu.org" />
       <item name="10m with Anorm" href="https://github.com/cchantep/acolyte/tree/10m-anorm-tutorial#acolyteanorm-10-minutes-tutorial" />
+    </menu>
+
+    <menu name="Support">
+      <item name="Mailing list" href="https://groups.google.com/forum/#!forum/acolyte-support" />
     </menu>
 
     <menu ref="reports" />
