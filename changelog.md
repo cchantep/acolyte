@@ -1,3 +1,18 @@
+## 1.0.20
+
+([210e6d17602af672fe4154b11d1009580cce01a3](https://github.com/cchantep/acolyte/commit/210e6d17602af672fe4154b11d1009580cce01a3) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Array support in query result:
+
+```java
+import acolyte.RowLists;
+import acolyte.ImmutableArray;
+
+// List of row with 1 column,
+// whose type is array of string
+RowLists.rowList1(java.sql.Array.class).
+  append(ImmutableArray.getInstance(String.class,
+    new String[] { "Ab", "Cd", "Ef" }));
+```
+
 ## 1.0.19
 
 ([28fff28e89368a64d4882efd7517abebc88c3edd](https://github.com/cchantep/acolyte/commit/28fff28e89368a64d4882efd7517abebc88c3edd) @ [scalac-plugin](https://github.com/cchantep/acolyte/tree/master/scalac-plugin)) Refactor recursive match:
