@@ -1,3 +1,20 @@
+## 1.0.21
+
+([9c261f107338c4a9d4364d89540f8965cb46c71f](https://github.com/cchantep/acolyte/commit/9c261f107338c4a9d4364d89540f8965cb46c71f) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Moves classes from package `acolyte` to `acolyte.jdbc`. Classes in former package are deprecated, and will be removed in future release.
+
+([210e6d17602af672fe4154b11d1009580cce01a3](https://github.com/cchantep/acolyte/commit/210e6d17602af672fe4154b11d1009580cce01a3) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Array support in query result:
+
+```java
+import acolyte.RowLists;
+import acolyte.ImmutableArray;
+
+// List of row with 1 column,
+// whose type is array of string
+RowLists.rowList1(java.sql.Array.class).
+  append(ImmutableArray.getInstance(String.class,
+    new String[] { "Ab", "Cd", "Ef" }));
+```
+
 ## 1.0.20
 
 ([210e6d17602af672fe4154b11d1009580cce01a3](https://github.com/cchantep/acolyte/commit/210e6d17602af672fe4154b11d1009580cce01a3) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Array support in query result:
