@@ -6,7 +6,9 @@ import java.sql.SQLWarning;
  * Update result.
  *
  * @author Cedric Chantepie
+ * @deprecated Use {@link acolyte.jdbc.UpdateResult}
  */
+@Deprecated
 public final class UpdateResult implements Result<UpdateResult> {
     // --- Shared ---
 

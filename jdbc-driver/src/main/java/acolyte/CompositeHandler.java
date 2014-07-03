@@ -13,7 +13,9 @@ import acolyte.StatementHandler.Parameter;
  * Default implementation for composite handler.
  *
  * @author Cedric Chantepie
+ * @deprecated Use {@link acolyte.jdbc.CompositeHandler}
  */
+@Deprecated
 public class CompositeHandler 
     extends AbstractCompositeHandler<CompositeHandler> {
 

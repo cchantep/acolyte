@@ -20,7 +20,9 @@ import acolyte.StatementHandler.Parameter;
  * Acolyte base statement.
  *
  * @author Cedric Chantepie
+ * @deprecated Use {@link acolyte.jdbc.AbstractStatement}
  */
+@Deprecated
 abstract class AbstractStatement implements java.sql.Statement {
     // --- Shared ---
 

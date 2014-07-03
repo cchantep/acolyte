@@ -9,7 +9,9 @@ import java.sql.ResultSet;
  * Acolyte meta-data.
  *
  * @author Cedric Chantepie
+ * @deprecated Use {@link acolyte.jdbc.DatabaseMetaData}
  */
+@Deprecated
 public final class DatabaseMetaData implements java.sql.DatabaseMetaData {
     // --- Properties ---
 

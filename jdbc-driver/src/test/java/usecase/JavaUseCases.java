@@ -8,17 +8,17 @@ import java.sql.SQLWarning;
 import java.sql.Connection;
 import java.sql.Date;
 
-import acolyte.CompositeHandler;
-import acolyte.StatementHandler;
-import acolyte.UpdateResult;
-import acolyte.QueryResult;
+import acolyte.jdbc.CompositeHandler;
+import acolyte.jdbc.StatementHandler;
+import acolyte.jdbc.UpdateResult;
+import acolyte.jdbc.QueryResult;
 
-import acolyte.StatementHandler.Parameter;
+import acolyte.jdbc.StatementHandler.Parameter;
 
-import static acolyte.RowLists.booleanList;
-import static acolyte.RowLists.rowList1;
-import static acolyte.RowLists.rowList3;
-import static acolyte.RowList.Column;
+import static acolyte.jdbc.RowLists.booleanList;
+import static acolyte.jdbc.RowLists.rowList1;
+import static acolyte.jdbc.RowLists.rowList3;
+import static acolyte.jdbc.RowList.Column;
 
 /**
  * Use cases for testing.
@@ -77,7 +77,7 @@ public final class JavaUseCases {
                 });
 
         // Register prepared handler with expected ID 'my-handler-id'
-        acolyte.Driver.register("my-handler-id", handler);
+        acolyte.jdbc.Driver.register("my-handler-id", handler);
 
         // ... then connection is managed through |handler|
         return DriverManager.getConnection(jdbcUrl);
@@ -105,7 +105,7 @@ public final class JavaUseCases {
                 });
 
         // Register prepared handler with expected ID 'my-handler-id'
-        acolyte.Driver.register("my-handler-id", handler);
+        acolyte.jdbc.Driver.register("my-handler-id", handler);
 
         // ... then connection is managed through |handler|
         return DriverManager.getConnection(jdbcUrl);
@@ -147,7 +147,7 @@ public final class JavaUseCases {
                 });
 
         // Register prepared handler with expected ID 'my-handler-id'
-        acolyte.Driver.register("my-handler-id", handler);
+        acolyte.jdbc.Driver.register("my-handler-id", handler);
 
         // ... then connection is managed through |handler|
         return DriverManager.getConnection(jdbcUrl);
@@ -157,7 +157,7 @@ public final class JavaUseCases {
      * Use case #4 - Row list convinience constructor.
      */
     public static Connection useCase4() throws SQLException {
-        return acolyte.Driver.
+        return acolyte.jdbc.Driver.
             connection(new CompositeHandler().
                        withQueryDetection("^SELECT ").
                        withQueryHandler(new CompositeHandler.QueryHandler() {
@@ -175,7 +175,7 @@ public final class JavaUseCases {
      * Use case #5 - Generated keys
      */
     public static Connection useCase5() throws SQLException {
-        return acolyte.Driver.
+        return acolyte.jdbc.Driver.
             connection(new CompositeHandler().
                        withUpdateHandler(new CompositeHandler.UpdateHandler() {
                                public UpdateResult apply(String sql, 
@@ -183,7 +183,7 @@ public final class JavaUseCases {
 
                                    // One update with generated keys
                                    return UpdateResult.One.
-                                       withGeneratedKeys(acolyte.RowLists.
+                                       withGeneratedKeys(acolyte.jdbc.RowLists.
                                                          intList().append(100));
                                }
                            }));

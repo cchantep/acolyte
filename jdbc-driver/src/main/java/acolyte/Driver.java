@@ -14,7 +14,9 @@ import java.sql.Connection;
  * Acolyte driver.
  *
  * @author Cedric Chantepie
+ * @deprecated Use {@link acolyte.jdbc.Driver}
  */
+@Deprecated
 public final class Driver implements java.sql.Driver {
     // --- Constants ---
 
@@ -33,16 +35,6 @@ public final class Driver implements java.sql.Driver {
      */
     public static final HashMap<String,ConnectionHandler> handlers =
         new HashMap<String,ConnectionHandler>();
-
-    // --- Shared ---
-
-    static {
-        try {
-            java.sql.DriverManager.registerDriver(new Driver());
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        } // end of catch
-    } // end of <cinit>
 
     // --- Driver impl ---
 

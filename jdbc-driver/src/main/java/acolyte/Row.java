@@ -4,7 +4,9 @@ import java.util.List;
 
 /**
  * Row marker interface
+ * @deprecated use {@line acolyte.jdbc.Row}
  */
+@Deprecated
 public interface Row {
     /**
      * Returns information for cell(s) of row.

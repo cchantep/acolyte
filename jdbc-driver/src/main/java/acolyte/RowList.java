@@ -25,7 +25,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
  * Type-safe list of row.
  *
  * @author Cedric Chantepie
+ * @deprecated use {@link acolyte.jdbc.RowList}
  */
+@Deprecated
 public abstract class RowList<R extends Row> {
 
     /**

@@ -6,7 +6,9 @@ import java.sql.SQLWarning;
  * Row list result.
  *
  * @author Cedric Chantepie
+ * @deprecated Use {@link acolyte.jdbc.Result}
  */
+@Deprecated
 public interface Result<SELF extends Result> {
     
     /**

@@ -15,15 +15,15 @@ Then code could be:
 
 ```scala
 import java.sql.{ Date, DriverManager }
-import acolyte.{ Driver ⇒ AcolyteDriver, QueryExecution, UpdateExecution }
-import acolyte.RowLists.{ rowList1, rowList3 }
-import acolyte.Acolyte // DSL
-import acolyte.Implicits._
+import acolyte.jdbc.{ Driver ⇒ AcolyteDriver, QueryExecution, UpdateExecution }
+import acolyte.jdbc.RowLists.{ rowList1, rowList3 }
+import acolyte.jdbc.AcolyteDSL
+import acolyte.jdbc.Implicits._
 
 // ...
 
 // Prepare handler
-val handler: CompositeHandler = Acolyte.handleStatement.
+val handler: CompositeHandler = AcolyteDSL.handleStatement.
   withQueryDetection(
     "^SELECT ", // regex test from beginning
     "EXEC that_proc"). // second detection regex
@@ -71,8 +71,8 @@ As soon as you register Acolyte handler with a unique ID, corresponding connecti
 
 ```scala
 // Register prepared handler with expected ID 'my-unique-id'
-// handler: acolyte.ConnectionHandler or acolyte.StatementHandler instance
-acolyte.Driver.register("my-unique-id", handler)
+// handler: acolyte.jdbc.ConnectionHandler or acolyte.jdbc.StatementHandler instance
+acolyte.jdbc.Driver.register("my-unique-id", handler)
 
 // then ...
 // ... later as handler has registered with 'my-unique-id'
@@ -87,9 +87,9 @@ val con: Connection = DriverManager.getConnection(jdbcUrl)
 It's also possible to get directly get an Acolyte connection, without using JDBC driver registry:
 
 ```scala
-import acolyte.Acolyte
+import acolyte.jdbc.AcolyteDSL
 
-val con = Acolyte.connection(handler)
+val con = AcolyteDSL.connection(handler)
 ```
 
 ### Connection properties
@@ -97,10 +97,10 @@ val con = Acolyte.connection(handler)
 JDBC allows to pass properties to driver to customize connection creation:
 
 ```java
-import acolyte.Acolyte
+import acolyte.jdbc.AcolyteDSL
 
 val con1 = DriverManager.getConnection(jdbcUrl, someJavaUtilProps)
-val con2 = Acolyte.connection(handler, "prop" -> "value"/* ... */)
+val con2 = AcolyteDSL.connection(handler, "prop" -> "value"/* ... */)
 ```
 
 (See [properties](./java.html#Connection_properties) meaningful for Acolyte)
@@ -110,7 +110,7 @@ val con2 = Acolyte.connection(handler, "prop" -> "value"/* ... */)
 In Scala query handler, pattern matching can be use to easily describe result case:
 
 ```scala
-import acolyte.{ QueryExecution, DefinedParameter, ExecutedParameter }
+import acolyte.jdbc.{ QueryExecution, DefinedParameter, ExecutedParameter }
 
 handleStatement.withQueryDetection("^SELECT").
   withQueryHandler { e: QueryExecution ⇒ 
@@ -158,10 +158,10 @@ handleQuery withQueryHandler { e ⇒ … }
 When you only need connection for a single result case, `withQueryResult` is useful:
 
 ```scala
-import acolyte.Acolyte
+import acolyte.jdbc.AcolyteDSL
 
-// res: acolyte.QueryResult
-val str: String = Acolyte.withQueryResult(res) { connection ⇒ … }
+// res: acolyte.jdbc.QueryResult
+val str: String = AcolyteDSL.withQueryResult(res) { connection ⇒ … }
 ```
 
 ### Result creation
@@ -169,8 +169,8 @@ val str: String = Acolyte.withQueryResult(res) { connection ⇒ … }
 Row lists can be built in the following way:
 
 ```scala
-import acolyte.{ RowList1, RowList3 }
-import acolyte.RowLists.{ rowList1, rowList3 }
+import acolyte.jdbc.{ RowList1, RowList3 }
+import acolyte.jdbc.RowLists.{ rowList1, rowList3 }
 
 // ...
 
@@ -190,7 +190,7 @@ val list2up = list2.withLabel(2 -> "first label").withLabel(3 -> "third name")
 Both column classes and names can be declared in bulk way:
 
 ```scala
-import acolyte.{ RowLists, RowList1, RowList3 }
+import acolyte.jdbc.{ RowLists, RowList1, RowList3 }
 
 // ...
 
@@ -259,17 +259,17 @@ val rs2: ResultSet = list2.resultSet()
 Update case not only returning update count but also generated keys can be represented with `UpdateResult`:
 
 ```java
-import acolyte.{ Acolyte, RowLists }
+import acolyte.jdbc.{ AcolyteDSL, RowLists }
 
 // Result with update count == 1 and a generated key 2L
-Acolyte.updateResult(1, RowLists.longList.append(2L))
+AcolyteDSL.updateResult(1, RowLists.longList.append(2L))
 ```
 
 Keys specified on result will be given to JDBC statement `.getGeneratedKeys`.
 
 ## Implicits
 
-To ease use of Acolyte DSL, implicit conversions are provided for `QueryResult`, query handler `QueryExecution => QueryResult` can be defined with following alternatives.
+To ease use of AcolyteDSL DSL, implicit conversions are provided for `QueryResult`, query handler `QueryExecution => QueryResult` can be defined with following alternatives.
 
 - `QueryExecution => RowList`: query result as given row lists.
 - `QueryExecution => T`: one row with one column of type `T` as query result.
@@ -279,8 +279,8 @@ In same way, implicit conversions are provided for `UpdateResult` allowing updat
 - `UpdateExecution => Int`: update count as update result.
 
 ```scala
-import acolyte.{ QueryResult, RowLists, UpdateResult }
-import acolyte.Implicits._
+import acolyte.jdbc.{ QueryResult, RowLists, UpdateResult }
+import acolyte.jdbc.Implicits._
 
 // Alternative definitions for query handler
 val qh1: QueryExecution => QueryResult = 

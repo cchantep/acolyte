@@ -9,7 +9,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 
 /**
  * Row with 1 cell.
+ * @deprecated Use {@line acolyte.jdbc.Row1}
  */
+@Deprecated
 public final class Row1<A> implements Row {
     // --- Properties ---
 

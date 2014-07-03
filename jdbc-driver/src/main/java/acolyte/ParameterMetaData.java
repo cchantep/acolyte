@@ -17,7 +17,9 @@ import static acolyte.Defaults.*;
  * Acolyte parameter meta-data.
  *
  * @author Cedric Chantepie
+ * @deprecated Use {@link acolyte.jdbc.ParameterMetaData}
  */
+@Deprecated
 public final class ParameterMetaData implements java.sql.ParameterMetaData {
     // --- Properties ---
 

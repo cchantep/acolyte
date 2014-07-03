@@ -26,6 +26,7 @@ import acolyte.RowList.{ Column ⇒ Col }
  * }
  * }}}
  */
+@deprecated("Use [[acolyte.jdbc.AcolyteDSL]]", "1.0.21")
 object Acolyte {
 
   /**
@@ -126,6 +127,7 @@ object Acolyte {
  * import acolyte.Implicits._
  * }}}
  */
+@deprecated("Use [[acolyte.jdbc.Implicits]]", "1.0.21")
 object Implicits extends ScalaRowLists with CompositeHandlerImplicits {
 
   /**
@@ -142,6 +144,7 @@ object Implicits extends ScalaRowLists with CompositeHandlerImplicits {
 
 }
 
+@deprecated("Use [[acolyte.jdbc.ScalaCompositeHandler]]", "1.0.21")
 final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: UpdateHandler) extends AbstractCompositeHandler[ScalaCompositeHandler](qd, qh, uh) {
 
   /**
@@ -223,6 +226,7 @@ final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: Upda
 
 }
 
+@deprecated("Use [[acolyte.jdbc.CompositeHandlerImplicits]]", "1.0.21")
 trait CompositeHandlerImplicits { srl: ScalaRowLists ⇒
 
   /**
@@ -290,29 +294,4 @@ trait CompositeHandlerImplicits { srl: ScalaRowLists ⇒
 
 private object ScalaCompositeHandler {
   def empty = new ScalaCompositeHandler(null, null, null)
-}
-
-/**
- * Convertions from Java datatypes to Scala.
- */
-@deprecated("Direct manipulation of row is no longer required", "1.0.12")
-object JavaConverters {
-
-  /**
-   * Pimps result row.
-   *
-   * {{{
-   * row.list // Scala list equivalent to .cells
-   * }}}
-   */
-  implicit def rowAsScala[R <: Row](r: R): ScalaRow = new ScalaRow(r)
-
-  final class ScalaRow(r: Row) extends Row {
-    lazy val cells = r.cells
-
-    lazy val list: List[Any] =
-      JavaConversions.iterableAsScalaIterable(cells).foldLeft(List[Any]()) {
-        (l, v) ⇒ l :+ v
-      }
-  }
 }

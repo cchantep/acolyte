@@ -10,21 +10,21 @@ trait JdbcDriver { deps: Dependencies ⇒
       scalacOptions += "-feature",
       resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
       libraryDependencies ++= Seq(
-        "org.apache.commons" % "commons-lang3" % "3.3", specs2Test),
+        "org.apache.commons" % "commons-lang3" % "3.3.2", specs2Test),
       crossPaths := false,
       sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
         val (base, managed) = dirs
-        generateRowClasses(base, managed)
+        generateRowClasses(base, managed / "acolyte", "acolyte", true) ++ generateRowClasses(base, managed / "acolyte" / "jdbc", "acolyte.jdbc", false)
       }))
 
   // Source generator
-  private def generateRowClasses(basedir: File, managedSources: File): Seq[File] = {
+  private def generateRowClasses(basedir: File, outdir: File, pkg: String, deprecated: Boolean = false): Seq[File] = {
     val rowTmpl = basedir / "src" / "main" / "templates" / "Row.tmpl"
     val letter = ('A' to 'Z').map(_.toString) ++: ('A' to 'Z').map(l ⇒ "A" + l)
     val lim = letter.size
 
     val rows: Seq[java.io.File] = for (n ← 2 to lim) yield {
-      val f = managedSources / "acolyte" / "Row%d.java".format(n)
+      val f = outdir / "Row%d.java".format(n)
       IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w ⇒
         val cp = for (i ← 0 until n) yield letter(i)
         val ps = for (i ← 0 until n) yield {
@@ -50,7 +50,9 @@ trait JdbcDriver { deps: Dependencies ⇒
         // Generate by substitution on each line of template
         IO.reader[Unit](rowTmpl) { r ⇒
           IO.foreachLine(r) { l ⇒
-            w.append(l.replaceAll("#N#", n.toString).
+            w.append(l.replace("#PKG#", pkg).
+              replace("#CLA#", { if (deprecated) "@Deprecated" else "" }).
+              replaceAll("#N#", n.toString).
               replaceAll("#CP#", cp.mkString(",")).
               replace("#PS#", ps.mkString("\n    ")).
               replace("#AS#", as.mkString("\n        ")).
@@ -70,15 +72,17 @@ trait JdbcDriver { deps: Dependencies ⇒
     }
 
     val rf = {
-      val f = managedSources / "acolyte" / "Rows.java"
+      val f = outdir / "Rows.java"
       IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w ⇒
-        w.append("""package acolyte;
+        w.append("""package %s;
 
 /**
  * Rows utility/factory.
- * @deprecated Rows are created by append operation on row lists.
+ * @Deprecated Rows are created by append operation on row lists.
  */
-public final class Rows {""")
+%s
+public final class Rows {""".format(pkg, 
+  { if (deprecated) "@Deprecated" else "" }))
 
         for (n ← 1 to lim) yield {
           val g = for (i ← 0 until n) yield letter(i)
@@ -107,7 +111,7 @@ public final class Rows {""")
 
     val listTmpl = basedir / "src" / "main" / "templates" / "RowList.tmpl"
     val rowLists: Seq[java.io.File] = for (n ← 1 to lim) yield {
-      val f = managedSources / "acolyte" / "RowList%d.java".format(n)
+      val f = outdir / "RowList%d.java".format(n)
       val cp = for (i ← 0 until n) yield letter(i)
       val cs = for (i ← 0 until n) yield {
         "final Class<%s> c%d".format(letter(i), i)
@@ -149,7 +153,9 @@ public final class Rows {""")
         // Generate by substitution on each line of template
         IO.reader[Unit](listTmpl) { r ⇒
           IO.foreachLine(r) { l ⇒
-            w.append(l.replaceAll("#N#", n.toString).
+            w.append(l.replace("#PKG#", pkg).
+              replace("#CLA#", { if (deprecated) "@Deprecated" else "" }).
+              replaceAll("#N#", n.toString).
               replaceAll("#CP#", cp.mkString(",")).
               replaceAll("#CS#", cs.mkString(", ")).
               replaceAll("#AP#", ap.mkString(", ")).
@@ -172,7 +178,7 @@ public final class Rows {""")
 
     val facTmpl = basedir / "src" / "main" / "templates" / "RowLists.tmpl"
     val rlf: java.io.File = {
-      val f = managedSources / "acolyte" / "RowLists.java"
+      val f = outdir / "RowLists.java"
 
       IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w ⇒
         val funcs = (1 to lim).foldLeft(Nil: List[String]) { (l, n) ⇒
@@ -206,7 +212,9 @@ public final class Rows {""")
 
         IO.reader[java.io.File](facTmpl) { r ⇒
           IO.foreachLine(r) { l ⇒
-            w.append(l.replace("#F#", funcs.mkString("\n"))).append("\n")
+            w.append(l.replace("#PKG#", pkg).
+              replace("#CLA#", { if (deprecated) "@Deprecated" else "" }).
+              replace("#F#", funcs.mkString("\n"))).append("\n")
           }
           f
         }

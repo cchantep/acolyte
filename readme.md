@@ -57,7 +57,7 @@ StatementHandler handler = new CompositeHandler().
   });
 
 // Register prepared handler with expected ID 'my-unique-id'
-acolyte.Driver.register("my-unique-id", handler);
+acolyte.jdbc.Driver.register("my-unique-id", handler);
 
 // then when existing code do ...
 Connection con = DriverManager.getConnection(jdbcUrl);

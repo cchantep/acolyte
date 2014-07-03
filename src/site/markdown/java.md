@@ -37,15 +37,15 @@ import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.Date;
 
-import acolyte.ConnectionHandler;
-import acolyte.StatementHandler;
-import acolyte.CompositeHandler;
-import acolyte.RowList3;
-import acolyte.Result;
+import acolyte.jdbc.ConnectionHandler;
+import acolyte.jdbc.StatementHandler;
+import acolyte.jdbc.CompositeHandler;
+import acolyte.jdbc.RowList3;
+import acolyte.jdbc.Result;
 
-import acolyte.StatementHandler.Parameter;
+import acolyte.jdbc.StatementHandler.Parameter;
 
-import static acolyte.RowLists.rowList3;
+import static acolyte.jdbc.RowLists.rowList3;
 
 // ...
 
@@ -80,7 +80,7 @@ StatementHandler handler = new CompositeHandler().
   });
 
 // Register prepared handler with expected ID 'my-unique-id'
-acolyte.Driver.register("my-unique-id", handler);
+acolyte.jdbc.Driver.register("my-unique-id", handler);
 
 // then ...
 Connection con = DriverManager.getConnection(jdbcUrl);
@@ -96,8 +96,8 @@ As soon as you register Acolyte handler with a unique ID, corresponding connecti
 
 ```java
 // Register prepared handler with expected ID 'my-unique-id'
-// handler: acolyte.ConnectionHandler or acolyte.StatementHandler instance
-acolyte.Driver.register("my-unique-id", handler);
+// handler: acolyte.jdbc.ConnectionHandler or acolyte.jdbc.StatementHandler instance
+acolyte.jdbc.Driver.register("my-unique-id", handler);
 
 // then ...
 // ... later as handler has registered with 'my-unique-id'
@@ -107,11 +107,11 @@ Connection con = DriverManager.getConnection(jdbcUrl);
 // ... Connection |con| is managed through |handler|
 ```
 
-If you just want to directly get connection from `acolyte.Driver`, without using JDBC driver registry, you can use Acolyte direct connection:
+If you just want to directly get connection from `acolyte.jdbc.Driver`, without using JDBC driver registry, you can use Acolyte direct connection:
 
 ```java
-// handler: acolyte.ConnectionHandler or acolyte.StatementHandler instance
-Connection con = acolyte.Driver.connection(handler);
+// handler: acolyte.jdbc.ConnectionHandler or acolyte.jdbc.StatementHandler instance
+Connection con = acolyte.jdbc.Driver.connection(handler);
 ```
 
 ### Connection properties
@@ -120,7 +120,7 @@ JDBC allows to pass properties to driver to customize connection creation:
 
 ```java
 Connection con = DriverManager.getConnection(jdbcUrl, someJavaUtilProps);
-Connection con = acolyte.Driver.connection(handler, someJavaUtilProps);
+Connection con = acolyte.jdbc.Driver.connection(handler, someJavaUtilProps);
 ```
 
 Acolyte specific properties are:
@@ -135,11 +135,11 @@ Acolyte provides [Row](http://cchantep.github.io/acolyte/apidocs/acolyte/Row.htm
 Row lists can be built as following using [RowLists factory](http://cchantep.github.io/acolyte/apidocs/acolyte/RowLists.html).
 
 ```java
-import acolyte.RowList1;
-import acolyte.RowList3;
+import acolyte.jdbc.RowList1;
+import acolyte.jdbc.RowList3;
 
-import static acolyte.RowLists.rowList1;
-import static acolyte.RowLists.rowList3; 
+import static acolyte.jdbc.RowLists.rowList1;
+import static acolyte.jdbc.RowLists.rowList3; 
 
 // ...
 
@@ -165,7 +165,7 @@ list2 = list2.withLabel(2, "first label").withLabel(3, "third name");
 Both column classes and names can be declared in bulk way, using [definition class](http://cchantep.github.io/acolyte/apidocs/acolyte/RowList.Column.html):
 
 ```java
-import static acolyte.RowList.Column;
+import static acolyte.jdbc.RowList.Column;
 
 // ...
 
@@ -183,7 +183,7 @@ Once you have declared your row list, and before turning it as result set, you c
 ```java
 import java.sql.ResultSet;
 
-import static acolyte.Rows.row1;
+import static acolyte.jdbc.Rows.row1;
 
 // ...
 
@@ -261,18 +261,18 @@ RowLists.timestampList(tsRow/* ... */);
 Acolyte can also mock up SQL warnings, on update or query, so that `java.sql.Statement.getWarnings()` will returned expected instance.
 
 ```java
-import acolute.UpdateResult;
-import acolyte.QueryResult;
+import acolyte.jdbc.UpdateResult;
+import acolyte.jdbc.QueryResult;
 
 // ...
 
-// Update results to be returned from an acolyte.UpdateHandler
+// Update results to be returned from an acolyte.jdbc.UpdateHandler
 UpdateResult upNothingWarn = UpdateResult.Nothing.withWarning("Nothing");
 UpdateResult up1ResWithWarn = UpdateResult.One.withWarning("Warning 1");
 UpdateResult up10ResWithWarn = new UpdateResult(10).
   withWarning("updateCount = 10 with warning");
 
-// Query result (wrapping row list) to be returned from acolyte.QueryHandler
+// Query result (wrapping row list) to be returned from acolyte.jdbc.QueryHandler
 QueryResult nilWithWarning = QueryResult.Nil.withWarning("Nil with warning");
 QueryResult resWithWarning = aRowList.asResult().
   withWarning("Row list result with warning");
@@ -283,8 +283,8 @@ QueryResult resWithWarning = aRowList.asResult().
 Update case not only returning update count but also generated keys can be represented with `UpdateResult`:
 
 ```java
-import acolyte.UpdateResult;
-import acolyte.RowLists;
+import acolyte.jdbc.UpdateResult;
+import acolyte.jdbc.RowLists;
 
 // Result with update count == 1 and a generated key 2L
 UpdateResult.One.withGeneratedKeys(RowLists.longList().append(2L));

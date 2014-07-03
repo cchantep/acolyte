@@ -7,7 +7,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
  * Acolyte savepoint.
  *
  * @author Cedric Chantepie
+ * @deprecated Use {@link acolyte.jdbc.Savepoint}
  */
+@Deprecated
 public final class Savepoint implements java.sql.Savepoint {
     // --- Properties ---
 

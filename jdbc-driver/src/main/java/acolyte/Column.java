@@ -7,7 +7,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
  * Column meta data.
  *
  * @author Cedric Chantepie
+ * @deprecated Use {@line acolyte.jdbc.Column}
  */
+@Deprecated
 public final class Column<T> {
     // --- Properties ---
 

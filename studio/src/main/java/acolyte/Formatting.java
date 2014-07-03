@@ -14,7 +14,7 @@ enum Formatting {
      * Java formatting
      */
     Java("Java", "text/java",
-         "import static acolyte.RowList.Column;\r\nimport acolyte.RowLists;",
+         "import static acolyte.jdbc.RowList.Column;\r\nimport acolyte.jdbc.RowLists;",
          "Column(%s.class, \"%s\")" /* colDef */,
          ".append(" /* rowStart */,
          ")" /* rowEnd */,
@@ -49,7 +49,7 @@ enum Formatting {
      * Scala formatting
      */
     Scala("Scala", "text/scala",
-          "import acolyte.RowLists", /* imports */
+          "import acolyte.jdbc.RowLists", /* imports */
           "classOf[%s] -> \"%s\"", /* colDef */
           ".append(" /* rowStart */,
           ")" /* rowEnd */,

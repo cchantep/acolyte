@@ -33,18 +33,18 @@ trait JdbcScala { deps: Dependencies ⇒
         specs2Test),
       sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
         val (base, managed) = dirs
-        generateRowClasses(base, managed)
+        generateRowClasses(base, managed / "acolyte", "acolyte", true) ++ generateRowClasses(base, managed / "acolyte" / "jdbc", "acolyte.jdbc", false) 
       })).dependsOn(scalacPlugin, jdbcDriver)
 
   // Source generator
-  private def generateRowClasses(base: File, managed: File): Seq[File] = {
+  private def generateRowClasses(base: File, outdir: File, pkg: String, deprecated: Boolean): Seq[File] = {
     val letterAZ = 'A' to 'Z'
     val letter = letterAZ.map(_.toString) ++: letterAZ.map(l ⇒ "A" + l)
     val lim = letter.size
 
     val listTmpl = base / "src" / "main" / "templates" / "RowList.tmpl"
     val rowLists: Seq[java.io.File] = for (n ← 1 to lim) yield {
-      val f = managed / "acolyte" / "ScalaRowList%d.scala".format(n)
+      val f = outdir / "ScalaRowList%d.scala".format(n)
 
       val tc = for (i ← 0 until n) yield letter(i)
       val cv = for (i ← 0 until n) yield { 
@@ -62,7 +62,9 @@ trait JdbcScala { deps: Dependencies ⇒
         // Generate by substitution on each line of template
         IO.reader[Unit](listTmpl) { r ⇒
           IO.foreachLine(r) { l ⇒
-            w.append(l.replaceAll("#N#", n.toString).
+            w.append(l.replace("#PKG#", pkg).
+              replace("#CLA#", { if (deprecated) "@deprecated" else "" }).
+              replaceAll("#N#", n.toString).
               replaceAll("#TC#", tc.mkString(", ")).
               replaceAll("#CV#", cv.mkString(", ")).
               replaceAll("#CC#", cc.mkString(", ")).
@@ -78,7 +80,7 @@ trait JdbcScala { deps: Dependencies ⇒
       }
     }
 
-    val rlf = managed / "acolyte" / "RowLists.scala"
+    val rlf = outdir / "RowLists.scala"
     IO.writer[java.io.File](rlf, "", IO.defaultCharset, false) { w ⇒
       val conv = Nil ++: (for (n ← 1 to lim) yield {
         val gp = (for (i ← 0 until n) yield letter(i)).mkString(", ")
@@ -91,7 +93,9 @@ trait JdbcScala { deps: Dependencies ⇒
 
       IO.reader[Unit](tmpl) { r ⇒
         IO.foreachLine(r) { l ⇒
-          w.append(l.replace("#SRL#", conv.mkString("\r\n  "))).
+          w.append(l.replace("#PKG#", pkg).
+            replace("#CLA#", { if (deprecated) "@deprecated" else "" }).
+            replace("#SRL#", conv.mkString("\r\n  "))).
             append("\r\n")
         }
       }

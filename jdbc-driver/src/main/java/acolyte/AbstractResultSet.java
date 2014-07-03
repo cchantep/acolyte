@@ -29,7 +29,9 @@ import java.sql.Ref;
  * Acolyte base resultset.
  *
  * @author Cedric Chantepie
+ * @deprecated Use {@link acolyte.jdbc.AbstractResultSet}
  */
+@Deprecated
 public abstract class AbstractResultSet implements java.sql.ResultSet {
 
     // --- Properties ---

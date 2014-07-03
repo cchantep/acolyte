@@ -18,7 +18,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
  * Immutable Array implementation.
  *
  * @author Cedric Chantepie
+ * @deprecated Use {@link acolyte.jdbc.ImmutableArray}
  */
+@Deprecated
 public final class ImmutableArray<T> implements Array {
     // --- Properties ---
 

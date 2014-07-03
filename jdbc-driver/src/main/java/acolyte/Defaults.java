@@ -15,7 +15,9 @@ import java.sql.Time;
  * Acolyte defaults.
  *
  * @author Cedric Chantepie
+ * @deprecated Use {@link acolyte.jdbc.Defaults}
  */
+@Deprecated
 final class Defaults {
     
     /**

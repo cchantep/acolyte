@@ -13,7 +13,9 @@ import acolyte.ParameterMetaData.ParameterDef;
  * Statement handler: allow to process statement by 'hand' and return.
  *
  * @author Cedric Chantepie
+ * @deprecated Use {@link acolyte.jdbc.StatementHandler}
  */
+@Deprecated
 public interface StatementHandler {
     /**
      * When given |sql| query is executed against Acolyte connection ...

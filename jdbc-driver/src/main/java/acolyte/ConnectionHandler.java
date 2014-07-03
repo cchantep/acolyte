@@ -5,7 +5,9 @@ package acolyte;
  *
  * @author Cedric Chantepie
  * @see StatementHandler
+ * @deprecated Use {@link acolyte.jdbc.ConnectionHandler}
  */
+@Deprecated
 public interface ConnectionHandler {
     
     /**

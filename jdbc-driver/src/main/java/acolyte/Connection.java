@@ -27,7 +27,9 @@ import java.sql.Clob;
  * Acolyte connection.
  *
  * @author Cedric Chantepie
+ * @deprecated Use {@link acolyte.jdbc.Connection}
  */
+@Deprecated
 public final class Connection implements java.sql.Connection {
     // --- Properties ---
 

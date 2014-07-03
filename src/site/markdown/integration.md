@@ -44,9 +44,9 @@ object Zoo {
 Then following specification can be written, checking that query result is properly selected and mapped:
 
 ```scala
-import acolyte.Implicits._
-import acolyte.Acolyte.{ connection, handleQuery } // DSL
-import acolyte.RowLists.rowList5
+import acolyte.jdbc.Implicits._
+import acolyte.jdbc.AcolyteDSL.{ connection, handleQuery } // DSL
+import acolyte.jdbc.RowLists.rowList5
 import Zoo._
 
 object ZooSpec extends org.specs2.mutable.Specification {
@@ -90,13 +90,13 @@ import java.sql.Connection;
 
 import static org.junit.Assert.*;
 
-import acolyte.AbstractCompositeHandler.QueryHandler;
-import acolyte.StatementHandler.Parameter;
-import acolyte.QueryResult;
-import acolyte.RowList5;
+import acolyte.jdbc.AbstractCompositeHandler.QueryHandler;
+import acolyte.jdbc.StatementHandler.Parameter;
+import acolyte.jdbc.QueryResult;
+import acolyte.jdbc.RowList5;
 
-import static acolyte.RowList.Column;
-import static acolyte.RowLists.rowList5;
+import static acolyte.jdbc.RowList.Column;
+import static acolyte.jdbc.RowLists.rowList5;
 
 @org.junit.runner.RunWith(org.junit.runners.JUnit4.class)
 public class ZooTest {
@@ -110,8 +110,8 @@ public class ZooTest {
     @org.junit.Test
     public void dogAtLocation() {
         final String handlerId = "dogTest";
-        acolyte.Driver.
-            register(handlerId, acolyte.CompositeHandler.empty().
+        acolyte.jdbc.Driver.
+            register(handlerId, acolyte.jdbc.CompositeHandler.empty().
                      withQueryDetection("^SELECT").
                      withQueryHandler(new QueryHandler() {
                              public QueryResult apply(String sql, List<Parameter> parameters) throws SQLException {
@@ -139,8 +139,8 @@ public class ZooTest {
 
     @org.junit.Test
     public void birdAtLocation() {
-        final Connection conn = acolyte.Driver.
-            connection(acolyte.CompositeHandler.empty().
+        final Connection conn = acolyte.jdbc.Driver.
+            connection(acolyte.jdbc.CompositeHandler.empty().
                      withQueryDetection("^SELECT").
                      withQueryHandler(new QueryHandler() {
                              public QueryResult apply(String sql, List<Parameter> parameters) throws SQLException {
@@ -269,7 +269,7 @@ First step is to create a Play fake application:
 
 ```scala
 import play.api.test.FakeApplication
-import acolyte.{ StatementHandler }
+import acolyte.jdbc.StatementHandler
 
 def fakeApp(h: Option[StatementHandler] = None): FakeApplication =
   FakeApplication(additionalConfiguration = Map(
@@ -277,9 +277,9 @@ def fakeApp(h: Option[StatementHandler] = None): FakeApplication =
     "evolutionplugin" -> "disabled") ++ h.fold(Map[String, String]())(
       handler ⇒ {
         val id = System.identityHashCode(this).toString
-        acolyte.Driver.register(id, handler)
+        acolyte.jdbc.Driver.register(id, handler)
 
-        Map("db.default.driver" -> "acolyte.Driver",
+        Map("db.default.driver" -> "acolyte.jdbc.Driver",
           "db.default.url" -> "jdbc:acolyte:test?handler=%s".format(id))
       }))
 ```

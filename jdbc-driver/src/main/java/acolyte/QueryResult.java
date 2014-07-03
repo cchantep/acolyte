@@ -6,7 +6,9 @@ import java.sql.SQLWarning;
  * Query result.
  *
  * @author Cedric Chantepie
+ * @deprecated Use {@link acolyte.jdbc.QueryResult}
  */
+@Deprecated
 public interface QueryResult extends Result<QueryResult> {
 
     /**

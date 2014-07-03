@@ -13,7 +13,9 @@ import acolyte.StatementHandler.Parameter;
  * Base for rule-based (immutable/thread-safe) statement handler.
  *
  * @author Cedric Chantepie
+ * @deprecated Use {@link acolyte.jdbc.AbstractCompositeHandler}
  */
+@Deprecated
 public abstract class AbstractCompositeHandler<T extends AbstractCompositeHandler> implements StatementHandler {
 
     // --- Properties ---

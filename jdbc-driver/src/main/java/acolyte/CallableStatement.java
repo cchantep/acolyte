@@ -32,7 +32,9 @@ import static acolyte.ParameterMetaData.Scaled;
  * Acolyte callable statement.
  *
  * @author Cedric Chantepie
+ * @deprecated Use {@link acolyte.jdbc.CallableStatement}
  */
+@Deprecated
 public final class CallableStatement 
     extends PreparedStatement implements java.sql.CallableStatement {
 

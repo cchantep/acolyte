@@ -64,7 +64,9 @@ import static acolyte.ParameterMetaData.Str;
  * Acolyte prepared statement.
  *
  * @author Cedric Chantepie
+ * @deprecated Use {@link acolyte.jdbc.PreparedStatement}
  */
+@Deprecated
 public class PreparedStatement 
     extends AbstractStatement implements java.sql.PreparedStatement {
 

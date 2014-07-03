@@ -9,7 +9,7 @@ To supports this behaviour, to return rows when you consider statement to be a q
 Using composite handler, you can specify it using detection pattern(s) (regular expressions):
 
 ```java
-import acolyte.CompositeHandler;
+import acolyte.jdbc.CompositeHandler;
 
 CompositeHandler handler = CompositeHandler.empty().
   // Considers as query if starts with 'SELECT ' or contains 'EXEC fetch_data'
@@ -23,7 +23,7 @@ In previous example, handler is given different patterns. In such case, order in
 Equivalent with the Scala DSL is:
 
 ```scala
-import acolyte.Acolyte.handleStatement
+import acolyte.jdbc.Acolyte.handleStatement
 
 val handler = handleStatement.
   withQueryDetection("^SELECT ", "EXEC fetch_data"). 
@@ -33,8 +33,8 @@ val handler = handleStatement.
 With Scala DSL, if you want all statements to be considered as queries, you can use:
 
 ```scala
-import acolyte.QueryExecution
-import acolyte.Acolyte.handleQuery
+import acolyte.jdbc.QueryExecution
+import acolyte.jdbc.Acolyte.handleQuery
 
 val handler = handleQuery { e: QueryExecution =>
   // handleQueries
@@ -55,16 +55,16 @@ If you just need to mockup a result containing only 1 row with 1 column, single 
 Example:
 ```
 overloaded method value rowList6 with alternatives:
-[error]   [A, B, C, D, E, F](x$1: acolyte.RowList.Column[A], x$2: acolyte.RowList.Column[B], x$3: acolyte.RowList.Column[C], x$4: acolyte.RowList.Column[D], x$5: acolyte.RowList.Column[E], x$6: acolyte.RowList.Column[F])acolyte.RowList6[A,B,C,D,E,F] <and>
-[error]   [A, B, C, D, E, F](x$1: Class[A], x$2: Class[B], x$3: Class[C], x$4: Class[D], x$5: Class[E], x$6: Class[F])acolyte.RowList6[A,B,C,D,E,F]
+[error]   [A, B, C, D, E, F](x$1: acolyte.jdbc.RowList.Column[A], x$2: acolyte.jdbc.RowList.Column[B], x$3: acolyte.jdbc.RowList.Column[C], x$4: acolyte.jdbc.RowList.Column[D], x$5: acolyte.jdbc.RowList.Column[E], x$6: acolyte.jdbc.RowList.Column[F])acolyte.jdbc.RowList6[A,B,C,D,E,F] <and>
+[error]   [A, B, C, D, E, F](x$1: Class[A], x$2: Class[B], x$3: Class[C], x$4: Class[D], x$5: Class[E], x$6: Class[F])acolyte.jdbc.RowList6[A,B,C,D,E,F]
 [error]  cannot be applied to ((Class[String], String), (Class[String], String), (Class[String], String), (Class[String], String), (Class[String], String), (Class[String], String))
 ```
 
-It occurs when `acolyte.Implicits.PairAsColumn` is missing while using 
+It occurs when `acolyte.jdbc.Implicits.PairAsColumn` is missing while using 
 pimped Scala syntax to declare row list:
 
 ```scala
-import acolyte.RowLists.rowList6
+import acolyte.jdbc.RowLists.rowList6
 
 // Corresponding to error example
 // - will raise compilation error
@@ -80,8 +80,8 @@ rowList6(
 Proper import simply fixes that:
 
 ```scala
-import acolyte.RowLists.rowList6
-import acolyte.Implicits.PairAsColumn // or acolyte.Implicits._
+import acolyte.jdbc.RowLists.rowList6
+import acolyte.jdbc.Implicits.PairAsColumn // or acolyte.jdbc.Implicits._
 
 rowList6( // Now it's ok
   classOf[String] -> "col1", 

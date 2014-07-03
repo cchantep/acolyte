@@ -1,10 +1,11 @@
 // -*- mode: scala -*-
-package acolyte
+package #PKG#
 
-import java.lang.{Boolean=>JBool}
+import java.lang.{ Boolean ⇒ JBool }
 import java.util.{ ArrayList, List ⇒ JList, Map ⇒ JMap }
 
 /** Scala implementation of RowList#N#. */
+#CLA#
 private[acolyte] final class ScalaRowList#N#[#TC#](#CV#, rows: JList[Row#N#[#TC#]], colNames: JMap[String, Integer], colNullables: JMap[Integer, JBool]) extends RowList#N#[#TC#, ScalaRowList#N#[#TC#]] {
 
   lazy val factory: RowList#N#.Factory[#TC#, ScalaRowList#N#[#TC#]] =
