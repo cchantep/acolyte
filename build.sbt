@@ -2,13 +2,13 @@ organization := "org.eu.acolyte"
 
 name := "play-demo"
 
-version := "1.0-SNAPSHOT"
+version := "1.0"
 
 scalaVersion := "2.10.5"
 
 libraryDependencies ++= Seq(
   "com.jsuereth" %% "scala-arm" % "1.4",
-  "org.eu.acolyte" %% "jdbc-scala" % "1.0.19" changing()
+  "org.eu.acolyte" %% "jdbc-scala" % "1.0.21" changing()
 )
 
 play.Project.playScalaSettings

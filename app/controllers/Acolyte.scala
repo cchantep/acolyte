@@ -13,8 +13,11 @@ import play.api.data.Forms.{ mapping, nonEmptyText, optional, text }
 
 import play.api.libs.json.{ Json, JsResult, JsValue, Reads, Writes }
 
-import acolyte.Acolyte.{ connection ⇒ AcolyteConnection, handleStatement }
-import acolyte.{
+import acolyte.jdbc.AcolyteDSL.{ 
+  connection ⇒ AcolyteConnection, 
+  handleStatement 
+}
+import acolyte.jdbc.{
   DefinedParameter,
   Execution,
   ExecutedStatement,
@@ -67,22 +70,22 @@ object Acolyte extends Controller {
   // ---
 
   @inline
-  private def queryResult(res: QueryResult): Either[String, acolyte.QueryResult] = res match {
-    case QueryError(msg) ⇒ Right(acolyte.QueryResult.Nil withWarning msg)
+  private def queryResult(res: QueryResult): Either[String, acolyte.jdbc.QueryResult] = res match {
+    case QueryError(msg) ⇒ Right(acolyte.jdbc.QueryResult.Nil withWarning msg)
     case RowResult(rows) ⇒ Right(rows.asResult)
     case _               ⇒ Left(s"Unexpected query result: $res")
   }
 
   @inline
-  private def updateResult(res: UpdateResult): Either[String, acolyte.UpdateResult] = res match {
+  private def updateResult(res: UpdateResult): Either[String, acolyte.jdbc.UpdateResult] = res match {
     case UpdateError(msg) ⇒
-      Right(acolyte.UpdateResult.Nothing withWarning msg)
-    case UpdateCount(c) ⇒ Right(new acolyte.UpdateResult(c))
+      Right(acolyte.jdbc.UpdateResult.Nothing withWarning msg)
+    case UpdateCount(c) ⇒ Right(new acolyte.jdbc.UpdateResult(c))
     case _              ⇒ Left(s"Unexpected update result: $res")
   }
 
-  type QueryHandler = PartialFunction[QueryExecution, acolyte.QueryResult]
-  type UpdateHandler = PartialFunction[UpdateExecution, acolyte.UpdateResult]
+  type QueryHandler = PartialFunction[QueryExecution, acolyte.jdbc.QueryResult]
+  type UpdateHandler = PartialFunction[UpdateExecution, acolyte.jdbc.UpdateResult]
 
   case class HandlerData(queryPatterns: Seq[String] = Nil,
     queryHandler: Option[QueryHandler] = None,

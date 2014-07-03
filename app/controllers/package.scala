@@ -3,9 +3,9 @@ import java.util.Date
 import play.api.libs.json.{ Reads, __ }
 import play.api.libs.functional.syntax._
 
-import acolyte.Implicits._
-import acolyte.{ RowList, RowList1 }
-import acolyte.RowLists.{ rowList1, rowList2, rowList3 }
+import acolyte.jdbc.Implicits._
+import acolyte.jdbc.{ RowList, RowList1 }
+import acolyte.jdbc.RowLists.{ rowList1, rowList2, rowList3 }
 
 package object controllers {
   sealed trait RouteParameter
@@ -33,7 +33,7 @@ package object controllers {
   sealed trait QueryResult extends Result
   case class QueryError(message: String) extends QueryResult
   case class ResultColumn(typ: Class[_], name: String)
-  case class RowResult(rows: RowList[_ <: acolyte.Row]) extends QueryResult
+  case class RowResult(rows: RowList[_ <: acolyte.jdbc.Row]) extends QueryResult
 
   val TextCol = classOf[String]
   val NumberCol = classOf[Float]
