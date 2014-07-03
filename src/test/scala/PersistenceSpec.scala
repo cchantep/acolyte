@@ -1,7 +1,7 @@
-import acolyte.QueryResult
-import acolyte.RowLists.rowList3
-import acolyte.Acolyte.withQueryResult
-import acolyte.Implicits._
+import acolyte.jdbc.QueryResult
+import acolyte.jdbc.RowLists.rowList3
+import acolyte.jdbc.AcolyteDSL.withQueryResult
+import acolyte.jdbc.Implicits._
 
 object PersistenceSpec extends org.specs2.mutable.Specification {
   "Persistence" title
