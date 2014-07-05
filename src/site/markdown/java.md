@@ -6,17 +6,6 @@ With Maven 2/3+, its dependency can be resolved in the following way:
 
 ```xml
 <!-- ... -->
-
-  <repositories>
-    <!-- ... -->
-    <repository>
-      <!-- Optional: Get Acolyte release quicker than Maven Central repo -->
-      <id>applicius-releases</id>
-      <name>Applicius Maven2 Snapshots Repository</name>
-      <url>https://raw.github.com/applicius/mvn-repo/master/releases/</url>
-    </repository>
-  </repositories>
-
   <dependencies>
     <!-- ... -->
     <dependency>
@@ -25,7 +14,6 @@ With Maven 2/3+, its dependency can be resolved in the following way:
       <version>VERSION</version>
     </dependency>
   </dependencies>
-
 ```
 
 Then code could be:

@@ -5,9 +5,6 @@ Module `jdbc-scala` provides a Scala DSL to use more friendily Acolyte features.
 Using SBT, Acolyte dependency can resolved as following:
 
 ```scala
-resolvers += 
-  "Applicius Snapshots" at "https://raw.github.com/applicius/mvn-repo/master/snapshots/"
-
 libraryDependencies += "org.eu.acolyte" %% "jdbc-scala" % "VERSION" % "test"
 ```
 
