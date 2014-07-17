@@ -41,8 +41,10 @@ class AcolytePlugin(val global: Global) extends Plugin {
         Block,
         Bind,
         CaseDef,
+        Constant,
         DefDef,
         Ident,
+        Literal,
         Match,
         Position,
         Tree,
@@ -106,15 +108,16 @@ class AcolytePlugin(val global: Global) extends Plugin {
               (x.headOption, x.tail) match {
                 case (Some(xt @ Apply(ex, xa)), bs) ⇒ {
                   val xpo: Option[List[Tree]] = bs.headOption match {
-                    case Some(Apply(_, ua))    ⇒ Some(ua)
-                    case Some(bn @ Bind(_, _)) ⇒ Some(bn :: Nil)
-                    case Some(id @ Ident(_))   ⇒ Some(id :: Nil)
-                    case None                  ⇒ Some(Nil)
-                    case _                     ⇒ None
+                    case Some(Apply(_, ua))              ⇒ Some(ua)
+                    case Some(bn @ Bind(_, _))           ⇒ Some(bn :: Nil)
+                    case Some(id @ Ident(_))             ⇒ Some(id :: Nil)
+                    case Some(li @ Literal(Constant(_))) ⇒ Some(li :: Nil)
+                    case None                            ⇒ Some(Nil)
+                    case _                               ⇒ None
                   }
 
                   xpo.fold({
-                    reporter.error(oa.pos, "Invalid ~ pattern")
+                    reporter.error(oa.pos, s"""Invalid ~ pattern: ${bs.headOption.fold("None")(global.showRaw(_))}""")
                     //abort("Invalid ~ pattern")
                     oa
                   }) { xp ⇒

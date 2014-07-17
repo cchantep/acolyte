@@ -39,6 +39,15 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
         patternMatching("123;xyz") aka "matching" mustEqual List(
           "123;xyz", "xyz", "123")
       }
+
+      """rich match with literal: ~(Regex(re), "literal")""" in {
+        patternMatching("# magic: stop 1").
+          aka("matching") mustEqual List("Literal: # magic: stop 1")
+      }
+
+      """not rich match with literal: ~(Regex(re), "literal")""" in {
+        patternMatching("# magic: start") aka "matching" mustEqual Nil
+      }
     }
   }
 
@@ -77,6 +86,15 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
         recursivePatternMatching("123;xyz") aka "matching" mustEqual List(
           "123;xyz", "xyz", "123")
       }
+
+      """rich match with literal: ~(Regex(re), "literal")""" in {
+        recursivePatternMatching("# magic: stop 2").
+          aka("matching") mustEqual List("Literal: # magic: stop 2")
+      }
+
+      """not rich match with literal: ~(Regex(re), "literal")""" in {
+        recursivePatternMatching("# magic: start") aka "matching" mustEqual Nil
+      }
     }
   }
 
@@ -113,6 +131,16 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
       "rich match with several bindings: ~(Regex(re), (a, b))" in {
         partialFun1("123;xyz") aka "matching" mustEqual List(
           "123;xyz", "xyz", "123")
+      }
+
+      """rich match with literal: ~(Regex(re), "literal")""" in {
+        partialFun1("# magic: stop 3").
+          aka("matching") mustEqual List("Literal: # magic: stop 3")
+      }
+
+      """not rich match with literal: ~(Regex(re), "literal")""" in {
+        partialFun1("# magic: start").
+          aka("matching") must throwA[MatchError]
       }
     }
   }
@@ -151,13 +179,23 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
         partialFun2("123;xyz") aka "matching" mustEqual List(
           "123;xyz", "xyz", "123")
       }
+
+      """rich match with literal: ~(Regex(re), "literal")""" in {
+        partialFun2("# magic: stop 4").
+          aka("matching") mustEqual List("Literal: # magic: stop 4")
+      }
+
+      """not rich match with literal: ~(Regex(re), "literal")""" in {
+        partialFun2("# magic: start").
+          aka("matching") must throwA[MatchError]
+      }
     }
   }
 
   "Partial function #3 - Anonymous function" >> {
     "Basic Pattern matching" should {
       "match extractor: Integer(n)" in {
-        partialFun3(Some("456")) aka "matching" mustEqual Some(List("num-456"))
+        partialFun3(Some("456")) aka "matching" must_== Some(List("num-456"))
       }
 
       "not match" in {
@@ -167,27 +205,37 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
 
     "Extractor with unapply" should {
       "rich match without binding: ~(IntRange(5, 10))" in {
-        partialFun3(Some("7")) aka "matching" mustEqual Some(List("5-to-10"))
+        partialFun3(Some("7")) aka "matching" must_== Some(List("5-to-10"))
       }
 
       "rich match without binding: ~(IntRange(10, 20), i)" in {
-        partialFun3(Some("12")) aka "matching" mustEqual Some(List("range:12"))
+        partialFun3(Some("12")) aka "matching" must_== Some(List("range:12"))
       }
     }
 
     "Extractor with unapplySeq" should {
       "rich match without binding: ~(Regex(re))" in {
         partialFun3(Some("abc")).
-          aka("matching") mustEqual Some(List("no-binding"))
+          aka("matching") must_== Some(List("no-binding"))
       }
 
       "rich match with one binding: ~(Regex(re), a)" in {
-        partialFun3(Some("# BCD.")) aka "matching" mustEqual Some(List("BCD"))
+        partialFun3(Some("# BCD.")) aka "matching" must_== Some(List("BCD"))
       }
 
       "rich match with several bindings: ~(Regex(re), (a, b))" in {
-        partialFun3(Some("123;xyz")) aka "matching" mustEqual Some(List(
+        partialFun3(Some("123;xyz")) aka "matching" must_== Some(List(
           "123;xyz", "xyz", "123"))
+      }
+
+      """rich match with literal: ~(Regex(re), "literal")""" in {
+        partialFun3(Some("# magic: stop 5")).
+          aka("matching") must_== Some(List("Literal: # magic: stop 5"))
+      }
+
+      """not rich match with literal: ~(Regex(re), "literal")""" in {
+        partialFun3(Some("# magic: start")).
+          aka("matching") must throwA[MatchError]
       }
     }
   }
@@ -195,31 +243,34 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
 
 sealed trait PartialFunctionTest {
   val partialFun1: String ⇒ List[String] = {
-    case ~(IntRange(5, 10), _)                       ⇒ List("5-to-10")
-    case ~(IntRange(10, 20), i)                      ⇒ List(s"range:$i")
-    case Integer(n)                                  ⇒ List(s"num-$n")
-    case ~(Regex("^a.*"))                            ⇒ List("no-binding")
-    case ~(Regex("# ([A-Z]+).*"), a)                 ⇒ List(a)
-    case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b)) ⇒ List(str, b, a)
+    case ~(IntRange(5, 10), _)                         ⇒ List("5-to-10")
+    case ~(IntRange(10, 20), i)                        ⇒ List(s"range:$i")
+    case Integer(n)                                    ⇒ List(s"num-$n")
+    case ~(Regex("^a.*"))                              ⇒ List("no-binding")
+    case ~(Regex("# ([A-Z]+).*"), a)                   ⇒ List(a)
+    case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b))   ⇒ List(str, b, a)
+    case str @ ~(Regex("# magic: ([a-z]+).*"), "stop") ⇒ List(s"Literal: $str")
   }
 
   def partialFun2: String ⇒ List[String] = {
-    case ~(IntRange(5, 10), _)                       ⇒ List("5-to-10")
-    case ~(IntRange(10, 20), i)                      ⇒ List(s"range:$i")
-    case Integer(n)                                  ⇒ List(s"num-$n")
-    case ~(Regex("^a.*"))                            ⇒ List("no-binding")
-    case ~(Regex("# ([A-Z]+).*"), a)                 ⇒ List(a)
-    case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b)) ⇒ List(str, b, a)
+    case ~(IntRange(5, 10), _)                         ⇒ List("5-to-10")
+    case ~(IntRange(10, 20), i)                        ⇒ List(s"range:$i")
+    case Integer(n)                                    ⇒ List(s"num-$n")
+    case ~(Regex("^a.*"))                              ⇒ List("no-binding")
+    case ~(Regex("# ([A-Z]+).*"), a)                   ⇒ List(a)
+    case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b))   ⇒ List(str, b, a)
+    case str @ ~(Regex("# magic: ([a-z]+).*"), "stop") ⇒ List(s"Literal: $str")
   }
 
   /* Anonymous partial function */
   def partialFun3(s: Option[String]): Option[List[String]] = s map {
-    case ~(IntRange(5, 10), _)                       ⇒ List("5-to-10")
-    case ~(IntRange(10, 20), i)                      ⇒ List(s"range:$i")
-    case Integer(n)                                  ⇒ List(s"num-$n")
-    case ~(Regex("^a.*"))                            ⇒ List("no-binding")
-    case ~(Regex("# ([A-Z]+).*"), a)                 ⇒ List(a)
-    case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b)) ⇒ List(str, b, a)
+    case ~(IntRange(5, 10), _)                         ⇒ List("5-to-10")
+    case ~(IntRange(10, 20), i)                        ⇒ List(s"range:$i")
+    case Integer(n)                                    ⇒ List(s"num-$n")
+    case ~(Regex("^a.*"))                              ⇒ List("no-binding")
+    case ~(Regex("# ([A-Z]+).*"), a)                   ⇒ List(a)
+    case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b))   ⇒ List(str, b, a)
+    case str @ ~(Regex("# magic: ([a-z]+).*"), "stop") ⇒ List(s"Literal: $str")
   }
 }
 
@@ -231,6 +282,7 @@ sealed trait MatchTest {
     case ~(Regex("^a.*")) ⇒ List("no-binding")
     case ~(Regex("# ([A-Z]+).*"), a) ⇒ List(a)
     case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b)) ⇒ List(str, b, a)
+    case str @ ~(Regex("# magic: ([a-z]+).*"), "stop") ⇒ List(s"Literal: $str")
     case x ⇒ Nil
   }
 
@@ -242,6 +294,7 @@ sealed trait MatchTest {
       case ~(Regex("^a.*")) ⇒ List("no-binding")
       case ~(Regex("# ([A-Z]+).*"), a) ⇒ List(a)
       case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b)) ⇒ List(str, b, a)
+      case str @ ~(Regex("# magic: ([a-z]+).*"), "stop") ⇒ List(s"Literal: $str")
       case x ⇒ Nil
     }
   }
