@@ -24,15 +24,13 @@ trait JdbcDriver { deps: Dependencies ⇒
     val lim = letter.size
 
     val rows: Seq[java.io.File] = for (n ← 2 to lim) yield {
-      val f = outdir / "Row%d.java".format(n)
+      val f = outdir / s"Row$n.java"
       IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w ⇒
         val cp = for (i ← 0 until n) yield letter(i)
-        val ps = for (i ← 0 until n) yield {
-          "public final %s _%d;".format(letter(i), i)
-        }
-        val ip = for (i ← 0 until n) yield "final %s c%d".format(letter(i), i)
-        val as = for (i ← 0 until n) yield "this._%d = c%d;".format(i, i)
-        val rp = for (i ← 0 until n) yield "cs.add(this._%d);".format(i)
+        val ps = for (i ← 0 until n) yield s"public final ${letter(i)} _$i;"
+        val ip = for (i ← 0 until n) yield s"final ${letter(i)} c$i"
+        val as = for (i ← 0 until n) yield s"this._$i = c$i;"
+        val rp = for (i ← 0 until n) yield s"cs.add(this._$i);"
         val na = for (i ← 0 until n) yield "null"
 
         val sp = for (i ← 0 until n) yield """/**
@@ -42,10 +40,10 @@ trait JdbcDriver { deps: Dependencies ⇒
      */
     public Row%s<%s> set%d(final %s value) {
       return new Row%s<%s>(%s);
-    }""".format(i + 1, n, cp.mkString(","), i + 1, letter(i), n, cp.mkString(","), (for (j ← 0 until n) yield { if (j == i) "value" else "this._%d".format(j) }).mkString(", "))
+    }""".format(i + 1, n, cp.mkString(","), i + 1, letter(i), n, cp.mkString(","), (for (j ← 0 until n) yield { if (j == i) "value" else s"this._$j" }).mkString(", "))
 
-        val hc = for (i ← 0 until n) yield "append(this._%d)".format(i)
-        val eq = for (i ← 0 until n) yield "append(this._%d, other._%d)".format(i, i)
+        val hc = for (i ← 0 until n) yield s"append(this._$i)"
+        val eq = for (i ← 0 until n) yield s"append(this._$i, other._$i)"
 
         // Generate by substitution on each line of template
         IO.reader[Unit](rowTmpl) { r ⇒
@@ -111,43 +109,40 @@ public final class Rows {""".format(pkg,
 
     val listTmpl = basedir / "src" / "main" / "templates" / "RowList.tmpl"
     val rowLists: Seq[java.io.File] = for (n ← 1 to lim) yield {
-      val f = outdir / "RowList%d.java".format(n)
+      val f = outdir / s"RowList$n.java"
       val cp = for (i ← 0 until n) yield letter(i)
-      val cs = for (i ← 0 until n) yield {
-        "final Class<%s> c%d".format(letter(i), i)
-      }
+      val cs = for (i ← 0 until n) yield s"final Class<${letter(i)}> c$i"
       val ic = for (i ← 0 until n) yield {
-        """if (c%d == null) {
-                throw new IllegalArgumentException("Invalid class for column #%d");
-            }""".format(i, i)
+        s"""if (c$i == null) {
+                throw new IllegalArgumentException("Invalid class for column #$i");
+            }"""
       }
       val ac = for (i ← 0 until n) yield {
-        """this._c%d = c%d;
-            colClasses.add(this._c%d);""".format(i, i, i)
+        s"""this._c$i = c$i;
+            colClasses.add(this._c$i);"""
       }
-      val ca = for (i ← 0 until n) yield "c%d".format(i)
-      val ap = cp map { l ⇒ "final %s %s".format(l, l.toLowerCase) }
+      val ca = for (i ← 0 until n) yield s"c$i"
+      val ap = cp map { l ⇒ s"final $l ${l.toLowerCase}" }
       val ps = for (i ← 0 until n) yield {
-        """/**
-         * Class of column #%d
+        s"""/**
+         * Class of column #$i
          */
-        final Class<%s> _c%d;""".format(i, letter(i), i)
+        final Class<${letter(i)}> _c$i;"""
       }
       val ags = for (i ← 0 until n) yield {
-        """/**
-     * Returns class of column #%d.
+        s"""/**
+     * Returns class of column #$i.
      */
-    public abstract Class<%s> c%d();""".format(i, letter(i), i)
+    public abstract Class<${letter(i)}> c$i();"""
       }
-      val gc = for (i ← 0 until n) yield "c%d()".format(i)
+      val gc = for (i ← 0 until n) yield s"c$i()"
       val gs = for (i ← 0 until n) yield {
-        """/**
+        s"""/**
          * {inheritDoc}
          */
-        public Class<%s> c%d() { return this._c%d; }""".
-          format(letter(i), i, i)
+        public Class<${letter(i)}> c$i() { return this._c$i; }"""
       }
-      val psc = for (i ← 0 until n) yield "_c%d".format(i)
+      val psc = for (i ← 0 until n) yield s"_c$i"
 
       IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w ⇒
         // Generate by substitution on each line of template
@@ -183,19 +178,12 @@ public final class Rows {""".format(pkg,
       IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w ⇒
         val funcs = (1 to lim).foldLeft(Nil: List[String]) { (l, n) ⇒
           val g = for (i ← 0 until n) yield letter(i)
-          val ps = for (i ← 0 until n) yield {
-            "final Class<%s> _c%d".format(letter(i), i)
-          }
-          val cs = for (i ← 0 until n) yield {
-            "final Column<%s> _c%d".format(letter(i), i)
-          }
-          val as = for (i ← 0 until n) yield "_c%d".format(i)
-          val ls = for (i ← 0 until n) yield {
-            "withLabel(%d, _c%d.name)".format(i + 1, i)
-          }
-          val ns = for (i ← 0 until n) yield {
-            "withNullable(%d, _c%d.nullable)".format(i + 1, i)
-          }
+          val ps = for (i ← 0 until n) yield s"final Class<${letter(i)}> _c$i"
+          val cs = for (i ← 0 until n) yield s"final Column<${letter(i)}> _c$i"
+          val as = for (i ← 0 until n) yield s"_c$i"
+          val ls = for (i ← 0 until n) yield s"withLabel(${i+1}, _c$i.name)"
+          val ns = for (i ← 0 until n) yield (
+            s"withNullable(${i+1}, _c$i.nullable)")
           val gp = g.mkString(",")
 
           l :+ """
