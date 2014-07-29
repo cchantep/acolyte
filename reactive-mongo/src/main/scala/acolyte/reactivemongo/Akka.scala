@@ -1,6 +1,8 @@
 package acolyte.reactivemongo
 
-import scala.concurrent.ExecutionContext
+import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.{ ExecutionContext, Future }
+
 import com.typesafe.config.Config
 import akka.actor.{ ActorRef, ActorSystem ⇒ AkkaSystem, Props }
 
@@ -10,12 +12,8 @@ import reactivemongo.core.actors.{
   CheckedWriteRequestExpectingResponse,
   RequestMakerExpectingResponse
 }
-import reactivemongo.core.protocol.{ Query, RequestMaker }
-import reactivemongo.bson.buffer.{
-  ArrayReadableBuffer,
-  DefaultBufferHandler,
-  ReadableBuffer
-}
+import reactivemongo.core.protocol.{ Query, Request, RequestMaker, RequestOp }
+import reactivemongo.bson.buffer.ArrayReadableBuffer
 
 /** Akka companion for Acolyte mongo system. */
 private[reactivemongo] object Akka {
@@ -56,15 +54,26 @@ final class Actor(then: ActorRef) extends akka.actor.Actor {
     case msg @ CheckedWriteRequestExpectingResponse(req) ⇒
       println(s"wreq = $req")
       then forward msg
-    case msg @ RequestMakerExpectingResponse(RequestMaker(Query(_ /*flags*/ , coln, off, len), doc, _ /*pref*/ , _ /*channelId*/ )) ⇒
+
+    case msg @ RequestMakerExpectingResponse(RequestMaker(op @ Query(_ /*flags*/ , coln, off, len), doc, _ /*pref*/ , chanId)) ⇒
+      val exp = new ExpectingResponse(msg)
+
+      // Decode intercepted message
+      import reactivemongo.bson.buffer.DefaultBufferHandler
       val readable = ArrayReadableBuffer(go(doc.merged))
       val bson = DefaultBufferHandler.readDocument(readable)
-
       println(s"""expecting = Query($coln, $off, $len), [${bson.map(_.elements)}]""")
-      then forward msg
-    case close @ Close ⇒ /* Do nothing */ then forward close
+
+      import reactivemongo.bson.BSONDocument
+
+      val bsonObj1 = BSONDocument("email" -> "test1@test.fr", "age" -> 3)
+      val bsonObj2 = BSONDocument("email" -> "test2@test.fr", "age" -> 5)
+
+      exp.promise.success(MongoDB.mkResponse(chanId getOrElse 1, bsonObj1, bsonObj2).get)
+
+    case close @ Close ⇒ /* Do nothing: then forward close */
     case msg ⇒
       println(s"message = $msg")
-      then forward msg
+    //then forward msg
   }
 }

@@ -2,8 +2,13 @@ import sbt._
 import Keys._
 
 trait ReactiveMongo { deps: Dependencies ⇒
+  val reactiveMongoVer = settingKey[String]("Reactive Mongo version")
+
   // Shared dependency
-  val reactiveMongoLib = "org.reactivemongo" %% "reactivemongo" % "0.10.0"
+  val reactiveMongoLib = "org.reactivemongo" %% "reactivemongo"
+  val reactiveResolvers = Seq(
+    "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/releases/",
+    "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/")
 
   private lazy val reactiveMongoGen =
     Project(id = "reactive-mongo-sbt", 
@@ -12,10 +17,14 @@ trait ReactiveMongo { deps: Dependencies ⇒
       javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
       autoScalaLibrary := false,
       scalacOptions += "-feature",
-      resolvers += 
-        "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/releases/",
+      resolvers ++= reactiveResolvers,
+      reactiveMongoVer in ThisBuild := {
+        if (scalaVersion.value startsWith "2.11") "0.10.5.akka23-SNAPSHOT"
+        else "0.10.0"
+      },
       libraryDependencies ++= Seq(
-        reactiveMongoLib, "org.javassist" % "javassist" % "3.18.2-GA")
+        reactiveMongoLib % reactiveMongoVer.value, 
+        "org.javassist" % "javassist" % "3.18.2-GA")
     )
 
   lazy val generatedClassDirectory = settingKey[File](
@@ -29,9 +38,11 @@ trait ReactiveMongo { deps: Dependencies ⇒
       javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
       autoScalaLibrary := false,
       scalacOptions += "-feature",
-      resolvers += 
-        "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/releases/",
-      libraryDependencies ++= Seq(reactiveMongoLib, specs2Test),
+      resolvers ++= reactiveResolvers,
+      libraryDependencies ++= Seq(
+        reactiveMongoLib % reactiveMongoVer.value, 
+        "com.jsuereth" %% "scala-arm" % "1.4",
+        specs2Test),
       generatedClassDirectory := {
         val dir = target.value / "generated_classes"
         if (!dir.exists) dir.mkdirs()

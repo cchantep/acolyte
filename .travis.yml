@@ -4,4 +4,4 @@ jdk:
 env: JAVA_OPTS="-Xms32m -Xmx128m"
 scala:
    - 2.10.4
-   - 2.11.0
+   - 2.11.2
