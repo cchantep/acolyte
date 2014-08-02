@@ -368,7 +368,7 @@ public abstract class RowList<R extends Row> {
         public boolean wasNull() throws SQLException {
             checkClosed();
 
-            return (this.last != null);
+            return (this.last == null);
         } // end of wasNull
 
         /**
