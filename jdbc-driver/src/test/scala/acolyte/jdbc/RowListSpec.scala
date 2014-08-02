@@ -1,5 +1,7 @@
 package acolyte.jdbc
 
+import java.io.ByteArrayInputStream
+
 import java.math.{ BigDecimal ⇒ JBigDec }
 
 import java.util.ArrayList
@@ -14,6 +16,8 @@ import java.sql.{
 }
 
 import org.specs2.mutable.Specification
+
+import org.apache.commons.io.IOUtils.contentEquals
 
 import acolyte.jdbc.Rows.{ row1, row2 }
 import acolyte.jdbc.RowList.{ Column ⇒ Col }
@@ -300,7 +304,7 @@ object RowListSpec extends Specification with RowListTest {
     "accept string value" in {
       val rs = RowLists.stringList.append("strval").resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 1).
+      (rs.getFetchSize aka "size" must_== 1).
         and(rs.next aka "has row" must beTrue).
         and(rs.getString(1) aka "single col" mustEqual "strval")
     }
@@ -318,10 +322,64 @@ object RowListSpec extends Specification with RowListTest {
 
     }
 
+    "accept binary value" in {
+      val bytes = Array[Byte](11, 100, 9)
+      val rs = RowLists.binaryList.append(bytes).resultSet
+      def stream = new ByteArrayInputStream(bytes)
+
+      (rs.getFetchSize aka "size" must_== 1) and (
+        rs.next aka "has row" must beTrue) and (
+          rs.getBytes(1) aka "single byte array" must_== bytes) and (
+            contentEquals(rs.getBlob(1).getBinaryStream, stream).
+            aka("expected blob") must beTrue) and (
+              contentEquals(rs.getBinaryStream(1), stream).
+              aka("single stream") must beTrue)
+    }
+
+    "be created with initial binary values" in {
+      val (a, b) = (Array[Byte](1) -> Array[Byte](2))
+      val rs = RowLists.binaryList(a, b).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 2).
+        and(rs.next aka "has row #1" must beTrue).
+        and(rs.getBytes(1) aka "single col #1" must_== a).
+        and(rs.next aka "has row #2" must beTrue).
+        and(rs.getBytes(1) aka "single col #2" must_== b)
+
+    }
+
+    "accept blob value" in {
+      val bytes = Array[Byte](3, 7, 11)
+      val blob = new Blob(bytes)
+      def stream = new ByteArrayInputStream(bytes)
+      val rs = RowLists.blobList.append(blob).resultSet
+
+      (rs.getFetchSize aka "size" must_== 1) and (
+        rs.next aka "has row" must beTrue) and (
+          rs.getBlob(1) aka "single blob" must_== blob) and (
+            rs.getBytes(1) aka "single byte array" must_== bytes) and (
+              contentEquals(stream, rs.getBinaryStream(1)).
+              aka("single stream") must beTrue)
+    }
+
+    "be created with initial blob values" in {
+      val (a, b) = (Blob.Nil -> Blob.Nil)
+      b.setBytes(0, Array[Byte](1, 2, 3))
+
+      val rs = RowLists.blobList(a, b).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 2).
+        and(rs.next aka "has row #1" must beTrue).
+        and(rs.getBlob(1) aka "single col #1" must_== a).
+        and(rs.next aka "has row #2" must beTrue).
+        and(rs.getBlob(1) aka "single col #2" must_== b)
+
+    }
+
     "accept boolean value" in {
       val rs = RowLists.booleanList.append(false).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 1).
+      (rs.getFetchSize aka "size" must_== 1).
         and(rs.next aka "has row" must beTrue).
         and(rs.getBoolean(1) aka "single col" must beFalse)
     }
@@ -342,7 +400,7 @@ object RowListSpec extends Specification with RowListTest {
     "accept byte value" in {
       val rs = RowLists.byteList.append(2.toByte).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 1).
+      (rs.getFetchSize aka "size" must_== 1).
         and(rs.next aka "has row" must beTrue).
         and(rs.getByte(1) aka "single col" mustEqual 2)
     }
@@ -363,7 +421,7 @@ object RowListSpec extends Specification with RowListTest {
     "accept short value" in {
       val rs = RowLists.shortList.append(3.toShort).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 1).
+      (rs.getFetchSize aka "size" must_== 1).
         and(rs.next aka "has row" must beTrue).
         and(rs.getShort(1) aka "single col" mustEqual 3)
     }
@@ -384,7 +442,7 @@ object RowListSpec extends Specification with RowListTest {
     "accept int value" in {
       val rs = RowLists.intList.append(4).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 1).
+      (rs.getFetchSize aka "size" must_== 1).
         and(rs.next aka "has row" must beTrue).
         and(rs.getInt(1) aka "single col" mustEqual 4)
     }
@@ -402,10 +460,40 @@ object RowListSpec extends Specification with RowListTest {
 
     }
 
+    "accept stream value" in {
+      val bytes = Array[Byte](3, 5, 7)
+      def stream = new ByteArrayInputStream(bytes)
+      val rs = RowLists.streamList.append(stream).resultSet
+
+      rs.getFetchSize aka "size" must_== 1 and (
+        rs.next aka "has row" must beTrue) and (
+          contentEquals(rs.getBinaryStream(1), stream).
+          aka("expected stream") must beTrue) and (
+            rs.getBytes(1) aka "single col bytes" must_== bytes) and (
+              contentEquals(rs.getBlob(1).getBinaryStream, stream)
+              aka ("expected blob") must beTrue)
+    }
+
+    "be created with initial stream values" in {
+      val a = new ByteArrayInputStream(Array[Byte](3, 5, 7))
+      val b = new ByteArrayInputStream(Array[Byte](5, 7, 8))
+      val c = new ByteArrayInputStream(Array[Byte](3, 9, 10))
+      val rs = RowLists.streamList(a, b, c).resultSet
+
+      (rs.getFetchSize aka "size" mustEqual 3).
+        and(rs.next aka "has row #1" must beTrue).
+        and(rs.getBinaryStream(1) aka "single col #1" mustEqual a).
+        and(rs.next aka "has row #2" must beTrue).
+        and(rs.getBinaryStream(1) aka "single col #2" mustEqual b).
+        and(rs.next aka "has row #3" must beTrue).
+        and(rs.getBinaryStream(1) aka "single col #3" mustEqual c)
+
+    }
+
     "accept long value" in {
       val rs = RowLists.longList.append(5l).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 1).
+      (rs.getFetchSize aka "size" must_== 1).
         and(rs.next aka "has row" must beTrue).
         and(rs.getLong(1) aka "single col" mustEqual 5l)
     }
@@ -426,7 +514,7 @@ object RowListSpec extends Specification with RowListTest {
     "accept float value" in {
       val rs = RowLists.floatList.append(6.7f).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 1).
+      (rs.getFetchSize aka "size" must_== 1).
         and(rs.next aka "has row" must beTrue).
         and(rs.getFloat(1) aka "single col" mustEqual 6.7f)
     }
@@ -447,7 +535,7 @@ object RowListSpec extends Specification with RowListTest {
     "accept double value" in {
       val rs = RowLists.doubleList.append(7.89d).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 1).
+      (rs.getFetchSize aka "size" must_== 1).
         and(rs.next aka "has row" must beTrue).
         and(rs.getDouble(1) aka "single col" mustEqual 7.89d)
     }
@@ -469,7 +557,7 @@ object RowListSpec extends Specification with RowListTest {
       val bigdec = new java.math.BigDecimal(1.234)
       val rs = RowLists.bigDecimalList.append(bigdec).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 1).
+      (rs.getFetchSize aka "size" must_== 1).
         and(rs.next aka "has row" must beTrue).
         and(rs.getBigDecimal(1) aka "single col" mustEqual bigdec)
     }
@@ -496,7 +584,7 @@ object RowListSpec extends Specification with RowListTest {
       val d = new java.sql.Date(1, 2, 3)
       val rs = RowLists.dateList.append(d).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 1).
+      (rs.getFetchSize aka "size" must_== 1).
         and(rs.next aka "has row" must beTrue).
         and(rs.getDate(1) aka "single col" mustEqual d)
     }
@@ -523,7 +611,7 @@ object RowListSpec extends Specification with RowListTest {
       val t = new java.sql.Time(4, 5, 6)
       val rs = RowLists.timeList.append(t).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 1).
+      (rs.getFetchSize aka "size" must_== 1).
         and(rs.next aka "has row" must beTrue).
         and(rs.getTime(1) aka "single col" mustEqual t)
     }
@@ -550,7 +638,7 @@ object RowListSpec extends Specification with RowListTest {
       val ts = new java.sql.Timestamp(1234l)
       val rs = RowLists.timestampList.append(ts).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 1).
+      (rs.getFetchSize aka "size" must_== 1).
         and(rs.next aka "has row" must beTrue).
         and(rs.getTimestamp(1) aka "single col" mustEqual ts)
     }
@@ -583,10 +671,10 @@ object RowListSpec extends Specification with RowListTest {
 
     "be 1" in {
       (new RowList1.Impl(classOf[String]).append(row1("str")).
-        resultSet.getFetchSize aka "size" mustEqual 1).
+        resultSet.getFetchSize aka "size" must_== 1).
         and(new RowList2.Impl(classOf[String], classOf[Float]).
           append(row2("str", 1.23.toFloat)).
-          resultSet.getFetchSize aka "size" mustEqual 1)
+          resultSet.getFetchSize aka "size" must_== 1)
 
     }
 

@@ -516,9 +516,17 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
     }
 
     "not be created for binary" in {
-      defaultCon.createBlob.
-        aka("create blob") must throwA[SQLFeatureNotSupportedException]
+      val data = s"test:${System identityHashCode this}".getBytes("UTF-8")
 
+      Option(defaultCon.createBlob) aka "create blob" must beSome.which { b ⇒
+        b.length aka "initial size" must_== 0 and (
+          b.setBytes(0, data) aka "setting bytes #1" must_== data.length) and (
+            b.length aka "updated size" must_== data.length) and (
+              b.setBytes(2, "test".getBytes("UTF-8"), 1, 3).
+              aka("setting bytes #2") must_== 3) and (
+                b.length aka "overriden size" must_== data.length)
+
+      }
     }
 
     "not be created for national characters" in {

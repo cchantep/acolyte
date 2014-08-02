@@ -1,5 +1,9 @@
 package acolyte.jdbc;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.IOException;
+
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -18,8 +22,12 @@ import java.sql.Array;
 import java.sql.Date;
 import java.sql.Time;
 
+import javax.sql.rowset.serial.SerialBlob;
+
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+
+import org.apache.commons.io.IOUtils;
 
 /**
  * Type-safe list of row.
@@ -569,6 +577,36 @@ public abstract class RowList<R extends Row> {
         /**
          * {@inheritDoc}
          */
+        public java.sql.Blob getBlob(final int columnIndex) 
+            throws SQLException {
+
+            final Object val = getObject(columnIndex);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            return convert(val, java.sql.Blob.class);
+        } // end of getBlob
+
+        /**
+         * {@inheritDoc}
+         */
+        public java.sql.Blob getBlob(final String columnLabel) 
+            throws SQLException {
+
+            final Object val = getObject(columnLabel);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            return convert(val, Blob.class);
+        } // end of getBlob
+
+        /**
+         * {@inheritDoc}
+         */
         public boolean getBoolean(final int columnIndex) throws SQLException {
             final Object val = getObject(columnIndex);
 
@@ -637,6 +675,32 @@ public abstract class RowList<R extends Row> {
 
             return -1;
         } // end of getByte
+
+        /**
+         * {@inheritDoc}
+         */
+        public byte[] getBytes(final int columnIndex) throws SQLException {
+            final Object val = getObject(columnIndex);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            return convert(val, byte[].class);
+        } // end of getBytes
+
+        /**
+         * {@inheritDoc}
+         */
+        public byte[] getBytes(final String columnLabel) throws SQLException {
+            final Object val = getObject(columnLabel);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            return convert(val, byte[].class);
+        } // end of getBytes
 
         /**
          * {@inheritDoc}
@@ -919,6 +983,48 @@ public abstract class RowList<R extends Row> {
         /**
          * {@inheritDoc}
          */
+        public InputStream getBinaryStream(final int columnIndex) 
+            throws SQLException {
+
+            final Object val = getObject(columnIndex);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            // ---
+
+            try {
+                return convert(val, InputStream.class);
+            } catch (SQLException e) {
+                throw new SQLException("Not an BinaryStream: " + columnIndex);
+            } // end of catch
+        } // end of getBinaryStream
+        
+        /**
+         * {@inheritDoc}
+         */
+        public InputStream getBinaryStream(final String columnLabel) 
+            throws SQLException {
+
+            final Object val = getObject(columnLabel);
+
+            if (val == null) {
+                return null;
+            } // end of if
+
+            // ---
+
+            try {
+                return convert(val, InputStream.class);
+            } catch (SQLException e) {
+                throw new SQLException("Not an BinaryStream: " + columnLabel);
+            } // end of catch
+        } // end of getBinaryStream
+
+        /**
+         * {@inheritDoc}
+         */
         public Date getDate(final int columnIndex) throws SQLException {
             final Object val = getObject(columnIndex);
 
@@ -1194,6 +1300,16 @@ public abstract class RowList<R extends Row> {
                 throw new SQLException("Fails to convert array");
             } // end of if
 
+            if (byte[].class.equals(type)) return (T) getBytes(val);
+
+            if (java.sql.Blob.class.isAssignableFrom(type)) {
+                return (T) getBlob(val);
+            } // end of if
+
+            if (InputStream.class.isAssignableFrom(type)) {
+                return (T) getBinaryStream(val);
+            } // end of if
+
             throw new SQLException("Incompatible type: " + type + ", " + clazz);
         } // end of convert
 
@@ -1211,6 +1327,72 @@ public abstract class RowList<R extends Row> {
                 
             return new RowListMetaData();
         } // end of getMetaData
+
+        /**
+         * Tries to get bytes from raw |value|.
+         */
+        private byte[] getBytes(final Object value) throws SQLException {
+            if (value instanceof byte[]) return (byte[]) value;
+
+            if (value instanceof InputStream) {
+                try {
+                    final InputStream in = (InputStream) value;
+                    if (in.markSupported()) in.reset();
+
+                    return IOUtils.toByteArray(in);
+                } catch (IOException e) {
+                    throw new SQLException("Fails to get stream bytes", e);
+                } // end of catch
+            } // end of if
+
+            if (value instanceof Blob) {
+                InputStream in = null;
+
+                try {
+                    in = ((java.sql.Blob) value).getBinaryStream();
+
+                    return IOUtils.toByteArray(in);
+                } catch (Exception e) {
+                    throw new SQLException("Fails to read BLOB content", e);
+                } finally {
+                    IOUtils.closeQuietly(in);
+                } // end of finally
+            } // end of if
+
+            throw new SQLException("Cannot get bytes: " + value);
+        } // end of getBytes
+
+        /**
+         * Tries to get binary stream from raw |value|.
+         */
+        private InputStream getBinaryStream(final Object value)
+            throws SQLException {
+
+            if (value instanceof InputStream) return (InputStream) value;
+
+            if (value instanceof byte[]) {
+                return new ByteArrayInputStream((byte[]) value);
+            } // end of if
+
+            if (value instanceof Blob) {
+                return ((java.sql.Blob) value).getBinaryStream();
+            } // end of if
+
+            throw new SQLException("Cannot get binary stream: " + value);
+        } // end of getBinaryStream
+
+        /**
+         * Tries to get BLOB from raw |value|.
+         */
+        public java.sql.Blob getBlob(final Object value) throws SQLException {
+            if (value instanceof java.sql.Blob) return (java.sql.Blob) value;
+
+            if (value instanceof byte[]) {
+                return new SerialBlob((byte[]) value);
+            } // end of if
+
+            return new SerialBlob(getBytes(value));
+        } // end of getBlob
     } // end of class RowResultSet
 
     /**

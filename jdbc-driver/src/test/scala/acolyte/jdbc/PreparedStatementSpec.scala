@@ -2,6 +2,8 @@ package acolyte.jdbc
 
 import java.util.{ Properties, TimeZone }
 
+import java.io.{ ByteArrayInputStream, InputStream }
+
 import java.sql.{
   BatchUpdateException,
   SQLException,
@@ -11,6 +13,8 @@ import java.sql.{
 import java.sql.Statement.EXECUTE_FAILED
 
 import org.specs2.mutable.Specification
+
+import org.apache.commons.io.IOUtils.contentEquals
 
 import acolyte.jdbc.StatementHandler.Parameter
 import acolyte.jdbc.test.{ EmptyConnectionHandler, Params }
@@ -53,11 +57,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
         aka("setter") must throwA[SQLFeatureNotSupportedException]).
         and(statement().setUnicodeStream(0, null, 1).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
-        and(statement().setBinaryStream(0, null, 1).
-          aka("setter") must throwA[SQLFeatureNotSupportedException]).
         and(statement().setRef(0, null).
-          aka("setter") must throwA[SQLFeatureNotSupportedException]).
-        and(statement().setBlob(0, null.asInstanceOf[java.sql.Blob]).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
         and(statement().setClob(0, null.asInstanceOf[java.sql.Clob]).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
@@ -75,15 +75,11 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
         and(statement().setClob(0, null, 1.toLong).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
-        and(statement().setBlob(0, null, 1.toLong).
-          aka("setter") must throwA[SQLFeatureNotSupportedException]).
         and(statement().setNClob(0, null, 1.toLong).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
         and(statement().setSQLXML(0, null).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
         and(statement().setAsciiStream(0, null, 1.toLong).
-          aka("setter") must throwA[SQLFeatureNotSupportedException]).
-        and(statement().setBinaryStream(0, null, 1.toLong).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
         and(statement().setCharacterStream(0, null, 1.toLong).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
@@ -96,8 +92,6 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
         and(statement().setNCharacterStream(0, null).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
         and(statement().setClob(0, null.asInstanceOf[java.io.Reader]).
-          aka("setter") must throwA[SQLFeatureNotSupportedException]).
-        and(statement().setBlob(0, null.asInstanceOf[java.io.InputStream]).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
         and(statement().setNClob(0, null.asInstanceOf[java.io.Reader]).
           aka("setter") must throwA[SQLFeatureNotSupportedException])
@@ -324,6 +318,71 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
         aka("SQL update") mustEqual ("TEST ?, y" -> null)).
         and(executeQuery("SELECT ? WHERE true", Types.FLOAT, null).
           aka("SQL query") mustEqual ("SELECT ? WHERE true" -> null))
+    }
+  }
+
+  "Binary Large Object" should {
+    "be set as first parameter" in {
+      lazy val s = statement()
+      s.setBlob(1, Blob.Nil)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BLOB)
+
+    }
+
+    "be set as first object with SQL type" in {
+      lazy val s = statement()
+      s.setObject(1, Blob.Nil, Types.BLOB)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BLOB)
+
+    }
+
+    "be set as first object from stream with length" in {
+      lazy val s = statement()
+      s.setBlob(1, new ByteArrayInputStream(Array[Byte](1, 3, 5)), 2)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BLOB)
+
+    }
+
+    "be set as first object with SQL type and scale" in {
+      lazy val s = statement()
+      s.setObject(1, Blob.Nil, Types.BLOB, 1)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BLOB)
+
+    }
+
+    "be set as first object without SQL type" in {
+      lazy val s = statement()
+      s.setObject(1, Blob.Nil)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BLOB)
+
+    }
+
+    "be properly prepared" in {
+      (executeUpdate("TEST ?, y", Types.BLOB, Blob.Nil).
+        aka("SQL update") mustEqual ("TEST ?, y" -> Blob.Nil)).
+        and(executeQuery("SELECT ? WHERE true", Types.BLOB, Blob.Nil).
+          aka("SQL query") mustEqual ("SELECT ? WHERE true" -> Blob.Nil))
+
     }
   }
 
@@ -928,32 +987,151 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
   }
 
   "Byte array" should {
-    "not be supported" in {
-      statement().setBytes(1, Array[Byte]()).
-        aka("setter") must throwA[SQLException]("Not supported")
+    val bindata = Array[Byte](1, 3, 7)
+    def binstream: InputStream = new ByteArrayInputStream(bindata)
+
+    "be set as first parameter" in {
+      lazy val s = statement()
+      s.setBytes(1, bindata)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BINARY)
 
     }
 
-    "not be supported passed as object (VARBINARY)" in {
-      statement().setObject(1, Array[Byte](), Types.VARBINARY).
-        aka("setter") must throwA[SQLFeatureNotSupportedException]
+    "be set as first object with type" in {
+      lazy val s = statement()
+      s.setObject(1, bindata, Types.BINARY)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BINARY)
 
     }
 
-    "not be supported passed as object with scale (VARBINARY)" in {
-      statement().setObject(1, Array[Byte](), Types.VARBINARY, 1).
-        aka("setter") must throwA[SQLFeatureNotSupportedException]
+    "be set as first object with type and length" in {
+      lazy val s = statement()
+      s.setObject(1, bindata, Types.BINARY, 2)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BINARY)
 
     }
 
-    "not be supported passed as object (LONGVARBINARY)" in {
-      statement().setObject(1, Array[Byte](), Types.LONGVARBINARY).
-        aka("setter") must throwA[SQLFeatureNotSupportedException]
+    "be set as first object without type" in {
+      lazy val s = statement()
+      s.setObject(1, bindata)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BINARY)
+
     }
 
-    "not be supported passed as untyped object" in {
-      statement().setObject(1, Array[Byte]()).
-        aka("setter") must throwA[SQLFeatureNotSupportedException]
+    "be set as first parameter from input stream" in {
+      lazy val s = statement()
+      s.setBinaryStream(1, binstream)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BINARY)
+
+    }
+
+    "be set as first parameter from input stream with integer length" in {
+      lazy val s = statement()
+      s.setBinaryStream(1, binstream, 3)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BINARY)
+
+    }
+
+    "be set as first parameter from input stream with long length" in {
+      lazy val s = statement()
+      s.setBinaryStream(1, binstream, 4L)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BINARY)
+
+    }
+
+    "be prepared" >> {
+      "when BINARY" in {
+        (executeUpdate("TEST ?, y", Types.BINARY, bindata).
+          aka("SQL update") mustEqual ("TEST ?, y" -> bindata)).
+          and(executeQuery("SELECT ? WHERE false", Types.BINARY, bindata).
+            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> bindata))
+
+      }
+
+      "when VARBINARY" in {
+        (executeUpdate("TEST ?, y", Types.VARBINARY, bindata).
+          aka("SQL update") mustEqual ("TEST ?, y" -> bindata)).
+          and(executeQuery("SELECT ? WHERE false", Types.VARBINARY, bindata).
+            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> bindata))
+
+      }
+
+      "when LONGVARBINARY" in {
+        (executeUpdate("TEST ?, y", Types.LONGVARBINARY, bindata).
+          aka("SQL update") mustEqual ("TEST ?, y" -> bindata)).
+          and(executeQuery("SELECT ? WHERE false",
+            Types.LONGVARBINARY, bindata) aka "SQL query" mustEqual (
+              "SELECT ? WHERE false" -> bindata))
+
+      }
+
+      "when BINARY as stream" in {
+        (executeUpdate("TEST ?, y", Types.BINARY, binstream).
+          aka("SQL update") must beLike {
+            case ("TEST ?, y", s) ⇒ contentEquals(binstream, s).
+              aka("same content") must beTrue
+
+          }) and (executeQuery("SELECT ? WHERE false", Types.BINARY, binstream).
+            aka("SQL query") must beLike {
+              case ("SELECT ? WHERE false", s) ⇒ contentEquals(binstream, s).
+                aka("same content") must beTrue
+            })
+
+      }
+
+      "when VARBINARY as stream" in {
+        (executeUpdate("TEST ?, y", Types.VARBINARY, binstream).
+          aka("SQL update") must beLike {
+            case ("TEST ?, y", s) ⇒ contentEquals(binstream, s).
+              aka("same content") must beTrue
+          }) and (executeQuery("SELECT ? WHERE false", Types.VARBINARY,
+            binstream).aka("SQL query") must beLike {
+              case ("SELECT ? WHERE false", s) ⇒ contentEquals(binstream, s).
+                aka("same content") must beTrue
+            })
+
+      }
+
+      "when LONGVARBINARY as stream" in {
+        (executeUpdate("TEST ?, y", Types.LONGVARBINARY, binstream).
+          aka("SQL update") must beLike {
+            case ("TEST ?, y", s) ⇒ contentEquals(binstream, s).
+              aka("same content") must beTrue
+          }) and (executeQuery("SELECT ? WHERE false",
+            Types.LONGVARBINARY, binstream) aka "SQL query" must beLike {
+              case ("SELECT ? WHERE false", s) ⇒ contentEquals(binstream, s).
+                aka("same content") must beTrue
+            })
+
+      }
     }
   }
 
@@ -964,8 +1142,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.DATE)
+      m.getParameterCount aka "count" must_== 1 and (
+        m.getParameterType(1) aka "SQL type" mustEqual Types.DATE)
 
     }
 
@@ -1256,14 +1434,6 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
     }
   }
 
-  "Object" should {
-    "not be set as parameter" in {
-      statement().setObject(1, new Object(), Types.BLOB).
-        aka("object param") must throwA[SQLFeatureNotSupportedException]
-
-    }
-  }
-
   "Query execution" should {
     lazy val h = new StatementHandler {
       def isQuery(s: String) = true
@@ -1425,7 +1595,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       s.executeQuery("TEST")
 
       (s.getWarnings aka "warning" mustEqual warning).
-        and(Option(s.getResultSet) aka "resultset" must beSome.which { 
+        and(Option(s.getResultSet) aka "resultset" must beSome.which {
           _.getWarnings aka "result warning" mustEqual warning
         })
 
@@ -1512,6 +1682,16 @@ sealed trait Setters {
   import java.sql.{ Date, Time, Timestamp }
   import org.apache.commons.lang3.tuple.ImmutablePair
 
+  implicit def StmtBytes: StatementParam[Array[Byte]] =
+    new StatementParam[Array[Byte]] {
+      def set(s: PreparedStatement, i: Int, p: Array[Byte], t: Int) = {
+        s.setBytes(i, p)
+        s
+      }
+
+      def get(p: Parameter): Array[Byte] = p.right.asInstanceOf[Array[Byte]]
+    }
+
   implicit def StmtNull: StatementParam[Null] = new StatementParam[Null] {
     def set(s: PreparedStatement, i: Int, p: Null, t: Int) = {
       s.setNull(i, t)
@@ -1519,6 +1699,15 @@ sealed trait Setters {
     }
 
     def get(p: Parameter): Null = null
+  }
+
+  implicit def StmtBlob: StatementParam[Blob] = new StatementParam[Blob] {
+    def set(s: PreparedStatement, i: Int, p: Blob, t: Int) = {
+      s.setBlob(i, p)
+      s
+    }
+
+    def get(p: Parameter): Blob = p.right.asInstanceOf[Blob]
   }
 
   implicit def StmtBool: StatementParam[Boolean] = new StatementParam[Boolean] {
@@ -1547,6 +1736,20 @@ sealed trait Setters {
 
     def get(p: Parameter): Short = p.right.asInstanceOf[Short]
   }
+
+  implicit def StmtBinStream: StatementParam[InputStream] =
+    new StatementParam[InputStream] {
+      def set(s: PreparedStatement, i: Int, p: InputStream, t: Int) = {
+        s.setBinaryStream(i, p)
+        s
+      }
+
+      def get(p: Parameter): InputStream = {
+        // stream set as byte internally
+        val bytes = p.right.asInstanceOf[Array[Byte]]
+        new ByteArrayInputStream(bytes)
+      }
+    }
 
   implicit def StmtInt: StatementParam[Int] = new StatementParam[Int] {
     def set(s: PreparedStatement, i: Int, p: Int, t: Int) = {

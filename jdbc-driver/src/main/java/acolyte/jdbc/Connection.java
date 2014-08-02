@@ -28,7 +28,7 @@ import java.sql.Clob;
  *
  * @author Cedric Chantepie
  */
-public final class Connection implements java.sql.Connection {
+public class Connection implements java.sql.Connection {
     // --- Properties ---
 
     /**
@@ -578,10 +578,17 @@ public final class Connection implements java.sql.Connection {
 
     /**
      * {@inheritDoc}
-     * @throws java.sql.SQLFeatureNotSupportedException
+     * @see #createBlob(byte[])
      */
     public Blob createBlob() throws SQLException {
-        throw new SQLFeatureNotSupportedException();
+        return acolyte.jdbc.Blob.Nil();
+    } // end of createBlob
+
+    /**
+     * Returns a BLOB with given |data|.
+     */
+    public Blob createBlob(final byte[] data) throws SQLException {
+        return new javax.sql.rowset.serial.SerialBlob(data);
     } // end of createBlob
 
     /**

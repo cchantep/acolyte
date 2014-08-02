@@ -13,6 +13,8 @@ import org.specs2.mutable.Specification
 
 import acolyte.jdbc.ParameterMetaData.{
   ParameterDef ⇒ Param,
+  Binary,
+  Blob ⇒ BlobP,
   Bool ⇒ BoolP,
   Byte ⇒ ByteP,
   Decimal ⇒ DecimalP,
@@ -107,8 +109,8 @@ object ParameterMetaDataSpec
     }
 
     "be (-1, 10)" in {
-      (twoParams.getPrecision(1) aka "first" mustEqual -1).
-        and(twoParams.getPrecision(2) aka "second" mustEqual 10)
+      twoParams.getPrecision(1) aka "first" mustEqual -1 and (
+        twoParams.getPrecision(2) aka "second" mustEqual 10)
 
     }
   }
@@ -120,8 +122,8 @@ object ParameterMetaDataSpec
     }
 
     "be (-1, 1)" in {
-      (twoParams.getScale(1) aka "first" mustEqual -1).
-        and(twoParams.getScale(2) aka "second" mustEqual 1)
+      twoParams.getScale(1) aka "first" must_== -1 and (
+        twoParams.getScale(2) aka "second" must_== 1)
 
     }
   }
@@ -189,8 +191,8 @@ object ParameterMetaDataSpec
 
     "be unwrapped to java.sql.ParameterMetaData" in {
       Option(metadata().unwrap(classOf[java.sql.ParameterMetaData])).
-        aka("unwrapped") must beSome.
-        which(_.isInstanceOf[java.sql.ParameterMetaData])
+        aka("unwrapped") must beSome.which(
+          _.isInstanceOf[java.sql.ParameterMetaData])
 
     }
   }
@@ -222,6 +224,18 @@ object ParameterMetaDataSpec
       s"be expected ${typeName(k)}" in {
         NullP(k) aka "null parameter" mustEqual DefaultP(k)
       }
+    }
+  }
+
+  "Binary parameter" should {
+    "be default one" in {
+      Binary aka "binary parameter" mustEqual DefaultP(Types.BINARY)
+    }
+  }
+
+  "Blob parameter" should {
+    "be default one" in {
+      BlobP aka "blob parameter" mustEqual DefaultP(Types.BLOB)
     }
   }
 

@@ -1,6 +1,9 @@
 // -*- mode: java -*-
 package #PKG#;
 
+import java.io.InputStream;
+import java.sql.Blob;
+
 /**
  * Row lists utility/factory.
  */
@@ -22,6 +25,48 @@ public final class RowLists {
         RowList1.Impl<String> list = stringList();
 
         for (final String v : values) {
+          list = list.append(v);
+        }
+
+        return list;
+    }
+
+    /**
+     * Convinience alias for row list of 1 binary column.
+     */
+    public static RowList1.Impl<byte[]> binaryList() {
+        return rowList1(byte[].class);
+    }
+
+    /**
+     * Convinience alias for row list of 1 binary column.
+     * @param values Initial values
+     */
+    public static RowList1.Impl<byte[]> binaryList(final byte[]... values) {
+        RowList1.Impl<byte[]> list = binaryList();
+
+        for (final byte[] v : values) {
+          list = list.append(v);
+        }
+
+        return list;
+    }
+
+    /**
+     * Convinience alias for row list of 1 blob column.
+     */
+    public static RowList1.Impl<Blob> blobList() {
+        return rowList1(Blob.class);
+    }
+
+    /**
+     * Convinience alias for row list of 1 blob column.
+     * @param values Initial values
+     */
+    public static RowList1.Impl<Blob> blobList(final Blob... values) {
+        RowList1.Impl<Blob> list = blobList();
+
+        for (final Blob v : values) {
           list = list.append(v);
         }
 
@@ -106,6 +151,27 @@ public final class RowLists {
         RowList1.Impl<Integer> list = intList();
 
         for (final Integer v : values) {
+          list = list.append(v);
+        }
+
+        return list;
+    }
+
+    /**
+     * Convinience alias for row list of 1 input stream column.
+     */
+    public static RowList1.Impl<InputStream> streamList() {
+        return rowList1(InputStream.class);
+    }
+
+    /**
+     * Convinience alias for row list of 1 int column.
+     * @param values Initial values
+     */
+    public static RowList1.Impl<InputStream> streamList(final InputStream... values) {
+        RowList1.Impl<InputStream> list = streamList();
+
+        for (final InputStream v : values) {
           list = list.append(v);
         }
 

@@ -20,7 +20,7 @@ trait JdbcScala { deps: Dependencies ⇒
             else if (sv startsWith "2.11") "2.11" 
             else sv
 
-          val td = b / "target" / "scala-%s".format(msv)
+          val td = b / "target" / s"scala-$msv"
           val j = td / "%s_%s-%s.jar".format(n, msv, v)
 
           Seq("-feature", "-deprecation", 
@@ -44,12 +44,10 @@ trait JdbcScala { deps: Dependencies ⇒
 
     val listTmpl = base / "src" / "main" / "templates" / "RowList.tmpl"
     val rowLists: Seq[java.io.File] = for (n ← 1 to lim) yield {
-      val f = outdir / "ScalaRowList%d.scala".format(n)
+      val f = outdir / s"ScalaRowList$n.scala"
 
       val tc = for (i ← 0 until n) yield letter(i)
-      val cv = for (i ← 0 until n) yield { 
-        "val c%d: Class[%s]".format(i, letter(i))
-      }
+      val cv = for (i ← 0 until n) yield s"val c$i: Class[${letter(i)}]"
       val ca = for (i ← 0 until n) yield "c%d: Class[%s]".format(i, letter(i))
       val cc = for (i ← 0 until n) yield "c%d".format(i)
       val ac = for (i ← 0 until n) yield "list.add(c%d)".format(i)

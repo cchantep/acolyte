@@ -212,6 +212,16 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     } // end of Null
 
     /**
+     * Binary (bytes) definition
+     */
+    public static final ParameterDef Binary = Default(Types.BINARY);
+
+    /**
+     * Blob definition
+     */
+    public static final ParameterDef Blob = Default(Types.BLOB);
+
+    /**
      * Boolean definition
      */
     public static final ParameterDef Bool = Default(Types.BOOLEAN);

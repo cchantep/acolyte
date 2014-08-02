@@ -10,6 +10,7 @@ trait JdbcDriver { deps: Dependencies ⇒
       scalacOptions += "-feature",
       resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
       libraryDependencies ++= Seq(
+        "commons-io" % "commons-io" % "2.4",
         "org.apache.commons" % "commons-lang3" % "3.3.2", specs2Test),
       crossPaths := false,
       sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
@@ -84,10 +85,8 @@ public final class Rows {""".format(pkg,
 
         for (n ← 1 to lim) yield {
           val g = for (i ← 0 until n) yield letter(i)
-          val p = for (i ← 0 until n) yield {
-            "final %s _c%d".format(letter(i), i + 1)
-          }
-          val a = for (i ← 0 until n) yield "_c%d".format(i + 1)
+          val p = for (i ← 0 until n) yield s"final ${letter(i)} _c${i + 1}"
+          val a = for (i ← 0 until n) yield s"_c${i + 1}"
           val gd = g.mkString(",")
 
           w.append("""

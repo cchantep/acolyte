@@ -1,5 +1,7 @@
 package acolyte.jdbc;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
@@ -36,6 +38,8 @@ import java.sql.Date;
 import java.sql.Time;
 import java.sql.Ref;
 
+import org.apache.commons.io.IOUtils;
+
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
@@ -47,6 +51,7 @@ import static acolyte.jdbc.ParameterMetaData.Decimal;
 import static acolyte.jdbc.ParameterMetaData.Numeric;
 import static acolyte.jdbc.ParameterMetaData.Default;
 import static acolyte.jdbc.ParameterMetaData.Scaled;
+import static acolyte.jdbc.ParameterMetaData.Binary;
 import static acolyte.jdbc.ParameterMetaData.Double;
 import static acolyte.jdbc.ParameterMetaData.Float;
 import static acolyte.jdbc.ParameterMetaData.Short;
@@ -342,7 +347,7 @@ public class PreparedStatement
     public void setBytes(final int parameterIndex, final byte[] x) 
         throws SQLException {
 
-        throw new SQLException("Not supported");
+        setParam(parameterIndex, Binary, x);
     } // end of setBytes
 
     /**
@@ -369,13 +374,12 @@ public class PreparedStatement
     
     /**
      * {@inheritDoc}
-     * @throws java.sql.SQLFeatureNotSupportedException
      */
     public void setBinaryStream(final int parameterIndex, 
                                 final InputStream x, 
                                 final int length) throws SQLException {
 
-        throw new SQLFeatureNotSupportedException();
+        setBinaryStream(parameterIndex, x, (long) length);
     } // end of setBinaryStream
 
     /**
@@ -456,7 +460,7 @@ public class PreparedStatement
 
         // ---
 
-        final String className = x.getClass().getName();
+        final String className = normalizeClassName(x.getClass());
 
         if (!Defaults.jdbcTypeClasses.containsKey(className)) {
             throw new SQLFeatureNotSupportedException("Unsupported parameter type: " + className);
@@ -555,12 +559,11 @@ public class PreparedStatement
 
     /**
      * {@inheritDoc}
-     * @throws java.sql.SQLFeatureNotSupportedException
      */
     public void setBlob(final int parameterIndex, final Blob x) 
         throws SQLException {
 
-        throw new SQLFeatureNotSupportedException();
+        setParam(parameterIndex, acolyte.jdbc.ParameterMetaData.Blob, x);
     } // end of setBlob
 
     /**
@@ -747,13 +750,12 @@ public class PreparedStatement
 
     /**
      * {@inheritDoc}
-     * @see java.sql.SQLFeatureNotSupportedException
      */
     public void setBlob(final int parameterIndex, 
                         final InputStream inputStream, 
                         final long length) throws SQLException {
 
-        throw new SQLFeatureNotSupportedException();
+        setBlob(parameterIndex, createBlob(inputStream, length));
     } // end of setBlob
 
     /**
@@ -797,6 +799,7 @@ public class PreparedStatement
         } // end of if
 
         // ---
+
         switch (targetSqlType) {
         case Types.DOUBLE:
         case Types.REAL:
@@ -826,13 +829,12 @@ public class PreparedStatement
 
     /**
      * {@inheritDoc}
-     * @see java.sql.SQLFeatureNotSupportedException
      */
     public void setBinaryStream(final int parameterIndex, 
                                 final InputStream x, 
                                 final long length) throws SQLException {
 
-        throw new SQLFeatureNotSupportedException();
+        setBytes(parameterIndex, createBytes(x, length));
     } // end of setBinaryStream
 
     /**
@@ -847,13 +849,11 @@ public class PreparedStatement
 
     /**
      * {@inheritDoc}
-     * @see java.sql.SQLFeatureNotSupportedException
      */
-    public void setBinaryStream(final int parameterStream, 
-                                final InputStream x) 
+    public void setBinaryStream(final int parameterIndex, final InputStream x) 
         throws SQLException {
 
-        throw new SQLFeatureNotSupportedException();
+        setBytes(parameterIndex, createBytes(x, -1));
     } // end of setBinaryStream
 
     /**
@@ -968,4 +968,54 @@ public class PreparedStatement
 
         this.parameters.put(index, Parameter.of(meta, val));
     } // end of setParam
+
+    /**
+     * Normalizes parameter class name.
+     */
+    private String normalizeClassName(final Class<?> c) {
+        if (Blob.class.isAssignableFrom(c)) return "java.sql.Blob";
+        
+        return c.getName();
+    } // end of normalizeClassName
+
+    /**
+     * Creates bytes array from input stream.
+     *
+     * @param stream Input stream
+     * @param length
+     */
+    private byte[] createBytes(InputStream stream, long length) 
+        throws SQLException {
+
+        ByteArrayOutputStream buff = null;
+
+        try {
+            buff = new ByteArrayOutputStream();
+
+            if (length > 0) IOUtils.copyLarge(stream, buff, 0, length);
+            else IOUtils.copy(stream, buff);
+
+            return buff.toByteArray();
+        } catch (IOException e) {
+            throw new SQLException("Fails to create BLOB", e);
+        } finally {
+            IOUtils.closeQuietly(buff);
+        } // end of finally
+    } // end of createBytes
+
+    /**
+     * Creates BLOB from input stream.
+     *
+     * @param stream Input stream
+     * @param length
+     */
+    private acolyte.jdbc.Blob createBlob(InputStream stream, long length) 
+        throws SQLException {
+
+        final acolyte.jdbc.Blob blob = acolyte.jdbc.Blob.Nil();
+
+        blob.setBytes(0L, createBytes(stream, length));
+
+        return blob;
+    } // end of createBlob
 } // end of PreparedStatement

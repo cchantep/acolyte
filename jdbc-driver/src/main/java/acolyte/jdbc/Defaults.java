@@ -74,6 +74,10 @@ final class Defaults {
         mappings.put(Types.TIME, Time.class.getName());
         mappings.put(Types.TIMESTAMP, Timestamp.class.getName());
         mappings.put(Types.VARCHAR, String.class.getName());
+        mappings.put(Types.BINARY, byte[].class.getName());
+        mappings.put(Types.VARBINARY, byte[].class.getName());
+        mappings.put(Types.LONGVARBINARY, byte[].class.getName());
+        mappings.put(Types.BLOB, java.sql.Blob.class.getName());
 
         jdbcTypeMappings = Collections.unmodifiableMap(mappings);
 
@@ -111,6 +115,10 @@ final class Defaults {
         names.put(Types.TIME, "TIME");
         names.put(Types.TIMESTAMP, "TIMESTAMP");
         names.put(Types.VARCHAR, "VARCHAR");
+        names.put(Types.BINARY, "BINARY");
+        names.put(Types.VARBINARY, "VARBINARY");
+        names.put(Types.LONGVARBINARY, "LONGVARBINARY");
+        names.put(Types.BLOB, "BLOB");
 
         jdbcTypeNames = Collections.unmodifiableMap(names);
 
@@ -143,6 +151,10 @@ final class Defaults {
         signs.put(Types.TIME, Boolean.FALSE);
         signs.put(Types.TIMESTAMP, Boolean.FALSE);
         signs.put(Types.VARCHAR, Boolean.FALSE);
+        signs.put(Types.BINARY, Boolean.FALSE);
+        signs.put(Types.VARBINARY, Boolean.FALSE);
+        signs.put(Types.LONGVARBINARY, Boolean.FALSE);
+        signs.put(Types.BLOB, Boolean.FALSE);
 
         jdbcTypeSigns = Collections.unmodifiableMap(signs);
 
@@ -154,19 +166,23 @@ final class Defaults {
         precisions.put(Types.BIT, 1);
         precisions.put(Types.BOOLEAN, 1);
         precisions.put(Types.CHAR, 16);
-        precisions.put(Types.DATE, 0/*-1*/);
-        precisions.put(Types.DECIMAL, 0/*-1*/);
+        precisions.put(Types.DATE, 0);
+        precisions.put(Types.DECIMAL, 0);
         precisions.put(Types.DOUBLE, 64);
         precisions.put(Types.FLOAT, 32);
         precisions.put(Types.INTEGER, 32);
-        precisions.put(Types.LONGVARCHAR, 0/*-1*/);
-        precisions.put(Types.NUMERIC, 0/*-1*/);
+        precisions.put(Types.LONGVARCHAR, 0);
+        precisions.put(Types.NUMERIC, 0);
         precisions.put(Types.REAL, 32);
         precisions.put(Types.SMALLINT, 16);
         precisions.put(Types.TINYINT, 16);
-        precisions.put(Types.TIME, 0/*-1*/);
-        precisions.put(Types.TIMESTAMP, 0/*-1*/);
-        precisions.put(Types.VARCHAR, 0/*-1*/);
+        precisions.put(Types.TIME, 0);
+        precisions.put(Types.TIMESTAMP, 0);
+        precisions.put(Types.VARCHAR, 0);
+        precisions.put(Types.BINARY, 0);
+        precisions.put(Types.VARBINARY, 0);
+        precisions.put(Types.LONGVARBINARY, 0);
+        precisions.put(Types.BLOB, 0);
 
         jdbcTypePrecisions = Collections.unmodifiableMap(precisions);        
 
@@ -174,22 +190,26 @@ final class Defaults {
         final HashMap<Integer,Integer> scales = new HashMap<Integer,Integer>();
 
         scales.put(Types.BIGINT, 0);
-        scales.put(Types.BIT, 0/*-1*/);
-        scales.put(Types.BOOLEAN, 0/*-1*/);
-        scales.put(Types.CHAR, 0/*-1*/);
-        scales.put(Types.DATE, 0/*-1*/);
+        scales.put(Types.BIT, 0);
+        scales.put(Types.BOOLEAN, 0);
+        scales.put(Types.CHAR, 0);
+        scales.put(Types.DATE, 0);
         scales.put(Types.DECIMAL, 2);
         scales.put(Types.DOUBLE, 2);
         scales.put(Types.FLOAT, 2);
         scales.put(Types.INTEGER, 0);
-        scales.put(Types.LONGVARCHAR, 0/*-1*/);
+        scales.put(Types.LONGVARCHAR, 0);
         scales.put(Types.NUMERIC, 2);
         scales.put(Types.REAL, 2);
         scales.put(Types.SMALLINT, 0);
         scales.put(Types.TINYINT, 0);
-        scales.put(Types.TIME, 0/*-1*/);
-        scales.put(Types.TIMESTAMP, 0/*-1*/);
-        scales.put(Types.VARCHAR, 0/*-1*/);
+        scales.put(Types.TIME, 0);
+        scales.put(Types.TIMESTAMP, 0);
+        scales.put(Types.VARCHAR, 0);
+        scales.put(Types.BINARY, 0);
+        scales.put(Types.VARBINARY, 0);
+        scales.put(Types.LONGVARBINARY, 0);
+        scales.put(Types.BLOB, 0);
 
         jdbcTypeScales = Collections.unmodifiableMap(scales);
     } // end of <cinit>
