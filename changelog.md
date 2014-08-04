@@ -1,3 +1,18 @@
+## 1.0.22
+
+([a07e7306cab7b2e4eac1d4a39c90789e42065655](https://github.com/cchantep/acolyte/commit/a07e7306cab7b2e4eac1d4a39c90789e42065655) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Support for binary types (BLOB, byte array, input stream)
+
+([43257c1db69ceb1cf9f31c0856903255924cb880](https://github.com/cchantep/acolyte/commit/43257c1db69ceb1cf9f31c0856903255924cb880) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Fix wasNull operation on result
+
+([c849e2489f9e66a96760d800d5a72becf5d870e9](https://github.com/cchantep/acolyte/commit/c849e2489f9e66a96760d800d5a72becf5d870e9) @ [scalac-plugin](https://github.com/cchantep/acolyte/tree/master/scalac-plugin)) Support for literal with rich match:
+
+```scala
+str match {
+  ~(RegEx("# ([a-z]+): .*"), "start") => /* Start */ ???
+  ~(RegEx("# ([a-z]+): .*"), "stop")  => /* Stop */ ???
+}
+```
+
 ## 1.0.21
 
 ([9c261f107338c4a9d4364d89540f8965cb46c71f](https://github.com/cchantep/acolyte/commit/9c261f107338c4a9d4364d89540f8965cb46c71f) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Moves classes from package `acolyte` to `acolyte.jdbc`. Classes in former package are deprecated, and will be removed in future release.

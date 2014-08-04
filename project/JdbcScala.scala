@@ -21,10 +21,9 @@ trait JdbcScala { deps: Dependencies ⇒
             else sv
 
           val td = b / "target" / s"scala-$msv"
-          val j = td / "%s_%s-%s.jar".format(n, msv, v)
+          val j = td / s"${n}_${msv}-$v.jar"
 
-          Seq("-feature", "-deprecation", 
-            "-Xplugin:%s".format(j.getAbsolutePath))
+          Seq("-feature", "-deprecation", s"-Xplugin:${j.getAbsolutePath}")
         },
       compile in Test <<= (compile in Test).
         dependsOn(compile in (scalacPlugin, Test)), // make sure plugin is there
