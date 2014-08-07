@@ -137,7 +137,7 @@ Partial function can also be used to describe handled cases:
 }
 ```
 
-With [scalac plugin](./scalac-plugin.html), extractor `ExecutedStatement(regex, params)` can be used with [rich pattern matching](https://github.com/cchantep/acolyte/blob/master/jdbc-driver/src/test/jdbc-scala/acolyte/ExecutionSpec.scala):
+Using [scalac plugin](./scalac-plugin.html), extractor `ExecutedStatement(regex, params)` can be used with [rich pattern matching](https://github.com/cchantep/acolyte/blob/master/jdbc-driver/src/test/jdbc-scala/acolyte/ExecutionSpec.scala):
 
 ```scala
 e/*: Execution match {

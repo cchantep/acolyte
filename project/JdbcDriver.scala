@@ -15,7 +15,8 @@ trait JdbcDriver { deps: Dependencies ⇒
       crossPaths := false,
       sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
         val (base, managed) = dirs
-        generateRowClasses(base, managed / "acolyte", "acolyte", true) ++ generateRowClasses(base, managed / "acolyte" / "jdbc", "acolyte.jdbc", false)
+        generateRowClasses(base, managed / "acolyte" / "jdbc", 
+          "acolyte.jdbc", false)
       }))
 
   // Source generator
@@ -24,9 +25,9 @@ trait JdbcDriver { deps: Dependencies ⇒
     val letter = ('A' to 'Z').map(_.toString) ++: ('A' to 'Z').map(l ⇒ "A" + l)
     val lim = letter.size
 
-    val rows: Seq[java.io.File] = for (n ← 2 to lim) yield {
+    val rows: Seq[File] = for (n ← 2 to lim) yield {
       val f = outdir / s"Row$n.java"
-      IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w ⇒
+      IO.writer[File](f, "", IO.defaultCharset, false) { w ⇒
         val cp = for (i ← 0 until n) yield letter(i)
         val ps = for (i ← 0 until n) yield s"public final ${letter(i)} _$i;"
         val ip = for (i ← 0 until n) yield s"final ${letter(i)} c$i"
@@ -72,7 +73,7 @@ trait JdbcDriver { deps: Dependencies ⇒
 
     val rf = {
       val f = outdir / "Rows.java"
-      IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w ⇒
+      IO.writer[File](f, "", IO.defaultCharset, false) { w ⇒
         w.append("""package %s;
 
 /**
@@ -107,7 +108,7 @@ public final class Rows {""".format(pkg,
     }
 
     val listTmpl = basedir / "src" / "main" / "templates" / "RowList.tmpl"
-    val rowLists: Seq[java.io.File] = for (n ← 1 to lim) yield {
+    val rowLists: Seq[File] = for (n ← 1 to lim) yield {
       val f = outdir / s"RowList$n.java"
       val cp = for (i ← 0 until n) yield letter(i)
       val cs = for (i ← 0 until n) yield s"final Class<${letter(i)}> c$i"
@@ -143,7 +144,7 @@ public final class Rows {""".format(pkg,
       }
       val psc = for (i ← 0 until n) yield s"_c$i"
 
-      IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w ⇒
+      IO.writer[File](f, "", IO.defaultCharset, false) { w ⇒
         // Generate by substitution on each line of template
         IO.reader[Unit](listTmpl) { r ⇒
           IO.foreachLine(r) { l ⇒
@@ -171,10 +172,10 @@ public final class Rows {""".format(pkg,
     }
 
     val facTmpl = basedir / "src" / "main" / "templates" / "RowLists.tmpl"
-    val rlf: java.io.File = {
+    val rlf: File = {
       val f = outdir / "RowLists.java"
 
-      IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w ⇒
+      IO.writer[File](f, "", IO.defaultCharset, false) { w ⇒
         val funcs = (1 to lim).foldLeft(Nil: List[String]) { (l, n) ⇒
           val g = for (i ← 0 until n) yield letter(i)
           val ps = for (i ← 0 until n) yield s"final Class<${letter(i)}> _c$i"
@@ -197,7 +198,7 @@ public final class Rows {""".format(pkg,
 
         }
 
-        IO.reader[java.io.File](facTmpl) { r ⇒
+        IO.reader[File](facTmpl) { r ⇒
           IO.foreachLine(r) { l ⇒
             w.append(l.replace("#PKG#", pkg).
               replace("#CLA#", { if (deprecated) "@Deprecated" else "" }).

@@ -1,4 +1,4 @@
-package acolyte
+package acolyte.jdbc
 
 import java.sql.{ ResultSet, SQLException }
 

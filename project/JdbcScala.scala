@@ -32,7 +32,8 @@ trait JdbcScala { deps: Dependencies ⇒
         specs2Test),
       sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
         val (base, managed) = dirs
-        generateRowClasses(base, managed / "acolyte", "acolyte", true) ++ generateRowClasses(base, managed / "acolyte" / "jdbc", "acolyte.jdbc", false) 
+        generateRowClasses(base, managed / "acolyte" / "jdbc", 
+          "acolyte.jdbc", false)
       })).dependsOn(scalacPlugin, jdbcDriver)
 
   // Source generator
@@ -47,12 +48,12 @@ trait JdbcScala { deps: Dependencies ⇒
 
       val tc = for (i ← 0 until n) yield letter(i)
       val cv = for (i ← 0 until n) yield s"val c$i: Class[${letter(i)}]"
-      val ca = for (i ← 0 until n) yield "c%d: Class[%s]".format(i, letter(i))
-      val cc = for (i ← 0 until n) yield "c%d".format(i)
-      val ac = for (i ← 0 until n) yield "list.add(c%d)".format(i)
+      val ca = for (i ← 0 until n) yield s"c$i: Class[${letter(i)}]"
+      val cc = for (i ← 0 until n) yield s"c$i"
+      val ac = for (i ← 0 until n) yield s"list.add(c$i)"
       val vs = for (i ← 0 until n) yield letter(i).toLowerCase
       val va = for (i ← 0 until n) yield {
-        "%s: %s".format(letter(i).toLowerCase, letter(i))
+        s"${letter(i).toLowerCase}: ${letter(i)}"
       }
 
       IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w ⇒
@@ -81,9 +82,9 @@ trait JdbcScala { deps: Dependencies ⇒
     IO.writer[java.io.File](rlf, "", IO.defaultCharset, false) { w ⇒
       val conv = Nil ++: (for (n ← 1 to lim) yield {
         val gp = (for (i ← 0 until n) yield letter(i)).mkString(", ")
-        val ca = (for (i ← 0 until n) yield "l.c%d".format(i)).mkString(", ")
+        val ca = (for (i ← 0 until n) yield s"l.c$i").mkString(", ")
 
-        "implicit def RowList%dAsScala[%s](l: RowList%d.Impl[%s]): ScalaRowList%d[%s] = new ScalaRowList%d[%s](%s, l.rows, l.colNames, l.colNullables)".format(n, gp, n, gp, n, gp, n, gp, ca)
+        s"implicit def RowList${n}AsScala[$gp](l: RowList$n.Impl[$gp]): ScalaRowList$n[$gp] = new ScalaRowList$n[$gp]($ca, l.rows, l.colNames, l.colNullables)"
 
       })
       val tmpl = base / "src" / "main" / "templates" / "RowLists.tmpl"

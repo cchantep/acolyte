@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 
-import acolyte.StatementHandler.Parameter;
+import acolyte.jdbc.StatementHandler.Parameter;
 
 /**
  * Default implementation for composite handler.
