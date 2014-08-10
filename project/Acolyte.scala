@@ -13,7 +13,7 @@ object Acolyte extends Build with Dependencies
       version in ThisBuild := "1.0.23",
       javaOptions in ThisBuild ++= Seq("-source", "1.6", "-target", "1.6"),
       scalaVersion in ThisBuild := "2.10.4",
-      crossScalaVersions in ThisBuild := Seq("2.10.4", "2.11.0"),
+      crossScalaVersions in ThisBuild := Seq("2.10.4", "2.11.2"),
       publishTo in ThisBuild := Some(Resolver.file("file", 
         new File(Path.userHome.absolutePath+"/.m2/repository"))),
       pomExtra in ThisBuild := (

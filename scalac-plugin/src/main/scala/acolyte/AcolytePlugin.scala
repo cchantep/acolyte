@@ -4,6 +4,8 @@ import scala.tools.nsc.Global
 import scala.tools.nsc.plugins.{ Plugin, PluginComponent }
 import scala.tools.nsc.transform.Transform
 
+import scala.reflect.internal.util.BatchSourceFile
+
 class AcolytePlugin(val global: Global) extends Plugin {
   val name = "acolyte"
   val description = "Syntax extensions: Extractors with arguments"
@@ -19,6 +21,8 @@ class AcolytePlugin(val global: Global) extends Plugin {
 
   override val optionsHelp: Option[String] = Some(
     "  -P:acolyte:debug             Enable debug")
+
+  @inline private def withSource(pos: global.Position)(f: BatchSourceFile, shift: Int) = CompilerUtility.withSource(global)(pos, f, shift)
 
   private object ExtractorComponent extends PluginComponent with Transform {
     val global: AcolytePlugin.this.global.type = AcolytePlugin.this.global
@@ -51,7 +55,6 @@ class AcolytePlugin(val global: Global) extends Plugin {
         ValDef
       }
       import scala.reflect.io.VirtualFile
-      import scala.reflect.internal.util.BatchSourceFile
 
       override def transform(tree: Tree): Tree = refactor(tree)
 
@@ -84,8 +87,8 @@ class AcolytePlugin(val global: Global) extends Plugin {
 
               val nc = CaseDef(tx.transform(pat), g, refactor(by))
               val cdc = s"${global show nc} // generated from ln ${ocp.line}, col ${ocp.column - 5}"
-              val cdp = ocp.withPoint(0).
-                withSource(new BatchSourceFile(file, cdc), 0)
+              val cdp = withSource(ocp.withPoint(0))(
+                new BatchSourceFile(file, cdc), 0)
 
               global.atPos(cdp)(nc)
             }
@@ -151,8 +154,7 @@ class AcolytePlugin(val global: Global) extends Plugin {
         val vdc =
           s"${show(vd)} // generated from ln ${xp.line}, col ${xp.column - 1}"
 
-        val vdp = xp.withPoint(0).withSource(new BatchSourceFile(file, vdc), 0)
-        // TODO: Scala 2.11 -> withSource(new BatchSourceFile(file, vdc))
+        val vdp = withSource(xp.withPoint(0))(new BatchSourceFile(file, vdc), 0)
 
         (atPos(vdp)(vd), Apply(Ident(xn), ua))
       }
