@@ -7,15 +7,15 @@ import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 import resource.{ ManagedResource, managed }
 
-import play.api.mvc.{ Action, Controller, SimpleResult }
+import play.api.mvc.{ Action, Controller, Result ⇒ PlayResult }
 import play.api.data.Form
 import play.api.data.Forms.{ mapping, nonEmptyText, optional, text }
 
 import play.api.libs.json.{ Json, JsResult, JsValue, Reads, Writes }
 
-import acolyte.jdbc.AcolyteDSL.{ 
-  connection ⇒ AcolyteConnection, 
-  handleStatement 
+import acolyte.jdbc.AcolyteDSL.{
+  connection ⇒ AcolyteConnection,
+  handleStatement
 }
 import acolyte.jdbc.{
   DefinedParameter,
@@ -36,14 +36,14 @@ object Acolyte extends Controller {
   def setup = Action { request ⇒
     Form[Option[RouteData]](mapping("json" -> optional(nonEmptyText))(
       _.map(RouteData))(_.map({ d ⇒ Some(d.json) }))).
-      bindFromRequest()(request).fold[SimpleResult](f ⇒ Ok(f.errors.toString),
+      bindFromRequest()(request).fold[PlayResult](f ⇒ Ok(f.errors.toString),
         { data ⇒ Ok(views.html.setup(data.map(_.json))) })
   }
 
   def run = Action { request ⇒
     Form(mapping("json" -> nonEmptyText)(
       RouteData.apply)(RouteData.unapply)).bindFromRequest()(request).
-      fold[SimpleResult]({ f ⇒ Ok(f.errors.toString) }, { data ⇒
+      fold[PlayResult]({ f ⇒ Ok(f.errors.toString) }, { data ⇒
         Ok(views.html.run(data.json))
       })
   }
@@ -54,13 +54,13 @@ object Acolyte extends Controller {
   def executeStatement = Action { request ⇒
     Form(mapping("statement" -> nonEmptyText, "json" -> nonEmptyText,
       "parameters" -> optional(text))(ExecutionData.apply)(
-        ExecutionData.unapply)).bindFromRequest()(request).fold[SimpleResult](
+        ExecutionData.unapply)).bindFromRequest()(request).fold[PlayResult](
       { f ⇒ Ok(f.errors.toString) }, { data ⇒
         (for {
           ps ← Reads.seq[RouteParameter](routeParamReads).reads(Json.parse(
             data.parameters getOrElse "[]"))
           rs ← Reads.seq[Route](routeReads).reads(Json parse data.json)
-        } yield (ps -> rs)).fold[SimpleResult]({ e ⇒ PreconditionFailed(e.mkString) }, {
+        } yield (ps -> rs)).fold[PlayResult]({ e ⇒ PreconditionFailed(e.mkString) }, {
           case (ps, r :: rs) ⇒ executeWithRoutes(data.statement, ps, r :: rs)
           case _             ⇒ Ok(Json toJson false)
         })
@@ -222,7 +222,7 @@ object Acolyte extends Controller {
   }
 
   @inline
-  private def executeWithRoutes(stmt: String, ps: Seq[RouteParameter], routes: Seq[Route]): SimpleResult = {
+  private def executeWithRoutes(stmt: String, ps: Seq[RouteParameter], routes: Seq[Route]): PlayResult = {
     var r: Int = -1
 
     (for {

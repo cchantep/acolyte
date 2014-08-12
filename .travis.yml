@@ -3,4 +3,4 @@ jdk:
    - openjdk6
 env: JAVA_OPTS="-Xms32m -Xmx128m"
 scala:
-   - 2.10.3
+   - 2.11.2
