@@ -24,6 +24,12 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
       "rich match without binding: ~(IntRange(10, 20), i)" in {
         patternMatching("12") aka "matching" mustEqual List("range:12")
       }
+
+      "rich match with pattern in bindings: ~(IndexOf('/'), a :: b :: c :: _)".
+        in({
+          patternMatching("/path/to/file") aka "matching" mustEqual (
+            List("IndexOf: /path/to/file", "0", "5", "8"))
+        })
     }
 
     "Extractor with unapplySeq" should {
@@ -70,6 +76,12 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
       "rich match without binding: ~(IntRange(10, 20), i)" in {
         recursivePatternMatching("12") aka "matching" mustEqual List("range:12")
       }
+
+      "rich match with pattern in bindings: ~(IndexOf('/'), a :: b :: c :: _)".
+        in({
+          recursivePatternMatching("/path/to/file") aka "matching" mustEqual (
+            List("IndexOf: /path/to/file", "0", "5", "8"))
+        })
     }
 
     "Extractor with unapplySeq" should {
@@ -117,6 +129,12 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
       "rich match without binding: ~(IntRange(10, 20), i)" in {
         partialFun1("12") aka "matching" mustEqual List("range:12")
       }
+
+      "rich match with pattern in bindings: ~(IndexOf('/'), a :: b :: c :: _)".
+        in({
+          partialFun1("/path/to/file") aka "matching" mustEqual (
+            List("IndexOf: /path/to/file", "0", "5", "8"))
+        })
     }
 
     "Extractor with unapplySeq" should {
@@ -164,6 +182,12 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
       "rich match without binding: ~(IntRange(10, 20), i)" in {
         partialFun2("12") aka "matching" mustEqual List("range:12")
       }
+
+      "rich match with pattern in bindings: ~(IndexOf('/'), a :: b :: c :: _)".
+        in({
+          partialFun2("/path/to/file") aka "matching" mustEqual (
+            List("IndexOf: /path/to/file", "0", "5", "8"))
+        })
     }
 
     "Extractor with unapplySeq" should {
@@ -211,6 +235,12 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
       "rich match without binding: ~(IntRange(10, 20), i)" in {
         partialFun3(Some("12")) aka "matching" must_== Some(List("range:12"))
       }
+
+      "rich match with pattern in bindings: ~(IndexOf('/'), a :: b :: c :: _)".
+        in({
+          partialFun3(Some("/path/to/file")) aka "matching" must_== Some(
+            List("IndexOf: /path/to/file", "0", "5", "8"))
+        })
     }
 
     "Extractor with unapplySeq" should {
@@ -250,6 +280,9 @@ sealed trait PartialFunctionTest {
     case ~(Regex("# ([A-Z]+).*"), a)                   ⇒ List(a)
     case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b))   ⇒ List(str, b, a)
     case str @ ~(Regex("# magic: ([a-z]+).*"), "stop") ⇒ List(s"Literal: $str")
+    case str @ ~(IndexOf('/'), a :: b :: c :: _) ⇒
+      List(s"IndexOf: $str", a.toString, b.toString, c.toString)
+
   }
 
   def partialFun2: String ⇒ List[String] = {
@@ -260,6 +293,9 @@ sealed trait PartialFunctionTest {
     case ~(Regex("# ([A-Z]+).*"), a)                   ⇒ List(a)
     case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b))   ⇒ List(str, b, a)
     case str @ ~(Regex("# magic: ([a-z]+).*"), "stop") ⇒ List(s"Literal: $str")
+    case str @ ~(IndexOf('/'), a :: b :: c :: _) ⇒
+      List(s"IndexOf: $str", a.toString, b.toString, c.toString)
+
   }
 
   /* Anonymous partial function */
@@ -271,30 +307,38 @@ sealed trait PartialFunctionTest {
     case ~(Regex("# ([A-Z]+).*"), a)                   ⇒ List(a)
     case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b))   ⇒ List(str, b, a)
     case str @ ~(Regex("# magic: ([a-z]+).*"), "stop") ⇒ List(s"Literal: $str")
+    case str @ ~(IndexOf('/'), a :: b :: c :: _) ⇒
+      List(s"IndexOf: $str", a.toString, b.toString, c.toString)
+
   }
 }
 
 sealed trait MatchTest {
   def patternMatching(s: String): List[String] = s match {
-    case ~(IntRange(5, 10), _) ⇒ List("5-to-10")
-    case ~(IntRange(10, 20), i) ⇒ List(s"range:$i")
-    case Integer(n) ⇒ List(s"num-$n")
-    case ~(Regex("^a.*")) ⇒ List("no-binding")
-    case ~(Regex("# ([A-Z]+).*"), a) ⇒ List(a)
-    case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b)) ⇒ List(str, b, a)
+    case ~(IntRange(5, 10), _)                         ⇒ List("5-to-10")
+    case ~(IntRange(10, 20), i)                        ⇒ List(s"range:$i")
+    case Integer(n)                                    ⇒ List(s"num-$n")
+    case ~(Regex("^a.*"))                              ⇒ List("no-binding")
+    case ~(Regex("# ([A-Z]+).*"), a)                   ⇒ List(a)
+    case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b))   ⇒ List(str, b, a)
     case str @ ~(Regex("# magic: ([a-z]+).*"), "stop") ⇒ List(s"Literal: $str")
+    case str @ ~(IndexOf('/'), a :: b :: c :: _) ⇒
+      List(s"IndexOf: $str", a.toString, b.toString, c.toString)
     case x ⇒ Nil
   }
 
   def recursivePatternMatching(s: String): List[String] = s match {
     case v ⇒ v match {
-      case ~(IntRange(5, 10), _) ⇒ List("5-to-10")
-      case ~(IntRange(10, 20), i) ⇒ List(s"range:$i")
-      case Integer(n) ⇒ List(s"num-$n")
-      case ~(Regex("^a.*")) ⇒ List("no-binding")
-      case ~(Regex("# ([A-Z]+).*"), a) ⇒ List(a)
+      case ~(IntRange(5, 10), _)                       ⇒ List("5-to-10")
+      case ~(IntRange(10, 20), i)                      ⇒ List(s"range:$i")
+      case Integer(n)                                  ⇒ List(s"num-$n")
+      case ~(Regex("^a.*"))                            ⇒ List("no-binding")
+      case ~(Regex("# ([A-Z]+).*"), a)                 ⇒ List(a)
       case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b)) ⇒ List(str, b, a)
-      case str @ ~(Regex("# magic: ([a-z]+).*"), "stop") ⇒ List(s"Literal: $str")
+      case str @ ~(Regex("# magic: ([a-z]+).*"), "stop") ⇒
+        List(s"Literal: $str")
+      case str @ ~(IndexOf('/'), a :: b :: c :: _) ⇒
+        List(s"IndexOf: $str", a.toString, b.toString, c.toString)
       case x ⇒ Nil
     }
   }
@@ -331,5 +375,17 @@ sealed case class IntRange(min: Int, max: Int) {
   def unapply(v: String): Option[Int] = Integer.unapply(v) flatMap { s ⇒
     val i = s.toInt
     if (i < min || i > max) None else Some(i)
+  }
+}
+
+/** Character index extractor */
+sealed case class IndexOf(ch: Char) {
+  def unapply(v: String): Option[List[Int]] = {
+    val is = v.foldLeft(0 -> List.empty[Int]) { (st, c) ⇒
+      val (i, l) = st
+      i + 1 -> { if (c == ch) l :+ i else l }
+    }._2
+
+    if (is.isEmpty) None else Some(is)
   }
 }

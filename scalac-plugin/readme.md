@@ -31,15 +31,19 @@ Then provided rich syntax can be used as following (see [complete example](./src
 
 ```scala
 str match {
-  case ~(Regex("^a.*"))                      ⇒ 1 // no binding
+  case ~(Regex("^a.*"))                        ⇒ 1 // no binding
 
-  case ~(Regex("# ([A-Z]+).*"), a)           ⇒ 2 
+  case ~(Regex("# ([A-Z]+).*"), a)             ⇒ 2 
   // if str == "# BCD123", then a = "BCD"
 
-  case ~(Regex("([0-9]+);([a-z]+)"), (a, b)) ⇒ 3
+  case ~(Regex("([0-9]+);([a-z]+)"), (a, b))   ⇒ 3
   // if str == "234;xyz", then a = "234" and b = "xyz"
 
-  case _                                     ⇒ 4
+  case str @ ~(IndexOf('/'), a :: b :: c :: _) ⇒ 4
+  // if there are exactly 3 '/' in str, 
+  // matches and assign indexes to a, b and c
+
+  case _                                       ⇒ 5
 }
 ```
 
@@ -53,6 +57,8 @@ str match {
   // ...
 }
 ```
+
+> Syntax like `(a, b)` (where `3` is selected) doesn't represent a tuple there, but multiple (list of) bindings.
 
 It also works with partial function (see [more examples](./src/test/scala/acolyte/ExtractorComponentSpec.scala#L159)).
 

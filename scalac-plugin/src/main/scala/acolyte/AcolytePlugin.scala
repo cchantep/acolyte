@@ -51,6 +51,7 @@ class AcolytePlugin(val global: Global) extends Plugin {
         Literal,
         Match,
         Position,
+        Select,
         Tree,
         ValDef
       }
@@ -71,6 +72,7 @@ class AcolytePlugin(val global: Global) extends Plugin {
       }
 
       val tildeTerm = global.newTermName("$tilde")
+      val scalaTerm = global.newTermName("scala")
 
       @inline private def refactorMatch(orig: Match): Tree = orig match {
         case Match(t, cs) ⇒ {
@@ -111,7 +113,9 @@ class AcolytePlugin(val global: Global) extends Plugin {
               (x.headOption, x.tail) match {
                 case (Some(xt @ Apply(ex, xa)), bs) ⇒ {
                   val xpo: Option[List[Tree]] = bs.headOption match {
-                    case Some(Apply(_, ua))              ⇒ Some(ua)
+                    case Some(Apply(Select(Ident(scalaTerm), st), ua)) if (
+                      st.toString startsWith "Tuple") ⇒ Some(ua)
+                    case Some(ap @ Apply(_, _))          ⇒ Some(ap :: Nil)
                     case Some(bn @ Bind(_, _))           ⇒ Some(bn :: Nil)
                     case Some(id @ Ident(_))             ⇒ Some(id :: Nil)
                     case Some(li @ Literal(Constant(_))) ⇒ Some(li :: Nil)
