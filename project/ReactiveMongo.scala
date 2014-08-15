@@ -2,6 +2,8 @@ import sbt._
 import Keys._
 
 trait ReactiveMongo { deps: Dependencies ⇒
+  def scalacPlugin: Project
+
   val reactiveMongoVer = settingKey[String]("Reactive Mongo version")
 
   // Shared dependency
@@ -37,7 +39,21 @@ trait ReactiveMongo { deps: Dependencies ⇒
       name := "reactive-mongo",
       javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
       autoScalaLibrary := false,
-      scalacOptions += "-feature",
+      scalacOptions <++= (version in ThisBuild).
+        zip(scalaVersion in ThisBuild).
+        zip(baseDirectory in (scalacPlugin, Compile)).
+        zip(name in (scalacPlugin, Compile)) map { d =>
+          val (((v, sv), b), n) = d
+          val msv = 
+            if (sv startsWith "2.10") "2.10" 
+            else if (sv startsWith "2.11") "2.11" 
+            else sv
+
+          val td = b / "target" / s"scala-$msv"
+          val j = td / s"${n}_${msv}-$v.jar"
+
+          Seq("-feature", "-deprecation", s"-Xplugin:${j.getAbsolutePath}")
+        },
       resolvers ++= reactiveResolvers,
       libraryDependencies ++= Seq(
         reactiveMongoLib % reactiveMongoVer.value, 
@@ -78,5 +94,5 @@ trait ReactiveMongo { deps: Dependencies ⇒
         val ms = mappings.in(Compile, packageBin).value
         ms ++ generatedClasses.value // add generated classes to package
       }
-    ).dependsOn(reactiveMongoGen)
+    ).dependsOn(reactiveMongoGen, scalacPlugin)
 }
