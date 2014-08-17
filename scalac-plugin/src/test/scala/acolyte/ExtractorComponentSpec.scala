@@ -30,6 +30,12 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
           patternMatching("/path/to/file") aka "matching" mustEqual (
             List("IndexOf: /path/to/file", "0", "5", "8"))
         })
+
+      "match recursively with bindings" in {
+        patternMatching("cp /src/file /dest/dir") aka "matching" mustEqual (
+          List("_CP", "/src/file=[0,4]", "/dest/dir=[0,?]"))
+
+      }
     }
 
     "Extractor with unapplySeq" should {
@@ -57,55 +63,55 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
     }
   }
 
-  "Recursive match" >> {
+  "Nested match" >> {
     "Basic Pattern matching" should {
       "match extractor: Integer(n)" in {
-        recursivePatternMatching("456") aka "matching" mustEqual List("num-456")
+        nestedPatternMatching("456") aka "matching" mustEqual List("num-456")
       }
 
       "not match" in {
-        recursivePatternMatching("@") aka "matching" mustEqual Nil
+        nestedPatternMatching("@") aka "matching" mustEqual Nil
       }
     }
 
     "Extractor with unapply" should {
       "rich match without binding: ~(IntRange(5, 10))" in {
-        recursivePatternMatching("7") aka "matching" mustEqual List("5-to-10")
+        nestedPatternMatching("7") aka "matching" mustEqual List("5-to-10")
       }
 
       "rich match without binding: ~(IntRange(10, 20), i)" in {
-        recursivePatternMatching("12") aka "matching" mustEqual List("range:12")
+        nestedPatternMatching("12") aka "matching" mustEqual List("range:12")
       }
 
       "rich match with pattern in bindings: ~(IndexOf('/'), a :: b :: c :: _)".
         in({
-          recursivePatternMatching("/path/to/file") aka "matching" mustEqual (
+          nestedPatternMatching("/path/to/file") aka "matching" mustEqual (
             List("IndexOf: /path/to/file", "0", "5", "8"))
         })
     }
 
     "Extractor with unapplySeq" should {
       "rich match without binding: ~(Regex(re))" in {
-        recursivePatternMatching("abc").
+        nestedPatternMatching("abc").
           aka("matching") mustEqual List("no-binding")
       }
 
       "rich match with one binding: ~(Regex(re), a)" in {
-        recursivePatternMatching("# BCD.") aka "matching" mustEqual List("BCD")
+        nestedPatternMatching("# BCD.") aka "matching" mustEqual List("BCD")
       }
 
       "rich match with several bindings: ~(Regex(re), (a, b))" in {
-        recursivePatternMatching("123;xyz") aka "matching" mustEqual List(
+        nestedPatternMatching("123;xyz") aka "matching" mustEqual List(
           "123;xyz", "xyz", "123")
       }
 
       """rich match with literal: ~(Regex(re), "literal")""" in {
-        recursivePatternMatching("# magic: stop 2").
+        nestedPatternMatching("# magic: stop 2").
           aka("matching") mustEqual List("Literal: # magic: stop 2")
       }
 
       """not rich match with literal: ~(Regex(re), "literal")""" in {
-        recursivePatternMatching("# magic: start") aka "matching" mustEqual Nil
+        nestedPatternMatching("# magic: start") aka "matching" mustEqual Nil
       }
     }
   }
@@ -135,6 +141,12 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
           partialFun1("/path/to/file") aka "matching" mustEqual (
             List("IndexOf: /path/to/file", "0", "5", "8"))
         })
+
+      "match recursively with bindings" in {
+        partialFun1("cp /src/file /dest/dir") aka "matching" mustEqual (
+          List("_CP", "/src/file=[0,4]", "/dest/dir=[0,?]"))
+
+      }
     }
 
     "Extractor with unapplySeq" should {
@@ -188,6 +200,12 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
           partialFun2("/path/to/file") aka "matching" mustEqual (
             List("IndexOf: /path/to/file", "0", "5", "8"))
         })
+
+      "match recursively with bindings" in {
+        partialFun2("cp /src/file /dest/dir") aka "matching" mustEqual (
+          List("_CP", "/src/file=[0,4]", "/dest/dir=[0,?]"))
+
+      }
     }
 
     "Extractor with unapplySeq" should {
@@ -241,6 +259,12 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
           partialFun3(Some("/path/to/file")) aka "matching" must_== Some(
             List("IndexOf: /path/to/file", "0", "5", "8"))
         })
+
+      "match recursively with bindings" in {
+        partialFun3(Some("cp /src/file /dest/dir")) aka "matching" must_== Some(
+          List("_CP", "/src/file=[0,4]", "/dest/dir=[0,?]"))
+
+      }
     }
 
     "Extractor with unapplySeq" should {
@@ -269,6 +293,29 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
       }
     }
   }
+
+  "Value matching" should {
+    "be successful" in {
+      val ~(Regex("([A-Z]+):([0-9]+)"), (tag, priority)) = "FR:123"
+
+      tag aka "tag" must_== "FR" and (priority.toInt aka "priority" must_== 123)
+    }
+
+    "be recursively successful" in {
+      valMatching("cp /src/file /dest/dir").
+        aka("matching") must beSuccessfulTry.like {
+          case (src, a, b, dest, c) ⇒
+            src aka "source" must_== "/src/file" and (
+              a aka "index #1" must_== 0) and (b aka "index #2" must_== 4) and (
+                dest aka "destination" must_== "/dest/dir") and (
+                  c aka "index #3" must_== 0)
+        }
+    }
+
+    "fail" in {
+      valMatching("test") aka "matching" must beFailedTry
+    }
+  }
 }
 
 sealed trait PartialFunctionTest {
@@ -280,6 +327,11 @@ sealed trait PartialFunctionTest {
     case ~(Regex("# ([A-Z]+).*"), a)                   ⇒ List(a)
     case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b))   ⇒ List(str, b, a)
     case str @ ~(Regex("# magic: ([a-z]+).*"), "stop") ⇒ List(s"Literal: $str")
+    case ~(Regex("^cp (.+)"), ~(Regex("([/a-z]+) ([/a-z]+)"),
+      (src @ ~(IndexOf('/'), a :: b :: Nil),
+        dest @ ~(IndexOf('/'), c :: _)))) ⇒
+      List("_CP", s"$src=[$a,$b]", s"$dest=[$c,?]")
+
     case str @ ~(IndexOf('/'), a :: b :: c :: _) ⇒
       List(s"IndexOf: $str", a.toString, b.toString, c.toString)
 
@@ -293,6 +345,11 @@ sealed trait PartialFunctionTest {
     case ~(Regex("# ([A-Z]+).*"), a)                   ⇒ List(a)
     case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b))   ⇒ List(str, b, a)
     case str @ ~(Regex("# magic: ([a-z]+).*"), "stop") ⇒ List(s"Literal: $str")
+    case ~(Regex("^cp (.+)"), ~(Regex("([/a-z]+) ([/a-z]+)"),
+      (src @ ~(IndexOf('/'), a :: b :: Nil),
+        dest @ ~(IndexOf('/'), c :: _)))) ⇒
+      List("_CP", s"$src=[$a,$b]", s"$dest=[$c,?]")
+
     case str @ ~(IndexOf('/'), a :: b :: c :: _) ⇒
       List(s"IndexOf: $str", a.toString, b.toString, c.toString)
 
@@ -307,6 +364,11 @@ sealed trait PartialFunctionTest {
     case ~(Regex("# ([A-Z]+).*"), a)                   ⇒ List(a)
     case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b))   ⇒ List(str, b, a)
     case str @ ~(Regex("# magic: ([a-z]+).*"), "stop") ⇒ List(s"Literal: $str")
+    case ~(Regex("^cp (.+)"), ~(Regex("([/a-z]+) ([/a-z]+)"),
+      (src @ ~(IndexOf('/'), a :: b :: Nil),
+        dest @ ~(IndexOf('/'), c :: _)))) ⇒
+      List("_CP", s"$src=[$a,$b]", s"$dest=[$c,?]")
+
     case str @ ~(IndexOf('/'), a :: b :: c :: _) ⇒
       List(s"IndexOf: $str", a.toString, b.toString, c.toString)
 
@@ -322,12 +384,17 @@ sealed trait MatchTest {
     case ~(Regex("# ([A-Z]+).*"), a)                   ⇒ List(a)
     case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b))   ⇒ List(str, b, a)
     case str @ ~(Regex("# magic: ([a-z]+).*"), "stop") ⇒ List(s"Literal: $str")
+    case ~(Regex("^cp (.+)"), ~(Regex("([/a-z]+) ([/a-z]+)"),
+      (src @ ~(IndexOf('/'), a :: b :: Nil),
+        dest @ ~(IndexOf('/'), c :: _)))) ⇒
+      List("_CP", s"$src=[$a,$b]", s"$dest=[$c,?]")
+
     case str @ ~(IndexOf('/'), a :: b :: c :: _) ⇒
       List(s"IndexOf: $str", a.toString, b.toString, c.toString)
     case x ⇒ Nil
   }
 
-  def recursivePatternMatching(s: String): List[String] = s match {
+  def nestedPatternMatching(s: String): List[String] = s match {
     case v ⇒ v match {
       case ~(IntRange(5, 10), _)                       ⇒ List("5-to-10")
       case ~(IntRange(10, 20), i)                      ⇒ List(s"range:$i")
@@ -337,10 +404,26 @@ sealed trait MatchTest {
       case str @ ~(Regex("([0-9]+);([a-z]+)"), (a, b)) ⇒ List(str, b, a)
       case str @ ~(Regex("# magic: ([a-z]+).*"), "stop") ⇒
         List(s"Literal: $str")
+      case ~(Regex("^cp (.+)"), ~(Regex("([/a-z]+) ([/a-z]+)"),
+        (src @ ~(IndexOf('/'), a :: b :: Nil),
+          dest @ ~(IndexOf('/'), c :: _)))) ⇒
+        List("_CP", s"$src=[$a,$b]", s"$dest=[$c,?]")
+
       case str @ ~(IndexOf('/'), a :: b :: c :: _) ⇒
         List(s"IndexOf: $str", a.toString, b.toString, c.toString)
+
       case x ⇒ Nil
     }
+  }
+
+  import scala.util.Try
+
+  def valMatching(s: String): Try[(String, Int, Int, String, Int)] = Try {
+    val ~(Regex("^cp (.+)"), ~(Regex("([/a-z]+) ([/a-z]+)"),
+      (src @ ~(IndexOf('/'), a :: b :: Nil),
+        dest @ ~(IndexOf('/'), c :: _)))) = s
+
+    (src, a, b, dest, c)
   }
 }
 

@@ -27,7 +27,7 @@ case class Regex(e: String) {
 }
 ```
 
-Then provided rich syntax can be used as following (see [complete example](./src/test/scala/acolyte/ExtractorComponentSpec.scala#L189)):
+Then provided rich syntax can be used as following (see [complete example](./src/test/scala/acolyte/ExtractorComponentSpec.scala#L379)):
 
 ```scala
 str match {
@@ -43,7 +43,12 @@ str match {
   // if there are exactly 3 '/' in str, 
   // matches and assign indexes to a, b and c
 
-  case _                                       ⇒ 5
+  case ~(Regex("^cp (.+)"), ~(Regex("([/a-z]+) ([/a-z]+)"),
+    (src @ ~(IndexOf('/'), a :: b :: Nil),
+      dest @ ~(IndexOf('/'), c :: _))))        ⇒ 5
+  // rich syntax can be used recursively
+
+  case _                                       ⇒ 6
 }
 ```
 
@@ -60,7 +65,7 @@ str match {
 
 > Syntax like `(a, b)` (where `3` is selected) doesn't represent a tuple there, but multiple (list of) bindings.
 
-It also works with partial function (see [more examples](./src/test/scala/acolyte/ExtractorComponentSpec.scala#L159)).
+It also works with partial function (see [more examples](./src/test/scala/acolyte/ExtractorComponentSpec.scala#L322)).
 
 ```scala
 val partialFun: String ⇒ Int = {
@@ -85,7 +90,7 @@ val partialFun: String ⇒ Int = { str: String ⇒
 }
 ```
 
-Anonymous partial functions are refactored too (see [more examples](./src/test/scala/acolyte/ExtractorComponentSpec.scala#L178)):
+Anonymous partial functions are refactored too (see [more examples](./src/test/scala/acolyte/ExtractorComponentSpec.scala#L359)):
 
 ```scala
 def test(s: Option[String]): Option[Int] = s map {
@@ -94,6 +99,20 @@ def test(s: Option[String]): Option[Int] = s map {
   case ~(Regex("([0-9]+);([a-z]+)"), (a, b)) ⇒ 3
   case _                                     ⇒ 4
 }
+```
+
+Pattern matching in `val` statement is enriched in the same way ((see [more examples](./src/test/scala/acolyte/ExtractorComponentSpec.scala#L299)).
+
+```scala
+val ~(Regex("([A-Z]+):([0-9]+)"), (tag, priority)) = "EN:456"
+// tag == "EN" && priority == "456"
+```
+
+Such case is refactored as following:
+
+```scala
+val Xtr1 = Regex("([A-Z]+):([0-9]+)")
+val Xtr1(tag, priority) = "FR:123"
 ```
 
 ## Usage

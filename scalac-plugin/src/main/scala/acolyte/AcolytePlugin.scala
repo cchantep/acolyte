@@ -50,6 +50,7 @@ class AcolytePlugin(val global: Global) extends Plugin {
         Ident,
         Literal,
         Match,
+        Name,
         Position,
         Select,
         Tree,
@@ -71,8 +72,8 @@ class AcolytePlugin(val global: Global) extends Plugin {
         case _ ⇒ super.transform(tree)
       }
 
-      val tildeTerm = global.newTermName("$tilde")
-      val scalaTerm = global.newTermName("scala")
+      val TildeTerm = global.newTermName("$tilde")
+      val ScalaTerm = global.newTermName("scala")
 
       @inline private def refactorMatch(orig: Match): Tree = orig match {
         case Match(t, cs) ⇒ {
@@ -106,45 +107,111 @@ class AcolytePlugin(val global: Global) extends Plugin {
           orig
       }
 
+      @inline private def rewriteApply(top: Position, id: Tree, x: List[Tree], vds: ListBuffer[ValDef]): Apply = (id, x.headOption) match {
+        case (Ident(TildeTerm), Some(xt @ Apply(ex, xa))) ⇒ {
+          val bs = x.tail
+
+          val xpo: Option[List[Tree]] = bs.headOption match {
+            case Some(Apply(Select(Ident(scalaTerm), st), ua)) if (
+              st.toString startsWith "Tuple") ⇒ Some(ua)
+            case Some(ap @ Apply(_, _))          ⇒ Some(ap :: Nil)
+            case Some(bn @ Bind(_, _))           ⇒ Some(bn :: Nil)
+            case Some(id @ Ident(_))             ⇒ Some(id :: Nil)
+            case Some(li @ Literal(Constant(_))) ⇒ Some(li :: Nil)
+            case None                            ⇒ Some(Nil)
+            case _                               ⇒ None
+          }
+
+          xpo.fold({
+            reporter.error(top, s"""Invalid ~ pattern: ${bs.headOption.fold("None")(global.showRaw(_))}""")
+            //abort("Invalid ~ pattern")
+            Apply(id, x)
+          }) { xp ⇒
+            val (vd, ai) = refactorPattern(top, ex, xa, xp)
+            vds += vd
+            Apply(ai, xp)
+          }
+        }
+        case (Ident(TildeTerm), _) ⇒
+          reporter.error(top,
+            s"Invalid ~ pattern: application expected in bindings: $x")
+          Apply(id, x)
+
+        case _ ⇒ Apply(id, x)
+      }
+
+      // Transformation states
+      sealed trait TxState
+
+      private case class AState(
+        id: Tree, orig: List[Tree], refact: List[Tree]) extends TxState
+
+      private case class BState(
+        name: Name /* binding name */ ,
+        orig: Option[Tree], dest: Option[Tree]) extends TxState
+
+      private object BState {
+        def apply(name: Name, target: Tree): BState =
+          BState(name, Some(target), None)
+
+      }
+
+      @annotation.tailrec
+      private def refactorApply(top: Position, cur: TxState, up: List[TxState], vds: ListBuffer[ValDef]): Apply = (cur, up) match {
+        case (AState(id, ::(Apply(i, ts), as), xs), _) ⇒
+          refactorApply(top, AState(i, ts, Nil),
+            AState(id, as, xs) :: up, vds)
+
+        case (AState(id, ::(Bind(n, t), as), xs), _) ⇒
+          refactorApply(top, BState(n, t), AState(id, as, xs) :: up, vds)
+
+        case (bn @ BState(id, Some(Apply(i, ts)), _), _) ⇒
+          refactorApply(top, AState(i, ts, Nil), bn :: up, vds)
+
+        case (bn @ BState(id, Some(Bind(n, t)), _), _) ⇒
+          refactorApply(top, BState(n, t), bn :: up, vds)
+
+        case (AState(id, a :: as, xs), _) ⇒
+          refactorApply(top, AState(id, as, xs :+ a), up, vds)
+
+        case (BState(an, Some(at), _), ::(BState(bn, _, _), us)) ⇒
+          refactorApply(top, BState(bn, None, Some(Bind(an, at))), us, vds)
+
+        case (BState(an, Some(at), _), ::(AState(ai, ts, xs), us)) ⇒
+          refactorApply(top, AState(ai, ts, xs :+ Bind(an, at)), us, vds)
+
+        case (BState(an, _, Some(at)), ::(BState(bn, _, _), us)) ⇒
+          refactorApply(top, BState(bn, None, Some(Bind(an, at))), us, vds)
+
+        case (BState(an, _, Some(at)), ::(AState(ai, ts, xs), us)) ⇒
+          refactorApply(top, AState(ai, ts, xs :+ Bind(an, at)), us, vds)
+
+        case (AState(id, Nil, xs), ::(AState(iu, y, z), us)) ⇒
+          val ap = rewriteApply(top, id, xs, vds)
+          refactorApply(top, AState(iu, y, z :+ ap), us, vds)
+
+        case (AState(id, Nil, xs), ::(BState(un, _, _), us)) ⇒
+          val ap = rewriteApply(top, id, xs, vds)
+          refactorApply(top, BState(un, None, Some(ap)), us, vds)
+
+        case (AState(id, Nil, xs), Nil) ⇒ rewriteApply(top, id, xs, vds)
+
+        case _ ⇒
+          reporter.error(top, s"Invalid ~ pattern: $cur, $up")
+          global.abort(s"Invalid ~ pattern: $cur, $up")
+
+      }
+
       private def caseDefTransformer(vds: ListBuffer[ValDef]) =
         new global.Transformer {
           override def transform(tree: Tree): Tree = tree match {
-            case oa @ Apply(Ident(it), x) if (it == tildeTerm) ⇒ {
-              (x.headOption, x.tail) match {
-                case (Some(xt @ Apply(ex, xa)), bs) ⇒ {
-                  val xpo: Option[List[Tree]] = bs.headOption match {
-                    case Some(Apply(Select(Ident(scalaTerm), st), ua)) if (
-                      st.toString startsWith "Tuple") ⇒ Some(ua)
-                    case Some(ap @ Apply(_, _))          ⇒ Some(ap :: Nil)
-                    case Some(bn @ Bind(_, _))           ⇒ Some(bn :: Nil)
-                    case Some(id @ Ident(_))             ⇒ Some(id :: Nil)
-                    case Some(li @ Literal(Constant(_))) ⇒ Some(li :: Nil)
-                    case None                            ⇒ Some(Nil)
-                    case _                               ⇒ None
-                  }
-
-                  xpo.fold({
-                    reporter.error(oa.pos, s"""Invalid ~ pattern: ${bs.headOption.fold("None")(global.showRaw(_))}""")
-                    //abort("Invalid ~ pattern")
-                    oa
-                  }) { xp ⇒
-                    val (vd, rp) = refactorPattern(xt.pos, ex, xa, xp)
-                    vds += vd
-                    rp
-                  }
-                }
-                case _ ⇒
-                  reporter.error(oa.pos, "Invalid ~ pattern")
-                  //abort("Invalid ~ pattern")
-                  oa
-
-              }
-            }
+            case oa @ Apply(id, xa) ⇒
+              refactorApply(oa.pos, AState(id, xa, Nil), Nil, vds)
             case _ ⇒ super.transform(tree)
           }
         }
 
-      @inline private def refactorPattern[T](xp: Position, ex: Tree, xa: List[Tree], ua: List[Tree]): (ValDef, Apply) = {
+      @inline private def refactorPattern[T](xp: Position, ex: Tree, xa: List[Tree], ua: List[Tree]): (ValDef, Ident) = {
 
         import global.{ atPos, show, newTermName, Ident, Modifiers }
 
@@ -160,7 +227,7 @@ class AcolytePlugin(val global: Global) extends Plugin {
 
         val vdp = withSource(xp.withPoint(0))(new BatchSourceFile(file, vdc), 0)
 
-        (atPos(vdp)(vd), Apply(Ident(xn), ua))
+        atPos(vdp)(vd) -> Ident(xn)
       }
     }
   }
