@@ -1,6 +1,6 @@
 # Java
 
-Acolyte can be used in Vanilla Java.
+Acolyte JDBC can be used in Vanilla Java.
 
 With Maven 2/3+, its dependency can be resolved in the following way:
 

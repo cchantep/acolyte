@@ -5,9 +5,9 @@ import reactivemongo.core.protocol.Response
 object MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
   "MongoDB" title
 
-  "Query response" should {
+  "Successful query response" should {
     s"contains one expected document $doc1" in {
-      MongoDB.mkResponse(1, doc1) aka "response" must beSuccessfulTry.which {
+      MongoDB.Success(1, doc1) aka "response" must beSuccessfulTry.which {
         Response.parse(_).toList aka "results" must beLike {
           case first :: Nil ⇒
             bson(first) aka "single document" must_== bson(doc1)
@@ -16,7 +16,7 @@ object MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
     }
 
     s"contains expected collection of 3 documents" in {
-      MongoDB.mkResponse(2, doc2, doc1, doc3) aka "response" must {
+      MongoDB.Success(2, doc2, doc1, doc3) aka "response" must {
         beSuccessfulTry.which {
           Response.parse(_).toList aka "results" must beLike {
             case a :: b :: c :: Nil ⇒

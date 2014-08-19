@@ -24,42 +24,38 @@ private[reactivemongo] object Akka {
    * val mongo: ActorSystem = Akka.actorSystem()
    * }}}
    *
+   * @param handler Connection handler
    * @param name Actor system name (default: "ReactiveMongoAcolyte")
    */
-  def actorSystem(name: String = "ReactiveMongoAcolyte"): AkkaSystem = new ActorSystem(AkkaSystem(name), new ActorRefFactory() {
+  def actorSystem(handler: ConnectionHandler, name: String = "ReactiveMongoAcolyte"): AkkaSystem = new ActorSystem(AkkaSystem(name), new ActorRefFactory() {
     def before(system: AkkaSystem, next: ActorRef): ActorRef = {
-      system actorOf Props(classOf[Actor], next)
+      system actorOf Props(classOf[Actor], handler, next)
     }
   })
 }
 
-final class Actor(next: ActorRef) extends akka.actor.Actor {
+private[reactivemongo] class Actor(
+    handler: ConnectionHandler, next: ActorRef /* TODO: Remove */ ) extends akka.actor.Actor {
+
   def receive = {
     case msg @ CheckedWriteRequestExpectingResponse(req) ⇒
       println(s"wreq = $req")
+      /*
+       CheckedWriteRequest(Insert(0,test-db.a-col),BufferSequence(DynamicChannelBuffer(ridx=0, widx=37, cap=64),WrappedArray()),GetLastError(false,None,0,false))
+       */
       next forward msg
 
-    case msg @ RequestMakerExpectingResponse(RequestMaker(op @ RQuery(_ /*flags*/ , coln, off, len), doc, _ /*pref*/ , chanId)) ⇒
+    case msg @ RequestMakerExpectingResponse(RequestMaker(
+      op @ RQuery(_ /*flags*/ , coln, off, len), doc, _ /*pref*/ , chanId)) ⇒
       val exp = new ExpectingResponse(msg)
 
-      import reactivemongo.bson.{ BSONDocument, BSONInteger, BSONString }
+      handler queryHandler Query(coln, doc.merged) match {
+        case Some(body) ⇒
+          println(s"query = ${body}")
+          exp.promise.success(MongoDB.Success(chanId getOrElse 1, body: _*).get)
 
-      val q = Query(coln, doc.merged)
-
-      q match {
-        case QueryBody(colName, 
-          ~(Property("age"), ValueDocument(
-            ~(Property("$gt"), BSONInteger(minAge)))) &
-          ~(Property("email"), BSONString("demo@applicius.fr"))) =>
-          println(s"col = $colName, ${minAge}")
+        case _ ⇒ ???
       }
-
-      println(s"query = ${q.body.elements.toList}")
-
-      val bsonObj1 = BSONDocument("email" -> "test1@test.fr", "age" -> 3)
-      val bsonObj2 = BSONDocument("email" -> "test2@test.fr", "age" -> 5)
-
-      exp.promise.success(MongoDB.mkResponse(chanId getOrElse 1, bsonObj1, bsonObj2).get)
 
     case close @ Close ⇒ /* Do nothing: next forward close */
     case msg ⇒

@@ -2,7 +2,28 @@
 
 Acolyte API for ReactiveMongo (0.10.0).
 
-## Query pattern matching
+## Motivation
+
+Wherever in your code you use ReactiveMongo driver, you can pass Acolyte Mongo driver instead during tests.
+
+Then any connection created will be managed by your Acolyte (query & writer) handlers.
+
+## Usage
+
+- 1. Configure connection handler according expected behaviour: which response to which query, which result for which write request.
+- 2. Create a custom `MongoDriver` instance, set up with prepared connection handler.
+
+```scala
+import reactivemongo.api.MongoDriver
+
+import acolyte.reactivemongo.AcolyteDSL.{ driver, handleStatement }
+
+val mongoDriver: MongoDriver = driver {
+  handleStatement
+}
+```
+
+### Query patterns
 
 Pattern matching can be used in query handler to dispatch result accordingly.
 

@@ -13,7 +13,7 @@ import acolyte.jdbc.AbstractCompositeHandler.{ QueryHandler, UpdateHandler }
 import acolyte.jdbc.RowList.{ Column ⇒ Col }
 
 /**
- * Acolyte DSL.
+ * Acolyte DSL for JDBC.
  *
  * {{{
  * import acolyte.jdbc.AcolyteDSL.{ connection, handleStatement }

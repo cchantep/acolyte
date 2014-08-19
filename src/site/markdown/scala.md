@@ -2,7 +2,7 @@
 
 Module `jdbc-scala` provides a Scala DSL to use more friendily Acolyte features.
 
-Using SBT, Acolyte dependency can resolved as following:
+Using SBT, Acolyte JDBC dependency can resolved as following:
 
 ```scala
 libraryDependencies += "org.eu.acolyte" %% "jdbc-scala" % "VERSION" % "test"
