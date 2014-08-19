@@ -92,6 +92,10 @@ rowList6( // Now it's ok
   classOf[String] -> "col6")
 ```
 
+## Can I re-use data from existing DB with Acolyte?
+
+[Studio](./studio.html) can record results from DB, so they can be used later with Acolyte framework, either in Java or Scala.
+
 ## Why do I get error with null value in row?
 
 As type can't always be inferred when using `null`, it can lead to ambiguity:
@@ -103,6 +107,12 @@ As type can't always be inferred when using `null`, it can lead to ambiguity:
 
 In such cases, [type of null](index.html#NULL_values) must be explicitly given.
 
-## Can I re-use data from existing DB with Acolyte?
+## Why do I get type arguments error in Scala 2.11?
 
-[Studio](./studio.html) can record results from DB, so they can be used later with Acolyte framework, either in Java or Scala.
+If you use Acolyte with Scala 2.11, and have in your code reference to row list types like `RowList4[String, String, String, String, _]`, you may get a compilation error as following one:
+
+```
+...: type arguments [String,String,String,String,_$1] do not conform to class RowList4's type parameter bounds [A,B,C,D,UPDATED <: acolyte.jdbc.RowList4[A, B, C, D, _]] ...
+```
+
+This seems to be due to change in Scala compiler about self-types. Fortunately that's not a big deal to fix it, by changing type reference like `RowList4[A, B, C, D, _]` to something like `RowList[Row4[A, B, C, D]]` (concrete type where self-type is resolved).

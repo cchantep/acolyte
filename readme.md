@@ -72,6 +72,7 @@ With [Studio](studio.html), you can use data extracted from existing database wi
 _Projects using Acolyte:_
 
 - [Play Framework](http://www.playframework.com/) Anorm ([AnormSpec](https://github.com/playframework/playframework/blob/master/framework/src/anorm/src/test/jdbc-scala/anorm/AnormSpec.scala)). 
+- [Youtube Vitess](https://github.com/youtube/vitess).
 - [Cielago](https://github.com/cchantep/cielago-tracker) ([DispatchReportSpec](https://github.com/cchantep/cielago-tracker/blob/master/test/models/DispatchReportSpec.scala), [ListInfoSpec](https://github.com/cchantep/cielago-tracker/blob/master/test/models/ListInfoSpec.scala), [MainSpec](https://github.com/cchantep/cielago-tracker/blob/master/test/controllers/MainSpec.scala), …).
 
 To share questions, answers & ideas, you can go to the [mailing list](https://groups.google.com/forum/#!forum/acolyte-support).
