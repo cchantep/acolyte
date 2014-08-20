@@ -16,19 +16,28 @@ import reactivemongo.core.protocol.{
 
 /* MongoDB companion */
 object MongoDB {
-  // 4 ignore, 1 failure
 
   /**
-   * Build a successful response
+   * Builds an erroneous response.
    *
-   * @param docs BSON documents
    * @param channelId Unique ID of channel
+   * @param error Error message
+   */
+  def Error(channelId: Int, error: String): Try[Response] =
+    mkResponse(channelId, 1 /*QueryFailure*/ ,
+      Seq(BSONDocument("$err" -> error)))
+
+  /**
+   * Builds a successful response.
+   *
+   * @param channelId Unique ID of channel
+   * @param docs BSON documents
    */
   def Success(channelId: Int, docs: BSONDocument*): Try[Response] =
     mkResponse(channelId, 4 /* unspecified*/ , docs)
 
   /**
-   * Build a Mongo response.
+   * Builds a Mongo response.
    *
    * @param channelId Unique ID of channel
    * @param docs BSON documents
@@ -52,6 +61,14 @@ object MongoDB {
     buf.writeBytes(body.array)
 
     val in = ChannelBuffers.unmodifiableBuffer(buf)
+
+    Response(MessageHeader(in), Reply(in), in, ResponseInfo(channelId))
+  }
+
+  private[reactivemongo] def MkResponseError(channelId: Int = 0): Response = {
+    val buf = ChannelBuffers.copiedBuffer(ByteOrder.LITTLE_ENDIAN, Array[Byte](76, 0, 0, 0, 16, -55, -63, 115, -49, 116, 119, 55, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 40, 0, 0, 0, 2, 36, 101, 114, 114, 0, 25, 0, 0, 0, 70, 97, 105, 108, 115, 32, 116, 111, 32, 99, 114, 101, 97, 116, 101, 32, 114, 101, 115, 112, 111, 110, 115, 101, 0, 0))
+    val in = ChannelBuffers.unmodifiableBuffer(buf)
+
     Response(MessageHeader(in), Reply(in), in, ResponseInfo(channelId))
   }
 }

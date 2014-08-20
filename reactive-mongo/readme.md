@@ -108,6 +108,20 @@ query match {
 }
 ```
 
+### Result creation
+
+```scala
+import scala.util.Try
+import reactivemongo.bson.BSONDocument
+import reactivemongo.core.protocol.Response
+import acolyte.reactivemongo.MongoDB
+
+val error: Try[Response] = MongoDB.Error(1/* channel */, "Error message")
+
+val success: Try[Response] = MongoDB.Success(2/* channel */,
+  BSONDocument("prop" -> "doc1"), BSONDocument("prop" -> "doc2")/*...*/)
+```
+
 ## Build
 
 This module can be built from these sources using SBT (0.12.2+), 

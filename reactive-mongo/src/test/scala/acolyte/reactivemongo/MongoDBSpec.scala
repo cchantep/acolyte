@@ -1,5 +1,6 @@
 package acolyte.reactivemongo
 
+import reactivemongo.bson.BSONDocument
 import reactivemongo.core.protocol.Response
 
 object MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
@@ -28,12 +29,29 @@ object MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
       }
     }
   }
+
+  "Erroneous query response" should {
+    @inline def shouldMatch(r: Response, msg: String) =
+      r.error aka "error" must beSome.which { err ⇒
+        err.message aka "message" must_== msg and (
+          err.originalDocument aka "document" must beSome(
+            BSONDocument("$err" -> msg)))
+      }
+
+    "be expected MkResponseError" in {
+      shouldMatch(MongoDB.MkResponseError(), "Fails to create response")
+    }
+
+    "be expected error #1" in {
+      MongoDB.Error(2, "Error #1") aka "response" must beSuccessfulTry.
+        which(shouldMatch(_, "Error #1"))
+    }
+  }
 }
 
 private[reactivemongo] trait MongoFixtures {
   import reactivemongo.bson.{
     BSONDateTime,
-    BSONDocument,
     BSONDouble,
     BSONInteger,
     BSONString,
