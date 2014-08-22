@@ -110,16 +110,31 @@ query match {
 
 ### Result creation
 
+Mongo result to be returned by query handler, can be created as following:
+
 ```scala
-import scala.util.Try
 import reactivemongo.bson.BSONDocument
-import reactivemongo.core.protocol.Response
-import acolyte.reactivemongo.MongoDB
+import reactivemongo.core.protocol.Resonse 
+import acolyte.reactivemongo.QueryResponse
 
-val error: Try[Response] = MongoDB.Error(1/* channel */, "Error message")
+val error1: Option[Try[Response]] = QueryResponse.failed("Error #1")
+val error2 = QueryResponse("Error #2") // equivalent
 
-val success: Try[Response] = MongoDB.Success(2/* channel */,
-  BSONDocument("prop" -> "doc1"), BSONDocument("prop" -> "doc2")/*...*/)
+val success1 = QueryResponse(BSONDocument("name" -> "singleResult"))
+val success2 = QueryResponse.successful(BSONDocument("name" -> "singleResult"))
+
+val success3 = QueryResponse(Seq(
+  BSONDocument("name" -> "singleResult"), BSONDocument("price" -> 1.2D)))
+
+val success4 = QueryResponse.successful(
+  BSONDocument("name" -> "singleResult"), BSONDocument("price" -> 1.2D))
+```
+
+When a handler supports some query cases, but not other, it can return an undefined response, to let the chance other handlers would manage it.
+
+```scala
+val undefined1 = QueryResponse(None)
+val undefined2 = QueryResponse.empty
 ```
 
 ## Build

@@ -1,6 +1,7 @@
 package acolyte.reactivemongo
 
 import scala.concurrent.{ ExecutionContext, Future }
+import scala.util.{ Failure, Success }
 
 import com.typesafe.config.Config
 import akka.actor.{ ActorRef, ActorSystem ⇒ AkkaSystem, Props }
@@ -10,7 +11,11 @@ import reactivemongo.core.actors.{
   CheckedWriteRequestExpectingResponse,
   RequestMakerExpectingResponse
 }
-import reactivemongo.core.protocol.{ Query ⇒ RQuery, RequestMaker }
+import reactivemongo.core.protocol.{
+  Query ⇒ RQuery,
+  RequestMaker,
+  Response
+}
 
 /** Akka companion for Acolyte mongo system. */
 private[reactivemongo] object Akka {
@@ -48,14 +53,19 @@ private[reactivemongo] class Actor(
     case msg @ RequestMakerExpectingResponse(RequestMaker(
       op @ RQuery(_ /*flags*/ , coln, off, len), doc, _ /*pref*/ , chanId)) ⇒
       val exp = new ExpectingResponse(msg)
+      val cid = chanId getOrElse 1
+      val resp = handler.queryHandler(cid, Query(coln, doc.merged)).
+        fold(NoResponse(cid, msg.toString))(_ match {
+          case Success(r) ⇒ r
+          case Failure(e) ⇒ MongoDB.Error(cid, Option(e.getMessage).
+            getOrElse(e.getClass.getName)) match {
+            case Success(err) ⇒ err
+            case _            ⇒ MongoDB.MkResponseError(cid)
+          }
+        })
 
-      handler queryHandler Query(coln, doc.merged) match {
-        case Some(body) ⇒
-          println(s"query = ${body}")
-          exp.promise.success(MongoDB.Success(chanId getOrElse 1, body: _*).get)
-
-        case _ ⇒ ???
-      }
+      // MongoDB.Success(cid, body: _*).get
+      exp.promise.success(resp)
 
     case close @ Close ⇒ /* Do nothing: next forward close */
     case msg ⇒
@@ -65,4 +75,11 @@ private[reactivemongo] class Actor(
        */
       ()
   }
+
+  /** Fallback response when no handler provides a response. */
+  private def NoResponse(chanId: Int, req: String): Response =
+    MongoDB.Error(chanId, s"No response: $req") match {
+      case Success(resp) ⇒ resp
+      case _             ⇒ MongoDB.MkResponseError(chanId)
+    }
 }

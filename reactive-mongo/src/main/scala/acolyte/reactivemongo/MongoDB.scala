@@ -33,7 +33,7 @@ object MongoDB {
    * @param channelId Unique ID of channel
    * @param docs BSON documents
    */
-  def Success(channelId: Int, docs: BSONDocument*): Try[Response] =
+  def Success(channelId: Int, docs: Traversable[BSONDocument]): Try[Response] =
     mkResponse(channelId, 4 /* unspecified*/ , docs)
 
   /**
@@ -42,7 +42,7 @@ object MongoDB {
    * @param channelId Unique ID of channel
    * @param docs BSON documents
    */
-  def mkResponse(channelId: Int, flags: Int, docs: Seq[BSONDocument]): Try[Response] = Try {
+  def mkResponse(channelId: Int, flags: Int, docs: Traversable[BSONDocument]): Try[Response] = Try {
     val body = new reactivemongo.bson.buffer.ArrayBSONBuffer()
 
     docs foreach { BSONDocument.write(_, body) }
@@ -71,4 +71,28 @@ object MongoDB {
 
     Response(MessageHeader(in), Reply(in), in, ResponseInfo(channelId))
   }
+}
+
+/**
+ * Creates a response for given channel ID and result.
+ * @tparam T Result type
+ */
+trait ResponseMaker[T] extends ((Int, T) ⇒ Try[Response]) {
+  /**
+   * @param channelId ID of Mongo channel
+   * @param result Result to be wrapped into response
+   */
+  override def apply(channelId: Int, result: T): Try[Response]
+}
+
+/** Response maker companion. */
+object ResponseMaker {
+  implicit def SuccessResponseMaker[T <: Traversable[BSONDocument]] =
+    new ResponseMaker[T] { // TODO: Unit test (Shapeless macro?)
+      override def apply(channelId: Int, result: T): Try[Response] =
+        MongoDB.Success(channelId, result)
+    }
+
+  // TODO: Implicits for 1 BSONDocument, a String (error message), 
+  // None.type (undefined)
 }
