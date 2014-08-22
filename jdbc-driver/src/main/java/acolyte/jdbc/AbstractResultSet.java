@@ -55,6 +55,15 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     protected int row = 0;
 
     /**
+     * Result set type
+     *
+     * @see java.sql.ResultSet#TYPE_FORWARD_ONLY
+     * @see java.sql.ResultSet#TYPE_SCROLL_INSENSITIVE
+     * @see java.sql.ResultSet#TYPE_SCROLL_SENSITIVE
+     */
+    protected final int type;
+
+    /**
      * Cursor name
      */
     protected final String cursorName;
@@ -68,6 +77,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
         this.cursorName = 
             String.format("cursor-%d", System.identityHashCode(this));
 
+        this.type = TYPE_FORWARD_ONLY;
     } // end of <init>
 
     /**
@@ -79,6 +89,19 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
         } // end of if
 
         this.cursorName = cursor;
+        this.type = TYPE_FORWARD_ONLY;
+    } // end of <init>
+
+    /**
+     * Bulk constructor.
+     */
+    protected AbstractResultSet(final String cursor, final int type) {
+        if (cursor == null) {
+            throw new IllegalArgumentException();
+        } // end of if
+
+        this.cursorName = cursor;
+        this.type = type;
     } // end of <init>
 
     // ---
@@ -458,15 +481,15 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
      * {@inheritDoc}
      */
     public void beforeFirst() throws SQLException {
-        if (this.row > 0) {
-            throw new SQLException("Backward move");
-        } // end of if
+        checkNotForwardOnly();
     } // end of beforeFirst
 
     /**
      * {@inheritDoc}
      */
     public void afterLast() throws SQLException {
+        checkNotForwardOnly();
+
         this.row = this.fetchSize + 1;
     } // end of afterLast
 
@@ -526,6 +549,8 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
      * {@inheritDoc}
      */
     public boolean previous() throws SQLException {
+        checkNotForwardOnly();
+
         return relative(-1);
     } // end of previous
 
@@ -540,6 +565,12 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
      * {@inheritDoc}
      */
     public void setFetchDirection(final int direction) throws SQLException {
+        if (direction == FETCH_REVERSE || direction == FETCH_UNKNOWN) {
+            checkNotForwardOnly();
+        } // end of if
+
+        // ---
+
         this.fetchDirection = direction;
     } // end of setFetchDirection
 
@@ -568,7 +599,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
      * {@inheritDoc}
      */
     public int getType() throws SQLException {
-        return TYPE_FORWARD_ONLY;
+        return this.type;
     } // end of getType
 
     /**
@@ -1701,6 +1732,16 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     protected void checkClosed() throws SQLException {
         if (this.closed) {
             throw new SQLException("Result set is closed");
+        } // end of if
+    } // end of checkClosed
+
+    /**
+     * Throws a SQLException("Type of result set is forward only") 
+     * if {java.sql.ResultSet#TYPE_FORWARD_ONLY}.
+     */
+    protected void checkNotForwardOnly() throws SQLException {
+        if (this.type == TYPE_FORWARD_ONLY) {
+            throw new SQLException("Type of result set is forward only");
         } // end of if
     } // end of checkClosed
 } // end of class AbstractResultSet

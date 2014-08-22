@@ -31,7 +31,7 @@ object AbstractResultSetSpec extends Specification {
 
   "New resultset" should {
     "refuse invalid cursor name" in {
-      lazy val rs = new AbstractResultSet(null) { }
+      lazy val rs = new AbstractResultSet(null) {}
 
       rs aka "ctor" must throwA[IllegalArgumentException]
     }
@@ -74,36 +74,55 @@ object AbstractResultSetSpec extends Specification {
 
   "Fetch size" should {
     "initially be zero" in {
-      defaultSet.getFetchSize aka "size" mustEqual 0
+      defaultSet.getFetchSize aka "size" must_== 0
     }
 
     "be properly set" in {
       lazy val rs = defaultSet
       rs.setFetchSize(2)
 
-      rs.getFetchSize aka "size" mustEqual 2
+      rs.getFetchSize aka "size" must_== 2
     }
   }
 
-  "Fetch directory" should {
+  "Fetch direction" should {
     "initially be FETCH_FORWARD" in {
       defaultSet.getFetchDirection.
         aka("direction") mustEqual ResultSet.FETCH_FORWARD
 
     }
 
-    "be property set" in {
-      lazy val rs = defaultSet
-      val rdir = ResultSet.FETCH_REVERSE
-      rs.setFetchDirection(rdir)
+    "fail to be set when not scrollable" in {
+      defaultSet.setFetchDirection(ResultSet.FETCH_REVERSE).
+        aka("setting fetch direction") must throwA[SQLException](
+          "Type of result set is forward only") and (
+            defaultSet.setFetchDirection(ResultSet.FETCH_UNKNOWN).
+            aka("setting fetch direction") must throwA[SQLException](
+              "Type of result set is forward only"))
+    }
 
-      rs.getFetchDirection aka "directory" mustEqual rdir
+    "be property set on scrollable set" >> {
+      "reverse" in {
+        lazy val rs = scrollInsensitiveSet
+
+        rs.setFetchDirection(ResultSet.FETCH_REVERSE)
+
+        rs.getFetchDirection aka "direction" mustEqual ResultSet.FETCH_REVERSE
+      }
+
+      "unknown" in {
+        lazy val rs = scrollInsensitiveSet
+
+        rs.setFetchDirection(ResultSet.FETCH_UNKNOWN)
+
+        rs.getFetchDirection aka "direction" mustEqual ResultSet.FETCH_UNKNOWN
+      }
     }
   }
 
   "Row" should {
     "initially be zero" in {
-      defaultSet.getRow aka "row" mustEqual 0
+      defaultSet.getRow aka "row" must_== 0
     }
 
     "not be moved backward (forward only)" in {
@@ -206,17 +225,31 @@ object AbstractResultSetSpec extends Specification {
       }
     }
 
-    "be moved to last" >> {
-      "without change" in {
+    "be moved before first" >> {
+      "throwing exception" in {
         lazy val rs = defaultSet
-        (rs.last aka "last" must beTrue) and (rs.getRow aka "row" mustEqual 0)
+
+        rs.beforeFirst aka "moving before first" must throwA[SQLException](
+          message = "Type of result set is forward only")
       }
 
-      "at 1" in {
+      "without change if scrollable" in {
+        lazy val rs = scrollInsensitiveSet
+        rs.beforeFirst
+
+        rs.getRow aka "row" must_== 0 and (
+          rs.isBeforeFirst aka "before first" must beTrue)
+      }
+
+      "with failure when backward and not scrollable" in {
         lazy val rs = defaultSet
         rs.setFetchSize(1)
 
-        (rs.last aka "last" must beTrue) and (rs.getRow aka "row" mustEqual 1)
+        (rs.first aka "move first" must beTrue).
+          and(rs.getRow aka "row" mustEqual 1).
+          and(rs.beforeFirst aka "before first" must throwA[SQLException](
+            message = "Type of result set is forward only"))
+
       }
     }
 
@@ -249,25 +282,32 @@ object AbstractResultSetSpec extends Specification {
       }
     }
 
-    "be moved before first" >> {
+    "be moved to last" >> {
       "without change" in {
         lazy val rs = defaultSet
-        rs.beforeFirst
-
-        (rs.getRow aka "row" mustEqual 0).
-          and(rs.isBeforeFirst aka "before first" must beTrue)
-
+        rs.last aka "last" must beTrue and (rs.getRow aka "row" must_== 0)
       }
 
-      "with failure when backward" in {
+      "at 1" in {
         lazy val rs = defaultSet
         rs.setFetchSize(1)
 
-        (rs.first aka "move first" must beTrue).
-          and(rs.getRow aka "row" mustEqual 1).
-          and(rs.beforeFirst aka "before first" must throwA[SQLException](
-            message = "Backward move"))
+        rs.last aka "last" must beTrue and (rs.getRow aka "row" must_== 1)
+      }
+    }
 
+    "be moved to after last" >> {
+      "with failure when not scrollable" in {
+        defaultSet.afterLast aka "moving after last" must throwA[SQLException](
+          "Type of result set is forward only")
+      }
+
+      "at 2" in {
+        lazy val rs = scrollInsensitiveSet
+        rs.setFetchSize(1)
+        rs.afterLast()
+
+        rs.getRow aka "row" must_== 2
       }
     }
   }
@@ -479,4 +519,6 @@ object AbstractResultSetSpec extends Specification {
   }
 
   def defaultSet = new AbstractResultSet {}
+  def scrollInsensitiveSet = new AbstractResultSet(
+    "si", ResultSet.TYPE_SCROLL_INSENSITIVE) {}
 }
