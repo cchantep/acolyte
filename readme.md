@@ -4,7 +4,9 @@ Acolyte is a JDBC driver designed for cases like mockup, testing, or any case yo
 
 ## Motivation
 
-Automated testing for persistence (JDBC related) code is not trivial.
+Persistence layer not only apply changes and retrieve raw data. It usually gathers those data from several sources (e.g. various queries), but also converts data types (e.g. integer to boolean) and maps it to structured information.
+
+Automated testing about that is not trivial.
 Using test DB requires tools (scripts) to set up environment repeatly, for each time tests are executed.
 
 Considering integration testing that's fine. It's different for unit testing.

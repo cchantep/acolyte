@@ -73,8 +73,8 @@ object QueryHandler {
    *
    * }}}
    */
-  implicit def SimpleQueryHandler[T](f: Query ⇒ T)(implicit mkResponse: ResponseMaker[T]): QueryHandler = new QueryHandler {
-    def apply(chanId: Int, q: Query): Option[Try[Response]] =
-      Option(mkResponse(chanId, f(q)))
-  }
+  implicit def SimpleQueryHandler(f: Query ⇒ QueryResponse): QueryHandler = 
+    new QueryHandler {
+      def apply(chanId: Int, q: Query): Option[Try[Response]] = f(q)(chanId)
+    }
 }

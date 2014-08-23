@@ -64,7 +64,6 @@ private[reactivemongo] class Actor(
           }
         })
 
-      // MongoDB.Success(cid, body: _*).get
       exp.promise.success(resp)
 
     case close @ Close ⇒ /* Do nothing: next forward close */
@@ -77,7 +76,7 @@ private[reactivemongo] class Actor(
   }
 
   /** Fallback response when no handler provides a response. */
-  private def NoResponse(chanId: Int, req: String): Response =
+  @inline private def NoResponse(chanId: Int, req: String): Response =
     MongoDB.Error(chanId, s"No response: $req") match {
       case Success(resp) ⇒ resp
       case _             ⇒ MongoDB.MkResponseError(chanId)

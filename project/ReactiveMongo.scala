@@ -58,6 +58,11 @@ trait ReactiveMongo { deps: Dependencies ⇒
       libraryDependencies ++= Seq(
         reactiveMongoLib % reactiveMongoVer.value, 
         "com.jsuereth" %% "scala-arm" % "1.4",
+        "com.chuusai" % "shapeless" % "2.0.0" % Test cross CrossVersion.
+          binaryMapped {
+            case "2.10" => scalaVersion.value
+            case x => x
+          },
         specs2Test),
       generatedClassDirectory := {
         val dir = target.value / "generated_classes"

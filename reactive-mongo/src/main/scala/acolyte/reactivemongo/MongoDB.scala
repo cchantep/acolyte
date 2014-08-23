@@ -66,33 +66,9 @@ object MongoDB {
   }
 
   private[reactivemongo] def MkResponseError(channelId: Int = 0): Response = {
-    val buf = ChannelBuffers.copiedBuffer(ByteOrder.LITTLE_ENDIAN, Array[Byte](76, 0, 0, 0, 16, -55, -63, 115, -49, 116, 119, 55, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 40, 0, 0, 0, 2, 36, 101, 114, 114, 0, 25, 0, 0, 0, 70, 97, 105, 108, 115, 32, 116, 111, 32, 99, 114, 101, 97, 116, 101, 32, 114, 101, 115, 112, 111, 110, 115, 101, 0, 0))
+    val buf = ChannelBuffers.copiedBuffer(ByteOrder.LITTLE_ENDIAN, Array[Byte](76, 0, 0, 0, 16, -55, -63, 115, -49, 116, 119, 55, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 40, 0, 0, 0, 2, 36, 101, 114, 114, 0, 25, 0, 0, 0, 70, 97, 105, 108, 115, 32, 116, 111, 32, 99, 114, 101, 97, 116, 101, 32, 114, 101, 115, 112, 111, 110, 115, 101, 0, 0)) // "Fails to create response"
     val in = ChannelBuffers.unmodifiableBuffer(buf)
 
     Response(MessageHeader(in), Reply(in), in, ResponseInfo(channelId))
   }
-}
-
-/**
- * Creates a response for given channel ID and result.
- * @tparam T Result type
- */
-trait ResponseMaker[T] extends ((Int, T) ⇒ Try[Response]) {
-  /**
-   * @param channelId ID of Mongo channel
-   * @param result Result to be wrapped into response
-   */
-  override def apply(channelId: Int, result: T): Try[Response]
-}
-
-/** Response maker companion. */
-object ResponseMaker {
-  implicit def SuccessResponseMaker[T <: Traversable[BSONDocument]] =
-    new ResponseMaker[T] { // TODO: Unit test (Shapeless macro?)
-      override def apply(channelId: Int, result: T): Try[Response] =
-        MongoDB.Success(channelId, result)
-    }
-
-  // TODO: Implicits for 1 BSONDocument, a String (error message), 
-  // None.type (undefined)
 }
