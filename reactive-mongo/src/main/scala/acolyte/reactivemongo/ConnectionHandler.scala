@@ -42,8 +42,10 @@ object ConnectionHandler {
       override val queryHandler = f(handler)
     }
 
-  // TODO
-  lazy val empty: ConnectionHandler = ??? // ConnectionHandler(_ ⇒ ???)
+  /**
+   * Empty connection handler, not handling any query or write request.
+   */
+  lazy val empty: ConnectionHandler = apply(QueryHandler.empty)
 }
 
 /** Query handler. */
@@ -73,8 +75,13 @@ object QueryHandler {
    *
    * }}}
    */
-  implicit def SimpleQueryHandler(f: Query ⇒ QueryResponse): QueryHandler = 
+  implicit def SimpleQueryHandler(f: Query ⇒ QueryResponse): QueryHandler =
     new QueryHandler {
       def apply(chanId: Int, q: Query): Option[Try[Response]] = f(q)(chanId)
     }
+
+  /**
+   * Empty query handler, not handling anything.
+   */
+  lazy val empty = SimpleQueryHandler(_ ⇒ QueryResponse(None))
 }

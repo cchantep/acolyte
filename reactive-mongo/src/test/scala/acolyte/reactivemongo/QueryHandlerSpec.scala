@@ -2,8 +2,8 @@ package acolyte.reactivemongo
 
 import reactivemongo.bson.{ BSONDocument, BSONInteger, BSONString }
 
-object QueryHandlerSpec
-    extends org.specs2.mutable.Specification with ResponseMatchers {
+object QueryHandlerSpec extends org.specs2.mutable.Specification 
+    with ResponseMatchers with QueryHandlerFixtures {
 
   "Query handler" title
 
@@ -46,6 +46,14 @@ object QueryHandlerSpec
     }
   }
 
+  "Empty handler" should {
+    "return no response" in {
+      QueryHandler.empty aka "query handler" must beLike {
+        case h ⇒ h(1, query1) must beNone
+      }
+    }
+  }
+
   "Mixed handler" should {
     val handler = implicitly[QueryHandler]({ q: Query ⇒
       q match {
@@ -83,7 +91,9 @@ object QueryHandlerSpec
       }
     }
   }
+}
 
+trait QueryHandlerFixtures {
   val query1 = new Query {
     val collection = "test1"
     val body = BSONDocument("filter" -> "valA")
