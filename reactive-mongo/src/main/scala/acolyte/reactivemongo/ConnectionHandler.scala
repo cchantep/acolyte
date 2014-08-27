@@ -1,6 +1,7 @@
 package acolyte.reactivemongo
 
 import scala.util.Try
+
 import reactivemongo.core.protocol.Response
 
 /** Connection handler. */
@@ -18,7 +19,7 @@ sealed trait ConnectionHandler { self ⇒
   def withQueryHandler[T](handler: T)(implicit f: T ⇒ QueryHandler) = {
     new ConnectionHandler {
       override val queryHandler = new QueryHandler {
-        override def apply(cid: Int, q: Query) =
+        override def apply(cid: Int, q: Request) =
           self.queryHandler(cid, q).orElse(f(handler)(cid, q))
       }
     }
@@ -49,12 +50,12 @@ object ConnectionHandler {
 }
 
 /** Query handler. */
-sealed trait QueryHandler extends ((Int, Query) ⇒ Option[Try[Response]]) {
+sealed trait QueryHandler extends ((Int, Request) ⇒ Option[Try[Response]]) {
   /**
    * @param channelId ID of channel
    * @param query Query to respond to
    */
-  override def apply(channelId: Int, query: Query): Option[Try[Response]]
+  override def apply(channelId: Int, query: Request): Option[Try[Response]]
 }
 
 /** Query handler companion. */
@@ -68,20 +69,32 @@ object QueryHandler {
    *
    * {{{
    * import reactivemongo.bson.BSONDocument
-   * import acolyte.reactivemongo.{ Query, QueryHandler }
+   * import acolyte.reactivemongo.{ Request, QueryHandler }
    *
    * val handler1: QueryHandler = // Returns a successful empty response
-   *   (q: Query) => Some(Seq.empty[BSONDocument])
+   *   (q: Request) => Some(Seq.empty[BSONDocument])
    *
    * }}}
    */
-  implicit def SimpleQueryHandler(f: Query ⇒ QueryResponse): QueryHandler =
+  implicit def SimpleQueryHandler(f: Request ⇒ QueryResponse): QueryHandler =
     new QueryHandler {
-      def apply(chanId: Int, q: Query): Option[Try[Response]] = f(q)(chanId)
+      def apply(chanId: Int, q: Request): Option[Try[Response]] = f(q)(chanId)
     }
 
   /**
-   * Empty query handler, not handling anything.
+   * Empty query handler, not handling any request.
    */
   lazy val empty = SimpleQueryHandler(_ ⇒ QueryResponse(None))
+}
+
+/** Write handler. */
+sealed trait WriteHandler extends ((Int, WriteOp, Request) ⇒ Option[Try[Response]]) {
+
+  /**
+   * @param channelId ID of channel
+   * @param op Write operator
+   * @param request Write request
+   */
+  override def apply(channelId: Int, op: WriteOp, query: Request): Option[Try[Response]]
+
 }

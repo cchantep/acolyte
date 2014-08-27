@@ -1,13 +1,18 @@
 package acolyte.reactivemongo
 
 import reactivemongo.bson.BSONDocument
-import reactivemongo.core.protocol.Response
+import reactivemongo.core.protocol.{
+  Delete,
+  Insert,
+  Response,
+  Update
+}
 
 object MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
   "MongoDB" title
 
   "Successful query response" should {
-    s"contains one expected document $doc1" in {
+    s"contains one expected document BSONDocument(${doc1.elements.toList})" in {
       MongoDB.Success(1, Seq(doc1)) aka "response" must beSuccessfulTry.which {
         Response.parse(_).toList aka "results" must beLike {
           case first :: Nil ⇒
@@ -45,6 +50,23 @@ object MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
     "be expected error #1" in {
       MongoDB.Error(2, "Error #1") aka "response" must beSuccessfulTry.
         which(shouldMatch(_, "Error #1"))
+    }
+  }
+
+  "Write operator" should {
+    "be delete" in {
+      MongoDB.WriteOp(Delete("db.col", 0)) aka "parsed op" must beSome.which(
+        _ aka "write op" must_== DeleteOp)
+    }
+
+    "be insert" in {
+      MongoDB.WriteOp(Insert(1, "db.col")) aka "parsed op" must beSome.which(
+        _ aka "write op" must_== InsertOp)
+    }
+
+    "be update" in {
+      MongoDB.WriteOp(Update("db.col", 2)) aka "parsed op" must beSome.which(
+        _ aka "write op" must_== UpdateOp)
     }
   }
 }

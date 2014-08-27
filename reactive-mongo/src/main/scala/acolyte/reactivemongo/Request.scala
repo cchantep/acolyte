@@ -1,11 +1,18 @@
 package acolyte.reactivemongo
 
+import org.jboss.netty.buffer.ChannelBuffer
+
 import reactivemongo.bson.{ BSONDocument, BSONValue }
+import reactivemongo.bson.buffer.{
+  ArrayBSONBuffer,
+  ReadableBuffer,
+  WritableBuffer
+}
 
 /**
- * Query executed against Mongo connection.
+ * Request executed against Mongo connection.
  */
-trait Query {
+trait Request {
 
   /**
    * Fully qualified name of collection
@@ -13,27 +20,22 @@ trait Query {
   def collection: String
 
   /**
-   * Query body (BSON statement)
+   * Request body (BSON statement)
    */
   def body: BSONDocument
+
+  override lazy val toString = s"Request($collection, $body)"
 }
 
-import org.jboss.netty.buffer.ChannelBuffer
-import reactivemongo.bson.buffer.{
-  ArrayBSONBuffer,
-  ReadableBuffer,
-  WritableBuffer
-}
-
-/** Query companion */
-object Query {
+/** Request companion */
+object Request {
   /**
-   * Parses query for specified collection from given `buffer`.
+   * Parses request for specified collection from given `buffer`.
    *
    * @param name Fully qualified name of collection
    * @param buffer Bytes to be parsed as BSON body
    */
-  def apply(name: String, buffer: ChannelBuffer): Query = new Query {
+  def apply(name: String, buffer: ChannelBuffer): Request = new Request {
     val collection = name
     val body = BSONDocument.read(go(buffer))
   }
@@ -56,7 +58,7 @@ object Query {
  * Extractor of properties for a document used a BSON value
  * (when operator is used, e.g. `{ 'age': { '$gt': 10 } }`).
  *
- * @see QueryBody
+ * @see RequestBody
  * @see Property
  */
 object ValueDocument {
@@ -67,32 +69,32 @@ object ValueDocument {
 }
 
 /**
- * Query body extractor.
+ * Request body extractor.
  *
  * {{{
  * import reactivemongo.bson.BSONString
- * import acolyte.reactivemongo.QueryBody
+ * import acolyte.reactivemongo.RequestBody
  *
- * query match {
- *   case QueryBody("db.col", _) => // Any query on "db.col"
+ * request match {
+ *   case RequestBody("db.col", _) => // Any request on "db.col"
  *     resultA
- * 
- *   case QueryBody(colName, (k1, v1) :: (k2, v2) :: Nil) =>
- *     // Any query with exactly 2 BSON properties
+ *
+ *   case RequestBody(colName, (k1, v1) :: (k2, v2) :: Nil) =>
+ *     // Any request with exactly 2 BSON properties
  *     resultB
  *
- *   case QueryBody("db.col", ("email", BSONString(v)) :: _) =>
- *     // Query on db.col starting with an "email" string property
+ *   case RequestBody("db.col", ("email", BSONString(v)) :: _) =>
+ *     // Request on db.col starting with an "email" string property
  *     resultC
  *
- *   case QueryBody("db.col", ("name", BSONString("eman")) :: _) =>
- *     // Query on db.col starting with an "name" string property,
+ *   case RequestBody("db.col", ("name", BSONString("eman")) :: _) =>
+ *     // Request on db.col starting with an "name" string property,
  *     // whose value is "eman"
  *     resultD
  *
- *   case QueryBody(_, ("age": ValueDocument(
+ *   case RequestBody(_, ("age": ValueDocument(
  *     ("$gt", BSONInteger(minAge)) :: Nil))) =>
- *     // Query on any collection, with an "age" document as property,
+ *     // Request on any collection, with an "age" document as property,
  *     // itself with exactly one integer "$gt" property
  *     // e.g. `{ 'age': { '$gt', 10 } }`
  *     resultE
@@ -101,15 +103,15 @@ object ValueDocument {
  *
  * @see ValueDocument
  */
-object QueryBody {
-  def unapply(q: Query): Option[(String, List[(String, BSONValue)])] =
+object RequestBody {
+  def unapply(q: Request): Option[(String, List[(String, BSONValue)])] =
     Some(q.collection -> q.body.elements.toList)
 
 }
 
 /**
  * Meta-extractor, to combine extractor on BSON properties.
- * @see QueryBody
+ * @see RequestBody
  * @see Property
  */
 object & {
@@ -124,40 +126,40 @@ object & {
  *
  * {{{
  * import reactivemongo.bson.{ BSONInteger, BSONString }
- * import acolyte.reactivemongo.{ QueryBody, Property, & }
+ * import acolyte.reactivemongo.{ RequestBody, Property, & }
  *
  * val EmailXtr = Property("email") // Without scalac plugin
  *
- * query match {
- *   case QueryBody("db.col", ~(Property("email"), BSONString(e))) =>
- *     // Query on db.col with an "email" string property,
+ * request match {
+ *   case RequestBody("db.col", ~(Property("email"), BSONString(e))) =>
+ *     // Request on db.col with an "email" string property,
  *     // anywhere in properties (possibly with others which are ignored there),
  *     // with `e` bound to extracted string value.
  *     resultA
  *
- *   case QueryBody("db.col", EmailXtr(BSONString(e))) =>
- *     // Query on db.col with an "email" string property,
+ *   case RequestBody("db.col", EmailXtr(BSONString(e))) =>
+ *     // Request on db.col with an "email" string property,
  *     // anywhere in properties (possibly with others which are ignored there),
  *     // with `e` bound to extracted string value.
  *     resultB // similar to case resultA without scalac plugin
  *
- *   case QueryBody("db.col", ~(Property("name"), BSONString("eman"))) =>
- *     // Query on db.col with an "name" string property with "eman" as value,
+ *   case RequestBody("db.col", ~(Property("name"), BSONString("eman"))) =>
+ *     // Request on db.col with an "name" string property with "eman" as value,
  *     // anywhere in properties (possibly with others which are ignored there).
  *     resultC
  *
- *   case QueryBody(colName,
+ *   case RequestBody(colName,
  *     ~(Property("age"), BSONInteger(age)) &
  *     ~(Property("email"), BSONString(v))) =>
- *     // Query on any collection, with an "age" integer property
+ *     // Request on any collection, with an "age" integer property
  *     // and an "email" string property, possibly not in this order.
  *     resultD
  *
- *   case QueryBody(colName,
+ *   case RequestBody(colName,
  *     ~(Property("age"), ValueDocument(
  *       ~(Property("$gt"), BSONInteger(minAge)))) &
  *     ~(Property("email"), BSONString("demo@applicius.fr"))) =>
- *     // Query on any collection, with an "age" property with itself
+ *     // Request on any collection, with an "age" property with itself
  *     // a operator property "$gt" having an integer value, and an "email"
  *     // property (at the same level as age), without order constraint.
  *     resultE
@@ -173,3 +175,15 @@ case class Property(name: String) {
     properties.toMap.lift(name)
 
 }
+
+/** Operator, along with request when writing. */
+sealed trait WriteOp
+
+/** Delete operator */
+case object DeleteOp extends WriteOp
+
+/** Insert operator */
+case object InsertOp extends WriteOp
+
+/** Update operator */
+case object UpdateOp extends WriteOp

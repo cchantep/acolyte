@@ -6,12 +6,14 @@ import scala.util.{ Failure, Success }
 import com.typesafe.config.Config
 import akka.actor.{ ActorRef, ActorSystem ⇒ AkkaSystem, Props }
 
+import reactivemongo.core.commands.GetLastError
 import reactivemongo.core.actors.{
   Close,
   CheckedWriteRequestExpectingResponse,
   RequestMakerExpectingResponse
 }
 import reactivemongo.core.protocol.{
+  CheckedWriteRequest,
   Query ⇒ RQuery,
   RequestMaker,
   Response
@@ -41,20 +43,21 @@ private[reactivemongo] object Akka {
 
 private[reactivemongo] class Actor(
     handler: ConnectionHandler, next: ActorRef /* TODO: Remove */ ) extends akka.actor.Actor {
-
   def receive = {
-    case msg @ CheckedWriteRequestExpectingResponse(req) ⇒
-      println(s"wreq = $req")
-      /*
-       CheckedWriteRequest(Insert(0,test-db.a-col),BufferSequence(DynamicChannelBuffer(ridx=0, widx=37, cap=64),WrappedArray()),GetLastError(false,None,0,false))
-       */
+    case msg @ CheckedWriteRequestExpectingResponse(
+      CheckedWriteRequest(op, doc, GetLastError(_, _, _, _))) ⇒
+
+      val req = Request(op.fullCollectionName, doc.merged)
+      // op = Insert(0,test-db.a-col)
+
+      println(s"oper = ${MongoDB.WriteOp(op)}, ${req.body.elements.toList}")
       next forward msg
 
     case msg @ RequestMakerExpectingResponse(RequestMaker(
       op @ RQuery(_ /*flags*/ , coln, off, len), doc, _ /*pref*/ , chanId)) ⇒
       val exp = new ExpectingResponse(msg)
       val cid = chanId getOrElse 1
-      val resp = handler.queryHandler(cid, Query(coln, doc.merged)).
+      val resp = handler.queryHandler(cid, Request(coln, doc.merged)).
         fold(NoResponse(cid, msg.toString))(_ match {
           case Success(r) ⇒ r
           case Failure(e) ⇒ MongoDB.Error(cid, Option(e.getMessage).

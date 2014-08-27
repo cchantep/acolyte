@@ -10,7 +10,7 @@ object QueryHandlerSpec extends org.specs2.mutable.Specification
   "Handler" should {
     "return a response with Traversable[BSONDocument]" in {
       implicitly[QueryHandler]({
-        _: Query ⇒ QueryResponse(Seq(BSONDocument("prop" -> "A")))
+        _: Request ⇒ QueryResponse(Seq(BSONDocument("prop" -> "A")))
       }) aka "query handler" must beLike {
         case h ⇒ h(1, query1) must beSome.which(
           _ aka "response" must beSuccessResponse {
@@ -21,7 +21,7 @@ object QueryHandlerSpec extends org.specs2.mutable.Specification
 
     "return a response with a single BSONDocument" in {
       implicitly[QueryHandler]({
-        _: Query ⇒ QueryResponse.successful(BSONDocument("prop" -> "A"))
+        _: Request ⇒ QueryResponse.successful(BSONDocument("prop" -> "A"))
       }) aka "query handler" must beLike {
         case h ⇒ h(1, query1) must beSome.which(
           _ aka "response" must beSuccessResponse {
@@ -31,15 +31,15 @@ object QueryHandlerSpec extends org.specs2.mutable.Specification
     }
 
     "return an error response" in {
-      implicitly[QueryHandler]({ _: Query ⇒ QueryResponse("Error message") }).
-        aka("query handler") must beLike {
+      implicitly[QueryHandler]({ _: Request ⇒ 
+        QueryResponse("Error message") }) aka "query handler" must beLike {
           case h ⇒ h(1, query1) must beSome.which(
             _ aka "response" must beErrorResponse("Error message"))
         }
     }
 
     "return no response" in {
-      implicitly[QueryHandler]({ _: Query ⇒ QueryResponse(None) }).
+      implicitly[QueryHandler]({ _: Request ⇒ QueryResponse(None) }).
         aka("query handler") must beLike {
           case h ⇒ h(1, query1) must beNone
         }
@@ -55,15 +55,15 @@ object QueryHandlerSpec extends org.specs2.mutable.Specification
   }
 
   "Mixed handler" should {
-    val handler = implicitly[QueryHandler]({ q: Query ⇒
+    val handler = implicitly[QueryHandler]({ q: Request ⇒
       q match {
-        case QueryBody("test1", _) ⇒ QueryResponse.empty
-        case QueryBody("test2", _) ⇒ QueryResponse("Error #2")
+        case RequestBody("test1", _) ⇒ QueryResponse.empty
+        case RequestBody("test2", _) ⇒ QueryResponse("Error #2")
 
-        case QueryBody("test3", _) ⇒ QueryResponse(
+        case RequestBody("test3", _) ⇒ QueryResponse(
           Seq(BSONDocument("prop" -> "A"), BSONDocument("a" -> 1)))
 
-        case QueryBody("test4", _) ⇒
+        case RequestBody("test4", _) ⇒
           QueryResponse.successful(BSONDocument("prop" -> "B"))
       }
     })
@@ -94,17 +94,17 @@ object QueryHandlerSpec extends org.specs2.mutable.Specification
 }
 
 trait QueryHandlerFixtures {
-  val query1 = new Query {
+  val query1 = new Request {
     val collection = "test1"
     val body = BSONDocument("filter" -> "valA")
   }
 
-  val query2 = new Query {
+  val query2 = new Request {
     val collection = "test2"
     val body = BSONDocument("filter" -> "valB")
   }
 
-  val query3 = new Query {
+  val query3 = new Request {
     val collection = "test3"
     val body = BSONDocument("filter" -> "valC")
   }
