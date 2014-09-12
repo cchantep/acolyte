@@ -17,7 +17,7 @@ object QueryResponse {
   /** Successful result */
 
   /** Creates a response for given `body`. */
-  def apply[T](body: ⇒ T)(implicit mkResponse: ResponseMaker[T]): QueryResponse = new QueryResponse {
+  def apply[T](body: ⇒ T)(implicit mkResponse: QueryResponseMaker[T]): QueryResponse = new QueryResponse {
     def apply(chanId: Int) = mkResponse(chanId, body)
   }
 

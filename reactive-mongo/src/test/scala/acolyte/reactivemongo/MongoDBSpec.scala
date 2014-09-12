@@ -11,18 +11,19 @@ import reactivemongo.core.protocol.{
 object MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
   "MongoDB" title
 
-  "Successful query response" should {
+  "Response to successful query" should {
     s"contains one expected document BSONDocument(${doc1.elements.toList})" in {
-      MongoDB.Success(1, Seq(doc1)) aka "response" must beSuccessfulTry.which {
-        Response.parse(_).toList aka "results" must beLike {
-          case first :: Nil ⇒
-            bson(first) aka "single document" must_== bson(doc1)
+      MongoDB.QuerySuccess(1, Seq(doc1)).
+        aka("response") must beSuccessfulTry.which {
+          Response.parse(_).toList aka "results" must beLike {
+            case first :: Nil ⇒
+              bson(first) aka "single document" must_== bson(doc1)
+          }
         }
-      }
     }
 
     s"contains expected collection of 3 documents" in {
-      MongoDB.Success(2, Seq(doc2, doc1, doc3)) aka "response" must {
+      MongoDB.QuerySuccess(2, Seq(doc2, doc1, doc3)) aka "response" must {
         beSuccessfulTry.which {
           Response.parse(_).toList aka "results" must beLike {
             case a :: b :: c :: Nil ⇒
@@ -35,7 +36,7 @@ object MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
     }
   }
 
-  "Erroneous query response" should {
+  "Response to failed query" should {
     @inline def shouldMatch(r: Response, msg: String) =
       r.error aka "error" must beSome.which { err ⇒
         err.message aka "message" must_== msg and (
@@ -44,11 +45,11 @@ object MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
       }
 
     "be expected MkResponseError" in {
-      shouldMatch(MongoDB.MkResponseError(), "Fails to create response")
+      shouldMatch(MongoDB.MkQueryError(), "Fails to create response")
     }
 
     "be expected error #1" in {
-      MongoDB.Error(2, "Error #1") aka "response" must beSuccessfulTry.
+      MongoDB.QueryError(2, "Error #1") aka "response" must beSuccessfulTry.
         which(shouldMatch(_, "Error #1"))
     }
   }
@@ -69,6 +70,40 @@ object MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
         _ aka "write op" must_== UpdateOp)
     }
   }
+
+  "Response to write failure" should {
+    "contain expected BSON without code" in {
+      MongoDB.WriteError(3, "Write Error #1").
+        aka("response") must beSuccessfulTry.
+        which(Response.parse(_).toList aka "error" must beLike {
+          case doc :: Nil ⇒ doc aka "error document" must_== doc4
+        })
+    }
+
+    "contain expected BSON with code" in {
+      MongoDB.WriteError(4, "Write Error #2", Some(3)).
+        aka("response") must beSuccessfulTry.
+        which(Response.parse(_).toList aka "error" must beLike {
+          case doc :: Nil ⇒ doc aka "error document" must_== doc5
+        })
+    }
+  }
+
+  "Response to write success" should {
+    "contain expected BSON when no existing document was updated" in {
+      MongoDB.WriteSuccess(5) aka "response" must beSuccessfulTry.
+        which(Response.parse(_).toList aka "response" must beLike {
+          case doc :: Nil ⇒ doc aka "success" must_== doc6
+        })
+    }
+
+    "contain expected BSON when existing document was updated" in {
+      MongoDB.WriteSuccess(5, true) aka "response" must beSuccessfulTry.
+        which(Response.parse(_).toList aka "response" must beLike {
+          case doc :: Nil ⇒ doc aka "success" must_== doc7
+        })
+    }
+  }
 }
 
 private[reactivemongo] trait MongoFixtures {
@@ -86,6 +121,15 @@ private[reactivemongo] trait MongoFixtures {
 
   val doc3 = BSONDocument(
     "title" -> "Title", "modified" -> BSONDateTime(System.currentTimeMillis))
+
+  val doc4 = BSONDocument("ok" -> 0, "err" -> "Write Error #1",
+    "errmsg" -> "Write Error #1", "code" -> -1)
+
+  val doc5 = BSONDocument("ok" -> 0, "err" -> "Write Error #2",
+    "errmsg" -> "Write Error #2", "code" -> 3)
+
+  val doc6 = BSONDocument("ok" -> 1, "updatedExisting" -> false)
+  val doc7 = BSONDocument("ok" -> 1, "updatedExisting" -> true)
 
   @inline def bson(d: BSONDocument) = d.elements.toList
 }

@@ -1,6 +1,6 @@
 package acolyte.reactivemongo
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ ExecutionContext, Future }, ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success }
 
 import com.typesafe.config.Config
@@ -9,7 +9,7 @@ import akka.actor.{ ActorRef, ActorSystem ⇒ AkkaSystem, Props }
 import reactivemongo.core.commands.GetLastError
 import reactivemongo.core.actors.{
   Close,
-  CheckedWriteRequestExpectingResponse,
+  CheckedWriteRequestExpectingResponse ⇒ CheckedWriteRequestExResp,
   RequestMakerExpectingResponse
 }
 import reactivemongo.core.protocol.{
@@ -44,26 +44,54 @@ private[reactivemongo] object Akka {
 private[reactivemongo] class Actor(
     handler: ConnectionHandler, next: ActorRef /* TODO: Remove */ ) extends akka.actor.Actor {
   def receive = {
-    case msg @ CheckedWriteRequestExpectingResponse(
-      CheckedWriteRequest(op, doc, GetLastError(_, _, _, _))) ⇒
+    case msg @ CheckedWriteRequestExResp(
+      r @ CheckedWriteRequest(op, doc, GetLastError(_, _, _, _))) ⇒
 
       val req = Request(op.fullCollectionName, doc.merged)
+      val chan = r()._1.channelIdHint getOrElse 1
+
+      println(s"oper = ${MongoDB.WriteOp(op)}, chan = $chan, ${req.body.elements.toList}")
       // op = Insert(0,test-db.a-col)
 
-      println(s"oper = ${MongoDB.WriteOp(op)}, ${req.body.elements.toList}")
-      next forward msg
+      val exp = new ExpectingResponse(msg)
+
+      /*
+      val xxp = scala.concurrent.Promise[Response]() completeWith {
+        exp.promise.future.transform({ resp ⇒
+          println(s"Suc: $resp ${resp.getClass}")
+          println(s"--> ${resp.reply.flags}") // 8
+          resp
+        }, { err ⇒
+          err.printStackTrace()
+          err
+          //new RuntimeException("Yipee")
+        })
+
+        Future.successful[Response](MongoDB.Success(chan, List(
+          reactivemongo.bson.BSONDocument("ok" -> 0, "err" -> "Err_1",
+            "code" -> 7, "errmsg" -> "Err_Msg", "n" -> 0,
+            "updatedExisting" -> false)
+        )).get)
+      }
+       */
+
+      // Success:
+      exp.promise.success(MongoDB.WriteSuccess(chan).get)
+
+      // Error: 
+      //exp.promise.success(MongoDB.WriteError(chan, "Err_1").get)
 
     case msg @ RequestMakerExpectingResponse(RequestMaker(
       op @ RQuery(_ /*flags*/ , coln, off, len), doc, _ /*pref*/ , chanId)) ⇒
       val exp = new ExpectingResponse(msg)
       val cid = chanId getOrElse 1
       val resp = handler.queryHandler(cid, Request(coln, doc.merged)).
-        fold(NoResponse(cid, msg.toString))(_ match {
+        fold(NoQueryResponse(cid, msg.toString))(_ match {
           case Success(r) ⇒ r
-          case Failure(e) ⇒ MongoDB.Error(cid, Option(e.getMessage).
+          case Failure(e) ⇒ MongoDB.QueryError(cid, Option(e.getMessage).
             getOrElse(e.getClass.getName)) match {
             case Success(err) ⇒ err
-            case _            ⇒ MongoDB.MkResponseError(cid)
+            case _            ⇒ MongoDB.MkQueryError(cid)
           }
         })
 
@@ -78,10 +106,10 @@ private[reactivemongo] class Actor(
       ()
   }
 
-  /** Fallback response when no handler provides a response. */
-  @inline private def NoResponse(chanId: Int, req: String): Response =
-    MongoDB.Error(chanId, s"No response: $req") match {
+  /** Fallback response when no handler provides a query response. */
+  @inline private def NoQueryResponse(chanId: Int, req: String): Response =
+    MongoDB.QueryError(chanId, s"No response: $req") match {
       case Success(resp) ⇒ resp
-      case _             ⇒ MongoDB.MkResponseError(chanId)
+      case _             ⇒ MongoDB.MkQueryError(chanId)
     }
 }

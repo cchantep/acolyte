@@ -9,7 +9,7 @@ object ResponseSpec extends org.specs2.mutable.Specification {
 
   "Response" should {
     "be an error one" in {
-      MongoDB.Error(1, "An error").
+      MongoDB.QueryError(1, "An error").
         aka("error") must beSuccessfulTry.which { error ⇒
           Response.parse(error).toList aka "body" must beLike {
             case ValueDocument(("$err", BSONString(msg)) :: Nil) :: Nil ⇒
@@ -19,7 +19,7 @@ object ResponseSpec extends org.specs2.mutable.Specification {
     }
 
     "be fallback error" in {
-      MongoDB.MkResponseError(2) aka "error" must beLike {
+      MongoDB.MkQueryError(2) aka "error" must beLike {
         case error ⇒
           Response.parse(error).toList aka "body" must beLike {
             case ValueDocument(("$err", BSONString(msg)) :: Nil) :: Nil ⇒
@@ -33,7 +33,7 @@ object ResponseSpec extends org.specs2.mutable.Specification {
         BSONDocument("prop1" -> "str", "2prop" -> 1.23D),
         BSONDocument("2prop" -> BSONDocument("property" -> 2L)))
 
-      MongoDB.Success(3, body) aka "response" must beSuccessfulTry.
+      MongoDB.QuerySuccess(3, body) aka "response" must beSuccessfulTry.
         which { success ⇒
           Response.parse(success).toList aka "body" must beLike {
             case ValueDocument(("prop1", BSONString("str")) ::

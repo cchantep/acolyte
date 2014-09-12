@@ -22,23 +22,43 @@ import reactivemongo.core.protocol.{
 object MongoDB {
 
   /**
-   * Builds an erroneous response.
+   * Builds a response with error details for a query.
    *
    * @param channelId Unique ID of channel
    * @param error Error message
    */
-  def Error(channelId: Int, error: String): Try[Response] =
+  def QueryError(channelId: Int, error: String): Try[Response] =
     mkResponse(channelId, 1 /*QueryFailure*/ ,
       Seq(BSONDocument("$err" -> error)))
 
   /**
-   * Builds a successful response.
+   * Builds a response for a success query.
    *
    * @param channelId Unique ID of channel
    * @param docs BSON documents
    */
-  def Success(channelId: Int, docs: Traversable[BSONDocument]): Try[Response] =
-    mkResponse(channelId, 4 /* unspecified*/ , docs)
+  def QuerySuccess(channelId: Int, docs: Traversable[BSONDocument]): Try[Response] = mkResponse(channelId, 4 /* unspecified */ , docs)
+
+  /**
+   * Builds a response with error details for a write operation.
+   *
+   * @param channelId Uniqe ID of channel
+   * @param error Error message
+   * @param code Error code
+   */
+  def WriteError(channelId: Int, error: String, code: Option[Int] = None): Try[Response] = mkResponse(channelId, 4 /* unspecified */ , List(
+    BSONDocument("ok" -> 0, "err" -> error, "errmsg" -> error,
+      "code" -> code.getOrElse(-1)
+    /*, "n" -> 0, "updatedExisting" -> false */ )))
+
+  /**
+   * Builds a response for a successful write operation.
+   *
+   * @param channelId Unique ID of channel
+   * @param updatedExisting Some existing document has been updated
+   */
+  def WriteSuccess(channelId: Int, updatedExisting: Boolean = false): Try[Response] = mkResponse(channelId, 4 /*unspecified*/ , List(
+    BSONDocument("ok" -> 1, "updatedExisting" -> updatedExisting)))
 
   /**
    * Builds a Mongo response.
@@ -78,7 +98,7 @@ object MongoDB {
       case _            ⇒ None
     }
 
-  private[reactivemongo] def MkResponseError(channelId: Int = 0): Response = {
+  private[reactivemongo] def MkQueryError(channelId: Int = 0): Response = {
     val buf = ChannelBuffers.copiedBuffer(ByteOrder.LITTLE_ENDIAN, Array[Byte](76, 0, 0, 0, 16, -55, -63, 115, -49, 116, 119, 55, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 40, 0, 0, 0, 2, 36, 101, 114, 114, 0, 25, 0, 0, 0, 70, 97, 105, 108, 115, 32, 116, 111, 32, 99, 114, 101, 97, 116, 101, 32, 114, 101, 115, 112, 111, 110, 115, 101, 0, 0)) // "Fails to create response"
     val in = ChannelBuffers.unmodifiableBuffer(buf)
 

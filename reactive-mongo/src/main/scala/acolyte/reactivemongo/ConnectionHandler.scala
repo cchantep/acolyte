@@ -88,13 +88,14 @@ object QueryHandler {
 }
 
 /** Write handler. */
-sealed trait WriteHandler extends ((Int, WriteOp, Request) ⇒ Option[Try[Response]]) {
+sealed trait WriteHandler
+    extends ((Int, WriteOp, Request) ⇒ Option[Try[Response]]) {
 
   /**
    * @param channelId ID of channel
    * @param op Write operator
-   * @param request Write request
+   * @param req Write request
    */
-  override def apply(channelId: Int, op: WriteOp, query: Request): Option[Try[Response]]
+  override def apply(channelId: Int, op: WriteOp, req: Request): Option[Try[Response]]
 
 }

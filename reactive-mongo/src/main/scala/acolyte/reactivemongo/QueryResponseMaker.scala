@@ -6,10 +6,10 @@ import reactivemongo.bson.BSONDocument
 import reactivemongo.core.protocol.Response
 
 /**
- * Creates a response for given channel ID and result.
+ * Creates a query response for given channel ID and result.
  * @tparam T Result type
  */
-trait ResponseMaker[T] extends ((Int, T) ⇒ Option[Try[Response]]) {
+trait QueryResponseMaker[T] extends ((Int, T) ⇒ Option[Try[Response]]) {
   /**
    * @param channelId ID of Mongo channel
    * @param result Optional result to be wrapped into response
@@ -18,46 +18,46 @@ trait ResponseMaker[T] extends ((Int, T) ⇒ Option[Try[Response]]) {
 }
 
 /** Response maker companion. */
-object ResponseMaker {
+object QueryResponseMaker {
   /**
    * {{{
    * import reactivemongo.bson.BSONDocument
-   * import acolyte.reactivemongo.ResponseMaker
+   * import acolyte.reactivemongo.QueryResponseMaker
    *
-   * val maker = implicitly[ResponseMaker[Traversable[BSONDocument]]]
+   * val maker = implicitly[QueryResponseMaker[Traversable[BSONDocument]]]
    * }}}
    */
-  implicit def TraversableResponseMaker[T <: Traversable[BSONDocument]] =
-    new ResponseMaker[T] {
+  implicit def TraversableQueryResponseMaker[T <: Traversable[BSONDocument]] =
+    new QueryResponseMaker[T] {
       override def apply(channelId: Int, result: T): Option[Try[Response]] =
-        Some(MongoDB.Success(channelId, result))
+        Some(MongoDB.QuerySuccess(channelId, result))
     }
 
   /**
    * Provides response maker for an error.
    *
    * {{{
-   * import acolyte.reactivemongo.ResponseMaker
+   * import acolyte.reactivemongo.QueryResponseMaker
    *
-   * val maker = implicitly[ResponseMaker[String]]
+   * val maker = implicitly[QueryResponseMaker[String]]
    * }}}
    */
-  implicit def ErrorResponseMaker = new ResponseMaker[String] {
+  implicit def ErrorQueryResponseMaker = new QueryResponseMaker[String] {
     override def apply(channelId: Int, error: String): Option[Try[Response]] =
-      Some(MongoDB.Error(channelId, error))
+      Some(MongoDB.QueryError(channelId, error))
   }
 
   /**
    * Provides response maker for handler not supporting specific query.
    *
    * {{{
-   * import acolyte.reactivemongo.ResponseMaker
+   * import acolyte.reactivemongo.QueryResponseMaker
    *
-   * val maker = implicitly[ResponseMaker[None.type]]
+   * val maker = implicitly[QueryResponseMaker[None.type]]
    * val response = maker(1, None)
    * }}}
    */
-  implicit def UndefinedResponseMaker = new ResponseMaker[None.type] {
+  implicit def UndefinedQueryResponseMaker = new QueryResponseMaker[None.type] {
     /** @return None */
     override def apply(channelId: Int, undefined: None.type): Option[Try[Response]] = None
   }

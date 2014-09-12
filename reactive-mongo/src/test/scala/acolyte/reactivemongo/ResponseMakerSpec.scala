@@ -8,12 +8,12 @@ object ResponseMakerSpec
 
   "Response maker" title
 
-  "Response maker" should {
+  "Query response maker" should {
     "be working for Traversable[BSONDocument]" in {
-      val makr = implicitly[ResponseMaker[Traversable[BSONDocument]]]
+      val makr = implicitly[QueryResponseMaker[Traversable[BSONDocument]]]
 
       makr(2, documents) aka "response" must beSome.which { prepared ⇒
-        zip(prepared, MongoDB.Success(2, documents)).
+        zip(prepared, MongoDB.QuerySuccess(2, documents)).
           aka("maker") must beSuccessfulTry.like {
             case (a, b) ⇒ a.documents aka "response" must_== b.documents
           }
@@ -21,17 +21,17 @@ object ResponseMakerSpec
     }
 
     "be working for an error message (String)" in {
-      val makr = implicitly[ResponseMaker[String]]
+      val makr = implicitly[QueryResponseMaker[String]]
 
       makr(3, "Custom error") aka "response" must beSome.which { prepared ⇒
-        zip(prepared, MongoDB.Error(3, "Custom error")).
+        zip(prepared, MongoDB.QueryError(3, "Custom error")).
           aka("maker") must beSuccessfulTry.like {
             case (a, b) ⇒ a.documents aka "response" must_== b.documents
           }
       }
     }
 
-    shapeless.test.illTyped("implicitly[ResponseMaker[Any]]")
+    shapeless.test.illTyped("implicitly[QueryResponseMaker[Any]]")
   }
 
   @inline def zip[A, B](a: Try[A], b: Try[B]): Try[(A, B)] =
