@@ -5,19 +5,10 @@ import scala.util.Try
 import _root_.reactivemongo.bson.BSONDocument
 import _root_.reactivemongo.core.protocol.Response
 
-/** Response to Mongo query executed with Acolyte driver. */
-sealed trait QueryResponse {
-  /** Applies this response to specified Mongo channel. */
-  def apply(chanId: Int): Option[Try[Response]]
-}
-
 /** Query response companion. */
 object QueryResponse {
-  /** Mongo Error, in response to some request. */
-  /** Successful result */
-
   /** Creates a response for given `body`. */
-  def apply[T](body: ⇒ T)(implicit mkResponse: QueryResponseMaker[T]): QueryResponse = new QueryResponse {
+  def apply[T](body: ⇒ T)(implicit mkResponse: QueryResponseMaker[T]): PreparedResponse = new PreparedResponse {
     def apply(chanId: Int) = mkResponse(chanId, body)
   }
 

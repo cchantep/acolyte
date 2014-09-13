@@ -48,9 +48,9 @@ private[reactivemongo] class Actor(
       r @ CheckedWriteRequest(op, doc, GetLastError(_, _, _, _))) ⇒
 
       val req = Request(op.fullCollectionName, doc.merged)
-      val chan = r()._1.channelIdHint getOrElse 1
+      val chanId = r()._1.channelIdHint getOrElse 1
 
-      println(s"oper = ${MongoDB.WriteOp(op)}, chan = $chan, ${req.body.elements.toList}")
+      println(s"oper = ${MongoDB.WriteOp(op)}, chan = $chanId, ${req.body.elements.toList}")
       // op = Insert(0,test-db.a-col)
 
       val exp = new ExpectingResponse(msg)
@@ -76,10 +76,11 @@ private[reactivemongo] class Actor(
        */
 
       // Success:
-      exp.promise.success(MongoDB.WriteSuccess(chan).get)
+      //exp.promise.success(MongoDB.WriteSuccess(chan).get)
 
       // Error: 
       //exp.promise.success(MongoDB.WriteError(chan, "Err_1").get)
+      exp.promise.success(NoWriteResponse(chanId, msg.toString))
 
     case msg @ RequestMakerExpectingResponse(RequestMaker(
       op @ RQuery(_ /*flags*/ , coln, off, len), doc, _ /*pref*/ , chanId)) ⇒
@@ -109,6 +110,13 @@ private[reactivemongo] class Actor(
   /** Fallback response when no handler provides a query response. */
   @inline private def NoQueryResponse(chanId: Int, req: String): Response =
     MongoDB.QueryError(chanId, s"No response: $req") match {
+      case Success(resp) ⇒ resp
+      case _             ⇒ MongoDB.MkQueryError(chanId)
+    }
+
+  /** Fallback response when no handler provides a write response. */
+  @inline private def NoWriteResponse(chanId: Int, req: String): Response =
+    MongoDB.WriteError(chanId, s"No response: $req") match {
       case Success(resp) ⇒ resp
       case _             ⇒ MongoDB.MkQueryError(chanId)
     }

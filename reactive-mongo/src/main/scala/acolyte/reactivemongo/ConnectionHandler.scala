@@ -76,10 +76,9 @@ object QueryHandler {
    *
    * }}}
    */
-  implicit def SimpleQueryHandler(f: Request ⇒ QueryResponse): QueryHandler =
-    new QueryHandler {
-      def apply(chanId: Int, q: Request): Option[Try[Response]] = f(q)(chanId)
-    }
+  implicit def SimpleQueryHandler(f: Request ⇒ PreparedResponse): QueryHandler = new QueryHandler {
+    def apply(chanId: Int, q: Request): Option[Try[Response]] = f(q)(chanId)
+  }
 
   /**
    * Empty query handler, not handling any request.

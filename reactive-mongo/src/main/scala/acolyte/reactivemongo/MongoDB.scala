@@ -98,10 +98,22 @@ object MongoDB {
       case _            ⇒ None
     }
 
-  private[reactivemongo] def MkQueryError(channelId: Int = 0): Response = {
-    val buf = ChannelBuffers.copiedBuffer(ByteOrder.LITTLE_ENDIAN, Array[Byte](76, 0, 0, 0, 16, -55, -63, 115, -49, 116, 119, 55, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 40, 0, 0, 0, 2, 36, 101, 114, 114, 0, 25, 0, 0, 0, 70, 97, 105, 108, 115, 32, 116, 111, 32, 99, 114, 101, 97, 116, 101, 32, 114, 101, 115, 112, 111, 110, 115, 101, 0, 0)) // "Fails to create response"
-    val in = ChannelBuffers.unmodifiableBuffer(buf)
+  private[reactivemongo] def MkQueryError(channelId: Int = 0): Response =
+    mkError(channelId, Array[Byte](76, 0, 0, 0, 16, -55, -63, 115, -49, 116, 119, 55, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 40, 0, 0, 0, 2, 36, 101, 114, 114, 0, 25, 0, 0, 0, 70, 97, 105, 108, 115, 32, 116, 111, 32, 99, 114, 101, 97, 116, 101, 32, 114, 101, 115, 112, 111, 110, 115, 101, 0, 0)) // "Fails to create response"
 
-    Response(MessageHeader(in), Reply(in), in, ResponseInfo(channelId))
+  private[reactivemongo] def MkWriteError(channelId: Int = 0): Response =
+    mkError(channelId, Array[Byte](-126, 0, 0, 0, -29, 50, 14, 73, -115, -6, 46, 67, 4, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 94, 0, 0, 0, 16, 111, 107, 0, 0, 0, 0, 0, 2, 101, 114, 114, 0, 25, 0, 0, 0, 70, 97, 105, 108, 115, 32, 116, 111, 32, 99, 114, 101, 97, 116, 101, 32, 114, 101, 115, 112, 111, 110, 115, 101, 0, 2, 101, 114, 114, 109, 115, 103, 0, 25, 0, 0, 0, 70, 97, 105, 108, 115, 32, 116, 111, 32, 99, 114, 101, 97, 116, 101, 32, 114, 101, 115, 112, 111, 110, 115, 101, 0, 16, 99, 111, 100, 101, 0, -1, -1, -1, -1, 0))
+
+  @inline private def mkError(channelId: Int, docs: Array[Byte]): Response = {
+    val buf = ChannelBuffers.unmodifiableBuffer(
+      ChannelBuffers.copiedBuffer(ByteOrder.LITTLE_ENDIAN, docs))
+
+    Response(MessageHeader(buf), Reply(buf), buf, ResponseInfo(channelId))
   }
+}
+
+/** Response prepared for Mongo request executed with Acolyte driver. */
+trait PreparedResponse {
+  /** Applies this response to specified Mongo channel. */
+  def apply(chanId: Int): Option[Try[Response]]
 }
