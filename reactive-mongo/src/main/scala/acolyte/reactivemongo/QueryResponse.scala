@@ -5,7 +5,7 @@ import scala.util.Try
 import _root_.reactivemongo.bson.BSONDocument
 import _root_.reactivemongo.core.protocol.Response
 
-/** Query response companion. */
+/** Query response factory. */
 object QueryResponse {
   /** Creates a response for given `body`. */
   def apply[T](body: ⇒ T)(implicit mkResponse: QueryResponseMaker[T]): PreparedResponse = new PreparedResponse {
@@ -19,8 +19,8 @@ object QueryResponse {
   def successful(result: BSONDocument*) = apply(result)
 
   /**
-   * Empty/undefined response, returned by handler no supporting a specific
-   * query that may be handled by others.
+   * Empty/undefined response, returned by handler no supporting
+   * a specific query that may be handled by others.
    */
   lazy val empty = apply(None)
 }

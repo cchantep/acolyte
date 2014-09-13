@@ -108,17 +108,17 @@ request match {
 }
 ```
 
-### Result creation
+### Result creation for queries
 
 Mongo result to be returned by query handler, can be created as following:
 
 ```scala
 import reactivemongo.bson.BSONDocument
-import reactivemongo.core.protocol.Resonse 
+import reactivemongo.core.protocol.Response 
 import acolyte.reactivemongo.QueryResponse
 
 val error1: Option[Try[Response]] = QueryResponse.failed("Error #1")
-val error2 = QueryResponse("Error #2") // equivalent
+val error2 = QueryResponse("Error #1") // equivalent
 
 val success1 = QueryResponse(BSONDocument("name" -> "singleResult"))
 val success2 = QueryResponse.successful(BSONDocument("name" -> "singleResult"))
@@ -135,6 +135,29 @@ When a handler supports some query cases, but not other, it can return an undefi
 ```scala
 val undefined1 = QueryResponse(None)
 val undefined2 = QueryResponse.empty
+```
+
+### Result creation for write operation
+
+Mongo result to be returned by write handler, can be created as following:
+
+```scala
+import reactivemongo.core.protocol.Response 
+import acolyte.reactivemongo.WriteResponse
+
+val error1: Option[Try[Response]] = WriteResponse.failed("Error #1")
+val error2 = WriteResponse("Error #1") // equivalent
+val error3 = WriteResponse("Error #2" -> Some(1)/* code */)
+
+val success1 = WriteResponse(true/* updatedExisting */)
+val success2 = WriteResponse.successful(true) // equivalent
+```
+
+When a handler supports some write cases, but not other, it can return an undefined response, to let the chance other handlers would manage it.
+
+```scala
+val undefined1 = WriteResponse(None)
+val undefined2 = WriteResponse.empty
 ```
 
 ## Build

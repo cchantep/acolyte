@@ -48,12 +48,27 @@ private[reactivemongo] class Actor(
       r @ CheckedWriteRequest(op, doc, GetLastError(_, _, _, _))) ⇒
 
       val req = Request(op.fullCollectionName, doc.merged)
-      val chanId = r()._1.channelIdHint getOrElse 1
-
-      println(s"oper = ${MongoDB.WriteOp(op)}, chan = $chanId, ${req.body.elements.toList}")
-      // op = Insert(0,test-db.a-col)
-
       val exp = new ExpectingResponse(msg)
+      val cid = r()._1.channelIdHint getOrElse 1
+
+      println(s"chan = $cid, ${req.body.elements.toList}")
+
+      val resp = MongoDB.WriteOp(op).fold({
+        MongoDB.WriteError(cid, s"No write operator: $msg") match {
+          case Success(err) ⇒ err
+          case _            ⇒ MongoDB.MkWriteError(cid)
+        }
+      }) { wop ⇒
+        handler.writeHandler(cid, wop, req).
+          fold(NoWriteResponse(cid, msg.toString))(_ match {
+            case Success(r) ⇒ r
+            case Failure(e) ⇒ MongoDB.WriteError(cid, Option(e.getMessage).
+              getOrElse(e.getClass.getName)) match {
+              case Success(err) ⇒ err
+              case _            ⇒ MongoDB.MkWriteError(cid)
+            }
+          })
+      }
 
       /*
       val xxp = scala.concurrent.Promise[Response]() completeWith {
@@ -80,7 +95,8 @@ private[reactivemongo] class Actor(
 
       // Error: 
       //exp.promise.success(MongoDB.WriteError(chan, "Err_1").get)
-      exp.promise.success(NoWriteResponse(chanId, msg.toString))
+      //exp.promise.success(NoWriteResponse(chanId, msg.toString))
+      exp.promise.success(resp)
 
     case msg @ RequestMakerExpectingResponse(RequestMaker(
       op @ RQuery(_ /*flags*/ , coln, off, len), doc, _ /*pref*/ , chanId)) ⇒
