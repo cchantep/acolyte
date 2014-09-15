@@ -22,15 +22,21 @@ trait ResponseMatchers { specs: Specification ⇒
       }
     }
 
-  def beQueryError(msg: String) = new Matcher[Try[Response]] {
-    def apply[R <: Try[Response]](e: Expectable[R]) =
-      e.value aka "prepared" must beSuccessfulTry.which {
-        Response.parse(_).toList aka "response" must beLike {
-          case ValueDocument(("$err", BSONString(m)) :: Nil) :: Nil ⇒
-            m aka "error message" must_== msg
+  def beQueryError(msg: String, code: Option[Int] = None) =
+    new Matcher[Try[Response]] {
+      def apply[R <: Try[Response]](e: Expectable[R]) =
+        e.value aka "prepared" must beSuccessfulTry.which {
+          Response.parse(_).toList aka "response" must beLike {
+            case ValueDocument(("$err", BSONString(m)) :: others) :: Nil ⇒
+              m aka "error message" must_== msg and ((code, others).
+                aka("extra properties") must beLike {
+                  case (None, _) ⇒ ok
+                  case (Some(a), ("code", BSONInteger(b)) :: Nil) ⇒
+                    a aka "code" must_== b
+                })
+          }
         }
-      }
-  }
+    }
 
   def beWriteError(msg: String, code: Option[Int] = None) =
     new Matcher[Try[Response]] {

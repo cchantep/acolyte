@@ -52,9 +52,12 @@ object ConnectionHandler {
    * ConnectionHandler(myQueryHandler, myWriteHandler)
    * }}}
    */
-  def apply[A, B](q: A = QueryHandler.empty, h: B = WriteHandler.empty)(implicit f: A ⇒ QueryHandler, g: B ⇒ WriteHandler): ConnectionHandler = new ConnectionHandler {
-    val queryHandler = f(q)
-    val writeHandler = g(h)
+  def apply[A, B](queryHandler: A = QueryHandler.empty, writeHandler: B = WriteHandler.empty)(implicit f: A ⇒ QueryHandler, g: B ⇒ WriteHandler): ConnectionHandler = {
+    val q = queryHandler; val w = writeHandler
+    new ConnectionHandler {
+      val queryHandler = f(q)
+      val writeHandler = g(w)
+    }
   }
 
   /**
@@ -90,14 +93,14 @@ object QueryHandler {
    *
    * }}}
    */
-  implicit def SimpleQueryHandler(f: Request ⇒ PreparedResponse): QueryHandler = new QueryHandler {
+  implicit def apply(f: Request ⇒ PreparedResponse): QueryHandler = new QueryHandler {
     def apply(chanId: Int, q: Request): Option[Try[Response]] = f(q)(chanId)
   }
 
   /**
    * Empty query handler, not handling any request.
    */
-  lazy val empty = SimpleQueryHandler(_ ⇒ QueryResponse(None))
+  lazy val empty = apply(_ ⇒ QueryResponse(None))
 }
 
 /** Write handler. */
@@ -128,14 +131,15 @@ object WriteHandler {
    * val handler1: WriteHandler = // Returns a successful empty response
    *   (w: (WriteOp, Request)) => WriteResponse(false)
    *
+   * val handler2 = WriteHandler { (op: WriteOp,
    * }}}
    */
-  implicit def SimpleWriteHandler(f: (WriteOp, Request) ⇒ PreparedResponse): WriteHandler = new WriteHandler {
+  implicit def apply(f: (WriteOp, Request) ⇒ PreparedResponse): WriteHandler = new WriteHandler {
     def apply(chanId: Int, op: WriteOp, w: Request): Option[Try[Response]] = f(op, w)(chanId)
   }
 
   /**
    * Empty query handler, not handling any request.
    */
-  lazy val empty = SimpleWriteHandler((_, _) ⇒ WriteResponse(None))
+  lazy val empty = apply((_, _) ⇒ WriteResponse(None))
 }

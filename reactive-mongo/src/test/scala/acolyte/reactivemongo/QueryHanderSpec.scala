@@ -55,7 +55,7 @@ object QueryHandlerSpec extends org.specs2.mutable.Specification
   }
 
   "Mixed handler" should {
-    val handler = implicitly[QueryHandler]({ q: Request ⇒
+    val handler = QueryHandler { q ⇒
       q match {
         case RequestBody("test1", _) ⇒ QueryResponse.empty
         case RequestBody("test2", _) ⇒ QueryResponse("Error #2")
@@ -66,7 +66,7 @@ object QueryHandlerSpec extends org.specs2.mutable.Specification
         case RequestBody("test4", _) ⇒
           QueryResponse.successful(BSONDocument("prop" -> "B"))
       }
-    })
+    }
 
     "return no response" in {
       handler aka "mixed handler" must beLike {

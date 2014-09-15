@@ -6,7 +6,7 @@ import org.jboss.netty.buffer.ChannelBuffers
 
 import scala.util.Try
 
-import reactivemongo.bson.BSONDocument
+import reactivemongo.bson.{ BSONDocument, BSONInteger, BSONValue }
 import reactivemongo.core.protocol.{
   Delete,
   Insert,
@@ -27,9 +27,10 @@ object MongoDB {
    * @param channelId Unique ID of channel
    * @param error Error message
    */
-  def QueryError(channelId: Int, error: String): Try[Response] =
-    mkResponse(channelId, 1 /*QueryFailure*/ ,
-      Seq(BSONDocument("$err" -> error)))
+  def QueryError(channelId: Int, error: String, code: Option[Int] = None): Try[Response] = mkResponse(channelId, 1 /*QueryFailure*/ , {
+    val doc = BSONDocument("$err" -> error)
+    code.fold(Seq(doc)) { c ⇒ Seq(doc ++ ("code" -> c)) }
+  })
 
   /**
    * Builds a response for a success query.

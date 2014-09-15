@@ -15,6 +15,14 @@ object QueryResponse {
   /** Named factory for error response. */
   def failed(message: String) = apply(message)
 
+  /**
+   * Named factory for error response.
+   *
+   * @param message Error message
+   * @param code Error code
+   */
+  def failed(message: String, code: Int) = apply(message -> code)
+
   /** Factory for successful response. */
   def successful(result: BSONDocument*) = apply(result)
 

@@ -14,7 +14,7 @@ trait WriteResponseMaker[T] extends ((Int, T) ⇒ Option[Try[Response]]) {
    * @param channelId ID of Mongo channel
    * @param result Optional result to be wrapped into response
    */
-  override def apply(channelId: Int, result: T): Option[Try[Response]]
+  def apply(channelId: Int, result: T): Option[Try[Response]]
 }
 
 /** Response maker companion. */
@@ -27,7 +27,7 @@ object WriteResponseMaker {
    * }}}
    */
   implicit def SuccessWriteResponseMaker = new WriteResponseMaker[Boolean] {
-    override def apply(channelId: Int, updatedExisting: Boolean): Option[Try[Response]] = Some(MongoDB.WriteSuccess(channelId, updatedExisting))
+    def apply(channelId: Int, updatedExisting: Boolean): Option[Try[Response]] = Some(MongoDB.WriteSuccess(channelId, updatedExisting))
   }
 
   /**
@@ -38,7 +38,7 @@ object WriteResponseMaker {
    * }}}
    */
   implicit def UnitWriteResponseMaker = new WriteResponseMaker[Unit] {
-    override def apply(channelId: Int, effect: Unit): Option[Try[Response]] = Some(MongoDB.WriteSuccess(channelId, false))
+    def apply(channelId: Int, effect: Unit): Option[Try[Response]] = Some(MongoDB.WriteSuccess(channelId, false))
   }
 
   /**
@@ -51,7 +51,7 @@ object WriteResponseMaker {
    * }}}
    */
   implicit def ErrorWriteResponseMaker = new WriteResponseMaker[String] {
-    override def apply(channelId: Int, error: String): Option[Try[Response]] =
+    def apply(channelId: Int, error: String): Option[Try[Response]] =
       Some(MongoDB.WriteError(channelId, error, None))
   }
 
@@ -66,7 +66,7 @@ object WriteResponseMaker {
    */
   implicit def ErrorCodeWriteResponseMaker =
     new WriteResponseMaker[(String, Int)] {
-      override def apply(channelId: Int, error: (String, Int)): Option[Try[Response]] = Some(MongoDB.WriteError(channelId, error._1, Some(error._2)))
+      def apply(channelId: Int, error: (String, Int)): Option[Try[Response]] = Some(MongoDB.WriteError(channelId, error._1, Some(error._2)))
     }
 
   /**
@@ -82,6 +82,6 @@ object WriteResponseMaker {
    */
   implicit def UndefinedWriteResponseMaker = new WriteResponseMaker[None.type] {
     /** @return None */
-    override def apply(channelId: Int, undefined: None.type): Option[Try[Response]] = None
+    def apply(channelId: Int, undefined: None.type): Option[Try[Response]] = None
   }
 }

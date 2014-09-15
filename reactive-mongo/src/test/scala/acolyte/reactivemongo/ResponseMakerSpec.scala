@@ -31,6 +31,18 @@ object ResponseMakerSpec
       }
     }
 
+    "be working for an error with code (String, Int)" in {
+      val makr = implicitly[QueryResponseMaker[(String, Int)]]
+
+      makr(3, "Custom error" -> 5) aka "response" must beSome.
+        which { prepared ⇒
+          zip(prepared, MongoDB.QueryError(3, "Custom error", Some(5))).
+            aka("maker") must beSuccessfulTry.like {
+              case (a, b) ⇒ a.documents aka "response" must_== b.documents
+            }
+        }
+    }
+
     shapeless.test.illTyped("implicitly[QueryResponseMaker[Any]]")
   }
 

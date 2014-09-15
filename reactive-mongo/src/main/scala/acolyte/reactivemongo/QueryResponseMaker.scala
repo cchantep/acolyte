@@ -14,7 +14,7 @@ trait QueryResponseMaker[T] extends ((Int, T) ⇒ Option[Try[Response]]) {
    * @param channelId ID of Mongo channel
    * @param result Optional result to be wrapped into response
    */
-  override def apply(channelId: Int, result: T): Option[Try[Response]]
+  def apply(channelId: Int, result: T): Option[Try[Response]]
 }
 
 /** Response maker companion. */
@@ -29,8 +29,20 @@ object QueryResponseMaker {
    */
   implicit def TraversableQueryResponseMaker[T <: Traversable[BSONDocument]] =
     new QueryResponseMaker[T] {
-      override def apply(channelId: Int, result: T): Option[Try[Response]] =
+      def apply(channelId: Int, result: T): Option[Try[Response]] =
         Some(MongoDB.QuerySuccess(channelId, result))
+    }
+
+  /**
+   * {{{
+   * import reactivemongo.bson.BSONDocument
+   * import acolyte.reactivemongo.QueryResponseMaker
+   *
+   * val maker = implicitly[QueryResponseMaker[BSONDocument]]
+   * }}}
+   */
+  implicit def SingleQueryResponseMaker = new QueryResponseMaker[BSONDocument] {
+      def apply(channelId: Int, result: BSONDocument): Option[Try[Response]] = Some(MongoDB.QuerySuccess(channelId, Seq(result)))
     }
 
   /**
@@ -43,8 +55,22 @@ object QueryResponseMaker {
    * }}}
    */
   implicit def ErrorQueryResponseMaker = new QueryResponseMaker[String] {
-    override def apply(channelId: Int, error: String): Option[Try[Response]] =
+    def apply(channelId: Int, error: String): Option[Try[Response]] =
       Some(MongoDB.QueryError(channelId, error))
+  }
+
+  /**
+   * Provides response maker for an error.
+   *
+   * {{{
+   * import acolyte.reactivemongo.QueryResponseMaker
+   *
+   * val maker = implicitly[QueryResponseMaker[(String, Int)]]
+   * }}}
+   */
+  implicit def ErrorCodeQueryResponseMaker = new QueryResponseMaker[(String, Int)] {
+    def apply(channelId: Int, error: (String, Int)): Option[Try[Response]] =
+      Some(MongoDB.QueryError(channelId, error._1, Some(error._2)))
   }
 
   /**
@@ -59,6 +85,6 @@ object QueryResponseMaker {
    */
   implicit def UndefinedQueryResponseMaker = new QueryResponseMaker[None.type] {
     /** @return None */
-    override def apply(channelId: Int, undefined: None.type): Option[Try[Response]] = None
+    def apply(channelId: Int, undefined: None.type): Option[Try[Response]] = None
   }
 }

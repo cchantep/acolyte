@@ -83,14 +83,14 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
   }
 
   "Mixed handler" should {
-    val handler = implicitly[WriteHandler]({ (op: WriteOp, req: Request) ⇒
+    val handler = WriteHandler { (op, req) ⇒
       (op, req) match {
         case (DeleteOp, RequestBody("test1", _)) ⇒ WriteResponse.empty
         case (InsertOp, RequestBody("test2", _)) ⇒ WriteResponse("Error #2")
         case (UpdateOp, RequestBody("test3", _)) ⇒ WriteResponse(true)
         case (_, RequestBody("test4", _))        ⇒ WriteResponse.successful()
       }
-    })
+    }
 
     "return no response" in {
       handler aka "mixed handler" must beLike {

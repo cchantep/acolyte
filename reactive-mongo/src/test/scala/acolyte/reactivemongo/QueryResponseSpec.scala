@@ -24,8 +24,35 @@ object QueryResponseSpec
       }
     }
 
+    "be made for error with code" >> {
+      "using generic factory" in {
+        QueryResponse("error message #3" -> 5) aka "prepared" must beLike {
+          case prepared ⇒ prepared(1) aka "applied" must beSome.which(
+            _ aka "query response" must beQueryError(
+              "error message #3", Some(5)))
+        }
+      }
+
+      "using named factory" in {
+        QueryResponse.failed("error message #4", 7) aka "prepared" must beLike {
+          case prepared ⇒ prepared(2) aka "applied" must beSome.which(
+            _ aka "query response" must beQueryError(
+              "error message #4", Some(7)))
+        }
+      }
+    }
+
     "be made for successful result" >> {
       val Doc1 = BSONDocument("a" -> "b")
+
+      "with a single document using generic factory" in {
+        QueryResponse(Doc1) aka "prepared" must beLike {
+          case prepared ⇒ prepared(3) aka "applied" must beSome.which(
+            _ aka "query response" must beResponse {
+              case ValueDocument(("a", BSONString("b")) :: Nil) :: Nil ⇒ ok
+            })
+        }
+      }
 
       "with a single document using named factory" in {
         QueryResponse.successful(Doc1) aka "prepared" must beLike {
