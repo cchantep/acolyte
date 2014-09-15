@@ -56,18 +56,24 @@ object MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
 
   "Write operator" should {
     "be delete" in {
-      MongoDB.WriteOp(Delete("db.col", 0)) aka "parsed op" must beSome.which(
-        _ aka "write op" must_== DeleteOp)
+      MongoDB.WriteOp(Delete("db.col", 0)) aka "parsed op" must beSome.
+        which(op ⇒ op aka "write op" must_== DeleteOp and (op must beLike {
+          case DeleteOp ⇒ ok // check pattern matching
+        }))
     }
 
     "be insert" in {
-      MongoDB.WriteOp(Insert(1, "db.col")) aka "parsed op" must beSome.which(
-        _ aka "write op" must_== InsertOp)
+      MongoDB.WriteOp(Insert(1, "db.col")) aka "parsed op" must beSome.
+        which(op ⇒ op aka "write op" must_== InsertOp and (op must beLike {
+          case InsertOp ⇒ ok // check pattern matching
+        }))
     }
 
     "be update" in {
-      MongoDB.WriteOp(Update("db.col", 2)) aka "parsed op" must beSome.which(
-        _ aka "write op" must_== UpdateOp)
+      MongoDB.WriteOp(Update("db.col", 2)) aka "parsed op" must beSome.
+        which(op ⇒ op aka "write op" must_== UpdateOp and (op must beLike {
+          case UpdateOp ⇒ ok // check pattern matching
+        }))
     }
   }
 

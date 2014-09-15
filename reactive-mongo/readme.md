@@ -32,7 +32,7 @@ import reactivemongo.bson.{ BSONInteger, BSONString }
 
 import acolyte.reactivemongo.{ CollectionName, RequestBody, Property, & }
 
-request match {
+queryRequest match {
   case RequestBody("a-mongo-db.a-col-name", _) => 
     // Any request on collection "a-mongo-db.a-col-name"
     resultA
@@ -105,6 +105,18 @@ val EmailXtr = Property("email")
 request match {
   case RequestBody("db.col", ~(EmailXtr, BSONString(e))) => result
   // ...
+}
+```
+
+In case of write operation, handler is given the write operator along with the request itself, so dispatch can be based on this information (and combine with pattern matching on request content).
+
+```scala
+import acolyte.reactivemongo.{ DeleteOp, InsertOp, UpdateOp }
+
+(operator, writeRequest) match {
+  case (DeleteOp, RequestBody("a-mongo-db.a-col-name", _)) => resultDelete
+  case (InsertOp, _) => resultInsert
+  case (UpdateOp, _) => resultUpdate
 }
 ```
 
