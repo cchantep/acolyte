@@ -16,9 +16,16 @@ object WriteResponse {
    * Named factory for error response.
    *
    * @param message Error message
-   * @param code Optional error code
    */
-  def failed(message: String, code: Option[Int] = None) = apply(message -> code)
+  def failed(message: String) = apply(message)
+
+  /**
+   * Named factory for error response.
+   *
+   * @param message Error message
+   * @param code Error code
+   */
+  def failed(message: String, code: Int) = apply(message -> code)
 
   /**
    * Factory for successful response.

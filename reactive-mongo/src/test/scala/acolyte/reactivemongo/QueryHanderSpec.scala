@@ -13,7 +13,7 @@ object QueryHandlerSpec extends org.specs2.mutable.Specification
         _: Request ⇒ QueryResponse(Seq(BSONDocument("prop" -> "A")))
       }) aka "query handler" must beLike {
         case h ⇒ h(1, query1) must beSome.which(
-          _ aka "response" must beSuccessResponse {
+          _ aka "response" must beResponse {
             case ValueDocument(("prop", BSONString("A")) :: Nil) :: Nil ⇒ ok
           })
       }
@@ -24,7 +24,7 @@ object QueryHandlerSpec extends org.specs2.mutable.Specification
         _: Request ⇒ QueryResponse.successful(BSONDocument("prop" -> "A"))
       }) aka "query handler" must beLike {
         case h ⇒ h(1, query1) must beSome.which(
-          _ aka "response" must beSuccessResponse {
+          _ aka "response" must beResponse {
             case ValueDocument(("prop", BSONString("A")) :: Nil) :: Nil ⇒ ok
           })
       }
@@ -34,7 +34,7 @@ object QueryHandlerSpec extends org.specs2.mutable.Specification
       implicitly[QueryHandler]({ _: Request ⇒ 
         QueryResponse("Error message") }) aka "query handler" must beLike {
           case h ⇒ h(1, query1) must beSome.which(
-            _ aka "response" must beErrorResponse("Error message"))
+            _ aka "response" must beQueryError("Error message"))
         }
     }
 
@@ -77,14 +77,14 @@ object QueryHandlerSpec extends org.specs2.mutable.Specification
     "return an error response" in {
       handler aka "mixed handler" must beLike {
         case h ⇒ h(2, query2) aka "prepared" must beSome.which(
-          _ aka "query response" must beErrorResponse("Error #2"))
+          _ aka "query response" must beQueryError("Error #2"))
       }
     }
 
     "return an success response with many documents" in {
       handler aka "mixed handler" must beLike {
         case h ⇒ h(3, query3) aka "prepared" must beSome.which(
-          _ aka "query response" must beSuccessResponse {
+          _ aka "query response" must beResponse {
             case ValueDocument(("prop", BSONString("A")) :: Nil) ::
               ValueDocument(("a", BSONInteger(1)) :: Nil) :: Nil ⇒ ok
           })

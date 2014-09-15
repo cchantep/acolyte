@@ -50,9 +50,6 @@ private[reactivemongo] class Actor(
       val req = Request(op.fullCollectionName, doc.merged)
       val exp = new ExpectingResponse(msg)
       val cid = r()._1.channelIdHint getOrElse 1
-
-      println(s"chan = $cid, ${req.body.elements.toList}")
-
       val resp = MongoDB.WriteOp(op).fold({
         MongoDB.WriteError(cid, s"No write operator: $msg") match {
           case Success(err) ⇒ err
@@ -70,32 +67,6 @@ private[reactivemongo] class Actor(
           })
       }
 
-      /*
-      val xxp = scala.concurrent.Promise[Response]() completeWith {
-        exp.promise.future.transform({ resp ⇒
-          println(s"Suc: $resp ${resp.getClass}")
-          println(s"--> ${resp.reply.flags}") // 8
-          resp
-        }, { err ⇒
-          err.printStackTrace()
-          err
-          //new RuntimeException("Yipee")
-        })
-
-        Future.successful[Response](MongoDB.Success(chan, List(
-          reactivemongo.bson.BSONDocument("ok" -> 0, "err" -> "Err_1",
-            "code" -> 7, "errmsg" -> "Err_Msg", "n" -> 0,
-            "updatedExisting" -> false)
-        )).get)
-      }
-       */
-
-      // Success:
-      //exp.promise.success(MongoDB.WriteSuccess(chan).get)
-
-      // Error: 
-      //exp.promise.success(MongoDB.WriteError(chan, "Err_1").get)
-      //exp.promise.success(NoWriteResponse(chanId, msg.toString))
       exp.promise.success(resp)
 
     case msg @ RequestMakerExpectingResponse(RequestMaker(

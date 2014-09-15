@@ -19,8 +19,10 @@ import reactivemongo.api.MongoDriver
 import acolyte.reactivemongo.AcolyteDSL.{ driver, handleStatement }
 
 val mongoDriver: MongoDriver = driver {
-  handleStatement
+  ??? // dispatch query and write request as you want using pattern matching
 }
+
+val noOpDriver = driver { handleStatement/* ConnectionHandler.empty */}
 ```
 
 ### Request patterns
@@ -159,10 +161,12 @@ import acolyte.reactivemongo.WriteResponse
 
 val error1: Option[Try[Response]] = WriteResponse.failed("Error #1")
 val error2 = WriteResponse("Error #1") // equivalent
-val error3 = WriteResponse("Error #2" -> Some(1)/* code */)
+val error3 = WriteResponse.failed("Error #2", 1/* code */)
+val error4 = WriteResponse("Error #2" -> 1/* code */) // equivalent
 
 val success1 = WriteResponse(true/* updatedExisting */)
 val success2 = WriteResponse.successful(true) // equivalent
+val success3 = WriteResponse() // = WriteResponse.successful(false)
 ```
 
 When a handler supports some write cases, but not other, it can return an undefined response, to let the chance other handlers would manage it.

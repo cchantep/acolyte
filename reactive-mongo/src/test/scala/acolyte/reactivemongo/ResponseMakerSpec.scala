@@ -35,7 +35,7 @@ object ResponseMakerSpec
   }
 
   "Write response maker" should {
-    "be working for boolean (updatedExisting)" in {
+    "be a successful one for boolean (updatedExisting)" in {
       val makr = implicitly[WriteResponseMaker[Boolean]]
 
       makr(4, true) aka "response" must beSome.which { prepared ⇒
@@ -46,10 +46,21 @@ object ResponseMakerSpec
       }
     }
 
-    "be working for an error (String, None)" in {
-      val makr = implicitly[WriteResponseMaker[(String, Option[Int])]]
+    "be a successful one for Unit (updatedExisting = false)" in {
+      val makr = implicitly[WriteResponseMaker[Unit]]
 
-      makr(5, "Custom error #1" -> None) aka "response" must beSome.
+      makr(4, ()) aka "response" must beSome.which { prepared ⇒
+        zip(prepared, MongoDB.WriteSuccess(4, false)).
+          aka("maker") must beSuccessfulTry.like {
+            case (a, b) ⇒ a.documents aka "response" must_== b.documents
+          }
+      }
+    }
+
+    "be working for an error message (String)" in {
+      val makr = implicitly[WriteResponseMaker[String]]
+
+      makr(5, "Custom error #1") aka "response" must beSome.
         which { prepared ⇒
           zip(prepared, MongoDB.WriteError(5, "Custom error #1", None)).
             aka("maker") must beSuccessfulTry.like {
@@ -58,10 +69,10 @@ object ResponseMakerSpec
         }
     }
 
-    "be working for an error (String, Some(Int))" in {
-      val makr = implicitly[WriteResponseMaker[(String, Option[Int])]]
+    "be working for an error with code (String, Int)" in {
+      val makr = implicitly[WriteResponseMaker[(String, Int)]]
 
-      makr(5, "Custom error #2" -> Some(7)) aka "response" must beSome.
+      makr(5, "Custom error #2" -> 7) aka "response" must beSome.
         which { prepared ⇒
           zip(prepared, MongoDB.WriteError(5, "Custom error #2", Some(7))).
             aka("maker") must beSuccessfulTry.like {

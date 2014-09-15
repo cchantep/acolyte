@@ -31,17 +31,43 @@ object WriteResponseMaker {
   }
 
   /**
+   * {{{
+   * import acolyte.reactivemongo.WriteResponseMaker
+   *
+   * val maker = implicitly[WriteResponseMaker[Unit]]
+   * }}}
+   */
+  implicit def UnitWriteResponseMaker = new WriteResponseMaker[Unit] {
+    override def apply(channelId: Int, effect: Unit): Option[Try[Response]] = Some(MongoDB.WriteSuccess(channelId, false))
+  }
+
+  /**
    * Provides response maker for an error.
    *
    * {{{
    * import acolyte.reactivemongo.WriteResponseMaker
    *
-   * val maker = implicitly[WriteResponseMaker[(String, Option[Int])]]
+   * val maker = implicitly[WriteResponseMaker[String]]
    * }}}
    */
-  implicit def ErrorWriteResponseMaker = new WriteResponseMaker[(String, Option[Int])] {
-    override def apply(channelId: Int, error: (String, Option[Int])): Option[Try[Response]] = Some(MongoDB.WriteError(channelId, error._1, error._2))
+  implicit def ErrorWriteResponseMaker = new WriteResponseMaker[String] {
+    override def apply(channelId: Int, error: String): Option[Try[Response]] =
+      Some(MongoDB.WriteError(channelId, error, None))
   }
+
+  /**
+   * Provides response maker for an error.
+   *
+   * {{{
+   * import acolyte.reactivemongo.WriteResponseMaker
+   *
+   * val maker = implicitly[WriteResponseMaker[(String, Int)]]
+   * }}}
+   */
+  implicit def ErrorCodeWriteResponseMaker =
+    new WriteResponseMaker[(String, Int)] {
+      override def apply(channelId: Int, error: (String, Int)): Option[Try[Response]] = Some(MongoDB.WriteError(channelId, error._1, Some(error._2)))
+    }
 
   /**
    * Provides response maker for handler not supporting

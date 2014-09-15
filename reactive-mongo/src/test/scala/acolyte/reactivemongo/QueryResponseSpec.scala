@@ -12,14 +12,14 @@ object QueryResponseSpec
       "using generic factory" in {
         QueryResponse("error message #1") aka "prepared" must beLike {
           case prepared ⇒ prepared(1) aka "applied" must beSome.which(
-            _ aka "query response" must beErrorResponse("error message #1"))
+            _ aka "query response" must beQueryError("error message #1"))
         }
       }
 
       "using named factory" in {
         QueryResponse.failed("error message #2") aka "prepared" must beLike {
           case prepared ⇒ prepared(2) aka "applied" must beSome.which(
-            _ aka "query response" must beErrorResponse("error message #2"))
+            _ aka "query response" must beQueryError("error message #2"))
         }
       }
     }
@@ -30,7 +30,7 @@ object QueryResponseSpec
       "with a single document using named factory" in {
         QueryResponse.successful(Doc1) aka "prepared" must beLike {
           case prepared ⇒ prepared(3) aka "applied" must beSome.which(
-            _ aka "query response" must beSuccessResponse {
+            _ aka "query response" must beResponse {
               case ValueDocument(("a", BSONString("b")) :: Nil) :: Nil ⇒ ok
             })
         }
@@ -40,7 +40,7 @@ object QueryResponseSpec
         QueryResponse(Seq(Doc1, BSONDocument("b" -> 2))).
           aka("prepared") must beLike {
             case prepared ⇒ prepared(3) aka "applied" must beSome.which(
-              _ aka "response" must beSuccessResponse {
+              _ aka "response" must beResponse {
                 case Doc1 :: ValueDocument(
                   ("b", BSONInteger(2)) :: Nil) :: Nil ⇒ ok
               })
@@ -51,7 +51,7 @@ object QueryResponseSpec
         QueryResponse.successful(Doc1, BSONDocument("b" -> 3)).
           aka("prepared") must beLike {
             case prepared ⇒ prepared(3) aka "applied" must beSome.which(
-              _ aka "response" must beSuccessResponse {
+              _ aka "response" must beResponse {
                 case Doc1 :: ValueDocument(
                   ("b", BSONInteger(3)) :: Nil) :: Nil ⇒ ok
               })
