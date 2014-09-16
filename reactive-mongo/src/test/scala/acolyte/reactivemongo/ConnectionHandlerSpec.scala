@@ -9,7 +9,8 @@ import reactivemongo.bson.{
 }
 
 object ConnectionHandlerSpec extends org.specs2.mutable.Specification
-    with QueryHandlerFixtures with WriteHandlerFixtures with ResponseMatchers {
+    with QueryHandlerFixtures with WriteHandlerFixtures
+    with ConnectionHandlerFixtures with ResponseMatchers {
 
   "Connection handler" title
 
@@ -68,26 +69,15 @@ object ConnectionHandlerSpec extends org.specs2.mutable.Specification
   }
 
   "Complete handler" should {
-    val handler = ConnectionHandler(QueryHandler {
-      case RequestBody("test1", _) ⇒ QueryResponse(BSONDocument("b" -> 3))
-      case RequestBody("test2", _) ⇒ QueryResponse(
-        Seq(BSONDocument("d" -> 4.56d), BSONDocument("ef" -> "ghi")))
-      case _ ⇒ QueryResponse(None)
-    }, WriteHandler {
-      case (DeleteOp, _) ⇒ WriteResponse("Error #2")
-      case (InsertOp, _) ⇒ WriteResponse()
-      case _             ⇒ WriteResponse(None)
-    })
-
     "return expected query result #1" in {
-      handler.queryHandler(1, query1) aka "query result" must beSome.which(
+      chandler1.queryHandler(1, query1) aka "query result" must beSome.which(
         _ aka "response" must beResponse {
           case ValueDocument(("b", BSONInteger(3)) :: Nil) :: Nil ⇒ ok
         })
     }
 
     "return expected query result #2" in {
-      handler.queryHandler(2, query2) aka "query result" must beSome.which(
+      chandler1.queryHandler(2, query2) aka "query result" must beSome.which(
         _ aka "response" must beResponse {
           case ValueDocument(("d", BSONDouble(4.56d)) :: Nil) ::
             ValueDocument(("ef", BSONString("ghi")) :: Nil) :: Nil ⇒ ok
@@ -95,26 +85,43 @@ object ConnectionHandlerSpec extends org.specs2.mutable.Specification
     }
 
     "return no query result" in {
-      handler.queryHandler(3, query3) aka "query handler" must beNone
+      chandler1.queryHandler(3, query3) aka "query handler" must beNone
     }
 
     "return expected write result #1" in {
-      handler.writeHandler(1, write1._1, write1._2).
+      chandler1.writeHandler(1, write1._1, write1._2).
         aka("write result") must beSome.which(
           _ aka "response" must beWriteError("Error #2"))
     }
 
     "return expected write result #2" in {
-      handler.writeHandler(2, write2._1, write2._2).
+      chandler1.writeHandler(2, write2._1, write2._2).
         aka("write result") must beSome.which(_ aka "response" must beResponse {
           case ValueDocument(("ok", BSONInteger(1)) ::
-            ("updatedExisting", BSONBoolean(false)) :: Nil) :: Nil ⇒ ok
+            ("updatedExisting", BSONBoolean(false)) ::
+            ("n", BSONInteger(0)) :: Nil) :: Nil ⇒ ok
         })
     }
 
     "return no write result" in {
-      handler.writeHandler(3, write3._1, write3._2).
+      chandler1.writeHandler(3, write3._1, write3._2).
         aka("write result") must beNone
     }
   }
+}
+
+trait ConnectionHandlerFixtures {
+  fixtures: QueryHandlerFixtures with WriteHandlerFixtures ⇒
+
+  lazy val chandler1 = ConnectionHandler(QueryHandler {
+    case RequestBody(col, _) if col.endsWith("test1") ⇒
+      QueryResponse(BSONDocument("b" -> 3))
+    case RequestBody(col, _) if col.endsWith("test2") ⇒ QueryResponse(
+      Seq(BSONDocument("d" -> 4.56d), BSONDocument("ef" -> "ghi")))
+    case q ⇒ QueryResponse(None)
+  }, WriteHandler {
+    case (DeleteOp, _) ⇒ WriteResponse("Error #2")
+    case (InsertOp, _) ⇒ WriteResponse()
+    case _             ⇒ WriteResponse(None)
+  })
 }

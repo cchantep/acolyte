@@ -30,9 +30,11 @@ object WriteResponse {
   /**
    * Factory for successful response.
    *
+   * @param count The number of documents affected by last command, 0 if none
    * @param updatedExisting Some existing document has been updated
    */
-  def successful(updatedExisting: Boolean = false) = apply(updatedExisting)
+  def successful(count: Int = 0, updatedExisting: Boolean = false) =
+    apply(count -> updatedExisting)
 
   /**
    * Empty/undefined response, returned by handler no supporting

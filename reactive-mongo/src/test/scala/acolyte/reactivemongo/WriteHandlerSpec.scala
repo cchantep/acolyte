@@ -10,12 +10,13 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
   "Handler" should {
     "return a success response with existing document updated" in {
       implicitly[WriteHandler]({
-        (_: WriteOp, _: Request) ⇒ WriteResponse(true)
+        (_: WriteOp, _: Request) ⇒ WriteResponse(1 -> true)
       }) aka "write handler" must beLike {
         case h ⇒ h(1, write1._1, write1._2) must beSome.which(
           _ aka "response" must beResponse {
             case ValueDocument(("ok", BSONInteger(k)) ::
-              ("updatedExisting", BSONBoolean(up)) :: Nil) :: Nil ⇒
+              ("updatedExisting", BSONBoolean(up)) ::
+              ("n", BSONInteger(1)) :: Nil) :: Nil ⇒
               k aka "ok" must_== 1 and (up aka "updated existing" must beTrue)
           })
       }
@@ -23,12 +24,13 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
 
     "return a success response without existing document updated" in {
       implicitly[WriteHandler]({
-        (_: WriteOp, _: Request) ⇒ WriteResponse(false)
+        (_: WriteOp, _: Request) ⇒ WriteResponse(0 -> false)
       }) aka "write handler" must beLike {
         case h ⇒ h(1, write1._1, write1._2) must beSome.which(
           _ aka "response" must beResponse {
             case ValueDocument(("ok", BSONInteger(k)) ::
-              ("updatedExisting", BSONBoolean(up)) :: Nil) :: Nil ⇒
+              ("updatedExisting", BSONBoolean(up)) ::
+              ("n", BSONInteger(0)) :: Nil) :: Nil ⇒
               k aka "ok" must_== 1 and (up aka "updated existing" must beFalse)
           })
       }
@@ -41,7 +43,8 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
         case h ⇒ h(1, write1._1, write1._2) must beSome.which(
           _ aka "response" must beResponse {
             case ValueDocument(("ok", BSONInteger(k)) ::
-              ("updatedExisting", BSONBoolean(up)) :: Nil) :: Nil ⇒
+              ("updatedExisting", BSONBoolean(up)) ::
+              ("n", BSONInteger(0)) :: Nil) :: Nil ⇒
               k aka "ok" must_== 1 and (up aka "updated existing" must beFalse)
           })
       }
@@ -60,9 +63,9 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
       implicitly[WriteHandler]({ (_: WriteOp, _: Request) ⇒
         WriteResponse("Error message #2", 7)
       }) aka "write handler" must beLike {
-          case h ⇒ h(2, write1._1, write1._2) must beSome.which(
-            _ aka "response" must beWriteError("Error message #2", Some(7)))
-        }
+        case h ⇒ h(2, write1._1, write1._2) must beSome.which(
+          _ aka "response" must beWriteError("Error message #2", Some(7)))
+      }
     }
 
     "return no response" in {
@@ -87,7 +90,7 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
       (op, req) match {
         case (DeleteOp, RequestBody("test1", _)) ⇒ WriteResponse.empty
         case (InsertOp, RequestBody("test2", _)) ⇒ WriteResponse("Error #2")
-        case (UpdateOp, RequestBody("test3", _)) ⇒ WriteResponse(true)
+        case (UpdateOp, RequestBody("test3", _)) ⇒ WriteResponse(2, true)
         case (_, RequestBody("test4", _))        ⇒ WriteResponse.successful()
       }
     }
@@ -109,8 +112,9 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
       handler aka "mixed handler" must beLike {
         case h ⇒ h(3, write3._1, write3._2) aka "prepared" must beSome.which(
           _ aka "write response" must beResponse {
-            case ValueDocument(("ok", BSONInteger(1)) :: 
-                ("updatedExisting", BSONBoolean(true)) :: Nil) :: Nil ⇒ ok
+            case ValueDocument(("ok", BSONInteger(1)) ::
+              ("updatedExisting", BSONBoolean(true)) ::
+              ("n", BSONInteger(2)) :: Nil) :: Nil ⇒ ok
           })
       }
     }

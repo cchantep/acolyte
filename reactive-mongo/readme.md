@@ -169,9 +169,9 @@ val error2 = WriteResponse("Error #1") // equivalent
 val error3 = WriteResponse.failed("Error #2", 1/* code */)
 val error4 = WriteResponse("Error #2" -> 1/* code */) // equivalent
 
-val success1 = WriteResponse(true/* updatedExisting */)
-val success2 = WriteResponse.successful(true) // equivalent
-val success3 = WriteResponse() // = WriteResponse.successful(false)
+val success1 = WriteResponse(1/* update count */ -> true/* updatedExisting */)
+val success2 = WriteResponse.successful(1, true) // equivalent
+val success3 = WriteResponse() // = WriteResponse.successful(0, false)
 ```
 
 When a handler supports some write cases, but not other, it can return an undefined response, to let the chance other handlers would manage it.

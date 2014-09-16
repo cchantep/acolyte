@@ -48,10 +48,10 @@ object ResponseMakerSpec
 
   "Write response maker" should {
     "be a successful one for boolean (updatedExisting)" in {
-      val makr = implicitly[WriteResponseMaker[Boolean]]
+      val makr = implicitly[WriteResponseMaker[(Int, Boolean)]]
 
-      makr(4, true) aka "response" must beSome.which { prepared ⇒
-        zip(prepared, MongoDB.WriteSuccess(4, true)).
+      makr(4, 1 -> true) aka "response" must beSome.which { prepared ⇒
+        zip(prepared, MongoDB.WriteSuccess(4, 1, true)).
           aka("maker") must beSuccessfulTry.like {
             case (a, b) ⇒ a.documents aka "response" must_== b.documents
           }
@@ -62,7 +62,7 @@ object ResponseMakerSpec
       val makr = implicitly[WriteResponseMaker[Unit]]
 
       makr(4, ()) aka "response" must beSome.which { prepared ⇒
-        zip(prepared, MongoDB.WriteSuccess(4, false)).
+        zip(prepared, MongoDB.WriteSuccess(4, 0, false)).
           aka("maker") must beSuccessfulTry.like {
             case (a, b) ⇒ a.documents aka "response" must_== b.documents
           }

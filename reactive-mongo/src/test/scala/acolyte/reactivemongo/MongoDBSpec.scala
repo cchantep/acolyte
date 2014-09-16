@@ -97,14 +97,14 @@ object MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
 
   "Response to write success" should {
     "contain expected BSON when no existing document was updated" in {
-      MongoDB.WriteSuccess(5) aka "response" must beSuccessfulTry.
+      MongoDB.WriteSuccess(5, 1) aka "response" must beSuccessfulTry.
         which(Response.parse(_).toList aka "response" must beLike {
           case doc :: Nil ⇒ doc aka "success" must_== doc6
         })
     }
 
     "contain expected BSON when existing document was updated" in {
-      MongoDB.WriteSuccess(5, true) aka "response" must beSuccessfulTry.
+      MongoDB.WriteSuccess(5, 2, true) aka "response" must beSuccessfulTry.
         which(Response.parse(_).toList aka "response" must beLike {
           case doc :: Nil ⇒ doc aka "success" must_== doc7
         })
@@ -129,13 +129,15 @@ private[reactivemongo] trait MongoFixtures {
     "title" -> "Title", "modified" -> BSONDateTime(System.currentTimeMillis))
 
   val doc4 = BSONDocument("ok" -> 0, "err" -> "Write Error #1",
-    "errmsg" -> "Write Error #1", "code" -> -1)
+    "errmsg" -> "Write Error #1", "code" -> -1, 
+    "updatedExisting" -> false, "n" -> 0)
 
   val doc5 = BSONDocument("ok" -> 0, "err" -> "Write Error #2",
-    "errmsg" -> "Write Error #2", "code" -> 3)
+    "errmsg" -> "Write Error #2", "code" -> 3,
+    "updatedExisting" -> false, "n" -> 0)
 
-  val doc6 = BSONDocument("ok" -> 1, "updatedExisting" -> false)
-  val doc7 = BSONDocument("ok" -> 1, "updatedExisting" -> true)
+  val doc6 = BSONDocument("ok" -> 1, "updatedExisting" -> false, "n" -> 1)
+  val doc7 = BSONDocument("ok" -> 1, "updatedExisting" -> true, "n" -> 2)
 
   @inline def bson(d: BSONDocument) = d.elements.toList
 }

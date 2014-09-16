@@ -23,11 +23,11 @@ object WriteResponseMaker {
    * {{{
    * import acolyte.reactivemongo.WriteResponseMaker
    *
-   * val maker = implicitly[WriteResponseMaker[Boolean]]
+   * val maker = implicitly[WriteResponseMaker[(Int, Boolean)]]
    * }}}
    */
-  implicit def SuccessWriteResponseMaker = new WriteResponseMaker[Boolean] {
-    def apply(channelId: Int, updatedExisting: Boolean): Option[Try[Response]] = Some(MongoDB.WriteSuccess(channelId, updatedExisting))
+  implicit def SuccessWriteResponseMaker = new WriteResponseMaker[(Int, Boolean)] {
+    def apply(channelId: Int, up: (Int, Boolean)): Option[Try[Response]] = Some(MongoDB.WriteSuccess(channelId, up._1, up._2))
   }
 
   /**
@@ -38,7 +38,7 @@ object WriteResponseMaker {
    * }}}
    */
   implicit def UnitWriteResponseMaker = new WriteResponseMaker[Unit] {
-    def apply(channelId: Int, effect: Unit): Option[Try[Response]] = Some(MongoDB.WriteSuccess(channelId, false))
+    def apply(channelId: Int, effect: Unit): Option[Try[Response]] = Some(MongoDB.WriteSuccess(channelId, 0, false))
   }
 
   /**

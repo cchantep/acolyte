@@ -49,17 +49,18 @@ object MongoDB {
    */
   def WriteError(channelId: Int, error: String, code: Option[Int] = None): Try[Response] = mkResponse(channelId, 4 /* unspecified */ , List(
     BSONDocument("ok" -> 0, "err" -> error, "errmsg" -> error,
-      "code" -> code.getOrElse(-1)
-    /*, "n" -> 0, "updatedExisting" -> false */ )))
+      "code" -> code.getOrElse(-1), "updatedExisting" -> false, "n" -> 0)))
 
   /**
    * Builds a response for a successful write operation.
    *
    * @param channelId Unique ID of channel
+   * @param count The number of documents affected by last command, 0 if none
    * @param updatedExisting Some existing document has been updated
    */
-  def WriteSuccess(channelId: Int, updatedExisting: Boolean = false): Try[Response] = mkResponse(channelId, 4 /*unspecified*/ , List(
-    BSONDocument("ok" -> 1, "updatedExisting" -> updatedExisting)))
+  def WriteSuccess(channelId: Int, count: Int, updatedExisting: Boolean = false): Try[Response] = mkResponse(channelId, 4 /*unspecified*/ ,
+    List(BSONDocument(
+      "ok" -> 1, "updatedExisting" -> updatedExisting, "n" -> count)))
 
   /**
    * Builds a Mongo response.

@@ -5,7 +5,7 @@ import scala.util.Try
 import org.specs2.mutable.Specification
 import org.specs2.matcher.{ Expectable, Matcher, MatchResult }
 
-import reactivemongo.bson.{ BSONDocument, BSONInteger, BSONString }
+import reactivemongo.bson.{ BSONBoolean, BSONDocument, BSONInteger, BSONString }
 import reactivemongo.core.protocol.Response
 
 trait ResponseMatchers { specs: Specification ⇒
@@ -44,8 +44,11 @@ trait ResponseMatchers { specs: Specification ⇒
         e.value aka "prepared" must beSuccessfulTry.which {
           Response.parse(_).toList aka "response" must beLike {
             case ValueDocument(("ok", BSONInteger(0)) ::
-              ("err", BSONString(err)) :: ("errmsg", BSONString(errmsg)) ::
-              ("code", BSONInteger(c)) :: Nil) :: Nil ⇒
+              ("err", BSONString(err)) ::
+              ("errmsg", BSONString(errmsg)) ::
+              ("code", BSONInteger(c)) ::
+              ("updatedExisting", BSONBoolean(false)) ::
+              ("n", BSONInteger(0)) :: Nil) :: Nil ⇒
               err aka "error message (err)" must_== msg and (
                 errmsg aka "error message (errmsg)" must_== msg) and (
                   c aka "error code" must_== code.getOrElse(-1))
