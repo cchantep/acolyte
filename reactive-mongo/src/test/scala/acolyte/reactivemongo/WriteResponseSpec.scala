@@ -43,7 +43,7 @@ object WriteResponseSpec
     }
 
     "be made for successful result" >> {
-      "with a boolean updatedExisting flag" in {
+      "with count and updatedExisting flag" in {
         WriteResponse(1 -> true) aka "prepared" must beLike {
           case prepared ⇒ prepared(3) aka "applied" must beSome.which(
             _ aka "result" must beResponse {
@@ -52,11 +52,29 @@ object WriteResponseSpec
         }
       }
 
-      "with a boolean updatedExisting flag using named factory" in {
+      "with count and updatedExisting using named factory" in {
         WriteResponse.successful(0, false) aka "prepared" must beLike {
           case prepared ⇒ prepared(3) aka "applied" must beSome.which(
             _ aka "result" must beResponse {
               _ aka "response" must beWriteSuccess(0, false)
+            })
+        }
+      }
+
+      "with count using generic factory" in {
+        WriteResponse(1) aka "prepared" must beLike {
+          case prepared ⇒ prepared(3) aka "applied" must beSome.which(
+            _ aka "result" must beResponse {
+              _ aka "response" must beWriteSuccess(1, false)
+            })
+        }
+      }
+
+      "with count using named factory" in {
+        WriteResponse.successful(2) aka "prepared" must beLike {
+          case prepared ⇒ prepared(3) aka "applied" must beSome.which(
+            _ aka "result" must beResponse {
+              _ aka "response" must beWriteSuccess(2, false)
             })
         }
       }

@@ -4,6 +4,8 @@ import scala.util.Try
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration.Duration
 
+import resource.{ ManagedResource, managed }
+
 import reactivemongo.api.{ MongoDriver, MongoConnection, DefaultDB }
 import reactivemongo.api.collections.default.BSONCollection
 import reactivemongo.bson.{
@@ -40,14 +42,14 @@ object DriverSpec extends org.specs2.mutable.Specification
 
     "return expected query result" >> {
       "when is successful #1" in withCol(query1.collection) { col ⇒
-        await(col.find(query1.body).cursor[BSONDocument].toList()).
+        awaitRes(col.find(query1.body).cursor[BSONDocument].toList()).
           aka("query result") must beSuccessfulTry[List[BSONDocument]].like {
             case ValueDocument(("b", BSONInteger(3)) :: Nil) :: Nil ⇒ ok
           }
       }
 
       "when is successful #2" in withCol(query2.collection) { col ⇒
-        await(col.find(query2.body).cursor[BSONDocument].toList()).
+        awaitRes(col.find(query2.body).cursor[BSONDocument].toList()).
           aka("query result") must beSuccessfulTry[List[BSONDocument]].like {
             case ValueDocument(("d", BSONDouble(4.56d)) :: Nil) ::
               ValueDocument(("ef", BSONString("ghi")) :: Nil) :: Nil ⇒ ok
@@ -56,25 +58,43 @@ object DriverSpec extends org.specs2.mutable.Specification
 
       "as error when query handler returns no query result" in withCol(
         query3.collection) { col ⇒
-          await(col.find(query3.body).cursor[BSONDocument].toList()).
+          awaitRes(col.find(query3.body).cursor[BSONDocument].toList()).
             aka("query result") must beFailedTry.
             withThrowable[DetailedDatabaseException](".*No response: .*")
         }
 
-      "as error when connection handler is empty" in {
-        false must beTrue
-      }
+      "as error when connection handler is empty" in withCol(query3.collection,
+        collection(_, db("test-db",
+          connect(managed(AcolyteDSL driver AcolyteDSL.handle))))) { col ⇒
+
+          awaitRes(col.find(query3.body).cursor[BSONDocument].toList()).
+            aka("query result") must beFailedTry.
+            withThrowable[DetailedDatabaseException](".*No response: .*")
+        }
+
+      "as error when query handler is undefined" in withCol(query3.collection,
+        collection(_, db("test-db",
+          connect(managed(AcolyteDSL driver AcolyteDSL.handleWrite(
+            { (_: WriteOp, _: Request) ⇒ WriteResponse(1 /* one doc */ ) }
+          )))))) { col ⇒
+
+          awaitRes(col.find(query3.body).cursor[BSONDocument].toList()).
+            aka("query result") must beFailedTry.
+            withThrowable[DetailedDatabaseException](".*No response: .*")
+
+        }
     }
 
     "return expected write result" >> {
       "when error is raised without code" in withCol(write1._2.collection) {
         col ⇒
-          await(col.remove(write1._2.body)) aka "write result" must beFailedTry.
+          awaitRes(col.remove(write1._2.body)).
+            aka("write result") must beFailedTry.
             withThrowable[LastError](".*Error #2.*code = -1.*")
       }
 
       "when successful" in withCol(write2._2.collection) { col ⇒
-        await(col.insert(write2._2.body)).
+        awaitRes(col.insert(write2._2.body)).
           aka("result") must beSuccessfulTry.like {
             case lastError ⇒
               lastError.elements.toList aka "body" must beLike {
@@ -89,17 +109,38 @@ object DriverSpec extends org.specs2.mutable.Specification
           }
       }
 
-      "when no write result" in withCol(write3._2.collection) { col ⇒
-        await(col.update(BSONDocument("name" -> "x"), write3._2.body)).
-          aka("result") must beFailedTry.withThrowable[LastError](
-            ".*No response: .*")
-      }
+      "as error when write handler returns no write result" in withCol(
+        write3._2.collection) { col ⇒
+          awaitRes(col.update(BSONDocument("name" -> "x"), write3._2.body)).
+            aka("result") must beFailedTry.withThrowable[LastError](
+              ".*No response: .*")
+        }
+
+      "as error when connection handler is empty" in withCol(query3.collection,
+        collection(_, db("test-db",
+          connect(managed(AcolyteDSL driver AcolyteDSL.handle))))) { col ⇒
+
+          awaitRes(col.update(BSONDocument("name" -> "x"), write3._2.body)).
+            aka("result") must beFailedTry.withThrowable[LastError](
+              ".*No response: .*")
+        }
+
+      "as error when write handler is undefined" in withCol(query3.collection,
+        collection(_, db("test-db",
+          connect(managed(AcolyteDSL driver AcolyteDSL.handleQuery(
+            { _: Request ⇒
+              QueryResponse(BSONDocument("prop" -> "A"))
+            })))))) { col ⇒
+
+          awaitRes(col.update(BSONDocument("name" -> "x"), write3._2.body)).
+            aka("result") must beFailedTry.withThrowable[LastError](
+              ".*No response: .*")
+
+        }
     }
   }
 
   // ---
-
-  import resource.{ ManagedResource, managed }
 
   val driver: ManagedResource[MongoDriver] =
     managed(AcolyteDSL driver chandler1)
@@ -112,5 +153,5 @@ object DriverSpec extends org.specs2.mutable.Specification
 
   def withCol[T](n: String, col: String ⇒ ManagedResource[BSONCollection] = collection(_))(f: BSONCollection ⇒ T): T = col(n).acquireAndGet(f)
 
-  def await[T](f: Future[T], tmout: Duration = Duration(5, "seconds")): Try[T] = Try[T](Await.result(f, tmout))
+  def awaitRes[T](f: Future[T], tmout: Duration = Duration(5, "seconds")): Try[T] = Try[T](Await.result(f, tmout))
 }

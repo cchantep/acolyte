@@ -34,6 +34,19 @@ object WriteResponseMaker {
    * {{{
    * import acolyte.reactivemongo.WriteResponseMaker
    *
+   * val maker = implicitly[WriteResponseMaker[Int]]
+   * }}}
+   */
+  implicit def SuccessNotUpdatedWriteResponseMaker = 
+    new WriteResponseMaker[Int] {
+      def apply(channelId: Int, count: Int): Option[Try[Response]] = 
+        Some(MongoDB.WriteSuccess(channelId, count))
+  }
+
+  /**
+   * {{{
+   * import acolyte.reactivemongo.WriteResponseMaker
+   *
    * val maker = implicitly[WriteResponseMaker[Unit]]
    * }}}
    */

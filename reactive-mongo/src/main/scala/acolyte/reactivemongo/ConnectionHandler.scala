@@ -128,10 +128,8 @@ object WriteHandler {
    * {{{
    * import acolyte.reactivemongo.{ Request, WriteHandler, WriteOp }
    *
-   * val handler1: WriteHandler = // Returns a successful empty response
-   *   (w: (WriteOp, Request)) => WriteResponse(false)
-   *
-   * val handler2 = WriteHandler { (op: WriteOp,
+   * val handler: WriteHandler = // Returns a successful for 1 doc
+   *   (w: (WriteOp, Request)) => WriteResponse(1, false)
    * }}}
    */
   implicit def apply(f: (WriteOp, Request) ⇒ PreparedResponse): WriteHandler = new WriteHandler {

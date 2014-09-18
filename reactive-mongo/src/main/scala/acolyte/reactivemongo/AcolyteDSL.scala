@@ -17,13 +17,45 @@ object AcolyteDSL {
     new MongoDriver(Some(Akka.actorSystem(handler)))
 
   /**
-   * Creates an empty handler.
+   * Creates an empty connection handler.
    *
    * {{{
-   * import acolyte.reactivemongo.AcolyteDSL.{ connection, handleStatement }
+   * import acolyte.reactivemongo.AcolyteDSL.{ driver, handle }
    *
-   * connection { handleStatement }
+   * driver(handle)
    * }}}
    */
   def handle: ConnectionHandler = ConnectionHandler.empty
+
+  /**
+   * Creates a connection handler with given query handler,
+   * but no write handler.
+   *
+   * {{{
+   * import acolyte.reactivemongo.AcolyteDSL.{ driver, handleQuery }
+   * import acolyte.reactivemongo.Request
+   *
+   * driver(handleQuery { req: Request => aResponse })
+   * }}}
+   *
+   * @see [[ConnectionHandler.withWriteHandler]]
+   */
+  def handleQuery(handler: QueryHandler): ConnectionHandler =
+    ConnectionHandler(handler)
+
+  /**
+   * Creates a connection handler with given write handler,
+   * but no query handler.
+   *
+   * {{{
+   * import acolyte.reactivemongo.AcolyteDSL.{ driver, handleWrite }
+   * import acolyte.reactivemongo.{ Request, WriteOp }
+   *
+   * driver(handleWrite { (op: WriteOp, req: Request) => aResponse })
+   * }}}
+   *
+   * @see [[ConnectionHandler.withQueryHandler]]
+   */
+  def handleWrite(handler: WriteHandler): ConnectionHandler =
+    ConnectionHandler(writeHandler = handler)
 }

@@ -16,13 +16,101 @@ Then any connection created will be managed by your Acolyte (query & writer) han
 ```scala
 import reactivemongo.api.MongoDriver
 
-import acolyte.reactivemongo.AcolyteDSL.{ driver, handle }
+import acolyte.reactivemongo.AcolyteDSL.driver
 
 val mongoDriver: MongoDriver = driver {
-  ??? // dispatch query and write request as you want using pattern matching
+  yourConnectionHandler 
+  // ... dispatch query and write request as you want using pattern matching
+}
+```
+
+### Setup driver behaviour
+
+Driver behaviour is configured using a connection handler, itself based on query and write handler, managing respectively Mongo queries or write operations, and returning appropriate result.
+
+You can start looking at empty/no-op connection handler. This one has no query or write handler, so has no response can be provided to any command performed with ReactiveMongo configured in this way, it will raise explicit error `No response: ...` for every request.
+
+```scala
+import acolyte.reactivemongo.AcolyteDSL
+
+val noOpDriver = AcolyteDSL driver { 
+  AcolyteDSL handle/* ConnectionHandler.empty */
 }
 
-val noOpDriver = driver { handle/* ConnectionHandler.empty */}
+// Then when Mongo code is given this driver instead of production one ...
+// (see DI or cake pattern)
+import scala.util.Failure
+import reactivemongo.api.MongoConnection
+import reactivemongo.bson.BSONDocument
+
+// driver = noOpDriver
+val connect: MongoConnection = driver.connection(List(anyOptions))
+val db = connect("anyDbName")
+val col = db("anyColName")
+
+col.find(BSONDocument("anyQuery" -> 1).cursor[BSONDocument].toList().
+  onComplete {
+    case Failure(err) => ???
+      // Will be there with "No response: " error as nothing is configured
+  }
+
+col.insert(BSONDocument("prop" -> "value")).onComplete {
+  case Failure(err) => ???
+    // Will be there with "No response: " error as nothing is configured
+}
+```
+
+Then we can really play handlers. To handle Mongo query and to return the kind of result your code should work with, you can do as following.
+
+```scala
+import acolyte.reactivemongo.{ AcolyteDSL, Request }
+
+val readOnlyDriver = AcolyteDSL driver {
+  AcolyteDSL handleQuery { req: Request => aResponse }
+}
+
+// Then when Mongo code is given this driver instead of production one ...
+// (see DI or cake pattern)
+
+col.find(BSONDocument("anyQuery" -> 1).cursor[BSONDocument].toList().
+  onComplete {
+    case Success(res) => ??? // In case of response given by provided handler
+    case Failure(err) => ??? // "No response: " if case not handled
+  }
+```
+
+In the same way, write operations can be responded with appropriate result.
+
+```scala
+import acolyte.reactivemongo.{ AcolyteDSL, Request, WriteOp }
+
+val writeOnlyDriver = AcolyteDSL driver {
+  AcolyteDSL handleWrite { (op: WriteOp, req: Request) => aResponse }
+}
+
+// Then when Mongo code is given this driver instead of production one ...
+// (see DI or cake pattern)
+
+col.insert(BSONDocument("prop" -> "value")).onComplete {
+  case Success(res) => ??? // In case or response given by provided handler
+  case Failure(err) => ??? // "No response: " if case not handled
+}
+```
+
+Obviously connection handler can manage both query and write:
+
+```
+import acolyte.reactivemongo.{ AcolyteDSL, Request, WriteOp }
+
+val completeHandler = AcolyteDSL driver {
+  AcolyteDSL handleQuery { req: Request => 
+    // First define query handling
+    aQueryResponse
+  } withWriteHandler { (op: WriteOp, req: Request) =>
+    // Then define write handling
+    aWriteResponse
+  }
+}
 ```
 
 ### Request patterns
