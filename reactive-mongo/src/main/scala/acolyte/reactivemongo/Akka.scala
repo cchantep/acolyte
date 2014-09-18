@@ -35,14 +35,31 @@ private[reactivemongo] object Akka {
    * @param name Actor system name (default: "ReactiveMongoAcolyte")
    */
   def actorSystem(handler: ConnectionHandler, name: String = "ReactiveMongoAcolyte"): AkkaSystem = new ActorSystem(AkkaSystem(name), new ActorRefFactory() {
+    /* For reverse engineering
     def before(system: AkkaSystem, next: ActorRef): ActorRef = {
       system actorOf Props(classOf[Actor], handler, next)
+    }
+     */
+
+    val DbSystem = classOf[reactivemongo.core.actors.MongoDBSystem]
+
+    def actorOf(system: AkkaSystem, props: Props): ActorRef = {
+      if (props.actorClass == DbSystem) {
+        system actorOf Props(classOf[Actor], handler)
+      } else system.actorOf(props)
+    }
+
+    def actorOf(system: AkkaSystem, props: Props, n: String): ActorRef = {
+      if (props.actorClass == DbSystem) {
+        system.actorOf(Props(classOf[Actor], handler), n)
+      } else system.actorOf(props, n)
     }
   })
 }
 
 private[reactivemongo] class Actor(
-    handler: ConnectionHandler, next: ActorRef /* TODO: Remove */ ) extends akka.actor.Actor {
+  handler: ConnectionHandler) extends akka.actor.Actor {
+
   def receive = {
     case msg @ CheckedWriteRequestExResp(
       r @ CheckedWriteRequest(op, doc, GetLastError(_, _, _, _))) ⇒

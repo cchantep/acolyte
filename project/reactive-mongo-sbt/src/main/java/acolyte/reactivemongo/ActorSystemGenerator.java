@@ -61,6 +61,85 @@ public final class ActorSystemGenerator {
             // ---
 
             final CtClass returnType = ms[i].getReturnType();
+            final CtClass[] paramTypes = ms[i].getParameterTypes();
+            final String name = ms[i].getName();
+            final String body = (returnType == CtClass.voidType)
+                ? "{ underlying." + name + "($$); }"
+                : ("actorOf".equals(name) && 
+                   (paramTypes.length == 1 || paramTypes.length == 2))
+                ? "{ return this.refFactory.actorOf(underlying, $$); }"
+                : "{ return underlying." + name + "($$); }";
+
+            pc.addMethod(CtNewMethod.make(mod,
+                                          ms[i].getReturnType(),
+                                          ms[i].getName(),
+                                          paramTypes,
+                                          ms[i].getExceptionTypes(),
+                                          body,
+                                          pc));
+        } // end of for
+
+        final File packageDir = 
+            new File(new File(outdir, "acolyte"), "reactivemongo");
+
+        packageDir.mkdirs();
+
+        final String outpath = outdir.getAbsolutePath();
+
+        fc.writeFile(outpath);
+        pc.writeFile(outpath);
+
+        return new File[] {
+            new File(packageDir, fc.getSimpleName() + ".class"),
+            new File(packageDir, pc.getSimpleName() + ".class")
+        };
+    } // end of writeTo
+
+    // Used to proxy ReactiveMongo actor system and do some reverse engineering
+    public static File[] writeReverseEngineering(File outdir) throws Exception {
+        final ClassPool pool = ClassPool.getDefault();
+        final LoaderClassPath lcp = 
+            new LoaderClassPath(ActorSystem.class.getClassLoader());
+
+        pool.appendClassPath(lcp);
+
+        final CtClass asc = pool.get(ActorSystem.class.getName());
+        final CtClass fc = pool.get(ReverseEngineeringRefFactory.class.getName());
+        final CtClass pc = 
+            pool.makeClass("acolyte.reactivemongo.ActorSystem");
+
+        pc.setSuperclass(asc);
+
+        // New fields
+        pc.addField(CtField.make("private final " + ActorSystem.class.getName() + " underlying;", pc));
+        pc.addField(CtField.make("private final " + ReverseEngineeringRefFactory.class.getName() + " refFactory;", pc));
+
+        // New constructor
+        pc.addConstructor(CtNewConstructor.make(new CtClass[] { asc, fc }, new CtClass[0], "{ if ($1 == null) { throw new IllegalArgumentException(\"Missing underlying system\"); } if ($2 == null) { throw new IllegalArgumentException(\"Missing reference factory\"); } this.underlying = $1; this.refFactory = $2; }", pc));
+
+        final CtMethod[] ms = pc.getMethods();
+
+        for (int i = 0; i < ms.length; i++) {
+            if (!ms[i].getDeclaringClass().
+                getPackageName().startsWith("akka.")) {
+
+                continue;
+            } // end of if
+
+            // ---
+
+            final int mod = Modifier.
+                clear(ms[i].getModifiers(), Modifier.ABSTRACT);
+
+            if (Modifier.isStatic(mod) || Modifier.isPrivate(mod) ||
+                Modifier.isNative(mod) || Modifier.isFinal(mod)) {
+
+                continue;
+            } // end of if
+
+            // ---
+
+            final CtClass returnType = ms[i].getReturnType();
             final String name = ms[i].getName();
             final String body = (returnType == CtClass.voidType)
                 ? "{ underlying." + name + "($$); }"
@@ -92,5 +171,5 @@ public final class ActorSystemGenerator {
             new File(packageDir, fc.getSimpleName() + ".class"),
             new File(packageDir, pc.getSimpleName() + ".class")
         };
-    } // end of writeTo
+    } // end of writeReverseEngineering
 } // end of class ActorSystemGenerator

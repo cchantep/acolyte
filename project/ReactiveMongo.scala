@@ -80,10 +80,7 @@ trait ReactiveMongo { deps: Dependencies ⇒
 
         generated.foldLeft(Seq[(File, String)]()) { (s, f) =>
           val path = f.getAbsolutePath
-
-          s :+ (f -> path.
-            drop(outdir.getAbsolutePath.length+1))
-
+          s :+ (f -> path.drop(outdir.getAbsolutePath.length+1))
         }
       } dependsOn(compile in (reactiveMongoGen, Compile)),
       managedClasspath in Compile := {

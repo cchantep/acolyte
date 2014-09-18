@@ -2,18 +2,28 @@ package acolyte.reactivemongo;
 
 import akka.actor.ActorSystem;
 import akka.actor.ActorRef;
+import akka.actor.Props;
 
 /**
- * Reference factory for Acolyte actors.
+ * Reference factory with underlying actor system provided.
  */
 public interface ActorRefFactory {
 
     /**
-     * Creates an ActorRef 'before' another.
+     * Returns actor reference according given properties.
      *
      * @param system Actor system
-     * @param then Actor to which message should be normally forwarded
+     * @param props Actor properties
      */
-    public ActorRef before(ActorSystem system, ActorRef then);
+    public ActorRef actorOf(ActorSystem system, Props props);
+
+    /**
+     * Returns actor reference according given properties and name.
+     *
+     * @param system Actor system
+     * @param props Actor properties
+     * @param name Actor name
+     */
+    public ActorRef actorOf(ActorSystem system, Props props, String name);
 
 } // end of class ActorRefFactory
