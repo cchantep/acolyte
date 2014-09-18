@@ -5,8 +5,15 @@ import scala.util.Try
 import org.specs2.mutable.Specification
 import org.specs2.matcher.{ Expectable, Matcher, MatchResult }
 
-import reactivemongo.bson.{ BSONBoolean, BSONDocument, BSONInteger, BSONString }
+import reactivemongo.bson.{
+  BSONBoolean,
+  BSONDocument,
+  BSONInteger,
+  BSONString,
+  BSONValue
+}
 import reactivemongo.core.protocol.Response
+import reactivemongo.core.errors.DatabaseException
 
 trait ResponseMatchers { specs: Specification ⇒
   def beResponse(f: List[BSONDocument] ⇒ MatchResult[_]) =
@@ -25,16 +32,17 @@ trait ResponseMatchers { specs: Specification ⇒
   def beQueryError(msg: String, code: Option[Int] = None) =
     new Matcher[Try[Response]] {
       def apply[R <: Try[Response]](e: Expectable[R]) =
-        e.value aka "prepared" must beSuccessfulTry.which {
-          Response.parse(_).toList aka "response" must beLike {
-            case ValueDocument(("$err", BSONString(m)) :: others) :: Nil ⇒
-              m aka "error message" must_== msg and ((code, others).
-                aka("extra properties") must beLike {
-                  case (None, _) ⇒ ok
-                  case (Some(a), ("code", BSONInteger(b)) :: Nil) ⇒
-                    a aka "code" must_== b
-                })
-          }
+        e.value aka "prepared" must beSuccessfulTry.which { r ⇒
+          r.reply.inError aka "in-error" must beTrue and (
+            Response.parse(r).toList aka "response" must beLike {
+              case ValueDocument(("$err", BSONString(m)) :: others) :: Nil ⇒
+                m aka "error message" must_== msg and ((code, others).
+                  aka("extra properties") must beLike {
+                    case (None, _) ⇒ ok
+                    case (Some(a), ("code", BSONInteger(b)) :: Nil) ⇒
+                      a aka "code" must_== b
+                  })
+            })
         }
     }
 
@@ -53,6 +61,18 @@ trait ResponseMatchers { specs: Specification ⇒
                 errmsg aka "error message (errmsg)" must_== msg) and (
                   c aka "error code" must_== code.getOrElse(-1))
           }
+        }
+    }
+
+  def beWriteSuccess(count: Int, updatedExisting: Boolean) =
+    new Matcher[List[BSONDocument]] {
+      val C = count
+      val U = updatedExisting
+      def apply[L <: List[BSONDocument]](e: Expectable[L]) =
+        e.value aka "body" must beLike {
+          case ValueDocument(("ok", BSONInteger(1)) ::
+            ("updatedExisting", BSONBoolean(U)) ::
+            ("n", BSONInteger(C)) :: Nil) :: Nil ⇒ ok
         }
     }
 }

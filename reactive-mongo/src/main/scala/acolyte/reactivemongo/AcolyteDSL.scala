@@ -25,5 +25,5 @@ object AcolyteDSL {
    * connection { handleStatement }
    * }}}
    */
-  def handleStatement: ConnectionHandler = ConnectionHandler.empty
+  def handle: ConnectionHandler = ConnectionHandler.empty
 }

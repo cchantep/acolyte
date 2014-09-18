@@ -46,10 +46,8 @@ object WriteResponseSpec
       "with a boolean updatedExisting flag" in {
         WriteResponse(1 -> true) aka "prepared" must beLike {
           case prepared ⇒ prepared(3) aka "applied" must beSome.which(
-            _ aka "write response" must beResponse {
-              case ValueDocument(("ok", BSONInteger(1)) ::
-                ("updatedExisting", BSONBoolean(true)) :: 
-                  ("n", BSONInteger(1)) :: Nil) :: Nil ⇒ ok
+            _ aka "result" must beResponse {
+              _ aka "response" must beWriteSuccess(1, true)
             })
         }
       }
@@ -57,10 +55,8 @@ object WriteResponseSpec
       "with a boolean updatedExisting flag using named factory" in {
         WriteResponse.successful(0, false) aka "prepared" must beLike {
           case prepared ⇒ prepared(3) aka "applied" must beSome.which(
-            _ aka "write response" must beResponse {
-              case ValueDocument(("ok", BSONInteger(1)) ::
-                ("updatedExisting", BSONBoolean(false)) :: 
-                  ("n", BSONInteger(0)) :: Nil) :: Nil ⇒ ok
+            _ aka "result" must beResponse {
+              _ aka "response" must beWriteSuccess(0, false)
             })
         }
       }
@@ -68,10 +64,8 @@ object WriteResponseSpec
       "with a unit (effect)" in {
         WriteResponse() aka "prepared" must beLike {
           case prepared ⇒ prepared(4) aka "applied" must beSome.which(
-            _ aka "write response" must beResponse {
-              case ValueDocument(("ok", BSONInteger(1)) ::
-                ("updatedExisting", BSONBoolean(false)) :: 
-                  ("n", BSONInteger(0)) :: Nil) :: Nil ⇒ ok
+            _ aka "result" must beResponse {
+              _ aka "response" must beWriteSuccess(0, false)
             })
         }
       }
@@ -79,10 +73,8 @@ object WriteResponseSpec
       "with a unit (effect) using named factory" in {
         WriteResponse.successful() aka "prepared" must beLike {
           case prepared ⇒ prepared(4) aka "applied" must beSome.which(
-            _ aka "write response" must beResponse {
-              case ValueDocument(("ok", BSONInteger(1)) ::
-                ("updatedExisting", BSONBoolean(false)) :: 
-                  ("n", BSONInteger(0)) :: Nil) :: Nil ⇒ ok
+            _ aka "result" must beResponse {
+              _ aka "response" must beWriteSuccess(0, false)
             })
         }
       }

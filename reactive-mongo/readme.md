@@ -16,13 +16,13 @@ Then any connection created will be managed by your Acolyte (query & writer) han
 ```scala
 import reactivemongo.api.MongoDriver
 
-import acolyte.reactivemongo.AcolyteDSL.{ driver, handleStatement }
+import acolyte.reactivemongo.AcolyteDSL.{ driver, handle }
 
 val mongoDriver: MongoDriver = driver {
   ??? // dispatch query and write request as you want using pattern matching
 }
 
-val noOpDriver = driver { handleStatement/* ConnectionHandler.empty */}
+val noOpDriver = driver { handle/* ConnectionHandler.empty */}
 ```
 
 ### Request patterns

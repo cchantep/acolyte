@@ -83,14 +83,12 @@ private[reactivemongo] class Actor(
           }
         })
 
-      exp.promise.success(resp)
+      resp.error.fold(exp.promise.success(resp))(exp.promise.failure(_))
 
     case close @ Close ⇒ /* Do nothing: next forward close */
     case msg ⇒
-      /*
-      println(s"message = $msg")
-      next forward msg
-       */
+      //println(s"message = $msg")
+      //next forward msg
       ()
   }
 
