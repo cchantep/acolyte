@@ -24,23 +24,132 @@ object DriverSpec extends org.specs2.mutable.Specification
 
   "Acolyte Mongo driver" title
 
-  "Acolyte driver" should {
-    "successfully create connection" in {
-      connect().acquireAndGet(identity).
-        aka("connection") must not(throwA[Throwable])
+  "Resource management" should {
+    "successfully initialize driver" >> {
+      "from connection handler" in {
+        AcolyteDSL.withDriver(chandler1)(_ ⇒ true).
+          aka("work with driver") must beTrue.await(5)
+      }
+
+      "from sync query result" in {
+        AcolyteDSL.withQueryResult(QueryResponse(
+          BSONDocument("res" -> "ult")))(_ ⇒ true).
+          aka("work with query result") must beTrue.await(5)
+      }
+
+      "from future query result" in {
+        AcolyteDSL.withFlatQueryResult(QueryResponse(
+          BSONDocument("res" -> "ult")))(_ ⇒ Future(1 + 2)).
+          aka("work with query result") must beEqualTo(3).await(5)
+      }
+
+      "from sync write result" in {
+        AcolyteDSL.withWriteResult(WriteResponse("error"))(_ ⇒ true).
+          aka("work with write result") must beTrue.await(5)
+      }
+
+      "from sync future result" in {
+        AcolyteDSL.withFlatWriteResult(
+          WriteResponse("error"))(_ ⇒ Future(1 + 2)).
+          aka("work with write result") must beEqualTo(3).await(5)
+      }
     }
 
-    "successfully select database" in {
-      db("any-mockup-name").acquireAndGet(identity).
-        aka("database") must not(throwA[Throwable])
+    "successfully create connection" >> {
+      "from connection handler" in {
+        AcolyteDSL.withConnection(chandler1)(_ ⇒ true).
+          aka("work with connection") must beTrue.await(5)
+      }
+
+      "from initialized driver" in {
+        AcolyteDSL.withFlatDriver(chandler1) { drv ⇒
+          AcolyteDSL.withConnection(drv)(_ ⇒ true)
+        } aka "work with driver" must beTrue.await(5)
+      }
     }
 
-    "successfully select DB collection" in {
-      collection("mock-collection").acquireAndGet(identity).
-        aka("collection") must not(throwA[Throwable])
+    "successfully select database" >> {
+      "from connection handler" in {
+        AcolyteDSL.withDB(chandler1)(_ ⇒ true).
+          aka("work with DB") must beTrue.await(5)
+      }
+
+      "from initialized driver and connection" in {
+        AcolyteDSL.withFlatDriver(chandler1) { drv ⇒
+          AcolyteDSL.withFlatConnection(drv) { con ⇒
+            AcolyteDSL.withDB(drv)(_ ⇒ true)
+          }
+        } aka "work with DB" must beTrue.await(5)
+      }
+
+      "from initialized connection handler and connection with sync result" in {
+        AcolyteDSL.withFlatConnection(chandler1) { con ⇒
+          AcolyteDSL.withDB(con)(_ ⇒ true)
+        } aka "work with DB" must beTrue.await(5)
+      }
+
+      "from initialized connection handler and connection with future" in {
+        AcolyteDSL.withFlatConnection(chandler1) { con ⇒
+          AcolyteDSL.withFlatDB(con)(_ ⇒ Future(1 + 2))
+        } aka "work with DB" must beEqualTo(3).await(5)
+      }
+
+      "from initialized driver and connection with sync sync result" in {
+        AcolyteDSL.withFlatDriver(chandler1) { drv ⇒
+          AcolyteDSL.withFlatConnection(drv) { con ⇒
+            AcolyteDSL.withDB(con)(_ ⇒ true)
+          }
+        } aka "work with DB" must beTrue.await(5)
+      }
+
+      "from initialized driver and connection with sync sync result" in {
+        AcolyteDSL.withFlatDriver(chandler1) { drv ⇒
+          AcolyteDSL.withFlatConnection(drv) { con ⇒
+            AcolyteDSL.withFlatDB(con)(_ ⇒ Future(2 + 5))
+          }
+        } aka "work with DB" must beEqualTo(7).await(5)
+      }
     }
 
-    "return expected query result" >> {
+    "successfully select DB collection" >> {
+      "from connection handler with sync result" in {
+        AcolyteDSL.withCollection(chandler1, "colName")(_ ⇒ true).
+          aka("work with collection") must beTrue.await(5)
+      }
+
+      "from initialized connection with sync result" in {
+        AcolyteDSL.withFlatConnection(chandler1) { con ⇒
+          AcolyteDSL.withCollection(con, "colName")(_ ⇒ true)
+        } aka "work with collection" must beTrue.await(5)
+      }
+
+      "from resolved DB with sync result" in {
+        AcolyteDSL.withFlatDB(chandler1) { db ⇒
+          AcolyteDSL.withCollection(db, "colName")(_ ⇒ true)
+        } aka "work with collection" must beTrue.await(5)
+      }
+
+      "from connection handler with future result" in {
+        AcolyteDSL.withFlatCollection(chandler1, "colName")(
+          _ ⇒ Future.successful(true)).
+          aka("work with collection") must beTrue.await(5)
+      }
+
+      "from initialized connection with future result" in {
+        AcolyteDSL.withFlatConnection(chandler1) { con ⇒
+          AcolyteDSL.withFlatCollection(con, "colName")(_ ⇒ Future(1 + 3))
+        } aka "work with collection" must beEqualTo(4).await(5)
+      }
+
+      "from resolved DB with future result" in {
+        AcolyteDSL.withFlatDB(chandler1) { db ⇒
+          AcolyteDSL.withFlatCollection(db, "colName")(_ ⇒ Future(2 + 5))
+        } aka "work with collection" must beEqualTo(7).await(5)
+      }
+    }
+
+    //"return expected query result" >> {
+    /*
       "when is successful #1" in withCol(query1.collection) { col ⇒
         awaitRes(col.find(query1.body).cursor[BSONDocument].toList()).
           aka("query result") must beSuccessfulTry[List[BSONDocument]].like {
@@ -55,7 +164,24 @@ object DriverSpec extends org.specs2.mutable.Specification
               ValueDocument(("ef", BSONString("ghi")) :: Nil) :: Nil ⇒ ok
           }
       }
+       */
 
+    // ___here
+    /*
+      "using withQueryResult for a single document" in AcolyteDSL.
+        withQueryResult(BSONDocument("res" -> "ult", "n" -> 3)) { driver ⇒
+          AcolyteDSL.withCollection(driver, "test-col") { col ⇒
+            awaitRes(col.find(query1.body).cursor[BSONDocument].toList()).
+              aka("query result") must beSuccessfulTry[List[BSONDocument]].
+              like {
+                case ValueDocument(("res", BSONString("ult")) ::
+                  ("n", BSONInteger(3)) :: Nil) :: Nil ⇒ ok
+              }
+          }
+        }.await(5)
+       */
+
+    /*
       "as error when query handler returns no query result" in withCol(
         query3.collection) { col ⇒
           awaitRes(col.find(query3.body).cursor[BSONDocument].toList()).
@@ -83,8 +209,10 @@ object DriverSpec extends org.specs2.mutable.Specification
             withThrowable[DetailedDatabaseException](".*No response: .*")
 
         }
-    }
+       */
+    //}
 
+    /*
     "return expected write result" >> {
       "when error is raised without code" in withCol(write1._2.collection) {
         col ⇒
@@ -138,20 +266,10 @@ object DriverSpec extends org.specs2.mutable.Specification
 
         }
     }
+     */
   }
 
   // ---
-
-  val driver: ManagedResource[MongoDriver] =
-    managed(AcolyteDSL driver chandler1)
-
-  def connect(d: ManagedResource[MongoDriver] = driver): ManagedResource[MongoConnection] = driver.flatMap(d ⇒ managed(d.connection(List("localhost"))))
-
-  def db(n: String, con: ManagedResource[MongoConnection] = connect()): ManagedResource[DefaultDB] = con.map(_(n))
-
-  def collection(n: String, d: ⇒ ManagedResource[DefaultDB] = db("test-db")): ManagedResource[BSONCollection] = d.map(_(n))
-
-  def withCol[T](n: String, col: String ⇒ ManagedResource[BSONCollection] = collection(_))(f: BSONCollection ⇒ T): T = col(n).acquireAndGet(f)
 
   def awaitRes[T](f: Future[T], tmout: Duration = Duration(5, "seconds")): Try[T] = Try[T](Await.result(f, tmout))
 }

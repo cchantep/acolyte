@@ -19,6 +19,13 @@ trait QueryResponseMaker[T] extends ((Int, T) ⇒ Option[Try[Response]]) {
 
 /** Response maker companion. */
 object QueryResponseMaker {
+  /** Identity maker for already prepared response. */
+  implicit object IdentityQueryResponseMaker 
+      extends QueryResponseMaker[PreparedResponse] {
+
+    def apply(channelId: Int, already: PreparedResponse): Option[Try[Response]] = already(channelId)
+  }
+
   /**
    * {{{
    * import reactivemongo.bson.BSONDocument

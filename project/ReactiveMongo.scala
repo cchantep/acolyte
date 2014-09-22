@@ -96,5 +96,5 @@ trait ReactiveMongo { deps: Dependencies ⇒
         val ms = mappings.in(Compile, packageBin).value
         ms ++ generatedClasses.value // add generated classes to package
       }
-    ).dependsOn(reactiveMongoGen, scalacPlugin)
+    ).dependsOn(/*reactiveMongoGen, */scalacPlugin)
 }

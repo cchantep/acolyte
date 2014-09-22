@@ -111,5 +111,13 @@ object WriteResponseSpec
         }
       }
     }
+
+    "be made from already prepared response" in {
+      WriteResponse(WriteResponse("already")).
+        aka("prepared") must beLike {
+          case prepared ⇒ prepared(5) aka "applied" must beSome.which(
+            _ aka "write response" must beWriteError("already"))
+        }
+    }
   }
 }

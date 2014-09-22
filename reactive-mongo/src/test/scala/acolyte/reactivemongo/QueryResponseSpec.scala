@@ -99,5 +99,16 @@ object QueryResponseSpec
         }
       }
     }
+
+    "be made from already prepared response" in {
+      QueryResponse(QueryResponse(BSONDocument("iden" -> "tity"))).
+        aka("prepared") must beLike {
+          case prepared ⇒ prepared(5) aka "applied" must beSome.which(
+            _ aka "response" must beResponse {
+              case ValueDocument(("iden", BSONString("tity")) :: Nil) :: Nil ⇒
+                ok
+            })
+        }
+    }
   }
 }

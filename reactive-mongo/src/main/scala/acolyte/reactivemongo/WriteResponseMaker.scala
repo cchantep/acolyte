@@ -19,6 +19,13 @@ trait WriteResponseMaker[T] extends ((Int, T) ⇒ Option[Try[Response]]) {
 
 /** Response maker companion. */
 object WriteResponseMaker {
+  /** Identity maker for already prepared response. */
+  implicit object IdentityWriteResponseMaker 
+      extends WriteResponseMaker[PreparedResponse] {
+
+    def apply(channelId: Int, already: PreparedResponse): Option[Try[Response]] = already(channelId)
+  }
+
   /**
    * {{{
    * import acolyte.reactivemongo.WriteResponseMaker
