@@ -45,6 +45,12 @@ mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scalac-plugin/target/scala
 mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scalac-plugin/target/scala-$SCALAVER/scalac-plugin_$SCALAVER-$VERSION.pom -Dfile=scalac-plugin/target/scala-$SCALAVER/scalac-plugin_$SCALAVER-$VERSION-javadoc.jar -Dclassifier=javadoc -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 
 mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=scalac-plugin/target/scala-$SCALAVER/scalac-plugin_$SCALAVER-$VERSION.pom -Dfile=scalac-plugin/target/scala-$SCALAVER/scalac-plugin_$SCALAVER-$VERSION-sources.jar -Dclassifier=sources -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=reactive-mongo/target/scala-$SCALAVER/reactive-mongo_$SCALAVER-$VERSION.pom -Dfile=reactive-mongo/target/scala-$SCALAVER/reactive-mongo_$SCALAVER-$VERSION.jar -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=reactive-mongo/target/scala-$SCALAVER/reactive-mongo_$SCALAVER-$VERSION.pom -Dfile=reactive-mongo/target/scala-$SCALAVER/reactive-mongo_$SCALAVER-$VERSION-javadoc.jar -Dclassifier=javadoc -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+
+mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=reactive-mongo/target/scala-$SCALAVER/reactive-mongo_$SCALAVER-$VERSION.pom -Dfile=reactive-mongo/target/scala-$SCALAVER/reactive-mongo_$SCALAVER-$VERSION-sources.jar -Dclassifier=sources -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 ```
 
 Authentication should be configured in `~/.m2/settings.xml`:

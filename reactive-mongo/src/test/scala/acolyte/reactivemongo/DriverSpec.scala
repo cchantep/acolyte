@@ -148,125 +148,190 @@ object DriverSpec extends org.specs2.mutable.Specification
       }
     }
 
-    //"return expected query result" >> {
-    /*
-      "when is successful #1" in withCol(query1.collection) { col ⇒
-        awaitRes(col.find(query1.body).cursor[BSONDocument].toList()).
-          aka("query result") must beSuccessfulTry[List[BSONDocument]].like {
-            case ValueDocument(("b", BSONInteger(3)) :: Nil) :: Nil ⇒ ok
-          }
+    "return expected query result" >> {
+      "when is successful #1" in {
+        awaitRes(AcolyteDSL.withFlatCollection(chandler1, query1.collection) {
+          col ⇒ col.find(query1.body).cursor[BSONDocument].toList()
+        }) aka "query result" must beSuccessfulTry[List[BSONDocument]].like {
+          case ValueDocument(("b", BSONInteger(3)) :: Nil) :: Nil ⇒ ok
+        }
       }
 
-      "when is successful #2" in withCol(query2.collection) { col ⇒
-        awaitRes(col.find(query2.body).cursor[BSONDocument].toList()).
-          aka("query result") must beSuccessfulTry[List[BSONDocument]].like {
-            case ValueDocument(("d", BSONDouble(4.56d)) :: Nil) ::
-              ValueDocument(("ef", BSONString("ghi")) :: Nil) :: Nil ⇒ ok
-          }
+      "when is successful #2" in {
+        awaitRes(AcolyteDSL.withFlatDB(chandler1) { db ⇒
+          db(query2.collection).find(query2.body).
+            cursor[BSONDocument].toList()
+        }) aka ("query result") must beSuccessfulTry[List[BSONDocument]].like {
+          case ValueDocument(("d", BSONDouble(4.56d)) :: Nil) ::
+            ValueDocument(("ef", BSONString("ghi")) :: Nil) :: Nil ⇒ ok
+        }
       }
-       */
 
-    // ___here
-    /*
-      "using withQueryResult for a single document" in AcolyteDSL.
-        withQueryResult(BSONDocument("res" -> "ult", "n" -> 3)) { driver ⇒
-          AcolyteDSL.withCollection(driver, "test-col") { col ⇒
-            awaitRes(col.find(query1.body).cursor[BSONDocument].toList()).
-              aka("query result") must beSuccessfulTry[List[BSONDocument]].
-              like {
-                case ValueDocument(("res", BSONString("ult")) ::
-                  ("n", BSONInteger(3)) :: Nil) :: Nil ⇒ ok
+      "using withQueryResult" >> {
+        "for a single document" in {
+          awaitRes(AcolyteDSL.withFlatQueryResult(
+            BSONDocument("res" -> "ult", "n" -> 3)) { driver ⇒
+              AcolyteDSL.withFlatConnection(driver) { con ⇒
+                val db = con("anyDb")
+                db("anyCol").find(query1.body).cursor[BSONDocument].toList()
               }
-          }
-        }.await(5)
-       */
-
-    /*
-      "as error when query handler returns no query result" in withCol(
-        query3.collection) { col ⇒
-          awaitRes(col.find(query3.body).cursor[BSONDocument].toList()).
-            aka("query result") must beFailedTry.
-            withThrowable[DetailedDatabaseException](".*No response: .*")
+            }) aka "query result" must beSuccessfulTry[List[BSONDocument]].
+            like {
+              case ValueDocument(("res", BSONString("ult")) ::
+                ("n", BSONInteger(3)) :: Nil) :: Nil ⇒ ok
+            }
         }
 
-      "as error when connection handler is empty" in withCol(query3.collection,
-        collection(_, db("test-db",
-          connect(managed(AcolyteDSL driver AcolyteDSL.handle))))) { col ⇒
-
-          awaitRes(col.find(query3.body).cursor[BSONDocument].toList()).
-            aka("query result") must beFailedTry.
-            withThrowable[DetailedDatabaseException](".*No response: .*")
+        "for a many documents" in {
+          awaitRes(AcolyteDSL.withFlatQueryResult(
+            List(BSONDocument("doc" -> 1), BSONDocument("doc" -> 2.3d))) { d ⇒
+              AcolyteDSL.withFlatCollection(d, "anyCol") {
+                _.find(query1.body).cursor[BSONDocument].toList()
+              }
+            }) aka "query result" must beSuccessfulTry[List[BSONDocument]].
+            like {
+              case ValueDocument(("doc", BSONInteger(1)) :: Nil) ::
+                ValueDocument(("doc", BSONDouble(2.3d)) :: Nil) :: Nil ⇒ ok
+            }
         }
 
-      "as error when query handler is undefined" in withCol(query3.collection,
-        collection(_, db("test-db",
-          connect(managed(AcolyteDSL driver AcolyteDSL.handleWrite(
-            { (_: WriteOp, _: Request) ⇒ WriteResponse(1 /* one doc */ ) }
-          )))))) { col ⇒
-
-          awaitRes(col.find(query3.body).cursor[BSONDocument].toList()).
-            aka("query result") must beFailedTry.
-            withThrowable[DetailedDatabaseException](".*No response: .*")
-
+        "for an explicit error" in {
+          awaitRes(AcolyteDSL.withFlatQueryResult("Error" -> 7) { driver ⇒
+            AcolyteDSL.withFlatCollection(driver, query1.collection) {
+              _.find(query1.body).cursor[BSONDocument].toList()
+            }
+          }) aka "query result" must beFailedTry.
+            withThrowable[DetailedDatabaseException](".*Error.*code = 7.*")
         }
-       */
-    //}
 
-    /*
-    "return expected write result" >> {
-      "when error is raised without code" in withCol(write1._2.collection) {
-        col ⇒
-          awaitRes(col.remove(write1._2.body)).
-            aka("write result") must beFailedTry.
-            withThrowable[LastError](".*Error #2.*code = -1.*")
+        "when undefined" in {
+          awaitRes(AcolyteDSL.withFlatQueryResult(None) { driver ⇒
+            AcolyteDSL.withFlatCollection(driver, query1.collection) {
+              _.find(query1.body).cursor[BSONDocument].toList()
+            }
+          }) aka "query result" must beFailedTry.
+            withThrowable[DetailedDatabaseException](".*No response:.*")
+        }
       }
 
-      "when successful" in withCol(write2._2.collection) { col ⇒
-        awaitRes(col.insert(write2._2.body)).
-          aka("result") must beSuccessfulTry.like {
-            case lastError ⇒
-              lastError.elements.toList aka "body" must beLike {
-                case ("ok", BSONInteger(1)) ::
-                  ("updatedExisting", BSONBoolean(false)) ::
-                  ("n", BSONInteger(0)) :: Nil ⇒ ok
-              } and (lastError.ok aka "ok" must beTrue) and (
-                lastError.n aka "updated" must_== 0) and (
-                  lastError.inError aka "in-error" must beFalse) and (
-                    lastError.err aka "err" must beNone) and (
-                      lastError.errMsg aka "errmsg" must beNone)
-          }
+      "as error when query handler returns no query result" in {
+        awaitRes(AcolyteDSL.withFlatCollection(chandler1, query3.collection) {
+          _.find(query3.body).cursor[BSONDocument].toList()
+        }) aka "query result" must beFailedTry.
+          withThrowable[DetailedDatabaseException](".*No response: .*")
       }
 
-      "as error when write handler returns no write result" in withCol(
-        write3._2.collection) { col ⇒
-          awaitRes(col.update(BSONDocument("name" -> "x"), write3._2.body)).
-            aka("result") must beFailedTry.withThrowable[LastError](
-              ".*No response: .*")
-        }
+      "as error when connection handler is empty" in {
+        awaitRes(AcolyteDSL.withFlatCollection(AcolyteDSL.handle,
+          query3.collection) {
+            _.find(query3.body).cursor[BSONDocument].toList()
+          }) aka "query result" must beFailedTry.
+          withThrowable[DetailedDatabaseException](".*No response: .*")
+      }
 
-      "as error when connection handler is empty" in withCol(query3.collection,
-        collection(_, db("test-db",
-          connect(managed(AcolyteDSL driver AcolyteDSL.handle))))) { col ⇒
+      "as error when query handler is undefined" in {
+        lazy val handler = AcolyteDSL.handleWrite(
+          { (_: WriteOp, _: Request) ⇒ WriteResponse(1 /* one doc */ ) })
 
-          awaitRes(col.update(BSONDocument("name" -> "x"), write3._2.body)).
-            aka("result") must beFailedTry.withThrowable[LastError](
-              ".*No response: .*")
-        }
+        awaitRes(AcolyteDSL.withFlatDriver(handler) { driver ⇒
+          AcolyteDSL.withFlatConnection(driver) { con ⇒
+            val db = con("anyDb")
+            db(query3.collection).find(query3.body).
+              cursor[BSONDocument].toList()
+          }
+        }) aka "query result" must beFailedTry.
+          withThrowable[DetailedDatabaseException](".*No response: .*")
 
-      "as error when write handler is undefined" in withCol(query3.collection,
-        collection(_, db("test-db",
-          connect(managed(AcolyteDSL driver AcolyteDSL.handleQuery(
-            { _: Request ⇒
-              QueryResponse(BSONDocument("prop" -> "A"))
-            })))))) { col ⇒
-
-          awaitRes(col.update(BSONDocument("name" -> "x"), write3._2.body)).
-            aka("result") must beFailedTry.withThrowable[LastError](
-              ".*No response: .*")
-
-        }
+      }
     }
-     */
+
+    "return expected write result" >> {
+      "when error is raised without code" in {
+        awaitRes(AcolyteDSL.withFlatCollection(
+          chandler1, write1._2.collection) { _.remove(write1._2.body) }).
+          aka("write result") must beFailedTry.
+          withThrowable[LastError](".*Error #2.*code = -1.*")
+      }
+
+      "when successful" in {
+        awaitRes(AcolyteDSL.withFlatDB(chandler1) {
+          _(write2._2.collection).insert(write2._2.body)
+        }) aka "result" must beSuccessfulTry.like {
+          case lastError ⇒
+            lastError.elements.toList aka "body" must beLike {
+              case ("ok", BSONInteger(1)) ::
+                ("updatedExisting", BSONBoolean(false)) ::
+                ("n", BSONInteger(0)) :: Nil ⇒ ok
+            } and (lastError.ok aka "ok" must beTrue) and (
+              lastError.n aka "updated" must_== 0) and (
+                lastError.inError aka "in-error" must beFalse) and (
+                  lastError.err aka "err" must beNone) and (
+                    lastError.errMsg aka "errmsg" must beNone)
+        }
+      }
+
+      "as error when write handler returns no write result" in {
+        awaitRes(AcolyteDSL.withFlatConnection(chandler1) { con ⇒
+          val db = con("anyDb")
+          val col = db(write3._2.collection)
+
+          col.update(BSONDocument("name" -> "x"), write3._2.body)
+        }) aka "result" must beFailedTry.
+          withThrowable[LastError](".*No response: .*")
+      }
+
+      "as error when connection handler is empty" in {
+        awaitRes(AcolyteDSL.withFlatCollection(chandler1, query3.collection) {
+          _.update(BSONDocument("name" -> "x"), write3._2.body)
+        }) aka "result" must beFailedTry.
+          withThrowable[LastError](".*No response: .*")
+      }
+
+      "as error when write handler is undefined" in {
+        awaitRes(AcolyteDSL.withFlatQueryResult(BSONDocument("prop" -> "A")) {
+          driver ⇒
+            AcolyteDSL.withFlatCollection(driver, write3._2.collection) {
+              _.update(BSONDocument("name" -> "x"), write3._2.body)
+            }
+        }) aka "result" must beFailedTry.
+          withThrowable[LastError](".*No response: .*")
+      }
+
+      "using withWriteResult" >> {
+        "for success count" in {
+          awaitRes(AcolyteDSL.withFlatWriteResult(2 -> true) { driver ⇒
+            AcolyteDSL.withFlatConnection(driver) { con ⇒
+              val db = con("anyDb")
+              val col = db(write1._2.collection)
+              col.remove(write1._2.body)
+            }
+          }) aka "write result" must beSuccessfulTry.like {
+            case lastError ⇒
+              lastError.ok aka "ok" must beTrue and (
+                lastError.n aka "updated" must_== 2) and (
+                  lastError.inError aka "errored" must beFalse)
+          }
+        }
+
+        "for explicit error" in {
+          awaitRes(AcolyteDSL.withFlatWriteResult("Write err" -> 9) { driver ⇒
+            AcolyteDSL.withFlatCollection(driver, write2._2.collection) {
+              _.insert(write2._2.body)
+            }
+          }) aka "write result" must beFailedTry.
+            withThrowable[LastError](".*Write err.*code = 9.*")
+        }
+
+        "when undefined" in {
+          awaitRes(AcolyteDSL.withFlatWriteResult(None) { driver ⇒
+            AcolyteDSL.withFlatCollection(driver, write3._2.collection) {
+              _.update(BSONDocument(), write3._2.body)
+            }
+          }) aka "write result" must beFailedTry.
+            withThrowable[LastError](".*No response.*")
+        }
+      }
+    }
   }
 
   // ---
