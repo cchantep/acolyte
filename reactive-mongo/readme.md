@@ -46,7 +46,7 @@ Dependency can be added to SBT project with `"org.eu.acolyte" %% "reactive-mongo
 
 Driver behaviour is configured using a connection handler, itself based on query and write handler, managing respectively Mongo queries or write operations, and returning appropriate result.
 
-You can start looking at empty/no-op connection handler. This one has no query or write handler, so has no response can be provided to any command performed with ReactiveMongo configured in this way, it will raise explicit error `No response: ...` for every request.
+You can start looking at empty/no-op connection handler. With driver configured in this way, there is no query or write handler. So as no response is provided wherever is the command performed, it will raise explicit error `No response: ...` for every request.
 
 ```scala
 import reactivemongo.api.MongoDriver
@@ -167,7 +167,7 @@ col.insert(BSONDocument("prop" -> "value")).onComplete {
 
 Obviously connection handler can manage both query and write:
 
-```
+```scala
 import acolyte.reactivemongo.{ AcolyteDSL, Request, WriteOp }
 
 val completeHandler = 

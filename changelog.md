@@ -1,3 +1,61 @@
+## 1.0.25
+
+([919d248bff3afd5549e240e4d871b86a32d6f3db](https://github.com/cchantep/acolyte/commit/919d248bff3afd5549e240e4d871b86a32d6f3db) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactive-mongo)) Fix doc
+
+([406cc26a029d868d74c5fd5f7e28305e31e088fc](https://github.com/cchantep/acolyte/commit/406cc26a029d868d74c5fd5f7e28305e31e088fc) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactive-mongo)) Complete driver specs
+
+([d0f067434324650f09199be1b88a91c5c329aea2](https://github.com/cchantep/acolyte/commit/d0f067434324650f09199be1b88a91c5c329aea2) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactive-mongo)) Load patterns for Mongo resources
+
+([f925d4ffcd64388836d6da252b3c13b3bff32aac](https://github.com/cchantep/acolyte/commit/f925d4ffcd64388836d6da252b3c13b3bff32aac) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactive-mongo)) Convenient response maker for write operation. More specs for Driver/AcolyteDSL, update documentation.
+
+([14b59bc5a92637d97e60c2f2a884f4aa7037a2ef](https://github.com/cchantep/acolyte/commit/14b59bc5a92637d97e60c2f2a884f4aa7037a2ef) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactive-mongo)) Disable Akka reverse engineering, only use Acolyte actor system
+
+([11832214f443bb84a54d4397aee4a68818737da5](https://github.com/cchantep/acolyte/commit/11832214f443bb84a54d4397aee4a68818737da5) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactive-mongo)) Driver specification
+
+([23517d9db23b4e815205196166fd57a1fcff7351](https://github.com/cchantep/acolyte/commit/23517d9db23b4e815205196166fd57a1fcff7351) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactive-mongo)) Update count in WriteResponse
+
+([1f714141517f5dc547a30482cf50c1ce1f60d3f7](https://github.com/cchantep/acolyte/commit/1f714141517f5dc547a30482cf50c1ce1f60d3f7) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactive-mongo)) Specs (connection handler), add optional code in query error
+
+([66cc12f36f0127598f72c2c9c2cc59d01d1ba9d2](https://github.com/cchantep/acolyte/commit/66cc12f36f0127598f72c2c9c2cc59d01d1ba9d2) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactive-mongo)) Write response & handler specs
+
+([357c67663436dfa73f82e2b329c4fb7e559b447d](https://github.com/cchantep/acolyte/commit/357c67663436dfa73f82e2b329c4fb7e559b447d) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactive-mongo)) Documentation for pattern matching on write operator
+
+([04355e9b1ae25c53960c49b53e842c40d8028d7a](https://github.com/cchantep/acolyte/commit/04355e9b1ae25c53960c49b53e842c40d8028d7a) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactive-mongo)) Typeclasses WriteResponseMaker, WriteResponse and associated handler types.
+
+([95e66462f6c225a84be1b69732a15385f61261c4](https://github.com/cchantep/acolyte/commit/95e66462f6c225a84be1b69732a15385f61261c4) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactive-mongo)) Fallback functions for write errors
+
+## 1.0.23 to 1.0.24
+
+([1d8160dd6b26fcf964fce51096f3043994069fab](https://github.com/cchantep/acolyte/commit/1d8160dd6b26fcf964fce51096f3043994069fab) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Support for ResultSet type/scrollability
+
+([0942aaefa304f7ef13e5260b779e2f51d65bb4be](https://github.com/cchantep/acolyte/commit/0942aaefa304f7ef13e5260b779e2f51d65bb4be) @ [scalac-plugin](https://github.com/cchantep/acolyte/tree/master/scalac-plugin)) Recursive support `~(A(...), ~(B(...), (x, y)))`. Add specifications for pattern matching in `val` statement. Update documentation.
+
+([d6d2a26b601fd76d09b6c626f87998f28489cd0e](https://github.com/cchantep/acolyte/commit/d6d2a26b601fd76d09b6c626f87998f28489cd0e) @ [scalac-plugin](https://github.com/cchantep/acolyte/tree/master/scalac-plugin)) Support application other than a single value or tuple-like one as bindings:
+
+```scala
+str match {
+  case str @ ~(IndexOf('/'), a :: b :: c :: _) ⇒ ??? // Support :: application
+  case _ ⇒ ???
+}
+```
+
+([193d3bf1118dcd617cdd6bc915a597b2c550c5a1](https://github.com/cchantep/acolyte/commit/193d3bf1118dcd617cdd6bc915a597b2c550c5a1) @ [scalac-plugin](https://github.com/cchantep/acolyte/tree/master/scalac-plugin)) Fix compatibility warning between 2.10 & 2.11
+
+([e9c5c4777cdfa00ea5a3dfe88cf9ac7bfc8f242f](https://github.com/cchantep/acolyte/commit/e9c5c4777cdfa00ea5a3dfe88cf9ac7bfc8f242f) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Remove obselete JDBC classes from base package  (previously moved to `acolyte.jdbc`).
+
+([194d549fca55e35ea07c175f0f12edda1c79a85a](https://github.com/cchantep/acolyte/commit/194d549fca55e35ea07c175f0f12edda1c79a85a) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Support for binary types (BLOB, byte array, input stream)
+
+([43257c1db69ceb1cf9f31c0856903255924cb880](https://github.com/cchantep/acolyte/commit/43257c1db69ceb1cf9f31c0856903255924cb880) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Fix wasNull operation on result
+
+([c849e2489f9e66a96760d800d5a72becf5d870e9](https://github.com/cchantep/acolyte/commit/c849e2489f9e66a96760d800d5a72becf5d870e9) @ [scalac-plugin](https://github.com/cchantep/acolyte/tree/master/scalac-plugin)) Support for literal with rich match:
+
+```scala
+str match {
+  ~(RegEx("# ([a-z]+): .*"), "start") => /* Start */ ???
+  ~(RegEx("# ([a-z]+): .*"), "stop")  => /* Stop */ ???
+}
+```
+
 ## 1.0.22
 
 ([a07e7306cab7b2e4eac1d4a39c90789e42065655](https://github.com/cchantep/acolyte/commit/a07e7306cab7b2e4eac1d4a39c90789e42065655) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Support for binary types (BLOB, byte array, input stream)
