@@ -306,6 +306,8 @@ val success3 = QueryResponse(Seq(
 
 val success4 = QueryResponse.successful(
   BSONDocument("name" -> "singleResult"), BSONDocument("price" -> 1.2D))
+
+val countResponse = QueryResponse.count(4)
 ```
 
 When a handler supports some query cases, but not other, it can return an undefined response, to let the chance other handlers would manage it.

@@ -1,7 +1,5 @@
 package acolyte.reactivemongo
 
-import scala.concurrent.{ ExecutionContext, Future }
-
 /**
  * Acolyte DSL for ReactiveMongo.
  */

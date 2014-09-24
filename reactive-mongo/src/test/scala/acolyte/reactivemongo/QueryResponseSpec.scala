@@ -84,6 +84,16 @@ object QueryResponseSpec
               })
           }
       }
+
+      "for count command" in {
+        QueryResponse.count(3) aka "prepared" must beLike {
+          case prepared ⇒ prepared(5) aka "applied" must beSome.which(
+            _ aka "reponse" must beResponse {
+              case ValueDocument(("ok", BSONInteger(1)) ::
+                ("n", BSONInteger(3)) :: Nil) :: Nil ⇒ ok
+            })
+        }
+      }
     }
 
     "be undefined" >> {
