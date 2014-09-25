@@ -69,7 +69,7 @@ trait WithHandler { up: WithDriver ⇒
    *
    * @see [[AcolyteDSL.withDriver]]
    * @see [[AcolyteDSL.handleWrite]]
-   * @see [[AcolyteDSL.withWriteResult]
+   * @see [[AcolyteDSL.withWriteResult]]
    */
   def withWriteHandler[T](handler: (WriteOp, Request) ⇒ PreparedResponse)(f: MongoDriver ⇒ T)(implicit m: DriverManager[ConnectionHandler], c: ExecutionContext): Future[T] = withDriver(AcolyteDSL handleWrite handler)(f)
 
@@ -91,7 +91,7 @@ trait WithHandler { up: WithDriver ⇒
    *
    * @see [[AcolyteDSL.withFlatDriver]]
    * @see [[AcolyteDSL.handleWrite]]
-   * @see [[AcolyteDSL.withFlatWriteResult]
+   * @see [[AcolyteDSL.withFlatWriteResult]]
    */
   def withFlatWriteHandler[T](handler: (WriteOp, Request) ⇒ PreparedResponse)(f: MongoDriver ⇒ Future[T])(implicit m: DriverManager[ConnectionHandler], c: ExecutionContext): Future[T] = withFlatDriver(AcolyteDSL handleWrite handler)(f)
 

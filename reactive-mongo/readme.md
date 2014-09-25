@@ -266,6 +266,10 @@ val queryHandler = QueryHandler { queryRequest =>
     case CountRequest(colName, ("email", "em@il.net") :: Nil) =>
       // Matching on count query
       resultK
+
+    case RequestBody("col1", ("$in", ValueList(bsonA, bsonB)) :: Nil) =>
+      // Matching BSONArray using with $in operator
+      resultL
   }
 }
 ```

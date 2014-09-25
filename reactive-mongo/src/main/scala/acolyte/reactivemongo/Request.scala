@@ -56,7 +56,7 @@ object Request {
 
 /**
  * Extractor of properties for a document used a BSON value
- * (when operator is used, e.g. `{ 'age': { '$gt': 10 } }`).
+ * (when operator is used, e.g. `{ 'age': { '\$gt': 10 } }`).
  *
  * @see RequestBody
  * @see Property
@@ -101,10 +101,10 @@ object ValueList {
  *     resultD
  *
  *   case RequestBody(_, ("age": ValueDocument(
- *     ("$gt", BSONInteger(minAge)) :: Nil))) =>
+ *     ("\$gt", BSONInteger(minAge)) :: Nil))) =>
  *     // Request on any collection, with an "age" document as property,
- *     // itself with exactly one integer "$gt" property
- *     // e.g. `{ 'age': { '$gt', 10 } }`
+ *     // itself with exactly one integer "\$gt" property
+ *     // e.g. `{ 'age': { '\$gt', 10 } }`
  *     resultE
  * }
  * }}}
@@ -185,10 +185,10 @@ object & {
  *
  *   case RequestBody(colName,
  *     ~(Property("age"), ValueDocument(
- *       ~(Property("$gt"), BSONInteger(minAge)))) &
+ *       ~(Property("\$gt"), BSONInteger(minAge)))) &
  *     ~(Property("email"), BSONString("demo@applicius.fr"))) =>
  *     // Request on any collection, with an "age" property with itself
- *     // a operator property "$gt" having an integer value, and an "email"
+ *     // a operator property "\$gt" having an integer value, and an "email"
  *     // property (at the same level as age), without order constraint.
  *     resultE
  *

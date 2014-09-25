@@ -1,3 +1,9 @@
+## 1.0.26
+
+([646c8f57fccf605d97e2318adebb4b2540d5514b](https://github.com/cchantep/acolyte/commit/646c8f57fccf605d97e2318adebb4b2540d5514b) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Refactor DSL and better support for Count command.
+
+([cb826da6c11d9eac28a9e7a392423fc28aae5a2b](https://github.com/cchantep/acolyte/commit/cb826da6c11d9eac28a9e7a392423fc28aae5a2b) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Count response.
+
 ## 1.0.25
 
 ([919d248bff3afd5549e240e4d871b86a32d6f3db](https://github.com/cchantep/acolyte/commit/919d248bff3afd5549e240e4d871b86a32d6f3db) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactive-mongo)) Fix doc

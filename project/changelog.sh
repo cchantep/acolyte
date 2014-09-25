@@ -1,6 +1,6 @@
 #! /bin/sh
 
-LIMIT="9c5d5806bf90bdf8760da0a1c93222b685ce716a"
+LIMIT="646c8f57fccf605d97e2318adebb4b2540d5514b"
 
 echo "## $1\n"
 

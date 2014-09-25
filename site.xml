@@ -58,6 +58,10 @@
                 <copy todir="${project.build.directory}/site/scaladocs">
                   <fileset dir="${basedir}/jdbc-scala/target/scala-2.10/api" />
                 </copy>
+
+                <copy todir="${project.build.directory}/site/reactivemongo-scaladoc">
+                  <fileset dir="${basedir}/reactive-mongo/target/scala-2.10/api" />
+                </copy>
                     
                 <copy file="${basedir}/readme.md" 
                       tofile="${generatedSite}/markdown/index.md" />

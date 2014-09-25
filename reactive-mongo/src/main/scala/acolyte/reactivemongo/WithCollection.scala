@@ -27,7 +27,7 @@ trait WithCollection { withDB: WithDB ⇒
    *     "Result"
    *   }
    * }}}
-   * @see [[AcolyteDSL.withFlatDB]]
+   * @see AcolyteDSL.withFlatDB[A,B]
    */
   def withCollection[A, B](driverParam: ⇒ A, name: String)(f: BSONCollection ⇒ B)(implicit m: DriverManager[A], c: ExecutionContext): Future[B] =
     withFlatDB(driverParam) { db ⇒ Future(f(db(name))) }
@@ -51,7 +51,7 @@ trait WithCollection { withDB: WithDB ⇒
    *   }
    * }
    * }}}
-   * @see [[WithDriver.withFlatDB]]
+   * @see WithDriver.withFlatDB[T]
    */
   def withCollection[T](con: ⇒ MongoConnection, name: String)(f: BSONCollection ⇒ T)(implicit c: ExecutionContext): Future[T] = withFlatDB(con) { db ⇒ Future(f(db(name))) }
 
@@ -98,7 +98,7 @@ trait WithCollection { withDB: WithDB ⇒
    *     Future(1 + 2)
    *   }
    * }}}
-   * @see [[AcolyteDSL.withFlatDB]]
+   * @see AcolyteDSL.withFlatDB[A,B]
    */
   def withFlatCollection[A, B](driverParam: ⇒ A, name: String)(f: BSONCollection ⇒ Future[B])(implicit m: DriverManager[A], c: ExecutionContext): Future[B] =
     withFlatDB(driverParam) { db ⇒ f(db(name)) }
@@ -122,7 +122,7 @@ trait WithCollection { withDB: WithDB ⇒
    *   }
    * }
    * }}}
-   * @see [[WithDriver.withFlatDB]]
+   * @see WithDriver.withFlatDB[T]
    */
   def withFlatCollection[T](con: ⇒ MongoConnection, name: String)(f: BSONCollection ⇒ Future[T])(implicit c: ExecutionContext): Future[T] = withFlatDB(con) { db ⇒ f(db(name)) }
 
