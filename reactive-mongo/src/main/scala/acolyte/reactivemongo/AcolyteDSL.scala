@@ -1,10 +1,8 @@
 package acolyte.reactivemongo
 
-/**
- * Acolyte DSL for ReactiveMongo.
- */
+/** Acolyte DSL for ReactiveMongo. */
 object AcolyteDSL extends WithDriver
-    with WithDB with WithCollection with WithResult {
+    with WithDB with WithCollection with WithHandler with WithResult {
 
   /**
    * Creates an empty connection handler.

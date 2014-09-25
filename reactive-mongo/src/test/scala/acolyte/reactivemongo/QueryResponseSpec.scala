@@ -85,6 +85,20 @@ object QueryResponseSpec
           }
       }
 
+      "with empty list of document" in {
+        QueryResponse(List.empty[BSONDocument]) aka "prepared" must beLike {
+          case prepared ⇒ prepared(7) aka "applied" must beSome.which(
+            _ aka "response" must beResponse { case res if res.isEmpty ⇒ ok })
+        }
+      }
+
+      "with empty success" in {
+        QueryResponse.empty aka "prepared" must beLike {
+          case prepared ⇒ prepared(7) aka "applied" must beSome.which(
+            _ aka "response" must beResponse { case res if res.isEmpty ⇒ ok })
+        }
+      }
+
       "for count command" in {
         QueryResponse.count(3) aka "prepared" must beLike {
           case prepared ⇒ prepared(5) aka "applied" must beSome.which(
@@ -104,7 +118,7 @@ object QueryResponseSpec
       }
 
       "using named factory" in {
-        QueryResponse.empty aka "prepared" must beLike {
+        QueryResponse.undefined aka "prepared" must beLike {
           case prepared ⇒ prepared(2) aka "applied" must beNone
         }
       }

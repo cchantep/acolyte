@@ -2,7 +2,7 @@ package acolyte.reactivemongo
 
 import reactivemongo.bson.{ BSONDocument, BSONInteger, BSONString }
 
-object QueryHandlerSpec extends org.specs2.mutable.Specification 
+object QueryHandlerSpec extends org.specs2.mutable.Specification
     with ResponseMatchers with QueryHandlerFixtures {
 
   "Query handler" title
@@ -30,12 +30,21 @@ object QueryHandlerSpec extends org.specs2.mutable.Specification
       }
     }
 
-    "return an error response" in {
-      implicitly[QueryHandler]({ _: Request ⇒ 
-        QueryResponse("Error message") }) aka "query handler" must beLike {
+    "return an empty successful response" in {
+      implicitly[QueryHandler]({ _: Request ⇒ QueryResponse.empty }).
+        aka("query handler") must beLike {
           case h ⇒ h(1, query1) must beSome.which(
-            _ aka "response" must beQueryError("Error message"))
+            _ aka "response" must beResponse { case res if res.isEmpty ⇒ ok })
         }
+    }
+
+    "return an error response" in {
+      implicitly[QueryHandler]({ _: Request ⇒
+        QueryResponse("Error message")
+      }) aka "query handler" must beLike {
+        case h ⇒ h(1, query1) must beSome.which(
+          _ aka "response" must beQueryError("Error message"))
+      }
     }
 
     "return no response" in {
@@ -57,7 +66,7 @@ object QueryHandlerSpec extends org.specs2.mutable.Specification
   "Mixed handler" should {
     val handler = QueryHandler { q ⇒
       q match {
-        case RequestBody("test1", _) ⇒ QueryResponse.empty
+        case RequestBody("test1", _) ⇒ QueryResponse.undefined
         case RequestBody("test2", _) ⇒ QueryResponse("Error #2")
 
         case RequestBody("test3", _) ⇒ QueryResponse(

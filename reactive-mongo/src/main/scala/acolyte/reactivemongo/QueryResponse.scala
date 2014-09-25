@@ -34,8 +34,11 @@ object QueryResponse {
   def count(result: Int = 0) = apply(BSONDocument("ok" -> 1, "n" -> result))
 
   /**
-   * Empty/undefined response, returned by handler no supporting
+   * Undefined response, returned by handler no supporting
    * a specific query that may be handled by others.
    */
-  lazy val empty = apply(None)
+  lazy val undefined = apply(None)
+
+  /** Successful empty response (list of zero document). */
+  lazy val empty = apply(List.empty[BSONDocument])
 }

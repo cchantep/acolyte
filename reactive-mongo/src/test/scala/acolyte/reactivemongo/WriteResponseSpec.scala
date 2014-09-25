@@ -106,7 +106,7 @@ object WriteResponseSpec
       }
 
       "using named factory" in {
-        WriteResponse.empty aka "prepared" must beLike {
+        WriteResponse.undefined aka "prepared" must beLike {
           case prepared ⇒ prepared(2) aka "applied" must beNone
         }
       }

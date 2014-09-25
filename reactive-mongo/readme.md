@@ -32,13 +32,13 @@ val res: Future[String] = withDriver(yourConnectionHandler) { d =>
 
 As in previous example, main API object is [AcolyteDSL](https://github.com/cchantep/acolyte/blob/master/reactive-mongo/src/main/scala/acolyte/reactivemongo/AcolyteDSL.scala).
 
-Dependency can be added to SBT project with `"org.eu.acolyte" %% "reactive-mongo" % "1.0.25"`, and in a Maven one as following:
+Dependency can be added to SBT project with `"org.eu.acolyte" %% "reactive-mongo" % "1.0.26"`, and in a Maven one as following:
 
 ```xml
 <dependency>
   <groupId>org.eu.acolyte</groupId>
   <artifactId>reactive-mongo</artifactId>
-  <version>1.0.25</version>
+  <version>1.0.26</version>
 </dependency>
 ```
 
@@ -63,14 +63,19 @@ Acolyte provides several ways to initialize Mongo resources (driver, connection,
 - `withConnection` and `withFlatConnection`,
 - `withDB` and `withFlatDB`,
 - `withCollection` and `withFlatCollection`,
-- `withQueryResult` and `withFlatQueryResult`.
+- `withQueryHandler` and `withFlatQueryHandler`,
+- `withQueryResult` and `withFlatQueryResult`,
+- `withWriteHandler` and `withFlatWriteHandler`,
+- `withWriteResult` and `withFlatWriteResult`.
 
 > Naming convention is `withX(...) { a => b }` to use with your Mongo function which doesn't return `Future` result, and `withFlatX(...) { a => b }` when your Mongo function return result (to flatten `withFlatX` result as `Future[YourReturnType]`, not having for example `Future[Future[YourReturnType]]`).
 
 ```scala
 import reactivemongo.api.{ MongoConnection, MongoDriver }
 import reactivemongo.bson.BSONDocument
-import acolyte.reactivemongo.AcolyteDSL
+import acolyte.reactivemongo.{ 
+  AcolyteDSL, QueryResponse, PreparedResponse, Request, WriteOp 
+}
 
 // Simple cases
 AcolyteDSL.withDriver(yourHandler) { d =>
@@ -89,7 +94,16 @@ AcolyteDSL.withCollection(yourHandler, "colName") { col =>
   yourFunctionWorkingWithCol(col)
 }
 
+AcolyteDSL.withQueryHandler({ req: Request => 
+  val resp: PreparedResponse = QueryResponse.empty // empty doc list
+  resp
+}) { d => yourFunctionWorkingWithDriver(d) }
+
 AcolyteDSL.withQueryResult(queryResultForAll) { d =>
+  yourFunctionWorkingWithDriver(d)
+}
+
+AcolyteDSL.withWriteHandler({ cmd: (WriteOp, Request) => aResp }) { d =>
   yourFunctionWorkingWithDriver(d)
 }
 
@@ -248,6 +262,10 @@ val queryHandler = QueryHandler { queryRequest =>
       // a operator property "$gt" having an integer value, and an "email" 
       // property (at the same level as age), without order constraint.
       resultJ
+
+    case CountRequest(colName, ("email", "em@il.net") :: Nil) =>
+      // Matching on count query
+      resultK
   }
 }
 ```
@@ -307,14 +325,17 @@ val success3 = QueryResponse(Seq(
 val success4 = QueryResponse.successful(
   BSONDocument("name" -> "singleResult"), BSONDocument("price" -> 1.2D))
 
-val countResponse = QueryResponse.count(4)
+val success5 = QueryResponse.empty // successful empty response
+val success6 = QueryResponse(List.empty[BSONDocument]) // equivalent
+
+val countResponse = QueryResponse.count(4) // response to Mongo Count
 ```
 
 When a handler supports some query cases, but not other, it can return an undefined response, to let the chance other handlers would manage it.
 
 ```scala
 val undefined1 = QueryResponse(None)
-val undefined2 = QueryResponse.empty
+val undefined2 = QueryResponse.undefined
 ```
 
 ### Result creation for write operation
@@ -339,7 +360,7 @@ When a handler supports some write cases, but not other, it can return an undefi
 
 ```scala
 val undefined1 = WriteResponse(None)
-val undefined2 = WriteResponse.empty
+val undefined2 = WriteResponse.undefined
 ```
 
 ## Build

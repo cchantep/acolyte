@@ -37,8 +37,8 @@ object WriteResponse {
     apply(count -> updatedExisting)
 
   /**
-   * Empty/undefined response, returned by handler no supporting
+   * Undefined response, returned by handler no supporting
    * a specific write operation that may be handled by others.
    */
-  lazy val empty = apply(None)
+  lazy val undefined = apply(None)
 }

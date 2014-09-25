@@ -31,10 +31,21 @@ object DriverSpec extends org.specs2.mutable.Specification
           aka("work with driver") must beTrue.await(5)
       }
 
+      "from sync query handler" in {
+        AcolyteDSL.withQueryHandler({ _: Request ⇒ QueryResponse.empty })(
+          _ ⇒ true) aka "work with query handler" must beTrue.await(5)
+      }
+
       "from sync query result" in {
         AcolyteDSL.withQueryResult(QueryResponse(
           BSONDocument("res" -> "ult")))(_ ⇒ true).
           aka("work with query result") must beTrue.await(5)
+      }
+
+      "from query handler with future result" in {
+        AcolyteDSL.withFlatQueryHandler(
+          { _: Request ⇒ QueryResponse.undefined })(_ ⇒ Future(2 + 6)).
+          aka("work with query handler") must beEqualTo(8).await(5)
       }
 
       "from future query result" in {
@@ -43,9 +54,21 @@ object DriverSpec extends org.specs2.mutable.Specification
           aka("work with query result") must beEqualTo(3).await(5)
       }
 
+      "from sync write handler" in {
+        AcolyteDSL.withWriteHandler(
+          { (_: WriteOp, _: Request) ⇒ WriteResponse(1) })(_ ⇒ true).
+          aka("work with write result") must beTrue.await(5)
+      }
+
       "from sync write result" in {
         AcolyteDSL.withWriteResult(WriteResponse("error"))(_ ⇒ true).
           aka("work with write result") must beTrue.await(5)
+      }
+
+      "from write handler with future result" in {
+        AcolyteDSL.withFlatWriteHandler(
+          { (_: WriteOp, _: Request) ⇒ WriteResponse(1) })(_ ⇒ Future(1 + 6)).
+          aka("work with write result") must beEqualTo(7).await(5)
       }
 
       "from sync future result" in {
@@ -215,10 +238,14 @@ object DriverSpec extends org.specs2.mutable.Specification
       }
 
       "as error when query handler returns no query result" in {
-        awaitRes(AcolyteDSL.withFlatCollection(chandler1, query3.collection) {
-          _.find(query3.body).cursor[BSONDocument].toList()
-        }) aka "query result" must beFailedTry.
-          withThrowable[DetailedDatabaseException](".*No response: .*")
+        awaitRes(AcolyteDSL.withFlatQueryHandler(
+          { _: Request ⇒ QueryResponse.empty }) { d ⇒
+            AcolyteDSL.withFlatCollection(d, query3.collection) {
+              _.find(query3.body).cursor[BSONDocument].toList()
+            }
+          }) aka "query result" must beSuccessfulTry.like {
+          case res if res.isEmpty ⇒ ok
+        }
       }
 
       "as error when connection handler is empty" in {
@@ -281,8 +308,12 @@ object DriverSpec extends org.specs2.mutable.Specification
       }
 
       "as error when connection handler is empty" in {
-        awaitRes(AcolyteDSL.withFlatCollection(chandler1, query3.collection) {
-          _.update(BSONDocument("name" -> "x"), write3._2.body)
+        awaitRes(AcolyteDSL.withFlatWriteHandler({ (_: WriteOp, _: Request) ⇒
+          WriteResponse.undefined
+        }) { d ⇒
+          AcolyteDSL.withFlatCollection(d, query3.collection) {
+            _.update(BSONDocument("name" -> "x"), write3._2.body)
+          }
         }) aka "result" must beFailedTry.
           withThrowable[LastError](".*No response: .*")
       }

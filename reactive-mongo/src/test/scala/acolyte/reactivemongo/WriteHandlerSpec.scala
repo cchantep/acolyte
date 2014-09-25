@@ -79,7 +79,7 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
   "Mixed handler" should {
     val handler = WriteHandler { (op, req) ⇒
       (op, req) match {
-        case (DeleteOp, RequestBody("test1", _)) ⇒ WriteResponse.empty
+        case (DeleteOp, RequestBody("test1", _)) ⇒ WriteResponse.undefined
         case (InsertOp, RequestBody("test2", _)) ⇒ WriteResponse("Error #2")
         case (UpdateOp, RequestBody("test3", _)) ⇒ WriteResponse(2, true)
         case (_, RequestBody("test4", _))        ⇒ WriteResponse.successful()

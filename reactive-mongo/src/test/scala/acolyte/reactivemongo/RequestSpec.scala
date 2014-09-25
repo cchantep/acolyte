@@ -2,7 +2,7 @@ package acolyte.reactivemongo
 
 import reactivemongo.bson.{ BSONDocument, BSONDouble, BSONInteger, BSONString }
 
-object RequestSpec extends org.specs2.mutable.Specification 
+object RequestSpec extends org.specs2.mutable.Specification
     with RequestFixtures {
 
   "Request" title
@@ -11,13 +11,13 @@ object RequestSpec extends org.specs2.mutable.Specification
     "match" >> {
       "request #1" in {
         request1 aka "request" must beLike {
-          case RequestBody("db1.col1", _) ⇒ ok 
+          case RequestBody("db1.col1", _) ⇒ ok
         }
       }
 
       "request #2" in {
-        request2 aka "request" must beLike { 
-          case RequestBody("db1.col2", _) ⇒ ok 
+        request2 aka "request" must beLike {
+          case RequestBody("db1.col2", _) ⇒ ok
         }
       }
     }
@@ -191,7 +191,7 @@ object RequestSpec extends org.specs2.mutable.Specification
     "extract 'email' property as Scala value" >> {
       "on request #1" in {
         request1 aka "request" must beLike {
-          case RequestBody("db1.col1", 
+          case RequestBody("db1.col1",
             ~(Property("email"), BSONString(email))) ⇒
             email aka "email" must_== "em@il.net"
         }
@@ -199,7 +199,7 @@ object RequestSpec extends org.specs2.mutable.Specification
 
       "on request #2" in {
         request2 aka "request" must beLike {
-          case RequestBody("db1.col2", 
+          case RequestBody("db1.col2",
             ~(Property("email"), BSONString(email))) ⇒
             email aka "email" must_== "em@il.net"
         }
@@ -309,6 +309,14 @@ object RequestSpec extends org.specs2.mutable.Specification
       }
     }
   }
+
+  "Count request" should {
+    "be extracted" in {
+      count1 aka "request" must beLike {
+        case CountRequest("db1.col3", ("fil", BSONString("ter")) :: Nil) ⇒ ok
+      }
+    }
+  }
 }
 
 sealed trait RequestFixtures {
@@ -326,5 +334,11 @@ sealed trait RequestFixtures {
   val request2 = new Request {
     val collection = "db1.col2"
     val body = doc2
+  }
+
+  val count1 = new Request {
+    val collection = "db1.col3"
+    val body = BSONDocument("count" -> "col3",
+      "query" -> BSONDocument("fil" -> "ter"))
   }
 }

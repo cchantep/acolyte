@@ -2,7 +2,7 @@ package acolyte.reactivemongo
 
 import org.jboss.netty.buffer.ChannelBuffer
 
-import reactivemongo.bson.{ BSONDocument, BSONValue }
+import reactivemongo.bson.{ BSONDocument, BSONString, BSONValue }
 import reactivemongo.bson.buffer.{
   ArrayBSONBuffer,
   ReadableBuffer,
@@ -101,12 +101,32 @@ object ValueDocument {
  * }
  * }}}
  *
- * @see ValueDocument
+ * @see [[ValueDocument]]
+ * @see [[CountRequest]]
  */
 object RequestBody {
+  /**
+   * @return Collection name -> request body (BSON properties)
+   */
   def unapply(q: Request): Option[(String, List[(String, BSONValue)])] =
     Some(q.collection -> q.body.elements.toList)
 
+}
+
+/**
+ * Request extractor for Count command.
+ * @see [[RequestBody]]
+ */
+object CountRequest {
+  /**
+   * @return Collection name -> query body (count BSON properties)
+   */
+  def unapply(q: Request): Option[(String, List[(String, BSONValue)])] =
+    q match {
+      case RequestBody(col, ("count", BSONString(_)) ::
+        ("query", ValueDocument(query)) :: Nil) ⇒ Some(col -> query)
+      case _ ⇒ None
+    }
 }
 
 /**
