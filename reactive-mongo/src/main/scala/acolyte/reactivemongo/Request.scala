@@ -2,7 +2,7 @@ package acolyte.reactivemongo
 
 import org.jboss.netty.buffer.ChannelBuffer
 
-import reactivemongo.bson.{ BSONDocument, BSONString, BSONValue }
+import reactivemongo.bson.{ BSONArray, BSONDocument, BSONString, BSONValue }
 import reactivemongo.bson.buffer.{
   ArrayBSONBuffer,
   ReadableBuffer,
@@ -66,6 +66,14 @@ object ValueDocument {
     case doc @ BSONDocument(_) ⇒ Some(doc.elements.toList)
     case _                     ⇒ None
   }
+}
+
+/**
+ * Extracts values of BSON array as list.
+ * @see ValueDocument
+ */
+object ValueList {
+  def unapply(arr: BSONArray): Option[List[BSONValue]] = Some(arr.values.toList)
 }
 
 /**

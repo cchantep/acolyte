@@ -1,6 +1,6 @@
 package acolyte.reactivemongo
 
-import reactivemongo.bson.{ BSONDocument, BSONDouble, BSONInteger, BSONString }
+import reactivemongo.bson.{ BSONArray, BSONDocument, BSONDouble, BSONInteger, BSONString }
 
 object RequestSpec extends org.specs2.mutable.Specification
     with RequestFixtures {
@@ -314,6 +314,15 @@ object RequestSpec extends org.specs2.mutable.Specification
     "be extracted" in {
       count1 aka "request" must beLike {
         case CountRequest("db1.col3", ("fil", BSONString("ter")) :: Nil) ⇒ ok
+      }
+    }
+  }
+
+  "Array" should {
+    "be extracted as list values" in {
+      BSONArray("a", 2, 3.45d) aka "array" must beLike {
+        case ValueList(BSONString(a) :: BSONInteger(b) ::
+          BSONDouble(c) :: Nil) ⇒ ok
       }
     }
   }
