@@ -79,10 +79,10 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
   "Mixed handler" should {
     val handler = WriteHandler { (op, req) ⇒
       (op, req) match {
-        case (DeleteOp, RequestBody("test1", _)) ⇒ WriteResponse.undefined
-        case (InsertOp, RequestBody("test2", _)) ⇒ WriteResponse("Error #2")
-        case (UpdateOp, RequestBody("test3", _)) ⇒ WriteResponse(2, true)
-        case (_, RequestBody("test4", _))        ⇒ WriteResponse.successful()
+        case (DeleteOp, Request("test1", _)) ⇒ WriteResponse.undefined
+        case (InsertOp, Request("test2", _)) ⇒ WriteResponse("Error #2")
+        case (UpdateOp, Request("test3", _)) ⇒ WriteResponse(2, true)
+        case (_, Request("test4", _))        ⇒ WriteResponse.successful()
       }
     }
 
@@ -115,16 +115,16 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
 trait WriteHandlerFixtures {
   val write1 = (DeleteOp, new Request {
     val collection = "test1"
-    val body = BSONDocument("filter" -> "valA")
+    val body = List(BSONDocument("filter" -> "valA"))
   })
 
   val write2 = (InsertOp, new Request {
     val collection = "test2"
-    val body = BSONDocument("filter" -> "valB")
+    val body = List(BSONDocument("filter" -> "valB"))
   })
 
   val write3 = (UpdateOp, new Request {
     val collection = "test3"
-    val body = BSONDocument("filter" -> "valC")
+    val body = List(BSONDocument("filter" -> "valC"))
   })
 }

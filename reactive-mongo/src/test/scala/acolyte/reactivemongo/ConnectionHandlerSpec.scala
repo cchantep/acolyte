@@ -114,9 +114,9 @@ trait ConnectionHandlerFixtures {
   fixtures: QueryHandlerFixtures with WriteHandlerFixtures ⇒
 
   lazy val chandler1 = ConnectionHandler(QueryHandler {
-    case RequestBody(col, _) if col.endsWith("test1") ⇒
+    case Request(col, _) if col.endsWith("test1") ⇒
       QueryResponse(BSONDocument("b" -> 3))
-    case RequestBody(col, _) if col.endsWith("test2") ⇒ QueryResponse(
+    case Request(col, _) if col.endsWith("test2") ⇒ QueryResponse(
       Seq(BSONDocument("d" -> 4.56d), BSONDocument("ef" -> "ghi")))
     case q ⇒ QueryResponse(None)
   }, WriteHandler {

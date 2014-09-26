@@ -66,13 +66,13 @@ object QueryHandlerSpec extends org.specs2.mutable.Specification
   "Mixed handler" should {
     val handler = QueryHandler { q ⇒
       q match {
-        case RequestBody("test1", _) ⇒ QueryResponse.undefined
-        case RequestBody("test2", _) ⇒ QueryResponse("Error #2")
+        case Request("test1", _) ⇒ QueryResponse.undefined
+        case Request("test2", _) ⇒ QueryResponse("Error #2")
 
-        case RequestBody("test3", _) ⇒ QueryResponse(
+        case Request("test3", _) ⇒ QueryResponse(
           Seq(BSONDocument("prop" -> "A"), BSONDocument("a" -> 1)))
 
-        case RequestBody("test4", _) ⇒
+        case Request("test4", _) ⇒
           QueryResponse.successful(BSONDocument("prop" -> "B"))
       }
     }
@@ -105,16 +105,16 @@ object QueryHandlerSpec extends org.specs2.mutable.Specification
 trait QueryHandlerFixtures {
   val query1 = new Request {
     val collection = "test1"
-    val body = BSONDocument("filter" -> "valA")
+    val body = List(BSONDocument("filter" -> "valA"))
   }
 
   val query2 = new Request {
     val collection = "test2"
-    val body = BSONDocument("filter" -> "valB")
+    val body = List(BSONDocument("filter" -> "valB"))
   }
 
   val query3 = new Request {
     val collection = "test3"
-    val body = BSONDocument("filter" -> "valC")
+    val body = List(BSONDocument("filter" -> "valC"))
   }
 }

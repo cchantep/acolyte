@@ -206,58 +206,59 @@ Pattern matching can be used in handler to dispatch result accordingly.
 import reactivemongo.bson.{ BSONInteger, BSONString }
 
 import acolyte.reactivemongo.{
-  CollectionName, QueryHandler, RequestBody, Property, &
+  CollectionName, QueryHandler, Request, Property, SimpleBody, &
 }
 
 val queryHandler = QueryHandler { queryRequest =>
   queryRequest match {
-    case RequestBody("a-mongo-db.a-col-name", _) => 
+    case Request("a-mongo-db.a-col-name", _) => 
       // Any request on collection "a-mongo-db.a-col-name"
       resultA
 
-    case RequestBody(colNameOfAnyOther, _)  => resultB // Any request
+    case Request(colNameOfAnyOther, _)  => resultB // Any request
 
-    case RequestBody(colName, (k1, v1) :: (k2, v2) :: Nil) => 
+    case Request(colName, SimpleBody((k1, v1) :: (k2, v2) :: Nil)) => 
       // Any request with exactly 2 BSON properties
       resultC
 
-    case RequestBody("db.col", ("email", BSONString(v)) :: _) =>
+    case Request("db.col", SimpleBody(("email", BSONString(v)) :: _)) =>
       // Request on db.col starting with email string property
       resultD
 
-    case RequestBody("db.col", ("name", BSONString("eman")) :: _) =>
+    case Request("db.col", SimpleBody(("name", BSONString("eman")) :: _)) =>
       // Request on db.col starting with an "name" string property,
       // whose value is "eman"
       resultE
 
-    case RequestBody(_, ("age": ValueDocument(
-      ("$gt", BSONInteger(minAge)) :: Nil))) =>
+    case Request(_, SimpleBody(("age": ValueDocument(
+      ("$gt", BSONInteger(minAge)) :: Nil)))) =>
       // Request on any collection, with an "age" document as property,
       // itself with exactly one integer "$gt" property
       // e.g. `{ 'age': { '$gt', 10 } }`
       resultF
 
-    case RequestBody("db.col", ~(Property("email"), BSONString(e))) =>
+    case Request("db.col", SimpleBody(~(Property("email"), BSONString(e)))) =>
       // Request on db.col with an "email" string property,
       // anywhere in properties (possible with others which are ignored there)
       resultG
 
-    case RequestBody("db.col", ~(Property("name"), BSONString("eman"))) =>
+    case Request("db.col", SimpleBody(
+      ~(Property("name"), BSONString("eman")))) =>
       // Request on db.col with an "name" string property with "eman" as value,
       // anywhere in properties (possibly with others which are ignored there).
       resultH
 
-    case RequestBody(colName,
+    case Request(colName, SimpleBody(
       ~(Property("age"), BSONInteger(age)) &
-      ~(Property("email"), BSONString(v))) =>
+      ~(Property("email"), BSONString(v)))) =>
       // Request on any collection, with an "age" integer property
       // and an "email" string property, possibly not in this order.
       resultI
 
-    case RequestBody(colName, 
+    case Request(colName, SimpleBody(
       ~(Property("age"), ValueDocument(
         ~(Property("$gt"), BSONInteger(minAge)))) &
-      ~(Property("email"), BSONString(email))) =>
+      ~(Property("email"), BSONString(email)))) =>
       // Request on any collection, with an "age" property with itself
       // a operator property "$gt" having an integer value, and an "email" 
       // property (at the same level as age), without order constraint.
@@ -267,7 +268,7 @@ val queryHandler = QueryHandler { queryRequest =>
       // Matching on count query
       resultK
 
-    case RequestBody("col1", ("$in", ValueList(bsonA, bsonB)) :: Nil) =>
+    case Request("col1", SimpleBody(("$in", ValueList(bsonA, bsonB)) :: Nil)) =>
       // Matching BSONArray using with $in operator
       resultL
   }
@@ -280,7 +281,8 @@ Without this plugin, such parameterized extractor need to be declared as stable 
 ```scala
 // With scalac plugin
 request match {
-  case RequestBody("db.col", ~(Property("email"), BSONString(e))) => result
+  case Request("db.col", SimpleBody(
+    ~(Property("email"), BSONString(e)))) => result
   // ...
 }
 
@@ -289,7 +291,7 @@ val EmailXtr = Property("email")
 // has declare email extractor before, as stable identifier
 
 request match {
-  case RequestBody("db.col", ~(EmailXtr, BSONString(e))) => result
+  case Request("db.col", SimpleBody(~(EmailXtr, BSONString(e)))) => result
   // ...
 }
 ```
@@ -301,7 +303,7 @@ import acolyte.reactivemongo.{ WriteHandler, DeleteOp, InsertOp, UpdateOp }
 
 val handler = WriteHandler { (op, wreq) =>
   (op, wreq) match {
-    case (DeleteOp, RequestBody("a-mongo-db.a-col-name", _)) => resultDelete
+    case (DeleteOp, Request("a-mongo-db.a-col-name", _)) => resultDelete
     case (InsertOp, _) => resultInsert
     case (UpdateOp, _) => resultUpdate
   }
