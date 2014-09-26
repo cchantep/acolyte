@@ -338,6 +338,15 @@ object RequestSpec extends org.specs2.mutable.Specification
         }
     }
   }
+
+  "Multiple document body" should {
+    "be extracted" in {
+      update1 aka "update request" must beLike {
+        case Request(_, RequestBody(List(("sel", BSONString("hector"))) ::
+          List(("updated", BSONString("property"))) :: Nil)) ⇒ ok
+      }
+    }
+  }
 }
 
 sealed trait RequestFixtures {
@@ -361,5 +370,11 @@ sealed trait RequestFixtures {
     val collection = "db1.col3"
     val body = List(BSONDocument("count" -> "col3",
       "query" -> BSONDocument("fil" -> "ter")))
+  }
+
+  val update1 = new Request {
+    val collection = "db1.col4"
+    val body = List(BSONDocument("sel" -> "hector"),
+      BSONDocument("updated" -> "property"))
   }
 }

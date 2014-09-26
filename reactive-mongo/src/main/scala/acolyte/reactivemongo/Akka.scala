@@ -69,8 +69,6 @@ private[reactivemongo] class Actor(
     case msg @ CheckedWriteRequestExResp(
       r @ CheckedWriteRequest(op, doc, GetLastError(_, _, _, _))) ⇒
 
-      println(s"buf = ${new String(doc.merged.array)}")
-
       val req = Request(op.fullCollectionName, doc.merged)
       val exp = new ExpectingResponse(msg)
       val cid = r()._1.channelIdHint getOrElse 1

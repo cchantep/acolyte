@@ -14,14 +14,10 @@ import reactivemongo.bson.buffer.{
  */
 trait Request {
 
-  /**
-   * Fully qualified name of collection
-   */
+  /** Fully qualified name of collection */
   def collection: String
 
-  /**
-   * Request body (BSON statement)
-   */
+  /** Request body (BSON statement) */
   def body: List[BSONDocument]
 
   override lazy val toString = s"Request($collection, $body)"

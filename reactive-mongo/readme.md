@@ -275,6 +275,13 @@ val queryHandler = QueryHandler { queryRequest =>
     case Request("col1", SimpleBody(("$in", ValueList(bsonA, bsonB)) :: Nil)) =>
       // Matching BSONArray using with $in operator
       resultM
+
+    case Request(_, RequestBody(List(("sel", BSONString("hector"))) ::
+      List(("updated", BSONString("property"))) :: Nil)) ⇒ 
+      // Matches a request with multiple document in body 
+      // (e.g. update with selector)
+      resultN
+
   }
 }
 ```
