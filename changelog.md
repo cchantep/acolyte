@@ -1,3 +1,15 @@
+## 1.0.27
+
+([c94cd5883bbef746273c5245885d5e7d22e2e8a3](https://github.com/cchantep/acolyte/commit/c94cd5883bbef746273c5245885d5e7d22e2e8a3) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Pattern matching for request body with multiple document
+
+([f5e58c0dbf83e3f067af8081a39575550657115a](https://github.com/cchantep/acolyte/commit/f5e58c0dbf83e3f067af8081a39575550657115a) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) $in extractor
+
+([d213d6df9c7c4f158f9699f1027c363ddbafbfc8](https://github.com/cchantep/acolyte/commit/d213d6df9c7c4f158f9699f1027c363ddbafbfc8) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Refactor Request pattern matching
+
+([8fe2ef491a7601ab1916838c92c5277b983db62c](https://github.com/cchantep/acolyte/commit/8fe2ef491a7601ab1916838c92c5277b983db62c) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Fix scaladoc
+
+([b663965aa94b91a6e573ac760a1ba3e20ea6fb0b](https://github.com/cchantep/acolyte/commit/b663965aa94b91a6e573ac760a1ba3e20ea6fb0b) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) BSON array extractor
+
 ## 1.0.26
 
 ([646c8f57fccf605d97e2318adebb4b2540d5514b](https://github.com/cchantep/acolyte/commit/646c8f57fccf605d97e2318adebb4b2540d5514b) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Refactor DSL and better support for Count command.
