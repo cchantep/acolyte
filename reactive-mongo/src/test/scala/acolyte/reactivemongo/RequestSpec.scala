@@ -329,6 +329,14 @@ object RequestSpec extends org.specs2.mutable.Specification
           BSONDouble(c) :: Nil) ⇒ ok
       }
     }
+
+    "be extracted from an $in clause" in {
+      BSONDocument("selector" -> BSONDocument("$in" -> BSONArray("A", "B"))).
+        aka("body") must beLike {
+          case ValueDocument(("selector", InClause(
+            BSONString("A") :: BSONString("B") :: Nil)) :: Nil) ⇒ ok
+        }
+    }
   }
 }
 

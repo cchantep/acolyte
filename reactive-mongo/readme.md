@@ -268,9 +268,13 @@ val queryHandler = QueryHandler { queryRequest =>
       // Matching on count query
       resultK
 
+    case CountRequest(_, ("property", InClause(
+      BSONString("A") :: BSONString("B") :: Nil)) :: Nil) =>
+      resultL // matches count with selector on 'property' using $in operator
+
     case Request("col1", SimpleBody(("$in", ValueList(bsonA, bsonB)) :: Nil)) =>
       // Matching BSONArray using with $in operator
-      resultL
+      resultM
   }
 }
 ```

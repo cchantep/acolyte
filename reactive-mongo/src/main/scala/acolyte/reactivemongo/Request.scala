@@ -116,6 +116,13 @@ object SimpleBody {
 
 }
 
+/** Complete request body extractor; Matches body with many documents. */
+object RequestBody {
+  /** @return List of document, each document as list of its BSON properties. */
+  def unapply(body: List[BDoc]): Option[List[List[(String, BSONValue)]]] =
+    Some(body.map(_.underlying.elements.toList))
+}
+
 /**
  * Extractor of properties for a document used a BSON value
  * (when operator is used, e.g. `{ 'age': { '\$gt': 10 } }`).
@@ -150,6 +157,23 @@ object CountRequest {
     q match {
       case Request(col, SimpleBody(("count", BSONString(_)) ::
         ("query", ValueDocument(query)) :: Nil)) ⇒ Some(col -> query)
+      case _ ⇒ None
+    }
+}
+
+/**
+ * In clause extractor
+ * (\$in with BSONArray; e.g. { '\$in': [ ... ] })
+ */
+object InClause {
+  /**
+   * Matches BSON property with name \$in and a BSONArray as value,
+   * and extracts subvalues from the array.
+   */
+  def unapply(bson: BSONValue): Option[List[BSONValue]] =
+    bson match {
+      case ValueDocument(("$in", a @ BSONArray(_)) :: _) ⇒
+        Some(a.values.toList)
       case _ ⇒ None
     }
 }
