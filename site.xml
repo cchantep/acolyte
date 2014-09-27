@@ -55,7 +55,7 @@
                   <fileset dir="${basedir}/src/site" />
                 </copy>
 
-                <copy todir="${project.build.directory}/site/scaladocs">
+                <copy todir="${project.build.directory}/site/jdbc-scaladoc">
                   <fileset dir="${basedir}/jdbc-scala/target/scala-2.10/api" />
                 </copy>
 
@@ -75,6 +75,9 @@
 
                 <copy file="${basedir}/scalac-plugin/readme.md" 
                       tofile="${generatedSite}/markdown/scalac-plugin.md" />
+
+                <copy file="${basedir}/reactive-mongo/readme.md" 
+                      tofile="${generatedSite}/markdown/reactive-mongo.md" />
 
                 <copy todir="${project.build.directory}/site/css">
                   <fileset dir="${basedir}/src/site/css" includes="*.css" />

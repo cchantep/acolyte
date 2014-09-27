@@ -81,6 +81,8 @@ Dependency can be added to SBT project with `"org.eu.acolyte" %% "reactive-mongo
 </dependency>
 ```
 
+*See online [API documentation](http://http://acolyte.eu.org/reactivemongo-scaladoc)*.
+
 ### Setup driver
 
 Driver behaviour is configured using a connection handler, itself based on query and write handlers, managing respectively Mongo queries or write operations, and returning appropriate result.
@@ -419,6 +421,33 @@ val undefined1 = WriteResponse(None)
 val undefined2 = WriteResponse.undefined
 ```
 
+## Integration
+
+Acolyte for ReactiveMongo can be used with various test and persistence frameworks.
+
+### Specs2
+
+It can be used with [specs2](http://etorreborre.github.io/specs2/) to write executable specification for function accessing persistence.
+
+```scala
+import reactivemongo.bson.BSONDocument
+import acolyte.reactivemongo.QueryResponse
+
+object MySpec extends org.specs2.mutable.Specification {
+  "Mongo persistence" should {
+    "properly work with query result" in {
+      withQueryResult(QueryResponse(BSONDocument(???))) { driver =>
+        // code executing query with driver,
+        // and parsing result as expected
+      } aka "result" must beEqualTo(???).
+        await(5) // as ReactiveMongo is async and returns Future
+    }
+  }
+
+  // ...
+}
+```
+
 ## Build
 
 This module can be built from these sources using SBT (0.12.2+), 
@@ -437,3 +466,5 @@ from top directory (Acolyte base directory):
 > project reactive-mongo
 > test
 ```
+
+[![Build Status](https://secure.travis-ci.org/cchantep/acolyte.png?branch=master)](http://travis-ci.org/cchantep/acolyte)

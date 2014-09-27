@@ -24,8 +24,9 @@
     </menu>
 
     <menu name="Reference">
-      <item name="Javadoc" href="./apidocs/index.html" />
-      <item name="Scaladoc" href="./scaladocs/index.html" />
+      <item name="JDBC Javadoc" href="./jdbc-driver-javadoc/index.html" />
+      <item name="JDBC Scaladoc" href="./jdbc-scaladoc/index.html" />
+      <item name="ReactiveMongo Scaladoc" href="./jdbc-driver-javadoc/index.html" />
       <item name="Build" href="./build.html" />
       <item name="Changelog" href="./changelog.html" />
     </menu>

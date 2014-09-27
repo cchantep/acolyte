@@ -1,6 +1,6 @@
 # Integration
 
-Acolyte can be used with various JVM test and persistence frameworks.
+Acolyte JDBC can be used with various JVM test and persistence frameworks.
 
 ## Specs2
 

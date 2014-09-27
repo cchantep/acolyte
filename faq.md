@@ -44,7 +44,7 @@ val handler = handleQuery { e: QueryExecution =>
 
 ## What's the maximum number of column for a row?
 
-Implementations of [Row](http://cchantep.github.io/acolyte/apidocs/acolyte/Row.html) and [RowList](http://cchantep.github.io/acolyte/apidocs/acolyte/RowList.html) are provided up to 52 columns.
+Implementations of [Row](http://acolyte.eu.org/jdbc-driver-javadoc/acolyte/jdbc/Row.html) and [RowList](http://acolyte.eu.org/jdbc-driver-javadoc/acolyte/jdbc/RowList.html) are provided up to 52 columns.
 
 ## How to simply return a single scalar row?
 

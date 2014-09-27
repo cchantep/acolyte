@@ -78,6 +78,8 @@ Connection con = DriverManager.getConnection(jdbcUrl);
 
 You can see more [use cases](https://github.com/cchantep/acolyte/blob/master/jdbc-driver/src/test/java/usecase/JavaUseCases.java) whose expectations are visible in [specifications](https://github.com/cchantep/acolyte/blob/master/jdbc-driver/src/test/jdbc-scala/acolyte/AcolyteSpec.scala).
 
+*See online [API documentation](http://http://acolyte.eu.org/jdbc-driver-javadoc)*.
+
 ## Connection 
 
 As soon as you register Acolyte handler with a unique ID, corresponding connection can be resolved using JDBC URL including this ID as parameter.
@@ -118,9 +120,9 @@ Acolyte specific properties are:
 
 ## Query result creation
 
-Acolyte provides [Row](http://cchantep.github.io/acolyte/apidocs/acolyte/Row.html) and [RowList](http://cchantep.github.io/acolyte/apidocs/acolyte/RowList.html) classes (and their sub-classes) to allow easy and typesafe creation of result.
+Acolyte provides [Row](http://acolyte.eu.org/jdbc-driver-javadoc/acolyte/jdbc/Row.html) and [RowList](http://acolyte.eu.org/jdbc-driver-javadoc/acolyte/jdbc/RowList.html) classes (and their sub-classes) to allow easy and typesafe creation of result.
 
-Row lists can be built as following using [RowLists factory](http://cchantep.github.io/acolyte/apidocs/acolyte/RowLists.html).
+Row lists can be built as following using [RowLists factory](http://acolyte.eu.org/jdbc-driver-javadoc/acolyte/jdbc/RowLists.html).
 
 ```java
 import acolyte.jdbc.RowList1;
@@ -150,7 +152,7 @@ list1 = list1.withLabel(1, "first label");
 list2 = list2.withLabel(2, "first label").withLabel(3, "third name");
 ```
 
-Both column classes and names can be declared in bulk way, using [definition class](http://cchantep.github.io/acolyte/apidocs/acolyte/RowList.Column.html):
+Both column classes and names can be declared in bulk way, using [definition class](http://acolyte.eu.org/jdbc-driver-javadoc/acolyte/jdbc/Column.html):
 
 ```java
 import static acolyte.jdbc.RowList.Column;
@@ -192,7 +194,7 @@ ResultSet rs1 = list1.append("str").resultSet();
 ResultSet rs2 = list2.resultSet();
 ```
 
-[RowLists factory](http://cchantep.github.io/acolyte/apidocs/acolyte/RowLists.html) also provide convinience constructor for single column row list:
+[RowLists factory](http://acolyte.eu.org/jdbc-driver-javadoc/acolyte/jdbc/RowLists.html) also provide convinience constructor for single column row list:
 
 ```java
 // Instead of RowLists.rowList1(String.class).append("string") ...

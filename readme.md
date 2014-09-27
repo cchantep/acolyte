@@ -93,3 +93,4 @@ To share questions, answers & ideas, you can go to the [mailing list](https://gr
 ## Related applications
 
 - [Acolyte Studio](./studio.html): Application with CLI and GUI which is useful when you already have a database and want tests to use data extracted from there.
+- [Acolyte for ReactiveMongo](./reactive-mongo.html). Acolyte module to unit test persistence based on [ReactiveMongo](http://reactivemongo.org/).

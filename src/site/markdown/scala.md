@@ -62,6 +62,8 @@ DriverManager.getConnection(jdbcUrl)
 
 You can see detailed [use cases](https://github.com/cchantep/acolyte/blob/master/jdbc-scala/src/test/jdbc-scala/acolyte/ScalaUseCases.scala) whose expectations are visible in [specifications](https://github.com/cchantep/acolyte/blob/master/jdbc-scala/src/test/jdbc-scala/acolyte/AcolyteSpec.scala).
 
+*See online [API documentation](http://http://acolyte.eu.org/jdbc-scaladoc)*.
+
 ## Connection 
 
 As soon as you register Acolyte handler with a unique ID, corresponding connection can be resolved using JDBC URL including this ID as parameter.
@@ -200,7 +202,7 @@ val list2 = RowLists.rowList3(
   classOf[Char] -> "3rd")
 ```
 
-[RowLists factory](http://cchantep.github.io/acolyte/apidocs/acolyte/RowLists.html) also provide convinience constructor for single column row list:
+[RowLists factory](http://acolyte.eu.org/jdbc-driver-javadoc/acolyte/jdbc/RowLists.html) also provide convinience constructor for single column row list:
 
 ```scala
 // Instead of RowLists.rowList1(classOf[String]) :+ stringRow) ...
