@@ -14,6 +14,7 @@ import org.specs2.mutable.Specification
 import acolyte.jdbc.ParameterMetaData.{
   ParameterDef ⇒ Param,
   Binary,
+  Array => ArrayP,
   Blob ⇒ BlobP,
   Bool ⇒ BoolP,
   Byte ⇒ ByteP,
@@ -224,6 +225,12 @@ object ParameterMetaDataSpec
       s"be expected ${typeName(k)}" in {
         NullP(k) aka "null parameter" mustEqual DefaultP(k)
       }
+    }
+  }
+
+  "Array parameter" should {
+    "be default one" in {
+      ArrayP aka "array parameter" mustEqual DefaultP(Types.ARRAY)
     }
   }
 

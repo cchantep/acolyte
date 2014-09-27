@@ -583,7 +583,7 @@ public class PreparedStatement
     public void setArray(final int parameterIndex, final Array x) 
         throws SQLException {
 
-        throw new SQLFeatureNotSupportedException();
+        setParam(parameterIndex, acolyte.jdbc.ParameterMetaData.Array, x);
     } // end of setArray
 
     /**
@@ -974,6 +974,7 @@ public class PreparedStatement
      */
     private String normalizeClassName(final Class<?> c) {
         if (Blob.class.isAssignableFrom(c)) return "java.sql.Blob";
+        else if (Array.class.isAssignableFrom(c)) return "java.sql.Array";
         
         return c.getName();
     } // end of normalizeClassName

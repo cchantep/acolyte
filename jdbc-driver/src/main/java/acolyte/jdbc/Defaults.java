@@ -7,6 +7,7 @@ import java.util.Map;
 import java.math.BigDecimal;
 
 import java.sql.Timestamp;
+import java.sql.Array;
 import java.sql.Types;
 import java.sql.Date;
 import java.sql.Time;
@@ -57,6 +58,7 @@ final class Defaults {
         // JDBC type mappings
         final HashMap<Integer,String> mappings = new HashMap<Integer,String>();
 
+        mappings.put(Types.ARRAY, Array.class.getName());
         mappings.put(Types.BIGINT, Long.class.getName());
         mappings.put(Types.BIT, Boolean.class.getName());
         mappings.put(Types.BOOLEAN, Boolean.class.getName());
@@ -98,6 +100,7 @@ final class Defaults {
         // JDBC type names
         final HashMap<Integer,String> names = new HashMap<Integer,String>();
 
+        names.put(Types.ARRAY, "ARRAY");
         names.put(Types.BIGINT, "BIGINT");
         names.put(Types.BIT, "BOOL");
         names.put(Types.BOOLEAN, "BOOL");
@@ -134,6 +137,7 @@ final class Defaults {
         // JDBC type signs
         final HashMap<Integer,Boolean> signs = new HashMap<Integer,Boolean>();
 
+        signs.put(Types.ARRAY, Boolean.FALSE);
         signs.put(Types.BIGINT, Boolean.TRUE);
         signs.put(Types.BIT, Boolean.FALSE);
         signs.put(Types.BOOLEAN, Boolean.FALSE);
@@ -162,6 +166,7 @@ final class Defaults {
         final HashMap<Integer,Integer> precisions = 
             new HashMap<Integer,Integer>();
 
+        precisions.put(Types.ARRAY, 0);
         precisions.put(Types.BIGINT, 64);
         precisions.put(Types.BIT, 1);
         precisions.put(Types.BOOLEAN, 1);
@@ -189,6 +194,7 @@ final class Defaults {
         // JDBC type scales
         final HashMap<Integer,Integer> scales = new HashMap<Integer,Integer>();
 
+        scales.put(Types.ARRAY, 0);
         scales.put(Types.BIGINT, 0);
         scales.put(Types.BIT, 0);
         scales.put(Types.BOOLEAN, 0);

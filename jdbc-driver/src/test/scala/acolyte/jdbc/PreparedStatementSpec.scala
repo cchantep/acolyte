@@ -16,6 +16,8 @@ import org.specs2.mutable.Specification
 
 import org.apache.commons.io.IOUtils.contentEquals
 
+import scala.collection.JavaConversions
+
 import acolyte.jdbc.StatementHandler.Parameter
 import acolyte.jdbc.test.{ EmptyConnectionHandler, Params }
 
@@ -60,8 +62,6 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
         and(statement().setRef(0, null).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
         and(statement().setClob(0, null.asInstanceOf[java.sql.Clob]).
-          aka("setter") must throwA[SQLFeatureNotSupportedException]).
-        and(statement().setArray(0, null).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
         and(statement().setURL(0, null).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
@@ -318,6 +318,63 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
         aka("SQL update") mustEqual ("TEST ?, y" -> null)).
         and(executeQuery("SELECT ? WHERE true", Types.FLOAT, null).
           aka("SQL query") mustEqual ("SELECT ? WHERE true" -> null))
+    }
+  }
+
+  "Array" should {
+    val stringArray = ImmutableArray.getInstance(classOf[String], 
+        JavaConversions.seqAsJavaList(List("A", "B")))
+
+    "be set as first parameter" in {
+      lazy val s = statement()
+      s.setArray(1, stringArray)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.ARRAY)
+
+    }
+
+    "be set as first object with SQL type" in {
+      lazy val s = statement()
+      s.setObject(1, stringArray, Types.ARRAY)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.ARRAY)
+
+    }
+
+    "be set as first object with SQL type and scale" in {
+      lazy val s = statement()
+      s.setObject(1, stringArray, Types.ARRAY, 1)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.ARRAY)
+
+    }
+
+    "be set as first object without SQL type" in {
+      lazy val s = statement()
+      s.setObject(1, stringArray)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "SQL type" mustEqual Types.ARRAY)
+
+    }
+
+    "be properly prepared" in {
+      (executeUpdate("TEST ?, y", Types.ARRAY, stringArray).
+        aka("SQL update") mustEqual ("TEST ?, y" -> stringArray)).
+        and(executeQuery("SELECT ? WHERE true", Types.ARRAY, stringArray).
+          aka("SQL query") mustEqual ("SELECT ? WHERE true" -> stringArray))
+
     }
   }
 
@@ -1679,8 +1736,18 @@ sealed trait StatementParam[A] {
 sealed trait Setters {
   import java.math.BigDecimal
   import java.util.Calendar
-  import java.sql.{ Date, Time, Timestamp }
+  import java.sql.{ Array => SqlArray, Date, Time, Timestamp }
   import org.apache.commons.lang3.tuple.ImmutablePair
+
+  implicit def StmtArray[A <: SqlArray]: StatementParam[A] =
+    new StatementParam[A] {
+      def set(s: PreparedStatement, i: Int, p: A, t: Int) = {
+        s.setArray(i, p)
+        s
+      }
+
+      def get(p: Parameter): A = p.right.asInstanceOf[A]
+    }
 
   implicit def StmtBytes: StatementParam[Array[Byte]] =
     new StatementParam[Array[Byte]] {

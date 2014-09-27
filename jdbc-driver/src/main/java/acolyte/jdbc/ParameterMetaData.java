@@ -299,6 +299,11 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
     } // end of Decimal
 
     /**
+     * Array definition
+     */
+    public static final ParameterDef Array = Default(Types.ARRAY);
+
+    /**
      * String definition
      */
     public static final ParameterDef Str = Default(Types.VARCHAR);
