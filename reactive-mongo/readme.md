@@ -4,17 +4,58 @@ Acolyte API for ReactiveMongo (0.10.0).
 
 ## Motivation
 
-Wherever in your code you use ReactiveMongo driver, you can pass Acolyte Mongo driver instead during tests.
+Wherever in your code you use ReactiveMongo driver, you can pass Acolyte Mongo driver instead tests.
 
 Then any connection created will be managed by your Acolyte (query & writer) handlers.
 
 ## Usage
 
 - 1. Configure connection handler according expected behaviour: which response to which query, which result for which write request.
-- 2. Create a custom `MongoDriver` instance, set up with prepared connection handler.
+- 2. Allow the persistence code to be given a `MongoDriver` according environment (e.g. test, dev, ..., prod).
+- 3. Provide this testing driver to persistence code during validation.
 
 ```scala
-import resource.ManagedResource
+// 1. On one side configure the Mongo handler
+import acolyte.reactivemongo.AcolyteDSL
+
+val connectionHandler = AcolyteDSL handleQuery {
+    // returns result according executed query
+  } withWriteHandler {
+    // returns result according executed write operation
+  }
+
+// 2. In Mongo persistence code, allowing (e.g. cake pattern) 
+// to provide driver according environment.
+import reactivemongo.api.MongoDriver
+
+trait MongoPersistence {
+  def driver: MongoDriver
+
+  def foo = /* Function using driver, whatever is the way it's provided */
+}
+
+object ProdPersistence extends MongoPersistence {
+  def driver = /* e.g. Resolve driver according configuration file */
+}
+
+// 3. Finally in unit tests
+import scala.concurrent.Future
+import acolyte.reactivemongo.AcolyteDSL
+
+def isOk: Future[Boolean] = AcolyteDSL.withFlatDriver { d =>
+  val persistenceWithTestingDriver = new MongoPersistence {
+    val driver: MongoDriver = d // provide testing driver
+  }
+
+  persistenceWithTestingDriver.foo
+}
+```
+
+> When result Future is complete, Mongo resources initialized by Acolyte are released (driver and connections).
+
+For persistence code expecting driver as parameter, resolving testing driver is straightforward.
+
+```scala
 import reactivemongo.api.MongoDriver
 import acolyte.reactivemongo.AcolyteDSL.withDriver
 
@@ -28,11 +69,9 @@ val res: Future[String] = withDriver(yourConnectionHandler) { d =>
 }
 ```
 
-> When result Future is complete, Mongo resources initialized by Acolyte are released (driver and connections).
-
 As in previous example, main API object is [AcolyteDSL](https://github.com/cchantep/acolyte/blob/master/reactive-mongo/src/main/scala/acolyte/reactivemongo/AcolyteDSL.scala).
 
-Dependency can be added to SBT project with `"org.eu.acolyte" %% "reactive-mongo" % "1.0.28"`, and in a Maven one as following:
+Dependency can be added to SBT project with `"org.eu.acolyte" %% "reactive-mongo" % "1.0.28"`, or in a Maven one as following:
 
 ```xml
 <dependency>
@@ -44,9 +83,9 @@ Dependency can be added to SBT project with `"org.eu.acolyte" %% "reactive-mongo
 
 ### Setup driver
 
-Driver behaviour is configured using a connection handler, itself based on query and write handler, managing respectively Mongo queries or write operations, and returning appropriate result.
+Driver behaviour is configured using a connection handler, itself based on query and write handlers, managing respectively Mongo queries or write operations, and returning appropriate result.
 
-You can start looking at empty/no-op connection handler. With driver configured in this way, there is no query or write handler. So as no response is provided wherever is the command performed, it will raise explicit error `No response: ...` for every request.
+You can start looking at empty/no-op connection handler. With driver configured in this way, there is no query or write handler. So as no response is provided whatever is the command performed, it will raise explicit error `No response: ...` for every request.
 
 ```scala
 import reactivemongo.api.MongoDriver
@@ -68,7 +107,7 @@ Acolyte provides several ways to initialize Mongo resources (driver, connection,
 - `withWriteHandler` and `withFlatWriteHandler`,
 - `withWriteResult` and `withFlatWriteResult`.
 
-> Naming convention is `withX(...) { a => b }` to use with your Mongo function which doesn't return `Future` result, and `withFlatX(...) { a => b }` when your Mongo function return result (to flatten `withFlatX` result as `Future[YourReturnType]`, not having for example `Future[Future[YourReturnType]]`).
+> Naming convention is `withX(...) { a => b }` to use with your Mongo function which doesn't return `Future` result, and `withFlatX(...) { a => b }` when your Mongo function does return `Future` (so that result as `Future[T]` is flatten when returned, not having `Future[Future[YourReturnType]]` finally).
 
 ```scala
 import reactivemongo.api.{ MongoConnection, MongoDriver }
@@ -179,7 +218,7 @@ col.insert(BSONDocument("prop" -> "value")).onComplete {
 }
 ```
 
-Obviously connection handler can manage both query and write:
+Obviously connection handler can manage both queries and write operations:
 
 ```scala
 import acolyte.reactivemongo.{ AcolyteDSL, Request, WriteOp }
@@ -328,9 +367,9 @@ Mongo result to be returned by query handler, can be created as following:
 ```scala
 import reactivemongo.bson.BSONDocument
 import reactivemongo.core.protocol.Response 
-import acolyte.reactivemongo.QueryResponse
+import acolyte.reactivemongo.{ QueryResponse, PreparedResponse }
 
-val error1: Option[Try[Response]] = QueryResponse.failed("Error #1")
+val error1: PreparedResponse = QueryResponse.failed("Error #1")
 val error2 = QueryResponse("Error #1") // equivalent
 
 val success1 = QueryResponse(BSONDocument("name" -> "singleResult"))
@@ -361,9 +400,9 @@ Mongo result to be returned by write handler, can be created as following:
 
 ```scala
 import reactivemongo.core.protocol.Response 
-import acolyte.reactivemongo.WriteResponse
+import acolyte.reactivemongo.{ WriteResponse, PreparedResponse }
 
-val error1: Option[Try[Response]] = WriteResponse.failed("Error #1")
+val error1: PreparedResponse = WriteResponse.failed("Error #1")
 val error2 = WriteResponse("Error #1") // equivalent
 val error3 = WriteResponse.failed("Error #2", 1/* code */)
 val error4 = WriteResponse("Error #2" -> 1/* code */) // equivalent
