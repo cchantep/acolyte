@@ -1,3 +1,9 @@
+## 1.0.28
+
+([ca0470eb13f5dd9a6a083fa26f2665303f96ffdb](https://github.com/cchantep/acolyte/commit/ca0470eb13f5dd9a6a083fa26f2665303f96ffdb) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Support for SQL Array as statement parameter
+
+([ccc0485199c8081b17b40d008983984e4d23dba0](https://github.com/cchantep/acolyte/commit/ccc0485199c8081b17b40d008983984e4d23dba0) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Update project doc
+
 ## 1.0.27
 
 ([c94cd5883bbef746273c5245885d5e7d22e2e8a3](https://github.com/cchantep/acolyte/commit/c94cd5883bbef746273c5245885d5e7d22e2e8a3) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Pattern matching for request body with multiple document
