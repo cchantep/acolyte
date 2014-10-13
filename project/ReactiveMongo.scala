@@ -21,7 +21,7 @@ trait ReactiveMongo { deps: Dependencies ⇒
       scalacOptions += "-feature",
       resolvers ++= reactiveResolvers,
       reactiveMongoVer in ThisBuild := {
-        if (scalaVersion.value startsWith "2.11") "0.10.5.akka23-SNAPSHOT"
+        if (scalaVersion.value startsWith "2.11") "0.10.5.0.akka23"
         else "0.10.0"
       },
       libraryDependencies ++= Seq(
