@@ -10,23 +10,17 @@ object Acolyte extends Build with Dependencies
     aggregate(scalacPlugin, reactiveMongo, jdbcDriver, jdbcScala, studio).
     settings(
       organization in ThisBuild := "org.eu.acolyte",
-      version in ThisBuild := "1.0.29",
+      version in ThisBuild := "1.0.30",
       javaOptions in ThisBuild ++= Seq("-source", "1.6", "-target", "1.6"),
       scalaVersion in ThisBuild := "2.10.4",
       crossScalaVersions in ThisBuild := Seq("2.10.4", "2.11.3"),
       publishTo in ThisBuild := Some(Resolver.file("file", 
         new File(Path.userHome.absolutePath+"/.m2/repository"))),
-      pomExtra in ThisBuild := (
-      <url>https://github.com/cchantep/acolyte/</url>
-      <licenses>
-        <license>
-          <name>GNU Lesser General Public License, Version 2.1</name>
-          <url>
-            https://raw.github.com/cchantep/acolyte/master/LICENSE.txt
-          </url>
-          <distribution>repo</distribution>
-        </license>
-      </licenses>
+      homepage := Some(url("https://github.com/cchantep/acolyte/")),
+      licenses in ThisBuild := Seq(
+        "GNU Lesser General Public License, Version 2.1" -> 
+          url("https://raw.github.com/cchantep/acolyte/master/LICENSE.txt")),
+      pomExtra in ThisBuild := 
       <scm>
         <connection>scm:git:git@github.com:cchantep/acolyte.git</connection>
         <developerConnection>
@@ -47,7 +41,7 @@ object Acolyte extends Build with Dependencies
           <id>cchantep</id>
           <name>Cedric Chantepie</name>
         </developer>
-      </developers>))
+      </developers>)
 }
 
 trait Dependencies {

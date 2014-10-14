@@ -26,7 +26,7 @@
     <menu name="Reference">
       <item name="JDBC Javadoc" href="./jdbc-driver-javadoc/index.html" />
       <item name="JDBC Scaladoc" href="./jdbc-scaladoc/index.html" />
-      <item name="ReactiveMongo Scaladoc" href="./jdbc-driver-javadoc/index.html" />
+      <item name="ReactiveMongo Scaladoc" href="./reactivemongo-scaladoc/index.html" />
       <item name="Build" href="./build.html" />
       <item name="Changelog" href="./changelog.html" />
     </menu>
