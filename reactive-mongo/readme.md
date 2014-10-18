@@ -81,7 +81,10 @@ Dependency can be added to SBT project with `"org.eu.acolyte" %% "reactive-mongo
 </dependency>
 ```
 
-*See online [API documentation](http://http://acolyte.eu.org/reactivemongo-scaladoc)*.
+### Get started
+
+- [API documentation](http://http://acolyte.eu.org/reactivemongo-scaladoc)
+- [Tutorial](https://github.com/cchantep/acolyte/tree/reactivemongo-tutorial)
 
 ### Setup driver
 
