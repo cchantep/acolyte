@@ -2,14 +2,16 @@ name := "10min-anorm-tutorial"
 
 organization := "org.eu.acolyte"
 
-version := "1.0.22"
+version := "1.0.29"
 
-scalaVersion := "2.11.2"
+scalaVersion := "2.11.3"
 
 resolvers ++= Seq(
-  "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/")
+  "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/",
+  "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
+  "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases")
 
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "anorm" % "2.3.3",
-  "org.specs2" %% "specs2" % "2.3.12" % "test",
-  "org.eu.acolyte" %% "jdbc-scala" % "1.0.22" % "test")
+  "com.typesafe.play" %% "anorm" % "2.4-SNAPSHOT",
+  "org.specs2" %% "specs2" % "2.4.6" % "test",
+  "org.eu.acolyte" %% "jdbc-scala" % "1.0.29" % "test")
