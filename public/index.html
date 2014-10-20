@@ -6,9 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" />
     <link href="//netdna.bootstrapcdn.com/bootswatch/latest/flatly/bootstrap.min.css" rel="stylesheet" />
-    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" />
     <style type="text/css">
 .jumbotron .lead { font-size: 28px }
 .btn-block small:before { content: '(' }
@@ -18,41 +18,44 @@ li > small { display: block }
     </style>
   </head>
   <body>
-    <div class="jumbotron">
-      <div class="page-header">
-        <h1>Acolyte <small>Get a tour</small></h1>
-      </div>
-      
-      <p class="lead">You want to know how Acolyte is useful to test JDBC access? Here is a tour about.</p>
-
-      <p>Usual way to setup an Acolyte connection can be summed up with following steps.</p>
-
-      <ol>
-        <li>You indicate <a href="step1" title="Go step #1"><strong>which access case you want to handle</strong></a>, which statement you want to handle as query or update. <small>It's not required to exactly simulate DB behaviour, just data exchanges abstracted by JDBC that are required for testing.</small></li>
+    <div class="container-fluid">
+      <div class="jumbotron">
+        <div class="container">
+          <div class="page-header">
+            <h1>Acolyte <small>Get a tour</small></h1>
+          </div>
           
-        <li>For each case you <strong>describe what is the result</strong> (either update count, result set or DB error).</li>
+          <p class="lead">You want to know how Acolyte is useful to test ReactiveMongo persistence?<br />Here is a tour about.</p>
 
-        <li>Then, <strong>Acolyte connection can be passed/referenced for testing/mockup</strong> anywhere <a href="http://www.oracle.com/technetwork/java/overview-141217.html" rel="external">JDBC</a> connection is used.</li>
-      </ol>
+          <p>Usual way to setup an Acolyte for ReactiveMongo can be summed up with following steps.</p>
 
-      <p>Want to see it in action?</p>
+          <ol>
+            <li>You indicate <strong>which access case you want to handle</strong>, which command you want to handle as query or write operations. <small>It's not required to exactly simulate MongoDB behaviour, only data exchanges abstracted by the driver are required for testing.</small></li>
+            
+            <li>For each case you <strong>describe what is the response</strong> (either update count, result set or DB error).</li>
 
-      <div class="row">
-        <a class="btn btn-default col-md-5 col-sm-12" id="screencast" 
-           title="For the impatients, you can look at the tour screencast"
-           href="http://youtu.be/j05x1254_D0" rel="external me">
-          Look at screencast <i class="fa fa-video-camera"></i></a>
+            <li>Then, <strong>Acolyte instances of ReactiveMongo driver or connection can be used for testing/mockup</strong>.</li>
+          </ol>
 
-        <a class="btn btn-primary col-md-5 col-md-offset-2 col-sm-12" href="setup.html">
-          <strong>Let's start</strong> <i class="fa fa-chevron-right"></i></a>
+          <p>Want to see it in action?</p>
 
-      </div>
+          <div class="row">
+            <!-- TODO -->
+            <a class="btn btn-default col-md-5 col-sm-12 hidden" id="screencast" 
+               title="For the impatients, you can look at the tour screencast"
+               href="http://youtu.be/j05x1254_D0" rel="external me">
+              Look at screencast <i class="fa fa-video-camera"></i></a>
 
-      <div id="coming"><span class="label label-default"><i class="fa fa-star"></i> Coming: Support for no-sql datastore like MongoDB</span></div>
+            <a class="btn btn-primary col-md-5 col-md-offset-2 col-sm-12" href="setup.html">
+              <strong>Let's start</strong> <i class="fa fa-chevron-right"></i></a>
+
+          </div>
+        </div>
+      </div><!-- /.container -->
     </div>
 
-    <script src="//codeorigin.jquery.com/jquery-1.10.2.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script src="//codeorigin.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
     <script src="js/link.min.js"></script>
     <script>$("#screencast").tooltip()</script>
   </body>

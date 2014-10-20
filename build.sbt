@@ -1,20 +1,16 @@
 organization := "org.eu.acolyte"
 
-name := "play-demo"
+name := "reactivemongo-demo"
 
-version := "1.1"
+version := "1.0"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-scalaVersion := "2.11.2"
+scalaVersion := "2.11.5"
 
 libraryDependencies ++= Seq(
   "com.jsuereth" %% "scala-arm" % "1.4",
-  "org.eu.acolyte" %% "jdbc-scala" % "1.0.22" changing()
+  "org.reactivemongo" %% "reactivemongo" % "0.10.5.0.akka23",
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.10.5.0.akka23",
+  "org.eu.acolyte" %% "reactive-mongo" % "1.0.32" changing()
 )
-
-// scalacOptions ++= Seq("-feature", "-P:acolyte:debug")
-
-// autoCompilerPlugins := true
-
-// addCompilerPlugin("org.eu.acolyte" %% "scalac-plugin" % "1.0.22")

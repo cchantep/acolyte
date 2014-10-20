@@ -1,30 +1,40 @@
 package controllers
 
 import java.util.Date
-import java.sql.{ PreparedStatement, ResultSet, SQLWarning }
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
+import scala.concurrent.Future
+
 import resource.{ ManagedResource, managed }
+
+import reactivemongo.bson.{
+  BSONDateTime,
+  BSONDocument,
+  BSONDouble,
+  BSONString,
+  BSONValue
+}
 
 import play.api.mvc.{ Action, Controller, Result ⇒ PlayResult }
 import play.api.data.Form
 import play.api.data.Forms.{ mapping, nonEmptyText, optional, text }
 
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.{ Json, JsResult, JsValue, Reads, Writes }
 
-import acolyte.jdbc.AcolyteDSL.{
-  connection ⇒ AcolyteConnection,
-  handleStatement
-}
-import acolyte.jdbc.{
-  DefinedParameter,
-  Execution,
-  ExecutedStatement,
-  QueryExecution,
-  ParameterMetaData,
-  Result ⇒ AcolyteResult,
-  UpdateExecution
+import play.modules.reactivemongo.json.BSONFormats
+
+import acolyte.reactivemongo.{
+  AcolyteDSL,
+  ConnectionHandler,
+  QueryHandler,
+  QueryResponse,
+  PreparedResponse,
+  Request,
+  WriteOp,
+  WriteHandler,
+  WriteResponse
 }
 
 object Acolyte extends Controller {
@@ -70,38 +80,71 @@ object Acolyte extends Controller {
   // ---
 
   @inline
-  private def queryResult(res: QueryResult): Either[String, acolyte.jdbc.QueryResult] = res match {
-    case QueryError(msg) ⇒ Right(acolyte.jdbc.QueryResult.Nil withWarning msg)
-    case RowResult(rows) ⇒ Right(rows.asResult)
-    case _               ⇒ Left(s"Unexpected query result: $res")
+  private def bsonVal(v: Any): BSONValue = v match {
+    case str: String ⇒ BSONString(str)
+    case f: Float    ⇒ BSONDouble(f)
+    case d: Date     ⇒ BSONDateTime(d.getTime)
+    case _           ⇒ sys.error(s"Unsupported BSON value: $v")
   }
 
   @inline
-  private def updateResult(res: UpdateResult): Either[String, acolyte.jdbc.UpdateResult] = res match {
+  private def bsonDoc[R <: Row](row: R, labels: List[String]): BSONDocument =
+    (row, labels) match {
+      case (Row1(a), al :: _) ⇒ BSONDocument(al -> bsonVal(a))
+      case (Row2(a, b), al :: bl :: _) ⇒ BSONDocument(
+        al -> bsonVal(a), bl -> bsonVal(b))
+      case (Row3(a, b, c), al :: bl :: cl :: _) ⇒
+        BSONDocument(al -> bsonVal(a), bl -> bsonVal(b), cl -> bsonVal(c))
+      case _ ⇒ sys.error(s"Unsupported row type: $row")
+    }
+
+  @annotation.tailrec
+  private def rowResult[R <: Row](rows: List[R], labels: List[String], bson: List[BSONDocument]): PreparedResponse = rows.headOption match {
+    case Some(r) ⇒ rowResult(rows.tail, labels.tail,
+      bson :+ bsonDoc(r, labels))
+
+    case _ ⇒ QueryResponse(bson)
+  }
+
+  @inline
+  private def queryResult(res: QueryResult): Either[String, PreparedResponse] =
+    res match {
+      case QueryError(msg) ⇒ Right(QueryResponse failed msg)
+      case RowResult(rows) ⇒
+        Right(QueryResponse successful BSONDocument())
+      case _ ⇒ Left(s"Unexpected query result: $res")
+    }
+
+  @inline
+  private def updateResult(res: UpdateResult): Either[String, PreparedResponse] = res match {
     case UpdateError(msg) ⇒
-      Right(acolyte.jdbc.UpdateResult.Nothing withWarning msg)
-    case UpdateCount(c) ⇒ Right(new acolyte.jdbc.UpdateResult(c))
+      Right(WriteResponse failed msg)
+    case UpdateCount(c) ⇒ Right(WriteResponse successful c)
+    // TODO: successful(count, updated)
     case _              ⇒ Left(s"Unexpected update result: $res")
   }
 
-  type QueryHandler = PartialFunction[QueryExecution, acolyte.jdbc.QueryResult]
-  type UpdateHandler = PartialFunction[UpdateExecution, acolyte.jdbc.UpdateResult]
-
-  case class HandlerData(queryPatterns: Seq[String] = Nil,
-    queryHandler: Option[QueryHandler] = None,
-    updateHandler: Option[UpdateHandler] = None)
-
   @inline
-  private def updateHandler(ur: UpdateRoute, f: ⇒ Unit): Either[String, UpdateHandler] = ur match {
-    case UpdateRoute(RoutePattern(e, Nil), res) ⇒
+  private def writeHandler(ur: UpdateRoute, f: ⇒ Unit): Either[String, WriteHandler] = ur match {
+    case UpdateRoute(RoutePattern(c, Nil), res) ⇒
+      val Col = c
       updateResult(res).right map { r ⇒
-        { case UpdateExecution(sql, _) if (sql matches e) ⇒ f; r }
+        WriteHandler({
+          case Request(Col, _) ⇒
+            f; r
+          case _ ⇒ WriteResponse.undefined
+        })
       }
 
-    case UpdateRoute(RoutePattern(e, ps), res) ⇒
-      val Params = ps.map(executed)
+    case UpdateRoute(RoutePattern(c, ps), res) ⇒
+      val Col = c
+      val Params = ??? // params extractor
       updateResult(res).right map { r ⇒
-        { case UpdateExecution(sql, Params) if (sql matches e) ⇒ f; r }
+        WriteHandler({
+          case Request(Col, Params) /* TODO: Params */ ⇒
+            f; r
+          case _ ⇒ WriteResponse.undefined
+        })
       }
 
     case _ ⇒ Left(s"Unexpected update route: $ur")
@@ -109,81 +152,76 @@ object Acolyte extends Controller {
 
   @inline
   private def queryHandler(r: QueryRoute, f: ⇒ Unit): Either[String, QueryHandler] = r match {
-    case QueryRoute(RoutePattern(e, Nil), res) ⇒
+    case QueryRoute(RoutePattern(c, Nil), res) ⇒
+      val Col = c
       queryResult(res).right map { r ⇒
-        { case QueryExecution(sql, _) if (sql matches e) ⇒ f; r }
+        QueryHandler({
+          case Request(Col, _) ⇒
+            f; r
+          case _ ⇒
+            QueryResponse.undefined
+        })
       }
 
-    case QueryRoute(RoutePattern(e, ps), res) ⇒
-      val Params = ps.map(executed)
+    case QueryRoute(RoutePattern(c, ps), res) ⇒
+      val Col = c
+      val Params = ??? // params extractor
       queryResult(res).right map { r ⇒
-        { case QueryExecution(sql, Params) if (sql matches e) ⇒ f; r }
+        QueryHandler({
+          case Request(Col, Params) /* TODO: Params */ ⇒
+            f; r
+          case _ ⇒
+            QueryResponse.undefined
+        })
       }
 
     case _ ⇒ Left(s"Unexpected query route: $r")
   }
 
   @inline
-  private def routeHandler(i: Int, r: Route, hd: HandlerData, f: Int ⇒ Unit): Either[String, HandlerData] = r match {
-    case qr @ QueryRoute(RoutePattern(e, ps), res) ⇒
-      (hd.copy(queryPatterns = hd.queryPatterns :+ e),
-        queryHandler(qr, f(i))) match {
-          case (a @ HandlerData(_, None, _), Right(b)) ⇒
-            Right(a.copy(queryHandler = Some(b)))
+  private def routeHandler(i: Int, r: Route, ch: ConnectionHandler, f: Int ⇒ Unit): Either[String, ConnectionHandler] = r match {
+    case qr @ QueryRoute(RoutePattern(_, ps), res) ⇒
+      queryHandler(qr, f(i)).right.map(ch.withQueryHandler(_))
 
-          case (a @ HandlerData(_, Some(b), _), Right(c)) ⇒
-            Right(a.copy(queryHandler = Some(b orElse c)))
+    case ur @ UpdateRoute(_, _) ⇒
+      writeHandler(ur, f(i)).right.map(ch.withWriteHandler(_))
 
-          case (_, Left(err)) ⇒ Left(err)
-        }
-
-    case ur @ UpdateRoute(_, _) ⇒ (hd, updateHandler(ur, f(i))) match {
-      case (HandlerData(_, _, None), Right(a)) ⇒
-        Right(hd.copy(updateHandler = Some(a)))
-
-      case (HandlerData(_, _, Some(a)), Right(b)) ⇒
-        Right(hd.copy(updateHandler = Some(a orElse b)))
-
-      case (_, Left(err)) ⇒ Left(err)
-    }
     case _ ⇒ Left(s"Unexpected route: $r")
   }
 
   @annotation.tailrec
-  private def handler(i: Int, routes: Seq[Route], f: Int ⇒ Unit, h: Either[String, HandlerData]): Either[String, HandlerData] = (routes, h) match {
+  private def handler(i: Int, routes: Seq[Route], f: Int ⇒ Unit, h: Either[String, ConnectionHandler]): Either[String, ConnectionHandler] = (routes, h) match {
     case (r :: rs, Right(hd)) ⇒
       handler(i + 1, rs, f, routeHandler(i, r, hd, f))
     case _ ⇒ h
   }
 
   @inline
-  private def fallbackHandler: UpdateHandler = {
+  private def fallbackHandler = WriteHandler({
     case e ⇒ sys.error(s"No route handler: $e")
-  }
+  })
 
-  @inline
-  private def executed(p: RouteParameter): DefinedParameter = p match {
-    case DateParameter(d)  ⇒ DefinedParameter(d, ParameterMetaData.Date)
-    case FloatParameter(f) ⇒ DefinedParameter(f, ParameterMetaData.Float(f))
-    case _ ⇒ DefinedParameter(
-      p.asInstanceOf[StringParameter].value, ParameterMetaData.Str)
-  }
-
-  private def execResult(sql: String, ps: Seq[RouteParameter], routes: Seq[Route], f: Int ⇒ Unit): Either[String, ManagedResource[(PreparedStatement, Either[ResultSet, Int])]] =
-    handler(0, routes, f, Right(HandlerData())).right map { hd ⇒
+  private def execResult(bson: String, ps: Seq[RouteParameter], routes: Seq[Route], f: Int ⇒ Unit): Future[Either[List[BSONDocument], Int]] =
+    handler(0, routes, f, Right(ConnectionHandler())).fold(
+      { err ⇒ Future.failed(sys.error(err)) }, { ch ⇒
+        // hd.queryHandler, hd.writeHandler
+        /*
       val handleQuery = hd.queryHandler.fold(handleStatement) { qh ⇒
         handleStatement.withQueryDetection(hd.queryPatterns: _*).
-          withQueryHandler(qh orElse { case e ⇒ sys.error(s"No route handler: $e") })
+          withQueryHandler(qh orElse {
+            case e ⇒ sys.error(s"No route handler: $e")
+          })
       }
+         */
+        implicit val driver = AcolyteDSL.driver
 
-      for {
-        con ← managed(AcolyteConnection(hd.updateHandler.
-          fold(handleQuery.withUpdateHandler(fallbackHandler)) { uh ⇒
-            handleQuery.withUpdateHandler(uh orElse fallbackHandler)
-          }))
+        AcolyteDSL.withFlatConnection(ch) { con ⇒
+          Future.successful(Right(0)) // TODO
+        }
 
+        /*
         x ← managed {
-          ps.foldLeft(1 -> con.prepareStatement(sql)) { (st, p) ⇒
+          ps.foldLeft(1 -> con.prepareStatement(bson)) { (st, p) ⇒
             (st, p) match {
               case ((i, s), StringParameter(v)) ⇒
                 s.setString(i, v); (i + 1 -> s)
@@ -199,34 +237,24 @@ object Acolyte extends Controller {
           else st -> Right(st.getUpdateCount)
         }
       } yield x
-    }
+       */
+      })
 
   @annotation.tailrec
-  private def jsonResultSet(rs: ResultSet, c: Int, js: Seq[Traversable[JsValue]]): Seq[Traversable[JsValue]] = rs.next match {
-    case true ⇒ jsonResultSet(rs, c, js :+ (for {
-      i ← 1 to c
-    } yield (rs.getObject(i) match {
-      case d: Date ⇒ Json.toJson(DateFormat format d)
-      case v       ⇒ Json.toJson(v.toString)
-    })))
-
-    case _ ⇒ js
-  }
-
-  private implicit object SQLWarningWrites extends Writes[SQLWarning] {
-    def writes(w: SQLWarning): JsValue = Json obj (
-      "reason" -> w.getMessage,
-      "errorCode" -> w.getErrorCode,
-      "cause" -> Option(w.getCause).map(_.getMessage)
-    )
+  private def jsonResult(rs: List[BSONDocument], js: List[JsValue]): List[JsValue] = rs match {
+    case bson :: docs ⇒ jsonResult(docs, BSONFormats.toJSON(bson) :: js)
+    case _            ⇒ js.reverse
   }
 
   @inline
   private def executeWithRoutes(stmt: String, ps: Seq[RouteParameter], routes: Seq[Route]): PlayResult = {
     var r: Int = -1
 
+    execResult(stmt, ps, routes, { r = _ })
+
+    /*
     (for {
-      exe ← execResult(stmt, ps, routes, { r = _ }).right
+      exe ← 
       state ← exe.acquireFor({ x ⇒
         val (st, res) = x
         res.fold[JsValue]({ rs ⇒
@@ -239,7 +267,7 @@ object Acolyte extends Controller {
             val c = meta.getColumnCount
             val ts: Seq[String] = routes(r) match {
               case QueryRoute(_, RowResult(rows)) ⇒
-                rows.getColumnClasses.asScala map { cl ⇒
+                rows.columnClasses map { cl ⇒
                   val n = cl.getName
 
                   if (n == "java.util.Date") "date"
@@ -258,7 +286,7 @@ object Acolyte extends Controller {
 
             Json toJson Map("route" -> Json.toJson(r),
               "schema" -> Json.toJson(ls),
-              "rows" -> Json.toJson(jsonResultSet(rs, c, Nil)))
+              "rows" -> Json.toJson(jsonResult(rs, Nil)))
 
           }
         }, { uc ⇒
@@ -271,5 +299,7 @@ object Acolyte extends Controller {
     } yield state).fold({ err ⇒
       InternalServerError(Json toJson Map("exception" -> err))
     }, Ok(_))
+     */
+    ??? // TODO
   }
 }
