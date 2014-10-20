@@ -1,0 +1,227 @@
+@(json: Option[String] = None)
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Acolyte &mdash; Setup connection</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="//netdna.bootstrapcdn.com/bootswatch/latest/flatly/bootstrap.min.css" rel="stylesheet" />
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet" />
+
+    <link href="css/datepicker.css" rel="stylesheet" />
+    <link href="css/setup.min.css" rel="stylesheet" />
+  </head>
+  <body>
+    <nav class="navbar navbar-default" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" 
+                  data-target="#top-menu">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Acolyte</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="top-menu">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="http://acolyte.eu.org" rel="external">
+                <i class="fa fa-info-circle"></i> Documentation</a></li>
+            <li><a href="https://github.com/cchantep/acolyte/"
+                   rel="external" title="Acolyte on GitHub">
+                <i class="fa fa-github"></i> Sources</a></li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav>
+
+    <div class="container-fluid">
+      <div class="page-header">
+        <h1>Setup connection</h1>
+
+        <p>Any JDBC driver provides abstraction for query/update result, so that driver can be changed at runtime without having to alter code accessing data through JDBC. Consequently, your <strong>JDBC code will behave in the same way whatever is underlying persistence</strong>: RDBMS or Acolyte.</p>
+
+        <p>Thanks to that, Acolyte can be used to <strong>test persistence code is doing what's expected when it's provided expected result</strong> by JDBC connection.</p>
+
+        <p>With <a href="https://github.com/cchantep/acolyte/#motivation" rel="external me">advantages over using a test database</a>, Acolyte approach can be performed going through following steps.</small></p>
+
+        <ol>
+          <li><strong>Route access cases</strong>. At this point, there are two approaches, <a href="https://github.com/cchantep/acolyte/blob/5dc4c00252b3a9ba14900560364f24cc02601573/src/test/scala/PersistenceSpec.scala#L51" title="See example" rel="me external">1 case = 1 connection</a> or <a href="https://github.com/cchantep/cielago-tracker/commit/a758541af62a47f1a7d7216c694afe3faad69ac5#diff-a18c61543e5d6b1f4f72ecc5e43c6a1fR94" title="See title" rel="me external">1 connection = many cases</a>.</li>
+          <li>For each case, you <strong>declare JDBC result</strong>.</li>
+        </ol>
+
+        <p>Once done, connection can be passed/referenced anywhere <a href="http://www.oracle.com/technetwork/java/overview-141217.html" rel="external">JDBC</a> one is used.</p>
+
+        <button class="btn btn-primary" disabled="disabled" id="test-routes">
+          No route to prepare connection</button>
+      </div>
+
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-5 col-sm-12 panel panel-primary" id="case-rules">
+            <div class="panel-heading">
+              <strong>Route</strong> access cases
+              <i class="fa fa-code-fork"></i>
+
+              <div class="actions pull-right">
+                <button id="add-rule" class="btn btn-primary">
+                  <i class="fa fa-plus-square"></i>
+                  <span class="visible-sm">Add rule</span>
+                </button>
+
+                <button class="btn btn-primary has-tooltip" 
+                        title="Reorder routes"
+                        id="move-rule" data-toggle="button">
+                  <i class="fa fa-arrows-v"></i> 
+                  <span class="visible-sm">Move rule</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="panel-body has-tooltip" 
+                 title="Rules will be examined in given order">
+              <em class="text-muted">No case rule</em>
+              <div class="list-group"></div>
+            </div>
+          </div><!-- /#case-rules -->
+
+          <div class="col-md-1 text-center col-sm-0 spacer">
+            <i class="text-muted fa fa-arrow-right hidden-sm"></i>
+          </div>
+          
+          <div class="col-md-6 col-sm-12 panel panel-default" id="case-result">
+            <div class="panel-heading">
+              Result <strong>case</strong>
+              <i class="fa fa-tasks"></i>
+            </div>
+
+            <div class="panel-body">
+              <em class="text-muted">No case selected</em>
+              <ol class="list-unstyled list-group"></ol>
+            </div>
+          </div>
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+
+    <div class="modal fade" id="route-editor">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Route</h4>
+          </div>
+          <div class="modal-body">
+            <form role="form" action="#add-rule" id="rule-form">
+              <p class="lead">
+                <strong>Which access case</strong> to be considered?
+              </p>
+
+              <div class="form-group has-tooltip" title="There are 2 major kinds of JDBC statement, it's either a query which fetches data result, or an update which alters stored data and returns count of updated rows." data-placement="bottom">
+                <label for="ruleKind" class="control-label">
+                  Statement kind</label>
+
+                <a href="https://github.com/cchantep/acolyte/blob/master/faq.md#why-i-need-to-specify-a-query-detection-pattern" rel="external me" class="pull-right">Why it's required?</a>
+
+                <select id="ruleKind" class="form-control">
+                  <option value="query">Query</option>
+                  <option value="update">Update</option>
+                </select>
+              </div><!-- /.form-group -->
+
+              <div class="form-group has-tooltip" title="Pattern to detect statement">
+                <label for="ruleExp" class="control-label">
+                  Statement pattern</label>
+
+                <a href="https://en.wikipedia.org/wiki/Regexp" rel="external" class="pull-right">See regular expression syntax</a>
+
+                <input id="ruleExp" type="text" 
+                       value=".*" class="form-control" />
+
+                <p class="help-block">
+                  e.g. <tt>^SELECT</tt> to handle any statement starting with SELECT
+                </p>
+              </div><!-- /.form-group -->
+
+              <fieldset id="param-pattern">
+                <legend title="Parameter pattern allows to have distinct rules for cases statement is the same but parameters are different" class="has-tooltip">Parameter constraints 
+                  <span class="badge badge-default">0</span></legend>
+
+                <ol></ol>
+
+                <div class="input-group">
+                  <label for="param-type" class="input-group-addon">
+                    <span>Constraint</span>
+                    <span class="position">1</span>
+                  </label>
+
+                  <select class="form-control has-tooltip" id="param-type"
+                          data-trigger="focus" title="Parameter type">
+                  </select>
+
+                  <label for="param-value" 
+                         class="input-group-addon">Value</label>
+                    
+                  <span id="param-value"></span>
+
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" id="add-param" 
+                            disabled="disabled">
+                      <i class="fa fa-plus-square"></i> 
+                    </button>
+                  </span>
+                </div><!-- /.input-group -->
+
+                <p class="text-muted">In this tour, types available for parameter detection are limited on purpose.<br />Acolyte can handle any <a href="http://docs.oracle.com/javase/6/docs/api/java/sql/Types.html" rel="external">JDBC type</a>.</p>
+              </fieldset>
+            </form>
+
+            <form role="form" action="#edit-result" id="result-form">
+              <p>
+                <span class="lead">In this case, what is the <strong>result</strong>?</span><br />What do you want the JDBC connection to return when matching statement is executed?
+              </p>
+
+              <div class="input-group has-tooltip"
+                   title="Execution of statement will throw a SQL exception">
+                <label class="input-group-addon">
+                  <input type="radio" name="result-type" 
+                         id="raise-error"> An error
+                </label>
+                <input type="text" 
+                       placeholder="A message error if result is error"
+                       id="result-error" class="form-control" />
+              </div><!-- /.input-group -->
+
+              <hr /><div id="result-data"></div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" 
+                    data-dismiss="modal">Close</button>
+
+            <button type="button" class="btn btn-primary ac-next">
+              Next <i class="fa fa-chevron-right"></i></button>
+
+            <button type="button" disabled="disabled"
+                    class="btn btn-primary ac-apply">Apply</button>
+
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <script src="//codeorigin.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script src="js/link.min.js"></script>
+    <script src="js/bootstrap-datepicker.js"></script>
+    <script src="js/setup.min.js"></script>
+@json.map{routes=>
+    <script type="text/javascript">$._loadRoutes(@Html(routes))</script>
+}
+  </body>
+</html>

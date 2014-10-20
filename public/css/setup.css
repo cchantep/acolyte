@@ -1,0 +1,43 @@
+.panel { padding: 0 }
+
+.panel-heading .btn { padding: 2px 7px }
+
+#case-rules .operations {
+  display: block; width:2em; overflow:hidden; float:left
+}
+#case-rules .operations .fa + .fa { margin-left: .5em }
+
+@media (min-width: 768px) {
+  .spacer .fa-arrow-right { font-size: 60pt }
+  #case-rules .panel-body,
+  #case-result .panel-body { height: 15em; overflow: auto }
+}
+
+.panel .tooltip-inner, .actions .tooltip-inner { background: #3498db }
+.panel .tooltip-arrow { border-top-color: #3498db !important }
+.actions .tooltip-arrow { border-bottom-color: #3498db !important }
+
+.form-control.has-error { border-color: #e74c3c }
+.modal input[type='text'], .modal input[type='number'], .modal select {
+  background: #fff !important
+}
+.modal .input-group { width: 100% }
+
+#param-pattern .position:before { content: '#' }
+#param-value.ac-date { cursor: pointer }
+#param-pattern .text-muted { margin-top: .5em }
+.datepicker { z-index: 1060 }
+
+#result-form label { text-align: left; width: 25% }
+#result-form .form-control.col-md-4 { width: 33.3333% }
+#result-form .form-control.col-md-6 { width: 50% }
+#result-data tbody tr:hover { cursor: pointer }
+#result-data .col-def { margin: .5em 0 }
+
+#param-pattern li > .fa { visibility: hidden; margin-right: .5em }
+#param-pattern li { cursor: pointer }
+
+#case-result .list-group-item { cursor: pointer }
+#case-result .fa-table { visibility: hidden; margin-right: .5em }
+
+.list-group-item.hover { background: #ecf0f1 }

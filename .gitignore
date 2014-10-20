@@ -1,0 +1,13 @@
+logs
+project/project
+project/target
+target
+tmp
+.history
+dist
+/out
+/.classpath
+/.project
+/RUNNING_PID
+.ensime*
+*~

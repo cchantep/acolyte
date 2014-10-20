@@ -1,0 +1,181 @@
+@(json: String)
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Acolyte &mdash; Run connection</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="//netdna.bootstrapcdn.com/bootswatch/latest/flatly/bootstrap.min.css" rel="stylesheet" />
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet" />
+
+    <link href="css/datepicker.css" rel="stylesheet" />
+    <link href="css/run.min.css" id="runStyles" rel="stylesheet" />
+    <link href="css/pygments.min.css" id="pygments" rel="stylesheet" />
+  </head>
+  <body>
+    <nav class="navbar navbar-default" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" 
+                  data-target="#top-menu">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Acolyte</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="top-menu">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="http://acolyte.eu.org" rel="external">
+                <i class="fa fa-info-circle"></i> Documentation</a></li>
+            <li><a href="https://github.com/cchantep/acolyte/"
+                   rel="external" title="Acolyte on GitHub">
+                <i class="fa fa-github"></i> Sources</a></li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav>
+
+    <div class="container-fluid">
+      <div class="page-header">
+        <h1>Run connection</h1>
+
+        <p>Once connection is prepared, any JDBC code can be executed using it, without change.</p>
+
+        <form action="./setup.html" id="go-back" method="POST">
+          <input type="hidden" name="json" value="@json" />
+          <a href="#back">
+            <i class="fa fa-chevron-left"></i> Back to Setup</a>
+        </form>
+      </div>
+
+      <div class="panel-group" id="accordion">
+        <div class="panel panel-info has-tooltip" id="behaviour">
+          <div class="panel-heading has-tooltip" title="How connection is should handle statements, which behaviour is expected by JDBC code using it.">
+            <h2 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" 
+                 href="#behaviour .panel-collapse">
+                <i class="fa fa-caret-right"></i> Connection behaviour</a>
+            </h2>
+          </div>
+          <div class="panel-collapse collapse">
+            <div id="queries">
+              <h3>Queries</h3>
+              <ul class="panel-body list-group"></ul>
+            </div>
+            
+            <div id="updates">
+              <h3>Updates</h3>
+              <ul class="panel-body list-group"></ul>
+            </div>
+          </div>
+        </div><!-- /#behaviour -->
+
+        <div class="panel panel-info has-tooltip" id="config">
+          <div class="panel-heading has-tooltip" title="Acolyte code to configure connection for implementation of expected behaviour.">
+            <h2 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" 
+                 href="#config .panel-collapse">
+                <i class="fa fa-caret-right"></i> Acolyte configuration</a>
+            </h2>
+          </div>
+          <div class="panel-body panel-collapse collapse">
+            <ul class="nav nav-tabs">
+              <li class="active has-tooltip" 
+                  title="Vanilla Java code for Acolyte">
+                <a href="#java" data-toggle="tab">Java</a></li>
+              <li class="has-tooltip" title="Scala Acolyte DSL">
+                <a href="#scala" data-toggle="tab">Scala</a></li>
+            </ul><!-- /.nav -->
+
+            <div class="tab-content">
+              <div class="tab-pane active" id="java">
+                <pre class="code pre-scrollable"></pre>
+              </div><!-- /#java -->
+
+              <div class="tab-pane" id="scala">
+                <pre class="code pre-scrollable"></pre>
+              </div><!-- /#scala -->
+            </div>
+          </div>
+        </div><!-- /#config -->
+
+        <div class="panel panel-primary" id="execute">
+          <div class="panel-heading">
+            <h2 class="panel-title"><i class="fa fa-gear"></i> Execute</h2>
+          </div>
+          <div class="panel-body">
+            <form role="role" action="#exec">
+              <div class="form-group">
+                <label class="control-label text-muted" for="statement">Following statement will be executed using low level <a href="http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html">java.sql.Statement</a>.</label>
+                <ul class="help-block">
+                  <li>e.g. <tt>SELECT * FROM test</tt></li>
+                  <li>
+                    e.g. <tt>UPDATE test SET activated=true WHERE id=?</tt>
+                  </li>
+                </ul>
+
+                <textarea id="statement" name="statement" class="form-control"></textarea>
+
+              </div><!-- /.form-group -->
+
+              <strong>Parameters:</strong><ol></ol>
+
+              <div class="input-group form-group">
+                <label for="param-type" class="input-group-addon">
+                  New parameter</label>
+
+                <select class="form-control has-tooltip" id="param-type"
+                        data-trigger="focus" title="Parameter type">
+                </select>
+
+                <label for="param-value" 
+                       class="input-group-addon">Value</label>
+
+                <span id="param-value"></span>
+
+                <span class="input-group-btn">
+                  <button class="btn btn-default" id="add-param" 
+                          disabled="disabled">
+                    <i class="fa fa-plus-square"></i> 
+                  </button>
+                </span>
+              </div><!-- /.input-group -->
+
+              <button class="btn btn-primary" disabled="disabled">Go</button>
+            </form>
+          </div>
+        </div><!-- /#execute -->
+
+        <div class="panel panel-default has-tooltip" id="result" 
+             title="Result of statement executed through JDBC.">
+          <div class="panel-heading">
+            <h2 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" 
+                 href="#result .panel-collapse">
+                <i class="fa fa-caret-right"></i> Result</a>
+            </h2>
+          </div>
+          <div class="panel-body panel-collapse collapse">
+            <em>No result</em>
+          </div>
+        </div><!-- /.panel -->
+      </div>
+    </div>
+
+    <script src="//codeorigin.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+      $._connection = @Html(json)
+    </script>
+    <script src="js/link.min.js"></script>
+    <script src="js/ajax.min.js"></script>
+    <script src="js/bootstrap-datepicker.js"></script>
+    <script src="js/run.min.js"></script>
+  </body>
+</html>
