@@ -366,17 +366,43 @@ object DriverSpec extends org.specs2.mutable.Specification
         }
       }
 
-      "using withWriteHandler" in {
-        awaitRes(AcolyteDSL.withFlatWriteHandler({
-          case (UpdateOp, Request(_, RequestBody(
-            List(("sel", BSONString("hector"))) ::
-              List(("filter", BSONString("valC"))) :: Nil))) ⇒
-            WriteResponse(1)
-        }) { driver ⇒
-          AcolyteDSL.withFlatCollection(driver, "col") {
-            _.update(BSONDocument("sel" -> "hector"), write3._2.body.head)
-          }
-        }) aka "write result" must beSuccessfulTry[LastError]
+      "using withWriteHandler" >> {
+        "for insert" in {
+          awaitRes(AcolyteDSL.withFlatWriteHandler({
+            case InsertRequest("acolyte.col1", ("a", BSONString("val")) ::
+              ("b", BSONInteger(2)) :: ("_id", _) :: Nil) ⇒
+              WriteResponse.successful(1, false)
+          }) { driver ⇒
+            AcolyteDSL.withFlatCollection(driver, "col1") {
+              _.save(BSONDocument("a" -> "val", "b" -> 2))
+            }
+          }) aka "write result" must beSuccessfulTry[LastError]
+        }
+
+        "for update" in {
+          awaitRes(AcolyteDSL.withFlatWriteHandler({
+            case UpdateRequest("acolyte.col2",
+              ("sel", BSONString("hector")) :: Nil,
+              ("filter", BSONString("valC")) :: Nil) ⇒
+              WriteResponse(1)
+          }) { driver ⇒
+            AcolyteDSL.withFlatCollection(driver, "col2") {
+              _.update(BSONDocument("sel" -> "hector"), write3._2.body.head)
+            }
+          }) aka "write result" must beSuccessfulTry[LastError]
+        }
+
+        "for delete" in {
+          awaitRes(AcolyteDSL.withFlatWriteHandler({
+            case DeleteRequest("acolyte.col3",
+              ("a", BSONString("val")) :: Nil) ⇒
+              WriteResponse.successful(2, true)
+          }) { driver ⇒
+            AcolyteDSL.withFlatCollection(driver, "col3") {
+              _.remove(BSONDocument("a" -> "val"))
+            }
+          }) aka "write result" must beSuccessfulTry[LastError]
+        }
       }
     }
   }

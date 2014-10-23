@@ -365,6 +365,27 @@ val handler = WriteHandler { (op, wreq) =>
 }
 ```
 
+There is also convenient extractor for write operations.
+
+```
+import acolyte.reactivemongo.{
+  WriteHandler, 
+  DeleteRequest, 
+  InsertRequest, 
+  UpdateRequest 
+}
+
+val handler = WriteHandler { (op, req) =>
+  case InsertRequest("colname", ("prop1", BSONString("val")) :: _) => ???
+  case UpdateRequest("colname", 
+    ("sel", BSONString("ector")) :: Nil, 
+    ("prop1", BSONString("val")) :: _) => ???
+  case DeleteRequest("colname", ("sel", BSONString("ector")) :: _) => ???
+}
+```
+
+> In case of insert operation, the `_id` property is added to original document, so it must be taken in account if pattern matching over properties of saved document.
+
 ### Result creation for queries
 
 Mongo result to be returned by query handler, can be created as following:

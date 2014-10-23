@@ -119,6 +119,37 @@ object RequestBody {
     Some(body.map(_.underlying.elements.toList))
 }
 
+/** Insert request */
+object InsertRequest {
+  /** @return Collection name and elements of document to be inserted. */
+  def unapply(insert: (WriteOp, Request)): Option[(String, List[(String, BSONValue)])] = (insert._1, insert._2.body) match {
+    case (InsertOp, body :: Nil) ⇒
+      Some(insert._2.collection -> body.elements.toList)
+    case _ ⇒ None
+  }
+}
+
+/** Update request */
+object UpdateRequest {
+  /** @return Collection name, elements of selector/document to be updated. */
+  def unapply(update: (WriteOp, Request)): Option[(String, List[(String, BSONValue)], List[(String, BSONValue)])] = (update._1, update._2.body) match {
+    case (UpdateOp, selector :: body :: Nil) ⇒
+      Some(update._2.collection,
+        selector.elements.toList, body.elements.toList)
+    case _ ⇒ None
+  }
+}
+
+/** Delete request */
+object DeleteRequest {
+  /** @return Collection name and elements of selector. */
+  def unapply(delete: (WriteOp, Request)): Option[(String, List[(String, BSONValue)])] = (delete._1, delete._2.body) match {
+    case (DeleteOp, selector :: Nil) ⇒
+      Some(delete._2.collection, selector.elements.toList)
+    case _ ⇒ None
+  }
+}
+
 /**
  * Extractor of properties for a document used a BSON value
  * (when operator is used, e.g. `{ 'age': { '\$gt': 10 } }`).

@@ -87,27 +87,74 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
     }
 
     "return no response" in {
-      handler aka "mixed handler" must beLike {
-        case h ⇒ h(1, write1._1, write1._2) aka "prepared" must beNone
-      }
+      handler(1, write1._1, write1._2) aka "prepared" must beNone
     }
 
     "return an error response" in {
-      handler aka "mixed handler" must beLike {
-        case h ⇒ h(2, write2._1, write2._2) aka "prepared" must beSome.which(
-          _ aka "write response" must beWriteError("Error #2"))
-      }
+      handler(2, write2._1, write2._2) aka "prepared" must beSome.which(
+        _ aka "write response" must beWriteError("Error #2"))
     }
 
     "return an success response" in {
-      handler aka "mixed handler" must beLike {
-        case h ⇒ h(3, write3._1, write3._2) aka "prepared" must beSome.which(
-          _ aka "write response" must beResponse {
-            case ValueDocument(("ok", BSONInteger(1)) ::
-              ("updatedExisting", BSONBoolean(true)) ::
-              ("n", BSONInteger(2)) :: Nil) :: Nil ⇒ ok
-          })
-      }
+      handler(3, write3._1, write3._2) aka "prepared" must beSome.which(
+        _ aka "write response" must beResponse {
+          case ValueDocument(("ok", BSONInteger(1)) ::
+            ("updatedExisting", BSONBoolean(true)) ::
+            ("n", BSONInteger(2)) :: Nil) :: Nil ⇒ ok
+        })
+    }
+  }
+
+  "Convenient extractor" should {
+    "handle insert" in {
+      WriteHandler { (op, req) ⇒
+        (op, req) match {
+          case InsertRequest("col1",
+            ("a", BSONInteger(1)) :: ("b", BSONBoolean(true)) :: Nil) ⇒
+
+            WriteResponse.successful(1, false)
+          case _ ⇒ WriteResponse.failed("Unexpected")
+        }
+      } apply (2, InsertOp, new Request {
+        val collection = "col1"
+        val body = List(BSONDocument("a" -> 1, "b" -> true))
+      }) aka "prepared" must beSome.which(
+        _ aka "result" must beResponse(
+          _ aka "response" must beWriteSuccess(1, false)))
+    }
+
+    "handle update" in {
+      WriteHandler { (op, req) ⇒
+        (op, req) match {
+          case UpdateRequest("col2", ("id", BSONString("id1")) :: Nil,
+            ("a", BSONInteger(1)) :: ("b", BSONBoolean(true)) :: Nil) ⇒
+            WriteResponse.successful(1, true)
+
+          case _ ⇒ WriteResponse.failed("Unexpected")
+        }
+      } apply (3, UpdateOp, new Request {
+        val collection = "col2"
+        val body = List(BSONDocument("id" -> "id1"),
+          BSONDocument("a" -> 1, "b" -> true))
+      }) aka "prepared" must beSome.which(
+        _ aka "result" must beResponse(
+          _ aka "response" must beWriteSuccess(1, true)))
+    }
+
+    "handle delete" in {
+      WriteHandler { (op, req) ⇒
+        (op, req) match {
+          case DeleteRequest("col3", ("name", BSONString("xyz")) :: Nil) ⇒
+            WriteResponse.successful(2, true)
+
+          case _ ⇒ WriteResponse.failed("Unexpected")
+        }
+      } apply (4, DeleteOp, new Request {
+        val collection = "col3"
+        val body = List(BSONDocument("name" -> "xyz"))
+      }) aka "prepared" must beSome.which(
+        _ aka "result" must beResponse(
+          _ aka "response" must beWriteSuccess(2, true)))
     }
   }
 }
