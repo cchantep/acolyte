@@ -10,17 +10,18 @@ object Acolyte extends Build with Dependencies
     aggregate(scalacPlugin, reactiveMongo, jdbcDriver, jdbcScala, studio).
     settings(
       organization in ThisBuild := "org.eu.acolyte",
-      version in ThisBuild := "1.0.30",
+      version in ThisBuild := "1.0.31",
       javaOptions in ThisBuild ++= Seq("-source", "1.6", "-target", "1.6"),
       scalaVersion in ThisBuild := "2.10.4",
       crossScalaVersions in ThisBuild := Seq("2.10.4", "2.11.3"),
       publishTo in ThisBuild := Some(Resolver.file("file", 
         new File(Path.userHome.absolutePath+"/.m2/repository"))),
-      homepage := Some(url("https://github.com/cchantep/acolyte/")),
+      homepage := Some(url("http://acolyte.eu.org")),
       licenses in ThisBuild := Seq(
         "GNU Lesser General Public License, Version 2.1" -> 
           url("https://raw.github.com/cchantep/acolyte/master/LICENSE.txt")),
       pomExtra in ThisBuild := 
+      <url>http://acolyte.eu.org</url>
       <scm>
         <connection>scm:git:git@github.com:cchantep/acolyte.git</connection>
         <developerConnection>

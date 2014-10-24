@@ -1,3 +1,11 @@
+## 1.0.30
+
+([9b641b8e3b1252611a1e9d5376b84a2580ca8f42](https://github.com/cchantep/acolyte/commit/9b641b8e3b1252611a1e9d5376b84a2580ca8f42) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Write request convenient extractors
+
+## 1.0.29
+
+Minor refactoring.
+
 ## 1.0.28
 
 ([ca0470eb13f5dd9a6a083fa26f2665303f96ffdb](https://github.com/cchantep/acolyte/commit/ca0470eb13f5dd9a6a083fa26f2665303f96ffdb) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Support for SQL Array as statement parameter
