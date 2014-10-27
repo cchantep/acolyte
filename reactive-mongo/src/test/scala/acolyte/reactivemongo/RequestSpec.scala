@@ -337,6 +337,14 @@ object RequestSpec extends org.specs2.mutable.Specification
             BSONString("A") :: BSONString("B") :: Nil)) :: Nil) ⇒ ok
         }
     }
+
+    "be extracted from an $nin clause" in {
+      BSONDocument("selector" -> BSONDocument("$nin" -> BSONArray("A", "B"))).
+        aka("body") must beLike {
+          case ValueDocument(("selector", NotInClause(
+            BSONString("A") :: BSONString("B") :: Nil)) :: Nil) ⇒ ok
+        }
+    }
   }
 
   "Multiple document body" should {

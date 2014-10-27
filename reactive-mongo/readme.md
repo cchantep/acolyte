@@ -330,6 +330,12 @@ val queryHandler = QueryHandler { queryRequest =>
 }
 ```
 
+Acolyte also provides extractors for inner clauses.
+
+- `ValueList(List[(String, BSONValue)](_))` to match with `[...]`.
+- `InClause(List[(String, BSONValue)](_))` to match with `{ '$in': [...] }`.
+- `NotInClause(List[(String, BSONValue)](_))` to match with `{ '$nin': [...] }`.
+
 Pattern matching using rich syntax `~(..., ...)` requires [scalac plugin](../scalac-plugin/readme.html).
 Without this plugin, such parameterized extractor need to be declared as stable identifier before `match` block:
 

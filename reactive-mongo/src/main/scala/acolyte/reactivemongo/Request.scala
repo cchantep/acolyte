@@ -206,6 +206,23 @@ object InClause {
 }
 
 /**
+ * Not-In clause extractor.
+ * (\$nin with BSONArray; e.g. { '\$nin': [ ... ] })
+ */
+object NotInClause {
+  /**
+   * Matches BSON property with name \$nin and a BSONArray as value,
+   * and extracts subvalues from the array.
+   */
+  def unapply(bson: BSONValue): Option[List[BSONValue]] =
+    bson match {
+      case ValueDocument(("$nin", a @ BSONArray(_)) :: _) ⇒
+        Some(a.values.toList)
+      case _ ⇒ None
+    }
+}
+
+/**
  * Meta-extractor, to combine extractor on BSON properties.
  * @see SimpleBody
  * @see Property
