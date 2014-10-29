@@ -1,6 +1,9 @@
 package acolyte.reactivemongo
 
-import scala.concurrent.{ ExecutionContext, Future }, ExecutionContext.Implicits.global
+import scala.concurrent.{
+  ExecutionContext,
+  Future
+}, ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success }
 
 import com.typesafe.config.ConfigFactory
@@ -20,7 +23,7 @@ import reactivemongo.core.protocol.{
 }
 
 /** Akka companion for Acolyte mongo system. */
-private[reactivemongo] object Akka {
+object Akka {
   /**
    * Creates an Acolyte actor system for ReactiveMongo use.
    *
@@ -34,34 +37,14 @@ private[reactivemongo] object Akka {
    * @param handler Connection handler
    * @param name Actor system name (default: "ReactiveMongoAcolyte")
    */
-  def actorSystem(handler: ConnectionHandler, name: String = "ReactiveMongoAcolyte"): AkkaSystem = {
+  def actorSystem(name: String = "ReactiveMongoAcolyte"): AkkaSystem = {
     val cl = this.getClass.getClassLoader
     val cfg = ConfigFactory.load(cl)
-
-    new ActorSystem(AkkaSystem(name, cfg, cl), new ActorRefFactory() {
-      /* For reverse engineering
-    def before(system: AkkaSystem, next: ActorRef): ActorRef = {
-      system actorOf Props(classOf[Actor], handler, next)
-    }
-     */
-
-      val DbSystem = classOf[reactivemongo.core.actors.MongoDBSystem]
-
-      def actorOf(system: AkkaSystem, props: Props): ActorRef = {
-        if (props.actorClass == DbSystem) {
-          system actorOf Props(classOf[Actor], handler)
-        } else system.actorOf(props)
-      }
-
-      def actorOf(system: AkkaSystem, props: Props, n: String): ActorRef = {
-        if (props.actorClass == DbSystem) {
-          system.actorOf(Props(classOf[Actor], handler), n)
-        } else system.actorOf(props, n)
-      }
-    })
+    AkkaSystem(name, cfg, cl)
   }
 }
 
+/** Acolyte Mongo actor */
 private[reactivemongo] class Actor(
     handler: ConnectionHandler) extends akka.actor.Actor {
 

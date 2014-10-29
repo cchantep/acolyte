@@ -1,6 +1,6 @@
 # Acolyte for ReactiveMongo
 
-Acolyte API for ReactiveMongo (0.10.0).
+Acolyte API for ReactiveMongo (0.10.5.0.akka23).
 
 ## Motivation
 
@@ -56,11 +56,11 @@ def isOk: Future[Boolean] = AcolyteDSL.withFlatDriver { d =>
 For persistence code expecting driver as parameter, resolving testing driver is straightforward.
 
 ```scala
-import reactivemongo.api.MongoDriver
-import acolyte.reactivemongo.AcolyteDSL.withDriver
+import reactivemongo.api.MongoConnection
+import acolyte.reactivemongo.AcolyteDSL.withConnection
 
-val res: Future[String] = withDriver(yourConnectionHandler) { d =>
-  val driver: MongoDriver = d // configured with `yourConnectionHandler`
+val res: Future[String] = withConnection(yourConnectionHandler) { c =>
+  val con: MongoConnection = c // configured with `yourConnectionHandler`
 
   val s: String = yourFunctionUsingMongo(driver)
   // ... dispatch query and write request as you want using pattern matching
@@ -93,11 +93,11 @@ Driver behaviour is configured using a connection handler, itself based on query
 You can start looking at empty/no-op connection handler. With driver configured in this way, there is no query or write handler. So as no response is provided whatever is the command performed, it will raise explicit error `No response: ...` for every request.
 
 ```scala
-import reactivemongo.api.MongoDriver
+import reactivemongo.api.MongoConnection
 import acolyte.reactivemongo.AcolyteDSL
 
-AcolyteDSL.withDriver(AcolyteDSL handle/*ConnectionHandler.empty*/) { d =>
-  val noOpDriver: MongoDriver = d
+AcolyteDSL.withConnection(AcolyteDSL handle/*ConnectionHandler.empty*/) { c =>
+  val noOpCon: MongoConnection = c
 }
 ```
 
@@ -122,7 +122,7 @@ import acolyte.reactivemongo.{
 }
 
 // Simple cases
-AcolyteDSL.withDriver(yourHandler) { d =>
+AcolyteDSL.withDriver { d =>
   yourFunctionWorkingWithDriver(d)
 }
 
@@ -183,14 +183,16 @@ Many other combinations are possible: see complete [test cases](https://github.c
 At this point we can focus on playing handlers. To handle Mongo query and to return the kind of result your code should work with, you can do as following.
 
 ```scala
-import reactivemongo.api.MongoDriver
+import reactivemongo.api.MongoConnection
 import acolyte.reactivemongo.{ AcolyteDSL, Request }
 
-AcolyteDSL.withDriver(
-  AcolyteDSL handleQuery { req: Request => aResponse }) { d =>
-    val readOnlyDriver: MongoDriver = d
+AcolyteDSL.withDriver { implicit driver =>
+  AcolyteDSL.withConnection(
+    AcolyteDSL handleQuery { req: Request => aResponse }) { c =>
+    val readOnlyCon: MongoConnection = c
     // work with configured driver
   }
+}
 
 // Then when Mongo code is given this driver instead of production one ...
 // (see DI or cake pattern) and resolve a BSON collection `col` by this way:
@@ -205,14 +207,16 @@ col.find(BSONDocument("anyQuery" -> 1).cursor[BSONDocument].toList().
 In the same way, write operations can be responded with appropriate result.
 
 ```scala
-import reactivemongo.api.MongoDriver
+import reactivemongo.api.MongoConnection
 import acolyte.reactivemongo.{ AcolyteDSL, Request, WriteOp }
 
-AcolyteDSL.withDriver(
-  AcolyteDSL handleWrite { (op: WriteOp, req: Request) => aResponse }) { d =>
-    val writeOnlyDriver: MongoDriver = d
+AcolyteDSL.withDriver { implicit driver =>
+  AcolyteDSL.withConnection(
+    AcolyteDSL handleWrite { (op: WriteOp, req: Request) => aResponse }) { c =>
+    val writeOnlyDriver: MongoConnection = c
     // work with configured driver
   }
+}
 
 // Then when Mongo code is given this driver instead of production one ...
 // (see DI or cake pattern) and resolve a BSON collection `col` by this way:
@@ -476,6 +480,67 @@ object MySpec extends org.specs2.mutable.Specification {
 
   // ...
 }
+```
+
+In order to use same driver accross several example, a custom `After` trait can be used.
+
+```scala
+sealed trait WithDriver extends org.specs2.mutable.After {
+  implicit lazy val driver = AcolyteDSL.driver
+  def after = driver.close()
+}
+
+object MySpec extends org.specs2.mutable.Specification {
+  "Foo" should {
+    "Bar" >> new WithDriver {
+      implicit val d = driver
+
+      // many examples...
+    }
+  }
+}
+```
+
+To make all Acolyte handlers in a specification share the same driver, it's possible to benefit from specs2 global teardown.
+
+```scala
+import org.specs2.specification.{ Fragments, Step }
+import org.specs2.mutable.Specification
+
+sealed trait WithDriver { specs: Specification =>
+  implicit lazy val driver = AcolyteDSL.driver
+  override def map(fs: => Fragments) = fs ^ Step(driver.close())
+}
+
+object MySpec extends Specification with WithDriver {
+  // `driver` available for all examples
+}
+```
+
+### SBT
+
+Using SBT, a single driver/handler pool can be used for all tests, configuring `testOptions` with `Tests.Cleanup`.
+
+First in test sources, define the shared driver.
+
+```scala
+package your.pkg
+
+object Shared {
+  lazy val driver = acolyte.reactivemongo.AcolyteDSL.driver
+  def closeDriver = driver.close()
+}
+```
+
+Then in SBT settings, this driver can be closed after testing.
+
+```scala
+testOptions in Test += Tests.Cleanup(cl => {
+  val c = cl.loadClass("your.pkg.Shared$")
+  type M = { def closeDriver(): Unit }
+  val m: M = c.getField("MODULE$").get(null).asInstanceOf[M]
+  m.closeDriver()
+})
 ```
 
 ## Build

@@ -13,12 +13,14 @@ trait WithHandler { up: WithDriver ⇒
    * Driver and associated resources are released
    * after the function `f` the result `Future` is completed.
    *
+   * @param handler Query handler
+   *
    * {{{
-   * import reactivemongo.api.MongoDriver
+   * import reactivemongo.api.MongoConnection
    * import acolyte.reactivemongo.{ AcolyteDSL, Request }
    *
    * AcolyteDSL.withQueryHandler({ req: Request ⇒ aResponse }) { d =>
-   *   val driver: MongoDriver = d
+   *   val con: MongoConnection = d
    *   "aResult"
    * }
    * }}}
@@ -27,7 +29,8 @@ trait WithHandler { up: WithDriver ⇒
    * @see [[AcolyteDSL.handleQuery]]
    * @see [[AcolyteDSL.withQueryResult]]
    */
-  def withQueryHandler[T](handler: Request ⇒ PreparedResponse)(f: MongoDriver ⇒ T)(implicit m: DriverManager[ConnectionHandler], c: ExecutionContext): Future[T] = withDriver(AcolyteDSL handleQuery QueryHandler(handler))(f)
+  def withQueryHandler[T](handler: Request ⇒ PreparedResponse)(f: MongoConnection ⇒ T)(implicit d: MongoDriver, m: ConnectionManager[ConnectionHandler], c: ExecutionContext): Future[T] =
+    withConnection(AcolyteDSL handleQuery QueryHandler(handler))(f)
 
   /**
    * Works with a Mongo driver handling only queries,
@@ -35,12 +38,14 @@ trait WithHandler { up: WithDriver ⇒
    * Driver and associated resources are released
    * after the function `f` the result `Future` is completed.
    *
+   * @param handler Query handler
+   *
    * {{{
-   * import reactivemongo.api.MongoDriver
+   * import reactivemongo.api.MongoConnection
    * import acolyte.reactivemongo.{ AcolyteDSL, Request }
    *
    * AcolyteDSL.withFlatQueryHandler({ req: Request ⇒ aResponse }) { d =>
-   *   val driver: MongoDriver = d
+   *   val con: MongoConnection = d
    *   Future(1+2)
    * }
    * }}}
@@ -49,7 +54,8 @@ trait WithHandler { up: WithDriver ⇒
    * @see [[AcolyteDSL.handleQuery]]
    * @see [[AcolyteDSL.withQueryResult]]
    */
-  def withFlatQueryHandler[T](handler: Request ⇒ PreparedResponse)(f: MongoDriver ⇒ Future[T])(implicit m: DriverManager[ConnectionHandler], c: ExecutionContext): Future[T] = withFlatDriver(AcolyteDSL handleQuery QueryHandler(handler))(f)
+  def withFlatQueryHandler[T](handler: Request ⇒ PreparedResponse)(f: MongoConnection ⇒ Future[T])(implicit d: MongoDriver, m: ConnectionManager[ConnectionHandler], c: ExecutionContext): Future[T] =
+    withFlatConnection(AcolyteDSL handleQuery QueryHandler(handler))(f)
 
   /**
    * Works with a Mongo driver handling only write operations,
@@ -57,12 +63,14 @@ trait WithHandler { up: WithDriver ⇒
    * Driver and associated resources are released
    * after the function `f` the result `Future` is completed.
    *
+   * @param handler Writer handler
+   *
    * {{{
-   * import reactivemongo.api.MongoDriver
+   * import reactivemongo.api.MongoConnection
    * import acolyte.reactivemongo.{ AcolyteDSL, Request, WriteOp }
    *
    * AcolyteDSL.withWriteHandler({ cmd: (WriteOp, Request) ⇒ aResp }) { d =>
-   *   val driver: MongoDriver = d
+   *   val con: MongoConnection = d
    *   "aResult"
    * }
    * }}}
@@ -71,7 +79,8 @@ trait WithHandler { up: WithDriver ⇒
    * @see [[AcolyteDSL.handleWrite]]
    * @see [[AcolyteDSL.withWriteResult]]
    */
-  def withWriteHandler[T](handler: (WriteOp, Request) ⇒ PreparedResponse)(f: MongoDriver ⇒ T)(implicit m: DriverManager[ConnectionHandler], c: ExecutionContext): Future[T] = withDriver(AcolyteDSL handleWrite handler)(f)
+  def withWriteHandler[T](handler: (WriteOp, Request) ⇒ PreparedResponse)(f: MongoConnection ⇒ T)(implicit d: MongoDriver, m: ConnectionManager[ConnectionHandler], c: ExecutionContext): Future[T] =
+    withConnection(AcolyteDSL handleWrite handler)(f)
 
   /**
    * Works with a Mongo driver handling only write operations,
@@ -79,12 +88,14 @@ trait WithHandler { up: WithDriver ⇒
    * Driver and associated resources are released
    * after the function `f` the result `Future` is completed.
    *
+   * @param handler Writer handler
+   *
    * {{{
-   * import reactivemongo.api.MongoDriver
+   * import reactivemongo.api.MongoConnection
    * import acolyte.reactivemongo.{ AcolyteDSL, Request, WriteOp }
    *
    * AcolyteDSL.withWriteHandler({ cmd: (WriteOp, Request) ⇒ aResp }) { d =>
-   *   val driver: MongoDriver = d
+   *   val con: MongoConnection = d
    *   Future(1+2)
    * }
    * }}}
@@ -93,6 +104,7 @@ trait WithHandler { up: WithDriver ⇒
    * @see [[AcolyteDSL.handleWrite]]
    * @see [[AcolyteDSL.withFlatWriteResult]]
    */
-  def withFlatWriteHandler[T](handler: (WriteOp, Request) ⇒ PreparedResponse)(f: MongoDriver ⇒ Future[T])(implicit m: DriverManager[ConnectionHandler], c: ExecutionContext): Future[T] = withFlatDriver(AcolyteDSL handleWrite handler)(f)
+  def withFlatWriteHandler[T](handler: (WriteOp, Request) ⇒ PreparedResponse)(f: MongoConnection ⇒ Future[T])(implicit d: MongoDriver, m: ConnectionManager[ConnectionHandler], c: ExecutionContext): Future[T] =
+    withFlatConnection(AcolyteDSL handleWrite handler)(f)
 
 }

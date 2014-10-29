@@ -1,11 +1,11 @@
 package acolyte.reactivemongo
 
-import reactivemongo.api.{ DB, MongoDriver }
+import reactivemongo.api.{ DB, MongoConnection, MongoDriver }
 
 /** Driver manager */
-trait DriverManager[T] {
+trait DriverManager {
   /** Initializes driver. */
-  def open(param: T): MongoDriver
+  def open: MongoDriver
 
   /** Releases driver if necessary. */
   def releaseIfNecessary(driver: MongoDriver): Boolean
@@ -13,13 +13,11 @@ trait DriverManager[T] {
 
 /** Driver manage companion. */
 object DriverManager {
+  import akka.actor.ActorSystem
 
   /** Manager instance based on connection handler. */
-  implicit object HandlerDriverManager
-      extends DriverManager[ConnectionHandler] {
-
-    def open(handler: ConnectionHandler) =
-      new MongoDriver(Some(Akka actorSystem handler))
+  implicit object Default extends DriverManager {
+    def open = new MongoDriver(Some(Akka.actorSystem()))
 
     /** Releases driver if necessary. */
     def releaseIfNecessary(driver: MongoDriver): Boolean = try {
@@ -31,12 +29,50 @@ object DriverManager {
         false
     }
   }
+}
 
-  /** Manager instance based on already initialized driver. */
-  implicit object IdentityDriverManager extends DriverManager[MongoDriver] {
-    def open(driver: MongoDriver) = driver
+/** Connection manager */
+trait ConnectionManager[T] {
+  /** Initializes connection. */
+  def open(driver: MongoDriver, param: T): MongoConnection
 
-    /** Releases driver if necessary. */
-    def releaseIfNecessary(driver: MongoDriver): Boolean = false
+  /** Releases connection if necessary. */
+  def releaseIfNecessary(connection: MongoConnection): Boolean
+}
+
+/** Connection manage companion. */
+object ConnectionManager {
+  import akka.actor.Props
+  import reactivemongo.core.actors.MonitorActor
+  import reactivemongo.api.MongoConnectionOptions
+
+  /** Manager instance based on connection handler. */
+  implicit object HandlerConnectionManager
+      extends ConnectionManager[ConnectionHandler] {
+
+    def open(driver: MongoDriver, handler: ConnectionHandler) = {
+      val sys = driver.system
+      val actor = sys.actorOf(Props(classOf[Actor], handler))
+      val monitor = sys.actorOf(Props(new MonitorActor(actor)))
+      new MongoConnection(sys, actor, monitor, MongoConnectionOptions())
+    }
+
+    /** Releases connection if necessary. */
+    def releaseIfNecessary(connection: MongoConnection): Boolean = try {
+      connection.close()
+      true
+    } catch {
+      case e: Throwable ⇒
+        e.printStackTrace()
+        false
+    }
+  }
+
+  /** Manager instance based on already initialized connection. */
+  implicit object IdentityConnectionManager extends ConnectionManager[MongoConnection] {
+    def open(driver: MongoDriver, connection: MongoConnection) = connection
+
+    /** Releases connection if necessary. */
+    def releaseIfNecessary(connection: MongoConnection): Boolean = false
   }
 }

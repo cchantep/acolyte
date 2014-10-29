@@ -2,7 +2,7 @@ package acolyte.reactivemongo
 
 import scala.concurrent.{ ExecutionContext, Future }
 import reactivemongo.api.collections.default.BSONCollection
-import reactivemongo.api.{ DB, MongoConnection }
+import reactivemongo.api.{ DB, MongoConnection, MongoDriver }
 
 /** Functions to work with a Mongo collection (provided DB functions). */
 trait WithCollection { withDB: WithDB ⇒
@@ -13,7 +13,7 @@ trait WithCollection { withDB: WithDB ⇒
    * Driver and associated resources are released
    * after the function `f` the result `Future` is completed.
    *
-   * @param driverParam Driver manager parameter (see [[DriverManager]])
+   * @param conParam Connection manager parameter (see [[ConnectionManager]])
    * @param name Collection name
    * @param f Function applied to resolved Mongo collection
    *
@@ -29,8 +29,7 @@ trait WithCollection { withDB: WithDB ⇒
    * }}}
    * @see AcolyteDSL.withFlatDB[A,B]
    */
-  def withCollection[A, B](driverParam: ⇒ A, name: String)(f: BSONCollection ⇒ B)(implicit m: DriverManager[A], c: ExecutionContext): Future[B] =
-    withFlatDB(driverParam) { db ⇒ Future(f(db(name))) }
+  def withCollection[A, B](conParam: ⇒ A, name: String)(f: BSONCollection ⇒ B)(implicit d: MongoDriver, m: ConnectionManager[A], c: ExecutionContext): Future[B] = withFlatDB(conParam) { db ⇒ Future(f(db(name))) }
 
   /**
    * Works with specified collection from Mongo database "acolyte"
@@ -84,7 +83,7 @@ trait WithCollection { withDB: WithDB ⇒
    * Driver and associated resources are released
    * after the function `f` the result `Future` is completed.
    *
-   * @param driverParam Driver manager parameter (see [[DriverManager]])
+   * @param conParam Connection manager parameter (see [[ConnectionManager]])
    * @param name Collection name
    * @param f Function applied to resolved Mongo collection
    *
@@ -100,8 +99,7 @@ trait WithCollection { withDB: WithDB ⇒
    * }}}
    * @see AcolyteDSL.withFlatDB[A,B]
    */
-  def withFlatCollection[A, B](driverParam: ⇒ A, name: String)(f: BSONCollection ⇒ Future[B])(implicit m: DriverManager[A], c: ExecutionContext): Future[B] =
-    withFlatDB(driverParam) { db ⇒ f(db(name)) }
+  def withFlatCollection[A, B](conParam: ⇒ A, name: String)(f: BSONCollection ⇒ Future[B])(implicit d: MongoDriver, m: ConnectionManager[A], c: ExecutionContext): Future[B] = withFlatDB(conParam) { db ⇒ f(db(name)) }
 
   /**
    * Works with specified collection from Mongo database "acolyte"

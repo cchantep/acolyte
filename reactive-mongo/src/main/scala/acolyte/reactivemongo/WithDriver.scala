@@ -7,29 +7,29 @@ import reactivemongo.api.{ MongoConnection, MongoDriver }
 /** Functions to work with driver. */
 trait WithDriver {
   /**
+   * Returns unmanaged driver.
+   * You will have to close it by yourself.
+   */
+  def driver[T](implicit m: DriverManager): MongoDriver = m.open
+
+  /**
    * Works with Mongo driver configured with Acolyte handlers.
    * Driver and associated resources are released
    * after the function `f` the result `Future` is completed.
    *
-   * @param driverParam Driver manager parameter (see [[DriverManager]])
    * @param f Function applied to initialized driver
    *
    * {{{
    * // handler: ConnectionHandler
-   * val s: Future[String] = withDriver(handler) { d =>
+   * val s: Future[String] = withDriver { d =>
    *   val initedDriver: MongoDriver = d
    *   "Result"
-   * }
-   *
-   * val i: Future[Int] = withDriver(alreadyInitedDriver) { d =>
-   *   val unchangedDriver: MongoDriver = d
-   *   1 // Result
    * }
    * }}}
    * @see [[withFlatDriver]]
    */
-  def withDriver[A, B](driverParam: ⇒ A)(f: MongoDriver ⇒ B)(implicit m: DriverManager[A], c: ExecutionContext): Future[B] = for {
-    driver ← Future(m.open(driverParam))
+  def withDriver[T](f: MongoDriver ⇒ T)(implicit m: DriverManager, c: ExecutionContext): Future[T] = for {
+    driver ← Future(m.open)
     result ← {
       val res = Future(f(driver))
       res.onComplete(_ ⇒ m.releaseIfNecessary(driver))
@@ -42,25 +42,19 @@ trait WithDriver {
    * Driver and associated resources are released
    * after the function `f` the result `Future` is completed.
    *
-   * @param driverParam Driver manager parameter (see [[DriverManager]])
    * @param f Function applied to initialized driver (returning a future)
    *
    * {{{
    * // handler: ConnectionHandler
-   * val s: Future[String] = withFlatDriver(handler) { d =>
+   * val s: Future[String] = withFlatDriver { d =>
    *   val initedDriver: MongoDriver = d
    *   Future.successful("Result")
-   * }
-   *
-   * val i: Future[Int] = withFlatDriver(alreadyInitedDriver) { d =>
-   *   val unchangedDriver: MongoDriver = d
-   *   Future(1 + 2) // Result
    * }
    * }}}
    * @see [[withDriver]]
    */
-  def withFlatDriver[A, B](driverParam: ⇒ A)(f: MongoDriver ⇒ Future[B])(implicit m: DriverManager[A], c: ExecutionContext): Future[B] = for {
-    driver ← Future(m.open(driverParam))
+  def withFlatDriver[T](f: MongoDriver ⇒ Future[T])(implicit m: DriverManager, c: ExecutionContext): Future[T] = for {
+    driver ← Future(m.open)
     result ← {
       val res = f(driver)
       res.onComplete(_ ⇒ m.releaseIfNecessary(driver))
@@ -74,7 +68,7 @@ trait WithDriver {
    * (should not be used with other driver instances).
    * Connection is closed after the result `Future` is completed.
    *
-   * @param driverParam Driver manager parameter (see [[DriverManager]])
+   * @param conParam Connection manager parameter (see [[ConnectionManager]])
    * @param f Function applied to initialized connection
    *
    * {{{
@@ -90,24 +84,22 @@ trait WithDriver {
    * @see [[withFlatDriver]]
    * @see [[withFlatConnection]]
    */
-  def withConnection[A, B](driverParam: ⇒ A)(f: MongoConnection ⇒ B)(implicit m: DriverManager[A], c: ExecutionContext): Future[B] =
-    withFlatDriver(m.open(driverParam)) { d ⇒
-      for {
-        con ← Future(d.connection(List("acolyte")))
-        res ← {
-          val result = Future(f(con))
-          result.onComplete(_ ⇒ con.close())
-          result
-        }
-      } yield res
-    }
+  def withConnection[A, B](conParam: ⇒ A)(f: MongoConnection ⇒ B)(implicit d: MongoDriver, m: ConnectionManager[A], c: ExecutionContext): Future[B] =
+    for {
+      con ← Future(m.open(d, conParam))
+      res ← {
+        val result = Future(f(con))
+        result.onComplete(_ ⇒ con.close())
+        result
+      }
+    } yield res
 
   /**
    * Works with connection with options appropriate for a driver
    * initialized using Acolyte for ReactiveMongo
    * (should not be used with other driver instances).
    *
-   * @param driverParam Driver manager parameter (see [[DriverManager]])
+   * @param conParam Connection manager parameter (see [[ConnectionManager]])
    * @param f Function applied to initialized connection
    *
    * {{{
@@ -123,15 +115,12 @@ trait WithDriver {
    * @see [[withFlatDriver]]
    * @see [[withConnection]]
    */
-  def withFlatConnection[A, B](driverParam: ⇒ A)(f: MongoConnection ⇒ Future[B])(implicit m: DriverManager[A], c: ExecutionContext): Future[B] =
-    withFlatDriver(driverParam) { d ⇒
-      for {
-        con ← Future(d.connection(List("acolyte")))
-        res ← {
-          val result = f(con)
-          result.onComplete(_ ⇒ con.close())
-          result
-        }
-      } yield res
-    }
+  def withFlatConnection[A, B](conParam: ⇒ A)(f: MongoConnection ⇒ Future[B])(implicit d: MongoDriver, m: ConnectionManager[A], c: ExecutionContext): Future[B] = for {
+      con ← Future(m.open(d, conParam))
+      res ← {
+        val result = f(con)
+        result.onComplete(_ ⇒ con.close())
+        result
+      }
+    } yield res
 }

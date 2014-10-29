@@ -39,7 +39,8 @@ object AcolyteDSL extends WithDriver
    *
    * @see [[ConnectionHandler.withWriteHandler]]
    */
-  def handleQuery[T](handler: T)(implicit f: T ⇒ QueryHandler): ConnectionHandler = ConnectionHandler(handler)
+  def handleQuery[T](handler: T)(implicit f: T ⇒ QueryHandler) = 
+    ConnectionHandler(handler)
 
   /**
    * Creates a connection handler with given write handler,
