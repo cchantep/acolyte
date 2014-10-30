@@ -7,6 +7,8 @@ import scala.concurrent.duration.Duration
 import reactivemongo.bson.{ BSONArray, BSONDocument, BSONString }
 import reactivemongo.core.commands.LastError
 
+import org.specs2.mutable.Specification
+
 import acolyte.reactivemongo.{
   CountRequest,
   QueryHandler,
@@ -19,7 +21,7 @@ import acolyte.reactivemongo.{
   WriteOp,
   WriteResponse
 }
-import acolyte.reactivemongo.AcolyteDSL.{
+import acolyte.reactivemongo.AcolyteDSL, AcolyteDSL.{
   handleQuery,
   withFlatDB,
   withFlatQueryResult,
@@ -27,7 +29,16 @@ import acolyte.reactivemongo.AcolyteDSL.{
   withFlatConnection
 }
 
-object PersistenceSpec extends org.specs2.mutable.Specification {
+/** Manage a single Mongo driver for all (isolated) Acolyte handlers. */
+sealed trait AcolyteDriver { specs: Specification ⇒
+  import org.specs2.specification.{ Fragments, Step }
+
+  implicit lazy val driver = AcolyteDSL.driver
+  override def map(fs: ⇒ Fragments) = fs ^ Step(driver.close())
+}
+
+/** Persitence executable specification (tests). */
+object PersistenceSpec extends Specification with AcolyteDriver {
   "Persistence" title
 
   "List all user information" should {
@@ -179,3 +190,4 @@ object PersistenceSpec extends org.specs2.mutable.Specification {
 
   def awaitRes[T](f: Future[T], tmout: Duration = Duration(5, "seconds")): Try[T] = Try[T](Await.result(f, tmout))
 }
+
