@@ -88,7 +88,7 @@ Dependency can be added to SBT project with `"org.eu.acolyte" %% "reactive-mongo
 
 ### Setup driver
 
-Driver behaviour is configured using a connection handler, itself based on query and write handlers, managing respectively Mongo queries or write operations, and returning appropriate result.
+Driver behaviour is configured using connection handlers, themselves based on query and write handlers, managing respectively Mongo queries or write operations, and returning appropriate result.
 
 You can start looking at empty/no-op connection handler. With driver configured in this way, there is no query or write handler. So as no response is provided whatever is the command performed, it will raise explicit error `No response: ...` for every request.
 
@@ -178,7 +178,7 @@ AcolyteDSL.withFlatDriver(yourHandler) { d => // expect a Future
 
 Many other combinations are possible: see complete [test cases](https://github.com/cchantep/acolyte/blob/master/reactive-mongo/src/test/scala/acolyte/reactivemongo/DriverSpec.scala#L27).
 
-### Configure driver behaviour
+### Configure connection behaviour
 
 At this point we can focus on playing handlers. To handle Mongo query and to return the kind of result your code should work with, you can do as following.
 
