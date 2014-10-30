@@ -1,3 +1,9 @@
+## 1.0.31
+
+([bd6763c3e1d513d05cfefbb887e20a672b1c71db](https://github.com/cchantep/acolyte/commit/bd6763c3e1d513d05cfefbb887e20a672b1c71db) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Manage connection handler per actor, so that an single ActorSystem can manage several handlers. Documentation about driver manager with SBT or Specs2.
+
+[6197ee32151ccfa03f75ce6dfef563ee39c9581b](https://github.com/cchantep/acolyte/commit/6197ee32151ccfa03f75ce6dfef563ee39c9581b) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Add clause extractor `NotInClause(List(_))`.
+
 ## 1.0.30
 
 ([9b641b8e3b1252611a1e9d5376b84a2580ca8f42](https://github.com/cchantep/acolyte/commit/9b641b8e3b1252611a1e9d5376b84a2580ca8f42) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Write request convenient extractors
