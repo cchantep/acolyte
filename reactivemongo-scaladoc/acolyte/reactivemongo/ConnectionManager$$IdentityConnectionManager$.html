@@ -2,9 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>WithResult - acolyte.reactivemongo.WithResult</title>
-          <meta name="description" content="WithResult - acolyte.reactivemongo.WithResult" />
-          <meta name="keywords" content="WithResult acolyte.reactivemongo.WithResult" />
+          <title>IdentityConnectionManager - acolyte.reactivemongo.ConnectionManager.IdentityConnectionManager</title>
+          <meta name="description" content="IdentityConnectionManager - acolyte.reactivemongo.ConnectionManager.IdentityConnectionManager" />
+          <meta name="keywords" content="IdentityConnectionManager acolyte.reactivemongo.ConnectionManager.IdentityConnectionManager" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -12,7 +12,7 @@
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
-            var hash = 'acolyte.reactivemongo.WithResult';
+            var hash = 'acolyte.reactivemongo.ConnectionManager$$IdentityConnectionManager$';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -22,29 +22,26 @@
    	  </script>
     
         </head>
-        <body class="type">
+        <body class="value">
       <div id="definition">
-        <img src="../../lib/trait_big.png" />
-        <p id="owner"><a href="../package.html" class="extype" name="acolyte">acolyte</a>.<a href="package.html" class="extype" name="acolyte.reactivemongo">reactivemongo</a></p>
-        <h1>WithResult</h1>
+        <img src="../../lib/object_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="acolyte">acolyte</a>.<a href="package.html" class="extype" name="acolyte.reactivemongo">reactivemongo</a>.<a href="ConnectionManager$.html" class="extype" name="acolyte.reactivemongo.ConnectionManager">ConnectionManager</a></p>
+        <h1>IdentityConnectionManager</h1>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="modifier">implicit </span>
+        <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">WithResult</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">IdentityConnectionManager</span><span class="result"> extends <a href="ConnectionManager.html" class="extype" name="acolyte.reactivemongo.ConnectionManager">ConnectionManager</a>[<span class="extype" name="reactivemongo.api.MongoConnection">MongoConnection</span>]</span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Functions to work with result (provided collection functions).</p></div><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="acolyte.reactivemongo.WithResult">WithResult</a> with <a href="WithHandler.html" class="extype" name="acolyte.reactivemongo.WithHandler">WithHandler</a></dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Manager instance based on already initialized connection.</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
-        </div><div class="toggleContainer block">
-          <span class="toggle">Known Subclasses</span>
-          <div class="subClasses hiddenContent"><a href="AcolyteDSL$.html" class="extype" name="acolyte.reactivemongo.AcolyteDSL">AcolyteDSL</a></div>
+          <div class="superTypes hiddenContent"><a href="ConnectionManager.html" class="extype" name="acolyte.reactivemongo.ConnectionManager">ConnectionManager</a>[<span class="extype" name="reactivemongo.api.MongoConnection">MongoConnection</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -62,7 +59,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="acolyte.reactivemongo.WithResult"><span>WithResult</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="acolyte.reactivemongo.ConnectionManager.IdentityConnectionManager"><span>IdentityConnectionManager</span></li><li class="in" name="acolyte.reactivemongo.ConnectionManager"><span>ConnectionManager</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -308,6 +305,32 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="acolyte.reactivemongo.ConnectionManager.IdentityConnectionManager#open" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="open(driver:reactivemongo.api.MongoDriver,connection:reactivemongo.api.MongoConnection):reactivemongo.api.MongoConnection"></a>
+      <a id="open(MongoDriver,MongoConnection):MongoConnection"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">open</span><span class="params">(<span name="driver">driver: <span class="extype" name="reactivemongo.api.MongoDriver">MongoDriver</span></span>, <span name="connection">connection: <span class="extype" name="reactivemongo.api.MongoConnection">MongoConnection</span></span>)</span><span class="result">: <span class="extype" name="reactivemongo.api.MongoConnection">MongoConnection</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Initializes connection.</p><div class="fullcomment"><div class="comment cmt"><p>Initializes connection.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="acolyte.reactivemongo.ConnectionManager.IdentityConnectionManager">IdentityConnectionManager</a> → <a href="ConnectionManager.html" class="extype" name="acolyte.reactivemongo.ConnectionManager">ConnectionManager</a></dd></dl></div>
+    </li><li name="acolyte.reactivemongo.ConnectionManager.IdentityConnectionManager#releaseIfNecessary" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="releaseIfNecessary(connection:reactivemongo.api.MongoConnection):Boolean"></a>
+      <a id="releaseIfNecessary(MongoConnection):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">releaseIfNecessary</span><span class="params">(<span name="connection">connection: <span class="extype" name="reactivemongo.api.MongoConnection">MongoConnection</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Releases connection if necessary.</p><div class="fullcomment"><div class="comment cmt"><p>Releases connection if necessary.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="acolyte.reactivemongo.ConnectionManager.IdentityConnectionManager">IdentityConnectionManager</a> → <a href="ConnectionManager.html" class="extype" name="acolyte.reactivemongo.ConnectionManager">ConnectionManager</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -391,84 +414,6 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="acolyte.reactivemongo.WithResult#withFlatQueryResult" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withFlatQueryResult[A,B](result:=&gt;A)(f:reactivemongo.api.MongoConnection=&gt;scala.concurrent.Future[B])(implicitd:reactivemongo.api.MongoDriver,implicitm:acolyte.reactivemongo.ConnectionManager[acolyte.reactivemongo.ConnectionHandler],implicitmk:acolyte.reactivemongo.QueryResponseMaker[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]"></a>
-      <a id="withFlatQueryResult[A,B](⇒A)((MongoConnection)⇒Future[B])(MongoDriver,ConnectionManager[ConnectionHandler],QueryResponseMaker[A],ExecutionContext):Future[B]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">withFlatQueryResult</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="result">result: ⇒ <span class="extype" name="acolyte.reactivemongo.WithResult.withFlatQueryResult.A">A</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="reactivemongo.api.MongoConnection">MongoConnection</span>) ⇒ <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithResult.withFlatQueryResult.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <span class="extype" name="reactivemongo.api.MongoDriver">MongoDriver</span></span>, <span name="m">m: <a href="ConnectionManager.html" class="extype" name="acolyte.reactivemongo.ConnectionManager">ConnectionManager</a>[<a href="ConnectionHandler.html" class="extype" name="acolyte.reactivemongo.ConnectionHandler">ConnectionHandler</a>]</span>, <span name="mk">mk: <a href="QueryResponseMaker.html" class="extype" name="acolyte.reactivemongo.QueryResponseMaker">QueryResponseMaker</a>[<span class="extype" name="acolyte.reactivemongo.WithResult.withFlatQueryResult.A">A</span>]</span>, <span name="c">c: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithResult.withFlatQueryResult.B">B</span>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Works with a Mongo driver handling only queries,
-and returning given <code>result</code> for all of them.</p><div class="fullcomment"><div class="comment cmt"><p>Works with a Mongo driver handling only queries,
-and returning given <code>result</code> for all of them.
-Driver and associated resources are released
-after the function <code>f</code> the result <code>Future</code> is completed.
-</p></div><dl class="paramcmts block"><dt class="param">result</dt><dd class="cmt"><p>Query result
-</p></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="AcolyteDSL$.html#handleQuery[T](handler:T)(implicitf:T=&gt;acolyte.reactivemongo.QueryHandler):acolyte.reactivemongo.ConnectionHandler" class="extmbr" name="acolyte.reactivemongo.AcolyteDSL#handleQuery">AcolyteDSL.handleQuery</a>
-</p></span><span class="cmt"><p><a href="AcolyteDSL$.html#withFlatDriver[T](f:reactivemongo.api.MongoDriver=&gt;scala.concurrent.Future[T])(implicitm:acolyte.reactivemongo.DriverManager,implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[T]" class="extmbr" name="acolyte.reactivemongo.AcolyteDSL#withFlatDriver">AcolyteDSL.withFlatDriver</a></p></span></dd></dl></div>
-    </li><li name="acolyte.reactivemongo.WithResult#withFlatWriteResult" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withFlatWriteResult[A,B](result:=&gt;A)(f:reactivemongo.api.MongoConnection=&gt;scala.concurrent.Future[B])(implicitd:reactivemongo.api.MongoDriver,implicitm:acolyte.reactivemongo.ConnectionManager[acolyte.reactivemongo.ConnectionHandler],implicitmk:acolyte.reactivemongo.WriteResponseMaker[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]"></a>
-      <a id="withFlatWriteResult[A,B](⇒A)((MongoConnection)⇒Future[B])(MongoDriver,ConnectionManager[ConnectionHandler],WriteResponseMaker[A],ExecutionContext):Future[B]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">withFlatWriteResult</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="result">result: ⇒ <span class="extype" name="acolyte.reactivemongo.WithResult.withFlatWriteResult.A">A</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="reactivemongo.api.MongoConnection">MongoConnection</span>) ⇒ <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithResult.withFlatWriteResult.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <span class="extype" name="reactivemongo.api.MongoDriver">MongoDriver</span></span>, <span name="m">m: <a href="ConnectionManager.html" class="extype" name="acolyte.reactivemongo.ConnectionManager">ConnectionManager</a>[<a href="ConnectionHandler.html" class="extype" name="acolyte.reactivemongo.ConnectionHandler">ConnectionHandler</a>]</span>, <span name="mk">mk: <a href="WriteResponseMaker.html" class="extype" name="acolyte.reactivemongo.WriteResponseMaker">WriteResponseMaker</a>[<span class="extype" name="acolyte.reactivemongo.WithResult.withFlatWriteResult.A">A</span>]</span>, <span name="c">c: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithResult.withFlatWriteResult.B">B</span>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Works with a Mongo driver handling only write operations,
-and returning given <code>result</code> for all of them.</p><div class="fullcomment"><div class="comment cmt"><p>Works with a Mongo driver handling only write operations,
-and returning given <code>result</code> for all of them.
-Driver and associated resources are released
-after the function <code>f</code> the result <code>Future</code> is completed.
-</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="AcolyteDSL$.html#handleWrite[T](handler:T)(implicitf:T=&gt;acolyte.reactivemongo.WriteHandler):acolyte.reactivemongo.ConnectionHandler" class="extmbr" name="acolyte.reactivemongo.AcolyteDSL#handleWrite">AcolyteDSL.handleWrite</a>
-</p></span><span class="cmt"><p><a href="AcolyteDSL$.html#withFlatDriver[T](f:reactivemongo.api.MongoDriver=&gt;scala.concurrent.Future[T])(implicitm:acolyte.reactivemongo.DriverManager,implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[T]" class="extmbr" name="acolyte.reactivemongo.AcolyteDSL#withFlatDriver">AcolyteDSL.withFlatDriver</a></p></span></dd></dl></div>
-    </li><li name="acolyte.reactivemongo.WithResult#withQueryResult" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withQueryResult[A,B](result:=&gt;A)(f:reactivemongo.api.MongoConnection=&gt;B)(implicitd:reactivemongo.api.MongoDriver,implicitm:acolyte.reactivemongo.ConnectionManager[acolyte.reactivemongo.ConnectionHandler],implicitmk:acolyte.reactivemongo.QueryResponseMaker[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]"></a>
-      <a id="withQueryResult[A,B](⇒A)((MongoConnection)⇒B)(MongoDriver,ConnectionManager[ConnectionHandler],QueryResponseMaker[A],ExecutionContext):Future[B]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">withQueryResult</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="result">result: ⇒ <span class="extype" name="acolyte.reactivemongo.WithResult.withQueryResult.A">A</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="reactivemongo.api.MongoConnection">MongoConnection</span>) ⇒ <span class="extype" name="acolyte.reactivemongo.WithResult.withQueryResult.B">B</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <span class="extype" name="reactivemongo.api.MongoDriver">MongoDriver</span></span>, <span name="m">m: <a href="ConnectionManager.html" class="extype" name="acolyte.reactivemongo.ConnectionManager">ConnectionManager</a>[<a href="ConnectionHandler.html" class="extype" name="acolyte.reactivemongo.ConnectionHandler">ConnectionHandler</a>]</span>, <span name="mk">mk: <a href="QueryResponseMaker.html" class="extype" name="acolyte.reactivemongo.QueryResponseMaker">QueryResponseMaker</a>[<span class="extype" name="acolyte.reactivemongo.WithResult.withQueryResult.A">A</span>]</span>, <span name="c">c: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithResult.withQueryResult.B">B</span>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Works with a Mongo driver handling only queries,
-and returning given <code>result</code> for all of them.</p><div class="fullcomment"><div class="comment cmt"><p>Works with a Mongo driver handling only queries,
-and returning given <code>result</code> for all of them.
-Driver and associated resources are released
-after the function <code>f</code> the result <code>Future</code> is completed.
-</p></div><dl class="paramcmts block"><dt class="param">result</dt><dd class="cmt"><p>Query result
-</p></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="AcolyteDSL$.html#withQueryHandler[T](handler:acolyte.reactivemongo.Request=&gt;acolyte.reactivemongo.PreparedResponse)(f:reactivemongo.api.MongoConnection=&gt;T)(implicitd:reactivemongo.api.MongoDriver,implicitm:acolyte.reactivemongo.ConnectionManager[acolyte.reactivemongo.ConnectionHandler],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[T]" class="extmbr" name="acolyte.reactivemongo.AcolyteDSL#withQueryHandler">AcolyteDSL.withQueryHandler</a>
-</p></span><span class="cmt"><p><a href="AcolyteDSL$.html#handleQuery[T](handler:T)(implicitf:T=&gt;acolyte.reactivemongo.QueryHandler):acolyte.reactivemongo.ConnectionHandler" class="extmbr" name="acolyte.reactivemongo.AcolyteDSL#handleQuery">AcolyteDSL.handleQuery</a></p></span><span class="cmt"><p><a href="AcolyteDSL$.html#withDriver[T](f:reactivemongo.api.MongoDriver=&gt;T)(implicitm:acolyte.reactivemongo.DriverManager,implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[T]" class="extmbr" name="acolyte.reactivemongo.AcolyteDSL#withDriver">AcolyteDSL.withDriver</a></p></span></dd></dl></div>
-    </li><li name="acolyte.reactivemongo.WithResult#withWriteResult" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withWriteResult[A,B](result:=&gt;A)(f:reactivemongo.api.MongoConnection=&gt;B)(implicitd:reactivemongo.api.MongoDriver,implicitm:acolyte.reactivemongo.ConnectionManager[acolyte.reactivemongo.ConnectionHandler],implicitmk:acolyte.reactivemongo.WriteResponseMaker[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]"></a>
-      <a id="withWriteResult[A,B](⇒A)((MongoConnection)⇒B)(MongoDriver,ConnectionManager[ConnectionHandler],WriteResponseMaker[A],ExecutionContext):Future[B]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">withWriteResult</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="result">result: ⇒ <span class="extype" name="acolyte.reactivemongo.WithResult.withWriteResult.A">A</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="reactivemongo.api.MongoConnection">MongoConnection</span>) ⇒ <span class="extype" name="acolyte.reactivemongo.WithResult.withWriteResult.B">B</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <span class="extype" name="reactivemongo.api.MongoDriver">MongoDriver</span></span>, <span name="m">m: <a href="ConnectionManager.html" class="extype" name="acolyte.reactivemongo.ConnectionManager">ConnectionManager</a>[<a href="ConnectionHandler.html" class="extype" name="acolyte.reactivemongo.ConnectionHandler">ConnectionHandler</a>]</span>, <span name="mk">mk: <a href="WriteResponseMaker.html" class="extype" name="acolyte.reactivemongo.WriteResponseMaker">WriteResponseMaker</a>[<span class="extype" name="acolyte.reactivemongo.WithResult.withWriteResult.A">A</span>]</span>, <span name="c">c: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithResult.withWriteResult.B">B</span>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Works with a Mongo driver handling only write operations,
-and returning given <code>result</code> for all of them.</p><div class="fullcomment"><div class="comment cmt"><p>Works with a Mongo driver handling only write operations,
-and returning given <code>result</code> for all of them.
-Driver and associated resources are released
-after the function <code>f</code> the result <code>Future</code> is completed.
-</p></div><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="AcolyteDSL$.html#withWriteHandler[T](handler:(acolyte.reactivemongo.WriteOp,acolyte.reactivemongo.Request)=&gt;acolyte.reactivemongo.PreparedResponse)(f:reactivemongo.api.MongoConnection=&gt;T)(implicitd:reactivemongo.api.MongoDriver,implicitm:acolyte.reactivemongo.ConnectionManager[acolyte.reactivemongo.ConnectionHandler],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[T]" class="extmbr" name="acolyte.reactivemongo.AcolyteDSL#withWriteHandler">AcolyteDSL.withWriteHandler</a>
-</p></span><span class="cmt"><p><a href="AcolyteDSL$.html#handleWrite[T](handler:T)(implicitf:T=&gt;acolyte.reactivemongo.WriteHandler):acolyte.reactivemongo.ConnectionHandler" class="extmbr" name="acolyte.reactivemongo.AcolyteDSL#handleWrite">AcolyteDSL.handleWrite</a></p></span><span class="cmt"><p><a href="AcolyteDSL$.html#withDriver[T](f:reactivemongo.api.MongoDriver=&gt;T)(implicitm:acolyte.reactivemongo.DriverManager,implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[T]" class="extmbr" name="acolyte.reactivemongo.AcolyteDSL#withDriver">AcolyteDSL.withDriver</a></p></span></dd></dl></div>
     </li></ol>
             </div>
 
@@ -478,7 +423,9 @@ after the function <code>f</code> the result <code>Future</code> is completed.
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="acolyte.reactivemongo.ConnectionManager">
+              <h3>Inherited from <a href="ConnectionManager.html" class="extype" name="acolyte.reactivemongo.ConnectionManager">ConnectionManager</a>[<span class="extype" name="reactivemongo.api.MongoConnection">MongoConnection</span>]</h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

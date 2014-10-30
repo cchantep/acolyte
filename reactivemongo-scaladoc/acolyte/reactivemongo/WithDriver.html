@@ -185,6 +185,21 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="acolyte.reactivemongo.WithDriver#driver" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="driver[T](implicitm:acolyte.reactivemongo.DriverManager):reactivemongo.api.MongoDriver"></a>
+      <a id="driver[T](DriverManager):MongoDriver"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">driver</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="m">m: <a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a></span>)</span><span class="result">: <span class="extype" name="reactivemongo.api.MongoDriver">MongoDriver</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Returns unmanaged driver.</p><div class="fullcomment"><div class="comment cmt"><p>Returns unmanaged driver.
+You will have to close it by yourself.
+</p></div></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -392,15 +407,15 @@
               
         </dd></dl></div>
     </li><li name="acolyte.reactivemongo.WithDriver#withConnection" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withConnection[A,B](driverParam:=&gt;A)(f:reactivemongo.api.MongoConnection=&gt;B)(implicitm:acolyte.reactivemongo.DriverManager[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]"></a>
-      <a id="withConnection[A,B](⇒A)((MongoConnection)⇒B)(DriverManager[A],ExecutionContext):Future[B]"></a>
+      <a id="withConnection[A,B](conParam:=&gt;A)(f:reactivemongo.api.MongoConnection=&gt;B)(implicitd:reactivemongo.api.MongoDriver,implicitm:acolyte.reactivemongo.ConnectionManager[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]"></a>
+      <a id="withConnection[A,B](⇒A)((MongoConnection)⇒B)(MongoDriver,ConnectionManager[A],ExecutionContext):Future[B]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">withConnection</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="driverParam">driverParam: ⇒ <span class="extype" name="acolyte.reactivemongo.WithDriver.withConnection.A">A</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="reactivemongo.api.MongoConnection">MongoConnection</span>) ⇒ <span class="extype" name="acolyte.reactivemongo.WithDriver.withConnection.B">B</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="m">m: <a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a>[<span class="extype" name="acolyte.reactivemongo.WithDriver.withConnection.A">A</span>]</span>, <span name="c">c: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithDriver.withConnection.B">B</span>]</span>
+        <span class="name">withConnection</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="conParam">conParam: ⇒ <span class="extype" name="acolyte.reactivemongo.WithDriver.withConnection.A">A</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="reactivemongo.api.MongoConnection">MongoConnection</span>) ⇒ <span class="extype" name="acolyte.reactivemongo.WithDriver.withConnection.B">B</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <span class="extype" name="reactivemongo.api.MongoDriver">MongoDriver</span></span>, <span name="m">m: <a href="ConnectionManager.html" class="extype" name="acolyte.reactivemongo.ConnectionManager">ConnectionManager</a>[<span class="extype" name="acolyte.reactivemongo.WithDriver.withConnection.A">A</span>]</span>, <span name="c">c: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithDriver.withConnection.B">B</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Works with connection with options appropriate for a driver
@@ -409,51 +424,46 @@ initialized using Acolyte for ReactiveMongo
 initialized using Acolyte for ReactiveMongo
 (should not be used with other driver instances).
 Connection is closed after the result <code>Future</code> is completed.
-</p></div><dl class="paramcmts block"><dt class="param">driverParam</dt><dd class="cmt"><p>Driver manager parameter (see <a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a>)</p></dd><dt class="param">f</dt><dd class="cmt"><p>Function applied to initialized connection</p><pre><span class="kw">import</span> reactivemongo.api.MongoConnection
+</p></div><dl class="paramcmts block"><dt class="param">conParam</dt><dd class="cmt"><p>Connection manager parameter (see <a href="ConnectionManager.html" class="extype" name="acolyte.reactivemongo.ConnectionManager">ConnectionManager</a>)</p></dd><dt class="param">f</dt><dd class="cmt"><p>Function applied to initialized connection</p><pre><span class="kw">import</span> reactivemongo.api.MongoConnection
 <span class="kw">import</span> acolyte.reactivemongo.AcolyteDSL
 
 <span class="cmt">// handler: ConnectionHandler</span>
 <span class="kw">val</span> s: Future[<span class="std">String</span>] = AcolyteDSL.withConnection(handler) { con <span class="kw">=&gt;</span>
   <span class="kw">val</span> c: MongoConnection = con
   <span class="lit">"Result"</span>
-}</pre></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="#withFlatConnection[A,B](driverParam:=&gt;A)(f:reactivemongo.api.MongoConnection=&gt;scala.concurrent.Future[B])(implicitm:acolyte.reactivemongo.DriverManager[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]" class="extmbr" name="acolyte.reactivemongo.WithDriver#withFlatConnection">withFlatConnection</a>
-</p></span><span class="cmt"><p><a href="#withFlatDriver[A,B](driverParam:=&gt;A)(f:reactivemongo.api.MongoDriver=&gt;scala.concurrent.Future[B])(implicitm:acolyte.reactivemongo.DriverManager[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]" class="extmbr" name="acolyte.reactivemongo.WithDriver#withFlatDriver">withFlatDriver</a></p></span></dd></dl></div>
+}</pre></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="#withFlatConnection[A,B](conParam:=&gt;A)(f:reactivemongo.api.MongoConnection=&gt;scala.concurrent.Future[B])(implicitd:reactivemongo.api.MongoDriver,implicitm:acolyte.reactivemongo.ConnectionManager[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]" class="extmbr" name="acolyte.reactivemongo.WithDriver#withFlatConnection">withFlatConnection</a>
+</p></span><span class="cmt"><p><a href="#withFlatDriver[T](f:reactivemongo.api.MongoDriver=&gt;scala.concurrent.Future[T])(implicitm:acolyte.reactivemongo.DriverManager,implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[T]" class="extmbr" name="acolyte.reactivemongo.WithDriver#withFlatDriver">withFlatDriver</a></p></span></dd></dl></div>
     </li><li name="acolyte.reactivemongo.WithDriver#withDriver" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withDriver[A,B](driverParam:=&gt;A)(f:reactivemongo.api.MongoDriver=&gt;B)(implicitm:acolyte.reactivemongo.DriverManager[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]"></a>
-      <a id="withDriver[A,B](⇒A)((MongoDriver)⇒B)(DriverManager[A],ExecutionContext):Future[B]"></a>
+      <a id="withDriver[T](f:reactivemongo.api.MongoDriver=&gt;T)(implicitm:acolyte.reactivemongo.DriverManager,implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[T]"></a>
+      <a id="withDriver[T]((MongoDriver)⇒T)(DriverManager,ExecutionContext):Future[T]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">withDriver</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="driverParam">driverParam: ⇒ <span class="extype" name="acolyte.reactivemongo.WithDriver.withDriver.A">A</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="reactivemongo.api.MongoDriver">MongoDriver</span>) ⇒ <span class="extype" name="acolyte.reactivemongo.WithDriver.withDriver.B">B</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="m">m: <a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a>[<span class="extype" name="acolyte.reactivemongo.WithDriver.withDriver.A">A</span>]</span>, <span name="c">c: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithDriver.withDriver.B">B</span>]</span>
+        <span class="name">withDriver</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="reactivemongo.api.MongoDriver">MongoDriver</span>) ⇒ <span class="extype" name="acolyte.reactivemongo.WithDriver.withDriver.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="m">m: <a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a></span>, <span name="c">c: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithDriver.withDriver.T">T</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Works with Mongo driver configured with Acolyte handlers.</p><div class="fullcomment"><div class="comment cmt"><p>Works with Mongo driver configured with Acolyte handlers.
 Driver and associated resources are released
 after the function <code>f</code> the result <code>Future</code> is completed.
-</p></div><dl class="paramcmts block"><dt class="param">driverParam</dt><dd class="cmt"><p>Driver manager parameter (see <a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a>)</p></dd><dt class="param">f</dt><dd class="cmt"><p>Function applied to initialized driver</p><pre><span class="cmt">// handler: ConnectionHandler</span>
-<span class="kw">val</span> s: Future[<span class="std">String</span>] = withDriver(handler) { d <span class="kw">=&gt;</span>
+</p></div><dl class="paramcmts block"><dt class="param">f</dt><dd class="cmt"><p>Function applied to initialized driver</p><pre><span class="cmt">// handler: ConnectionHandler</span>
+<span class="kw">val</span> s: Future[<span class="std">String</span>] = withDriver { d <span class="kw">=&gt;</span>
   <span class="kw">val</span> initedDriver: MongoDriver = d
   <span class="lit">"Result"</span>
-}
-
-<span class="kw">val</span> i: Future[<span class="std">Int</span>] = withDriver(alreadyInitedDriver) { d <span class="kw">=&gt;</span>
-  <span class="kw">val</span> unchangedDriver: MongoDriver = d
-  <span class="num">1</span> <span class="cmt">// Result</span>
-}</pre></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="#withFlatDriver[A,B](driverParam:=&gt;A)(f:reactivemongo.api.MongoDriver=&gt;scala.concurrent.Future[B])(implicitm:acolyte.reactivemongo.DriverManager[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]" class="extmbr" name="acolyte.reactivemongo.WithDriver#withFlatDriver">withFlatDriver</a>
+}</pre></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="#withFlatDriver[T](f:reactivemongo.api.MongoDriver=&gt;scala.concurrent.Future[T])(implicitm:acolyte.reactivemongo.DriverManager,implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[T]" class="extmbr" name="acolyte.reactivemongo.WithDriver#withFlatDriver">withFlatDriver</a>
 </p></span></dd></dl></div>
     </li><li name="acolyte.reactivemongo.WithDriver#withFlatConnection" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withFlatConnection[A,B](driverParam:=&gt;A)(f:reactivemongo.api.MongoConnection=&gt;scala.concurrent.Future[B])(implicitm:acolyte.reactivemongo.DriverManager[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]"></a>
-      <a id="withFlatConnection[A,B](⇒A)((MongoConnection)⇒Future[B])(DriverManager[A],ExecutionContext):Future[B]"></a>
+      <a id="withFlatConnection[A,B](conParam:=&gt;A)(f:reactivemongo.api.MongoConnection=&gt;scala.concurrent.Future[B])(implicitd:reactivemongo.api.MongoDriver,implicitm:acolyte.reactivemongo.ConnectionManager[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]"></a>
+      <a id="withFlatConnection[A,B](⇒A)((MongoConnection)⇒Future[B])(MongoDriver,ConnectionManager[A],ExecutionContext):Future[B]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">withFlatConnection</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="driverParam">driverParam: ⇒ <span class="extype" name="acolyte.reactivemongo.WithDriver.withFlatConnection.A">A</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="reactivemongo.api.MongoConnection">MongoConnection</span>) ⇒ <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithDriver.withFlatConnection.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="m">m: <a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a>[<span class="extype" name="acolyte.reactivemongo.WithDriver.withFlatConnection.A">A</span>]</span>, <span name="c">c: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithDriver.withFlatConnection.B">B</span>]</span>
+        <span class="name">withFlatConnection</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="conParam">conParam: ⇒ <span class="extype" name="acolyte.reactivemongo.WithDriver.withFlatConnection.A">A</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="reactivemongo.api.MongoConnection">MongoConnection</span>) ⇒ <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithDriver.withFlatConnection.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <span class="extype" name="reactivemongo.api.MongoDriver">MongoDriver</span></span>, <span name="m">m: <a href="ConnectionManager.html" class="extype" name="acolyte.reactivemongo.ConnectionManager">ConnectionManager</a>[<span class="extype" name="acolyte.reactivemongo.WithDriver.withFlatConnection.A">A</span>]</span>, <span name="c">c: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithDriver.withFlatConnection.B">B</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Works with connection with options appropriate for a driver
@@ -461,40 +471,35 @@ initialized using Acolyte for ReactiveMongo
 (should not be used with other driver instances).</p><div class="fullcomment"><div class="comment cmt"><p>Works with connection with options appropriate for a driver
 initialized using Acolyte for ReactiveMongo
 (should not be used with other driver instances).
-</p></div><dl class="paramcmts block"><dt class="param">driverParam</dt><dd class="cmt"><p>Driver manager parameter (see <a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a>)</p></dd><dt class="param">f</dt><dd class="cmt"><p>Function applied to initialized connection</p><pre><span class="kw">import</span> reactivemongo.api.MongoConnection
+</p></div><dl class="paramcmts block"><dt class="param">conParam</dt><dd class="cmt"><p>Connection manager parameter (see <a href="ConnectionManager.html" class="extype" name="acolyte.reactivemongo.ConnectionManager">ConnectionManager</a>)</p></dd><dt class="param">f</dt><dd class="cmt"><p>Function applied to initialized connection</p><pre><span class="kw">import</span> reactivemongo.api.MongoConnection
 <span class="kw">import</span> acolyte.reactivemongo.AcolyteDSL
 
 <span class="cmt">// handler: ConnectionHandler</span>
 <span class="kw">val</span> s: Future[<span class="std">String</span>] = AcolyteDSL.withFlatConnection(handler) { con <span class="kw">=&gt;</span>
   <span class="kw">val</span> c: MongoConnection = con
   Future.successful(<span class="lit">"Result"</span>)
-}</pre></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="#withConnection[A,B](driverParam:=&gt;A)(f:reactivemongo.api.MongoConnection=&gt;B)(implicitm:acolyte.reactivemongo.DriverManager[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]" class="extmbr" name="acolyte.reactivemongo.WithDriver#withConnection">withConnection</a>
-</p></span><span class="cmt"><p><a href="#withFlatDriver[A,B](driverParam:=&gt;A)(f:reactivemongo.api.MongoDriver=&gt;scala.concurrent.Future[B])(implicitm:acolyte.reactivemongo.DriverManager[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]" class="extmbr" name="acolyte.reactivemongo.WithDriver#withFlatDriver">withFlatDriver</a></p></span></dd></dl></div>
+}</pre></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="#withConnection[A,B](conParam:=&gt;A)(f:reactivemongo.api.MongoConnection=&gt;B)(implicitd:reactivemongo.api.MongoDriver,implicitm:acolyte.reactivemongo.ConnectionManager[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]" class="extmbr" name="acolyte.reactivemongo.WithDriver#withConnection">withConnection</a>
+</p></span><span class="cmt"><p><a href="#withFlatDriver[T](f:reactivemongo.api.MongoDriver=&gt;scala.concurrent.Future[T])(implicitm:acolyte.reactivemongo.DriverManager,implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[T]" class="extmbr" name="acolyte.reactivemongo.WithDriver#withFlatDriver">withFlatDriver</a></p></span></dd></dl></div>
     </li><li name="acolyte.reactivemongo.WithDriver#withFlatDriver" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withFlatDriver[A,B](driverParam:=&gt;A)(f:reactivemongo.api.MongoDriver=&gt;scala.concurrent.Future[B])(implicitm:acolyte.reactivemongo.DriverManager[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]"></a>
-      <a id="withFlatDriver[A,B](⇒A)((MongoDriver)⇒Future[B])(DriverManager[A],ExecutionContext):Future[B]"></a>
+      <a id="withFlatDriver[T](f:reactivemongo.api.MongoDriver=&gt;scala.concurrent.Future[T])(implicitm:acolyte.reactivemongo.DriverManager,implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[T]"></a>
+      <a id="withFlatDriver[T]((MongoDriver)⇒Future[T])(DriverManager,ExecutionContext):Future[T]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">withFlatDriver</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="driverParam">driverParam: ⇒ <span class="extype" name="acolyte.reactivemongo.WithDriver.withFlatDriver.A">A</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="reactivemongo.api.MongoDriver">MongoDriver</span>) ⇒ <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithDriver.withFlatDriver.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="m">m: <a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a>[<span class="extype" name="acolyte.reactivemongo.WithDriver.withFlatDriver.A">A</span>]</span>, <span name="c">c: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithDriver.withFlatDriver.B">B</span>]</span>
+        <span class="name">withFlatDriver</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="f">f: (<span class="extype" name="reactivemongo.api.MongoDriver">MongoDriver</span>) ⇒ <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithDriver.withFlatDriver.T">T</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="m">m: <a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a></span>, <span name="c">c: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithDriver.withFlatDriver.T">T</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Works with Mongo driver configured with Acolyte handlers.</p><div class="fullcomment"><div class="comment cmt"><p>Works with Mongo driver configured with Acolyte handlers.
 Driver and associated resources are released
 after the function <code>f</code> the result <code>Future</code> is completed.
-</p></div><dl class="paramcmts block"><dt class="param">driverParam</dt><dd class="cmt"><p>Driver manager parameter (see <a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a>)</p></dd><dt class="param">f</dt><dd class="cmt"><p>Function applied to initialized driver (returning a future)</p><pre><span class="cmt">// handler: ConnectionHandler</span>
-<span class="kw">val</span> s: Future[<span class="std">String</span>] = withFlatDriver(handler) { d <span class="kw">=&gt;</span>
+</p></div><dl class="paramcmts block"><dt class="param">f</dt><dd class="cmt"><p>Function applied to initialized driver (returning a future)</p><pre><span class="cmt">// handler: ConnectionHandler</span>
+<span class="kw">val</span> s: Future[<span class="std">String</span>] = withFlatDriver { d <span class="kw">=&gt;</span>
   <span class="kw">val</span> initedDriver: MongoDriver = d
   Future.successful(<span class="lit">"Result"</span>)
-}
-
-<span class="kw">val</span> i: Future[<span class="std">Int</span>] = withFlatDriver(alreadyInitedDriver) { d <span class="kw">=&gt;</span>
-  <span class="kw">val</span> unchangedDriver: MongoDriver = d
-  Future(<span class="num">1</span> + <span class="num">2</span>) <span class="cmt">// Result</span>
-}</pre></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="#withDriver[A,B](driverParam:=&gt;A)(f:reactivemongo.api.MongoDriver=&gt;B)(implicitm:acolyte.reactivemongo.DriverManager[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]" class="extmbr" name="acolyte.reactivemongo.WithDriver#withDriver">withDriver</a>
+}</pre></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p><a href="#withDriver[T](f:reactivemongo.api.MongoDriver=&gt;T)(implicitm:acolyte.reactivemongo.DriverManager,implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[T]" class="extmbr" name="acolyte.reactivemongo.WithDriver#withDriver">withDriver</a>
 </p></span></dd></dl></div>
     </li></ol>
             </div>

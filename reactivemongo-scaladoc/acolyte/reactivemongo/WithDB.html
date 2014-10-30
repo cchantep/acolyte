@@ -408,7 +408,7 @@ initialized using Acolyte for ReactiveMongo
 (should not be used with other driver instances).</p><div class="fullcomment"><div class="comment cmt"><p>Works with Mongo database (named &quot;acolyte&quot;) resolved using given driver
 initialized using Acolyte for ReactiveMongo
 (should not be used with other driver instances).
-</p></div><dl class="paramcmts block"><dt class="param">f</dt><dd class="cmt"><p>Function applied to initialized Mongo DB</p><pre><span class="kw">import</span> reactivemongo.api.DB
+</p></div><dl class="paramcmts block"><dt class="param">con</dt><dd class="cmt"><p>Previously initialized connection</p></dd><dt class="param">f</dt><dd class="cmt"><p>Function applied to initialized Mongo DB</p><pre><span class="kw">import</span> reactivemongo.api.DB
 <span class="kw">import</span> acolyte.reactivemongo.AcolyteDSL
 
 <span class="cmt">// handler: ConnectionHandler</span>
@@ -420,15 +420,15 @@ initialized using Acolyte for ReactiveMongo
 }</pre></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p>withFlatDB[T]
 </p></span><span class="cmt"><p>AcolyteDSL.withConnection</p></span></dd></dl></div>
     </li><li name="acolyte.reactivemongo.WithDB#withDB" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withDB[A,B](driverParam:=&gt;A)(f:reactivemongo.api.DB=&gt;B)(implicitm:acolyte.reactivemongo.DriverManager[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]"></a>
-      <a id="withDB[A,B](⇒A)((DB)⇒B)(DriverManager[A],ExecutionContext):Future[B]"></a>
+      <a id="withDB[A,B](conParam:=&gt;A)(f:reactivemongo.api.DB=&gt;B)(implicitd:reactivemongo.api.MongoDriver,implicitm:acolyte.reactivemongo.ConnectionManager[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]"></a>
+      <a id="withDB[A,B](⇒A)((DB)⇒B)(MongoDriver,ConnectionManager[A],ExecutionContext):Future[B]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">withDB</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="driverParam">driverParam: ⇒ <span class="extype" name="acolyte.reactivemongo.WithDB.withDB.A">A</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="reactivemongo.api.DB">DB</span>) ⇒ <span class="extype" name="acolyte.reactivemongo.WithDB.withDB.B">B</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="m">m: <a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a>[<span class="extype" name="acolyte.reactivemongo.WithDB.withDB.A">A</span>]</span>, <span name="c">c: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithDB.withDB.B">B</span>]</span>
+        <span class="name">withDB</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="conParam">conParam: ⇒ <span class="extype" name="acolyte.reactivemongo.WithDB.withDB.A">A</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="reactivemongo.api.DB">DB</span>) ⇒ <span class="extype" name="acolyte.reactivemongo.WithDB.withDB.B">B</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <span class="extype" name="reactivemongo.api.MongoDriver">MongoDriver</span></span>, <span name="m">m: <a href="ConnectionManager.html" class="extype" name="acolyte.reactivemongo.ConnectionManager">ConnectionManager</a>[<span class="extype" name="acolyte.reactivemongo.WithDB.withDB.A">A</span>]</span>, <span name="c">c: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithDB.withDB.B">B</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Works with Mongo database (named &quot;acolyte&quot;) resolved using given driver
@@ -438,7 +438,7 @@ initialized using Acolyte for ReactiveMongo
 (should not be used with other driver instances).
 Driver and associated resources are released
 after the function <code>f</code> the result <code>Future</code> is completed.
-</p></div><dl class="paramcmts block"><dt class="param">driverParam</dt><dd class="cmt"><p>Driver manager parameter (see <a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a>)</p></dd><dt class="param">f</dt><dd class="cmt"><p>Function applied to initialized Mongo DB</p><pre><span class="kw">import</span> reactivemongo.api.DB
+</p></div><dl class="paramcmts block"><dt class="param">conParam</dt><dd class="cmt"><p>Connection manager parameter (see <a href="ConnectionManager.html" class="extype" name="acolyte.reactivemongo.ConnectionManager">ConnectionManager</a>)</p></dd><dt class="param">f</dt><dd class="cmt"><p>Function applied to initialized Mongo DB</p><pre><span class="kw">import</span> reactivemongo.api.DB
 <span class="kw">import</span> acolyte.reactivemongo.AcolyteDSL
 
 <span class="cmt">// handler: ConnectionHandler</span>
@@ -464,7 +464,7 @@ initialized using Acolyte for ReactiveMongo
 (should not be used with other driver instances).</p><div class="fullcomment"><div class="comment cmt"><p>Works with Mongo database (named &quot;acolyte&quot;) resolved using given driver
 initialized using Acolyte for ReactiveMongo
 (should not be used with other driver instances).
-</p></div><dl class="paramcmts block"><dt class="param">f</dt><dd class="cmt"><p>Function applied to initialized Mongo DB</p><pre><span class="kw">import</span> reactivemongo.api.DB
+</p></div><dl class="paramcmts block"><dt class="param">con</dt><dd class="cmt"><p>Previously initialized connection</p></dd><dt class="param">f</dt><dd class="cmt"><p>Function applied to initialized Mongo DB</p><pre><span class="kw">import</span> reactivemongo.api.DB
 <span class="kw">import</span> acolyte.reactivemongo.AcolyteDSL
 
 <span class="cmt">// handler: ConnectionHandler</span>
@@ -476,15 +476,15 @@ initialized using Acolyte for ReactiveMongo
 }</pre></dd></dl><dl class="attributes block"> <dt>See also</dt><dd><span class="cmt"><p>withFlatDB[T]
 </p></span><span class="cmt"><p>AcolyteDSL.withConnection</p></span></dd></dl></div>
     </li><li name="acolyte.reactivemongo.WithDB#withFlatDB" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withFlatDB[A,B](driverParam:=&gt;A)(f:reactivemongo.api.DB=&gt;scala.concurrent.Future[B])(implicitm:acolyte.reactivemongo.DriverManager[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]"></a>
-      <a id="withFlatDB[A,B](⇒A)((DB)⇒Future[B])(DriverManager[A],ExecutionContext):Future[B]"></a>
+      <a id="withFlatDB[A,B](conParam:=&gt;A)(f:reactivemongo.api.DB=&gt;scala.concurrent.Future[B])(implicitd:reactivemongo.api.MongoDriver,implicitm:acolyte.reactivemongo.ConnectionManager[A],implicitc:scala.concurrent.ExecutionContext):scala.concurrent.Future[B]"></a>
+      <a id="withFlatDB[A,B](⇒A)((DB)⇒Future[B])(MongoDriver,ConnectionManager[A],ExecutionContext):Future[B]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">withFlatDB</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="driverParam">driverParam: ⇒ <span class="extype" name="acolyte.reactivemongo.WithDB.withFlatDB.A">A</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="reactivemongo.api.DB">DB</span>) ⇒ <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithDB.withFlatDB.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="m">m: <a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a>[<span class="extype" name="acolyte.reactivemongo.WithDB.withFlatDB.A">A</span>]</span>, <span name="c">c: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithDB.withFlatDB.B">B</span>]</span>
+        <span class="name">withFlatDB</span><span class="tparams">[<span name="A">A</span>, <span name="B">B</span>]</span><span class="params">(<span name="conParam">conParam: ⇒ <span class="extype" name="acolyte.reactivemongo.WithDB.withFlatDB.A">A</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="reactivemongo.api.DB">DB</span>) ⇒ <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithDB.withFlatDB.B">B</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="d">d: <span class="extype" name="reactivemongo.api.MongoDriver">MongoDriver</span></span>, <span name="m">m: <a href="ConnectionManager.html" class="extype" name="acolyte.reactivemongo.ConnectionManager">ConnectionManager</a>[<span class="extype" name="acolyte.reactivemongo.WithDB.withFlatDB.A">A</span>]</span>, <span name="c">c: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="acolyte.reactivemongo.WithDB.withFlatDB.B">B</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Works with Mongo database (named &quot;acolyte&quot;) resolved using given driver
@@ -492,7 +492,7 @@ initialized using Acolyte for ReactiveMongo
 (should not be used with other driver instances).</p><div class="fullcomment"><div class="comment cmt"><p>Works with Mongo database (named &quot;acolyte&quot;) resolved using given driver
 initialized using Acolyte for ReactiveMongo
 (should not be used with other driver instances).
-</p></div><dl class="paramcmts block"><dt class="param">driverParam</dt><dd class="cmt"><p>Driver manager parameter (see <a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a>)</p></dd><dt class="param">f</dt><dd class="cmt"><p>Function applied to initialized Mongo DB</p><pre><span class="kw">import</span> reactivemongo.api.DB
+</p></div><dl class="paramcmts block"><dt class="param">conParam</dt><dd class="cmt"><p>Connection manager parameter (see <a href="ConnectionManager.html" class="extype" name="acolyte.reactivemongo.ConnectionManager">ConnectionManager</a>)</p></dd><dt class="param">f</dt><dd class="cmt"><p>Function applied to initialized Mongo DB</p><pre><span class="kw">import</span> reactivemongo.api.DB
 <span class="kw">import</span> acolyte.reactivemongo.AcolyteDSL
 
 <span class="cmt">// handler: ConnectionHandler</span>

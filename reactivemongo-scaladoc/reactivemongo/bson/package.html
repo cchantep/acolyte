@@ -146,6 +146,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
+    </li><li name="reactivemongo.bson.DefaultBSONHandlers.IdentityBSONConverter" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="IdentityBSONConverter[T&lt;:&lt;?&gt;]extendsBSONReader[T,T]withBSONWriter[T,T]"></a>
+      <a id="IdentityBSONConverter[T&lt;:BSONValue]:IdentityBSONConverter[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">IdentityBSONConverter</span><span class="tparams">[<span name="T">T &lt;: <span class="extype" name="reactivemongo.bson.BSONValue">BSONValue</span></span>]</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.BSONReader">BSONReader</span>[<span class="extype" name="reactivemongo.bson.DefaultBSONHandlers.IdentityBSONConverter.T">T</span>, <span class="extype" name="reactivemongo.bson.DefaultBSONHandlers.IdentityBSONConverter.T">T</span>] with <span class="extype" name="reactivemongo.bson.BSONWriter">BSONWriter</span>[<span class="extype" name="reactivemongo.bson.DefaultBSONHandlers.IdentityBSONConverter.T">T</span>, <span class="extype" name="reactivemongo.bson.DefaultBSONHandlers.IdentityBSONConverter.T">T</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
     </li></ol>
             </div>
 
@@ -162,7 +175,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">BSONArrayIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.BSONReader">BSONReader</span>[<span class="extype" name="reactivemongo.bson.BSONArray">BSONArray</span>, <span class="extype" name="reactivemongo.bson.BSONArray">BSONArray</span>] with <span class="extype" name="reactivemongo.bson.BSONWriter">BSONWriter</span>[<span class="extype" name="reactivemongo.bson.BSONArray">BSONArray</span>, <span class="extype" name="reactivemongo.bson.BSONArray">BSONArray</span>]</span>
+        <span class="name">BSONArrayIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.DefaultBSONHandlers.IdentityBSONConverter">IdentityBSONConverter</span>[<span class="extype" name="reactivemongo.bson.BSONArray">BSONArray</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
@@ -175,7 +188,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">BSONBinaryIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.BSONReader">BSONReader</span>[<span class="extype" name="reactivemongo.bson.BSONBinary">BSONBinary</span>, <span class="extype" name="reactivemongo.bson.BSONBinary">BSONBinary</span>] with <span class="extype" name="reactivemongo.bson.BSONWriter">BSONWriter</span>[<span class="extype" name="reactivemongo.bson.BSONBinary">BSONBinary</span>, <span class="extype" name="reactivemongo.bson.BSONBinary">BSONBinary</span>]</span>
+        <span class="name">BSONBinaryIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.DefaultBSONHandlers.IdentityBSONConverter">IdentityBSONConverter</span>[<span class="extype" name="reactivemongo.bson.BSONBinary">BSONBinary</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
@@ -201,7 +214,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">BSONBooleanIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.BSONReader">BSONReader</span>[<span class="extype" name="reactivemongo.bson.BSONBoolean">BSONBoolean</span>, <span class="extype" name="reactivemongo.bson.BSONBoolean">BSONBoolean</span>] with <span class="extype" name="reactivemongo.bson.BSONWriter">BSONWriter</span>[<span class="extype" name="reactivemongo.bson.BSONBoolean">BSONBoolean</span>, <span class="extype" name="reactivemongo.bson.BSONBoolean">BSONBoolean</span>]</span>
+        <span class="name">BSONBooleanIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.DefaultBSONHandlers.IdentityBSONConverter">IdentityBSONConverter</span>[<span class="extype" name="reactivemongo.bson.BSONBoolean">BSONBoolean</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
@@ -227,7 +240,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">BSONDateTimeIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.BSONReader">BSONReader</span>[<span class="extype" name="reactivemongo.bson.BSONDateTime">BSONDateTime</span>, <span class="extype" name="reactivemongo.bson.BSONDateTime">BSONDateTime</span>] with <span class="extype" name="reactivemongo.bson.BSONWriter">BSONWriter</span>[<span class="extype" name="reactivemongo.bson.BSONDateTime">BSONDateTime</span>, <span class="extype" name="reactivemongo.bson.BSONDateTime">BSONDateTime</span>]</span>
+        <span class="name">BSONDateTimeIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.DefaultBSONHandlers.IdentityBSONConverter">IdentityBSONConverter</span>[<span class="extype" name="reactivemongo.bson.BSONDateTime">BSONDateTime</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
@@ -240,7 +253,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">BSONDocumentIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.BSONReader">BSONReader</span>[<span class="extype" name="reactivemongo.bson.BSONDocument">BSONDocument</span>, <span class="extype" name="reactivemongo.bson.BSONDocument">BSONDocument</span>] with <span class="extype" name="reactivemongo.bson.BSONWriter">BSONWriter</span>[<span class="extype" name="reactivemongo.bson.BSONDocument">BSONDocument</span>, <span class="extype" name="reactivemongo.bson.BSONDocument">BSONDocument</span>] with <span class="extype" name="reactivemongo.bson.BSONDocumentReader">BSONDocumentReader</span>[<span class="extype" name="reactivemongo.bson.BSONDocument">BSONDocument</span>] with <span class="extype" name="reactivemongo.bson.BSONDocumentWriter">BSONDocumentWriter</span>[<span class="extype" name="reactivemongo.bson.BSONDocument">BSONDocument</span>]</span>
+        <span class="name">BSONDocumentIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.DefaultBSONHandlers.IdentityBSONConverter">IdentityBSONConverter</span>[<span class="extype" name="reactivemongo.bson.BSONDocument">BSONDocument</span>] with <span class="extype" name="reactivemongo.bson.BSONDocumentReader">BSONDocumentReader</span>[<span class="extype" name="reactivemongo.bson.BSONDocument">BSONDocument</span>] with <span class="extype" name="reactivemongo.bson.BSONDocumentWriter">BSONDocumentWriter</span>[<span class="extype" name="reactivemongo.bson.BSONDocument">BSONDocument</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
@@ -266,7 +279,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">BSONDoubleIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.BSONReader">BSONReader</span>[<span class="extype" name="reactivemongo.bson.BSONDouble">BSONDouble</span>, <span class="extype" name="reactivemongo.bson.BSONDouble">BSONDouble</span>] with <span class="extype" name="reactivemongo.bson.BSONWriter">BSONWriter</span>[<span class="extype" name="reactivemongo.bson.BSONDouble">BSONDouble</span>, <span class="extype" name="reactivemongo.bson.BSONDouble">BSONDouble</span>]</span>
+        <span class="name">BSONDoubleIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.DefaultBSONHandlers.IdentityBSONConverter">IdentityBSONConverter</span>[<span class="extype" name="reactivemongo.bson.BSONDouble">BSONDouble</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
@@ -292,7 +305,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">BSONIntegerIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.BSONReader">BSONReader</span>[<span class="extype" name="reactivemongo.bson.BSONInteger">BSONInteger</span>, <span class="extype" name="reactivemongo.bson.BSONInteger">BSONInteger</span>] with <span class="extype" name="reactivemongo.bson.BSONWriter">BSONWriter</span>[<span class="extype" name="reactivemongo.bson.BSONInteger">BSONInteger</span>, <span class="extype" name="reactivemongo.bson.BSONInteger">BSONInteger</span>]</span>
+        <span class="name">BSONIntegerIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.DefaultBSONHandlers.IdentityBSONConverter">IdentityBSONConverter</span>[<span class="extype" name="reactivemongo.bson.BSONInteger">BSONInteger</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
@@ -331,7 +344,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">BSONLongIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.BSONReader">BSONReader</span>[<span class="extype" name="reactivemongo.bson.BSONLong">BSONLong</span>, <span class="extype" name="reactivemongo.bson.BSONLong">BSONLong</span>] with <span class="extype" name="reactivemongo.bson.BSONWriter">BSONWriter</span>[<span class="extype" name="reactivemongo.bson.BSONLong">BSONLong</span>, <span class="extype" name="reactivemongo.bson.BSONLong">BSONLong</span>]</span>
+        <span class="name">BSONLongIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.DefaultBSONHandlers.IdentityBSONConverter">IdentityBSONConverter</span>[<span class="extype" name="reactivemongo.bson.BSONLong">BSONLong</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
@@ -344,7 +357,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">BSONNullIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.BSONReader">BSONReader</span>[<span class="extype" name="reactivemongo.bson.BSONNull">BSONNull</span>.type, <span class="extype" name="reactivemongo.bson.BSONNull">BSONNull</span>.type] with <span class="extype" name="reactivemongo.bson.BSONWriter">BSONWriter</span>[<span class="extype" name="reactivemongo.bson.BSONNull">BSONNull</span>.type, <span class="extype" name="reactivemongo.bson.BSONNull">BSONNull</span>.type]</span>
+        <span class="name">BSONNullIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.DefaultBSONHandlers.IdentityBSONConverter">IdentityBSONConverter</span>[<span class="extype" name="reactivemongo.bson.BSONNull">BSONNull</span>.type]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
@@ -370,7 +383,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">BSONObjectIDIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.BSONReader">BSONReader</span>[<span class="extype" name="reactivemongo.bson.BSONObjectID">BSONObjectID</span>, <span class="extype" name="reactivemongo.bson.BSONObjectID">BSONObjectID</span>] with <span class="extype" name="reactivemongo.bson.BSONWriter">BSONWriter</span>[<span class="extype" name="reactivemongo.bson.BSONObjectID">BSONObjectID</span>, <span class="extype" name="reactivemongo.bson.BSONObjectID">BSONObjectID</span>]</span>
+        <span class="name">BSONObjectIDIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.DefaultBSONHandlers.IdentityBSONConverter">IdentityBSONConverter</span>[<span class="extype" name="reactivemongo.bson.BSONObjectID">BSONObjectID</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
@@ -383,7 +396,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">BSONRegexIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.BSONReader">BSONReader</span>[<span class="extype" name="reactivemongo.bson.BSONRegex">BSONRegex</span>, <span class="extype" name="reactivemongo.bson.BSONRegex">BSONRegex</span>] with <span class="extype" name="reactivemongo.bson.BSONWriter">BSONWriter</span>[<span class="extype" name="reactivemongo.bson.BSONRegex">BSONRegex</span>, <span class="extype" name="reactivemongo.bson.BSONRegex">BSONRegex</span>]</span>
+        <span class="name">BSONRegexIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.DefaultBSONHandlers.IdentityBSONConverter">IdentityBSONConverter</span>[<span class="extype" name="reactivemongo.bson.BSONRegex">BSONRegex</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
@@ -409,7 +422,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">BSONStringIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.BSONReader">BSONReader</span>[<span class="extype" name="reactivemongo.bson.BSONString">BSONString</span>, <span class="extype" name="reactivemongo.bson.BSONString">BSONString</span>] with <span class="extype" name="reactivemongo.bson.BSONWriter">BSONWriter</span>[<span class="extype" name="reactivemongo.bson.BSONString">BSONString</span>, <span class="extype" name="reactivemongo.bson.BSONString">BSONString</span>]</span>
+        <span class="name">BSONStringIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.DefaultBSONHandlers.IdentityBSONConverter">IdentityBSONConverter</span>[<span class="extype" name="reactivemongo.bson.BSONString">BSONString</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
@@ -422,7 +435,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">BSONUndefinedIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.BSONReader">BSONReader</span>[<span class="extype" name="reactivemongo.bson.BSONUndefined">BSONUndefined</span>.type, <span class="extype" name="reactivemongo.bson.BSONUndefined">BSONUndefined</span>.type] with <span class="extype" name="reactivemongo.bson.BSONWriter">BSONWriter</span>[<span class="extype" name="reactivemongo.bson.BSONUndefined">BSONUndefined</span>.type, <span class="extype" name="reactivemongo.bson.BSONUndefined">BSONUndefined</span>.type]</span>
+        <span class="name">BSONUndefinedIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.DefaultBSONHandlers.IdentityBSONConverter">IdentityBSONConverter</span>[<span class="extype" name="reactivemongo.bson.BSONUndefined">BSONUndefined</span>.type]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
@@ -435,7 +448,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">BSONValueIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.BSONReader">BSONReader</span>[<span class="extype" name="reactivemongo.bson.BSONValue">BSONValue</span>, <span class="extype" name="reactivemongo.bson.BSONValue">BSONValue</span>] with <span class="extype" name="reactivemongo.bson.BSONWriter">BSONWriter</span>[<span class="extype" name="reactivemongo.bson.BSONValue">BSONValue</span>, <span class="extype" name="reactivemongo.bson.BSONValue">BSONValue</span>]</span>
+        <span class="name">BSONValueIdentity</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.DefaultBSONHandlers.IdentityBSONConverter">IdentityBSONConverter</span>[<span class="extype" name="reactivemongo.bson.BSONValue">BSONValue</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>

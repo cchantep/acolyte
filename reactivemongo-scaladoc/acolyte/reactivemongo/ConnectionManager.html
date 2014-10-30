@@ -2,9 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>HandlerDriverManager - acolyte.reactivemongo.DriverManager.HandlerDriverManager</title>
-          <meta name="description" content="HandlerDriverManager - acolyte.reactivemongo.DriverManager.HandlerDriverManager" />
-          <meta name="keywords" content="HandlerDriverManager acolyte.reactivemongo.DriverManager.HandlerDriverManager" />
+          <title>ConnectionManager - acolyte.reactivemongo.ConnectionManager</title>
+          <meta name="description" content="ConnectionManager - acolyte.reactivemongo.ConnectionManager" />
+          <meta name="keywords" content="ConnectionManager acolyte.reactivemongo.ConnectionManager" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -12,7 +12,7 @@
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
-            var hash = 'acolyte.reactivemongo.DriverManager$$HandlerDriverManager$';
+            var hash = 'acolyte.reactivemongo.ConnectionManager';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -22,26 +22,29 @@
    	  </script>
     
         </head>
-        <body class="value">
+        <body class="type">
       <div id="definition">
-        <img src="../../lib/object_big.png" />
-        <p id="owner"><a href="../package.html" class="extype" name="acolyte">acolyte</a>.<a href="package.html" class="extype" name="acolyte.reactivemongo">reactivemongo</a>.<a href="DriverManager$.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a></p>
-        <h1>HandlerDriverManager</h1>
+        <a href="ConnectionManager$.html" title="Go to companion"><img src="../../lib/trait_to_object_big.png" /></a>
+        <p id="owner"><a href="../package.html" class="extype" name="acolyte">acolyte</a>.<a href="package.html" class="extype" name="acolyte.reactivemongo">reactivemongo</a></p>
+        <h1><a href="ConnectionManager$.html" title="Go to companion">ConnectionManager</a></h1>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">object</span>
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <span class="name">HandlerDriverManager</span><span class="result"> extends <a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a>[<a href="ConnectionHandler.html" class="extype" name="acolyte.reactivemongo.ConnectionHandler">ConnectionHandler</a>]</span>
+        <span class="name">ConnectionManager</span><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Manager instance based on connection handler.</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Connection manager</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a>[<a href="ConnectionHandler.html" class="extype" name="acolyte.reactivemongo.ConnectionHandler">ConnectionHandler</a>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div><div class="toggleContainer block">
+          <span class="toggle">Known Subclasses</span>
+          <div class="subClasses hiddenContent"><a href="ConnectionManager$$HandlerConnectionManager$.html" class="extype" name="acolyte.reactivemongo.ConnectionManager.HandlerConnectionManager">HandlerConnectionManager</a>, <a href="ConnectionManager$$IdentityConnectionManager$.html" class="extype" name="acolyte.reactivemongo.ConnectionManager.IdentityConnectionManager">IdentityConnectionManager</a></div>
         </div></div>
         
 
@@ -59,7 +62,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="acolyte.reactivemongo.DriverManager.HandlerDriverManager"><span>HandlerDriverManager</span></li><li class="in" name="acolyte.reactivemongo.DriverManager"><span>DriverManager</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="acolyte.reactivemongo.ConnectionManager"><span>ConnectionManager</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -81,10 +84,39 @@
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Abstract Value Members</h3>
+              <ol><li name="acolyte.reactivemongo.ConnectionManager#open" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="open(driver:reactivemongo.api.MongoDriver,param:T):reactivemongo.api.MongoConnection"></a>
+      <a id="open(MongoDriver,T):MongoConnection"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">open</span><span class="params">(<span name="driver">driver: <span class="extype" name="reactivemongo.api.MongoDriver">MongoDriver</span></span>, <span name="param">param: <span class="extype" name="acolyte.reactivemongo.ConnectionManager.T">T</span></span>)</span><span class="result">: <span class="extype" name="reactivemongo.api.MongoConnection">MongoConnection</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Initializes connection.</p>
+    </li><li name="acolyte.reactivemongo.ConnectionManager#releaseIfNecessary" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="releaseIfNecessary(connection:reactivemongo.api.MongoConnection):Boolean"></a>
+      <a id="releaseIfNecessary(MongoConnection):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">releaseIfNecessary</span><span class="params">(<span name="connection">connection: <span class="extype" name="reactivemongo.api.MongoConnection">MongoConnection</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Releases connection if necessary.</p>
+    </li></ol>
+            </div>
 
         <div id="values" class="values members">
-              <h3>Value Members</h3>
+              <h3>Concrete Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:AnyRef):Boolean"></a>
       <a id="!=(AnyRef):Boolean"></a>
@@ -305,32 +337,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="acolyte.reactivemongo.DriverManager.HandlerDriverManager#open" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="open(handler:acolyte.reactivemongo.ConnectionHandler):reactivemongo.api.MongoDriver"></a>
-      <a id="open(ConnectionHandler):MongoDriver"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">open</span><span class="params">(<span name="handler">handler: <a href="ConnectionHandler.html" class="extype" name="acolyte.reactivemongo.ConnectionHandler">ConnectionHandler</a></span>)</span><span class="result">: <span class="extype" name="reactivemongo.api.MongoDriver">MongoDriver</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Initializes driver.</p><div class="fullcomment"><div class="comment cmt"><p>Initializes driver.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="acolyte.reactivemongo.DriverManager.HandlerDriverManager">HandlerDriverManager</a> → <a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a></dd></dl></div>
-    </li><li name="acolyte.reactivemongo.DriverManager.HandlerDriverManager#releaseIfNecessary" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="releaseIfNecessary(driver:reactivemongo.api.MongoDriver):Boolean"></a>
-      <a id="releaseIfNecessary(MongoDriver):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">releaseIfNecessary</span><span class="params">(<span name="driver">driver: <span class="extype" name="reactivemongo.api.MongoDriver">MongoDriver</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Releases driver if necessary.</p><div class="fullcomment"><div class="comment cmt"><p>Releases driver if necessary.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="acolyte.reactivemongo.DriverManager.HandlerDriverManager">HandlerDriverManager</a> → <a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -423,9 +429,7 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="acolyte.reactivemongo.DriverManager">
-              <h3>Inherited from <a href="DriverManager.html" class="extype" name="acolyte.reactivemongo.DriverManager">DriverManager</a>[<a href="ConnectionHandler.html" class="extype" name="acolyte.reactivemongo.ConnectionHandler">ConnectionHandler</a>]</h3>
-            </div><div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
