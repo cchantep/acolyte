@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eu.acolyte</groupId>
   <artifactId>acolyte</artifactId>
-  <version>1.0.32</version>
+  <version>1.0.33</version>
   <packaging>pom</packaging>
   <name>Acolyte</name>
 

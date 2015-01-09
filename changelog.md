@@ -1,3 +1,7 @@
+## 1.0.32
+
+([42a9ddfdccc65c175edf7d22cd677592843af0bf](https://github.com/cchantep/acolyte/commit/42a9ddfdccc65c175edf7d22cd677592843af0bf) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Add connection property `acolyte.resultSet.initOnFirstRow` to make Acolyte ResultSet iterates rows as degraded Oracle one.
+
 ## 1.0.31
 
 ([bd6763c3e1d513d05cfefbb887e20a672b1c71db](https://github.com/cchantep/acolyte/commit/bd6763c3e1d513d05cfefbb887e20a672b1c71db) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Manage connection handler per actor, so that an single ActorSystem can manage several handlers. Documentation about driver manager with SBT or Specs2.
