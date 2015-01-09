@@ -21,6 +21,7 @@ import org.apache.commons.io.IOUtils.contentEquals
 
 import acolyte.jdbc.Rows.{ row1, row2 }
 import acolyte.jdbc.RowList.{ Column ⇒ Col }
+import acolyte.jdbc.test.Params
 
 object RowListSpec extends Specification with RowListTest {
   "Row list" title
@@ -732,6 +733,33 @@ object RowListSpec extends Specification with RowListTest {
 
     }
 
+    "be read on first row without `next()` call if option 'acolyte.resultSet.initOnFirstRow' is used" in {
+      val url = "jdbc:acolyte:test"
+      lazy val sh = new StatementHandler {
+        def isQuery(s: String) = true
+        def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
+        def whenSQLQuery(s: String, p: Params) = {
+          RowLists.rowList1(classOf[String]).
+            append("Foo").append("Bar").asResult
+        }
+      }
+      val ch = new ConnectionHandler.Default(sh)
+      val props = new java.util.Properties()
+      props.put("acolyte.resultSet.initOnFirstRow", "true")
+      lazy val con = new acolyte.jdbc.Connection(url, props, ch)
+      lazy val st = con.prepareStatement("SELECT * FROM Test")
+      lazy val rs = {
+        st.execute()
+        st.getResultSet
+      }
+
+      rs.getFetchSize aka "fetch size" must_== 2 and (
+        rs.getObject(1) aka "first row" must_== "Foo") and (
+          rs.next aka "has second row" must beTrue) and (
+            rs.getObject(1) aka "second row" must_== "Bar") and (
+              rs.next aka "has third row" must beFalse)
+    }
+
     "be expected one" in {
       lazy val rs = (new RowList1.Impl(classOf[Long]).
         append(row1(123.toLong))).resultSet
@@ -833,6 +861,33 @@ object RowListSpec extends Specification with RowListTest {
         getObject("n") aka "getObject" must throwA[SQLException](
           message = "Not on a row")
 
+    }
+
+    "be read on first row without `next()` call if option 'acolyte.resultSet.initOnFirstRow' is used" in {
+      val url = "jdbc:acolyte:test"
+      lazy val sh = new StatementHandler {
+        def isQuery(s: String) = true
+        def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
+        def whenSQLQuery(s: String, p: Params) = {
+          RowLists.rowList1(Col(classOf[String], "colStr")).
+            append("Foo").append("Bar").asResult
+        }
+      }
+      val ch = new ConnectionHandler.Default(sh)
+      val props = new java.util.Properties()
+      props.put("acolyte.resultSet.initOnFirstRow", "true")
+      lazy val con = new acolyte.jdbc.Connection(url, props, ch)
+      lazy val st = con.prepareStatement("SELECT * FROM Test")
+      lazy val rs = {
+        st.execute()
+        st.getResultSet
+      }
+
+      rs.getFetchSize aka "fetch size" must_== 2 and (
+        rs.getObject("colStr") aka "first row" must_== "Foo") and (
+          rs.next aka "has second row" must beTrue) and (
+            rs.getObject("colStr") aka "second row" must_== "Bar") and (
+              rs.next aka "has third row" must beFalse)
     }
 
     "be expected one" in {

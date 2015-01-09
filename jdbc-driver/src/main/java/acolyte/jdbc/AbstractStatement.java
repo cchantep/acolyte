@@ -9,7 +9,6 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.sql.BatchUpdateException;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.sql.Connection;
 import java.sql.ResultSet;
 
 import org.apache.commons.lang3.tuple.ImmutableTriple;
@@ -112,7 +111,7 @@ abstract class AbstractStatement implements java.sql.Statement {
     /**
      * Owner connection
      */
-    protected final acolyte.jdbc.Connection connection;
+    final acolyte.jdbc.Connection connection;
 
     // --- Constructors ---
 

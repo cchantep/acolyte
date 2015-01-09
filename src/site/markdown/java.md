@@ -117,6 +117,7 @@ Acolyte specific properties are:
 
 - `acolyte.parameter.untypedNull`: If `"true"`, Acolyte fallbacks untyped null from `statement.setObject(p, null)` to null string (default: false).
 - `acolyte.batch.continueOnError`: If `"true"`, Acolyte doesn't stop executing batch on statement, but continue processing and finally throw `BatchUpdateException` with update counts of successfully executed elements (see [java.sql.Statement#executeBatch](http://docs.oracle.com/javase/7/docs/api/java/sql/Statement.html#executeBatch%28%29)).
+- `acolyte.resultSet.initOnFirstRow`: If `"true"`, Acolyte will degrade JDBC compliance by positioning cursor of result sets initially on the first row, rather than before (as specified by [JDBC ResultSet class](https://docs.oracle.com/javase/7/docs/api/java/sql/ResultSet.html#next%28%29). It makes Acolyte behaves has Oracle JDBC driver.
 
 ## Query result creation
 

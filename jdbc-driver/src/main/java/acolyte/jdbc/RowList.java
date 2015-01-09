@@ -16,7 +16,6 @@ import java.math.BigDecimal;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Array;
 import java.sql.Date;
@@ -236,7 +235,7 @@ public abstract class RowList<R extends Row> {
         final List<Class<?>> columnClasses;
         final Map<String,Integer> columnLabels;
         final List<R> rows;
-        final Statement statement;
+        final AbstractStatement statement;
         final SQLWarning warning;
         private Object last;
 
@@ -254,7 +253,7 @@ public abstract class RowList<R extends Row> {
             this.columnClasses = getColumnClasses();
             this.columnLabels = getColumnLabels();
             this.rows = Collections.unmodifiableList(rows);
-            this.statement = null; // dettached
+            this.statement = null; // detached
             this.warning = null;
             this.last = null;
             super.fetchSize = rows.size();
@@ -265,7 +264,7 @@ public abstract class RowList<R extends Row> {
          */
         private RowResultSet(final List<R> rows,
                              final Object last,
-                             final Statement statement,
+                             final AbstractStatement statement,
                              final SQLWarning warning) {
 
             if (rows == null) {
@@ -281,6 +280,13 @@ public abstract class RowList<R extends Row> {
             this.warning = warning;
             this.last = null;
             super.fetchSize = rows.size();
+
+            if (this.statement != null && super.fetchSize > 0 &&
+                "true".equals(this.statement.connection.getProperties().
+                              get("acolyte.resultSet.initOnFirstRow"))) {
+                // Initially move to first row, contrary to JDBC specs
+                this.row = 1;
+            }
         } // end of <init>
 
         // --- 
@@ -288,7 +294,7 @@ public abstract class RowList<R extends Row> {
         /**
          * Returns updated resultset, attached with given |statement|.
          */
-        public RowResultSet<R> withStatement(final Statement statement) {
+        public RowResultSet<R> withStatement(final AbstractStatement statement) {
             return new RowResultSet<R>(this.rows, this.last, 
                                        statement, this.warning);
 
@@ -350,7 +356,7 @@ public abstract class RowList<R extends Row> {
         /**
          * {@inheritDoc}
          */
-        public Statement getStatement() {
+        public AbstractStatement getStatement() {
             return this.statement;
         } // end of getStatement
         
