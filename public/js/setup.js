@@ -468,7 +468,10 @@
             pl.empty();
             pp.text(1);
             pc.text(0);
-            rd.modal();
+            rd.modal().one('shown.bs.modal', function(){
+                $("body > .modal-backdrop").detach().insertBefore(rd)
+            });
+            
             return false
         });
 
