@@ -4,6 +4,8 @@ This tutorial is about how to use [Acolyte](http://cchantep.github.io/acolyte/) 
 
 [![Build Status](https://secure.travis-ci.org/cchantep/acolyte.png?branch=10m-anorm-tutorial)](http://travis-ci.org/cchantep/acolyte)
 
+See it in action: [online tour](http://tour.acolyte.eu.org/)
+
 ## Requirements
 
 In order to test this tutorial, you will need:
