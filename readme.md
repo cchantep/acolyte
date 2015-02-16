@@ -1,6 +1,6 @@
 # Play demo
 
-Acolyte play demo
+Acolyte play demo: [see online](http://tour.acolyte.eu.org).
 
 ## Build
 
