@@ -158,8 +158,7 @@ object Acolyte extends Controller {
         QueryHandler({
           case Request(Col, _) ⇒
             f; r
-          case _ ⇒
-            QueryResponse.undefined
+          case _ ⇒ QueryResponse.undefined
         })
       }
 
@@ -170,8 +169,7 @@ object Acolyte extends Controller {
         QueryHandler({
           case Request(Col, Params) /* TODO: Params */ ⇒
             f; r
-          case _ ⇒
-            QueryResponse.undefined
+          case _ ⇒ QueryResponse.undefined
         })
       }
 
