@@ -4,10 +4,11 @@ import Keys._
 // Multi-module project build
 object Acolyte extends Build with Dependencies 
     with ScalacPlugin with ReactiveMongo 
-    with JdbcDriver with JdbcScala with Studio {
+    with JdbcDriver with JdbcScala with JdbcClojure with Studio {
 
   lazy val root = Project(id = "acolyte", base = file(".")).
-    aggregate(scalacPlugin, reactiveMongo, jdbcDriver, jdbcScala, studio).
+    aggregate(scalacPlugin, reactiveMongo,
+      jdbcDriver, jdbcScala, jdbcClojure, studio).
     settings(
       organization in ThisBuild := "org.eu.acolyte",
       version in ThisBuild := "1.0.33",

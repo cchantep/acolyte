@@ -17,11 +17,11 @@ case class QueryExecution(
 case class UpdateExecution(
   sql: String, parameters: List[ExecutedParameter] = Nil) extends Execution
 
-/** Statement extractor */
-case class ExecutedStatement(
-    /** Statement pattern */
-    val p: String) {
-
+/**
+ * Statement extractor
+ * @param p Statement pattern
+ */
+case class ExecutedStatement(val p: String) {
   val re = p.r
 
   def unapply(x: Execution): Option[(String, List[ExecutedParameter])] =
