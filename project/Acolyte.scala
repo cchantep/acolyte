@@ -1,10 +1,12 @@
+import scala.util.Properties.isJavaAtLeast
+
 import sbt._
 import Keys._
 
 // Multi-module project build
 object Acolyte extends Build with Dependencies 
     with ScalacPlugin with ReactiveMongo 
-    with JdbcDriver with JdbcScala with JdbcClojure with Studio {
+    with JdbcDriver with JdbcJava8 with JdbcScala with JdbcClojure with Studio {
 
   lazy val root = Project(id = "acolyte", base = file(".")).
     aggregate(scalacPlugin, reactiveMongo,
@@ -43,7 +45,9 @@ object Acolyte extends Build with Dependencies
           <id>cchantep</id>
           <name>Cedric Chantepie</name>
         </developer>
-      </developers>)
+      </developers>) configure { p =>
+      if (isJavaAtLeast("1.8")) p.aggregate(jdbcJava8) else p
+    }
 }
 
 trait Dependencies {

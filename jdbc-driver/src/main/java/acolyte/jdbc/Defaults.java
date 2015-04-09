@@ -91,6 +91,8 @@ final class Defaults {
             if (t == Types.BIT 
                 || t == Types.REAL
                 || t == Types.DECIMAL
+                || t == Types.VARBINARY
+                || t == Types.LONGVARBINARY
                 || t == Types.LONGVARCHAR) continue; // Skip
 
             classes.put(mappings.get(t), t);

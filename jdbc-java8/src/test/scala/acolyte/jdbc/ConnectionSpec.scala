@@ -1,6 +1,6 @@
 package acolyte.jdbc
 
-import acolyte.jdbc.AcolyteDSL.handleStatement
+import acolyte.jdbc.AcolyteDSL.{ handleStatement, prop }
 
 object ConnectionSpec extends org.specs2.mutable.Specification {
   "Connection" title
@@ -11,10 +11,7 @@ object ConnectionSpec extends org.specs2.mutable.Specification {
     }
 
     "be set" in {
-      val props = new java.util.Properties()
-      props.put("_test", "_val")
-      
-      AcolyteDSL.connection(handleStatement, props).
+      AcolyteDSL.connection(handleStatement, prop("_test", "_val")).
         getProperties.get("_test") aka "property" mustEqual "_val"
 
     }

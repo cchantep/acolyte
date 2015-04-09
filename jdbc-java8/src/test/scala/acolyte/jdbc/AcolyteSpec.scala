@@ -1,5 +1,6 @@
 package acolyte.jdbc
 
+import java.util.function.{ Function ⇒ Fun }
 import java.sql.{ Date, SQLException }
 
 object AcolyteSpec extends org.specs2.mutable.Specification {
@@ -7,9 +8,8 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
 
   sequential
 
-  /*
   "Scala use case #1" should {
-    val con = ScalaUseCases.useCase1
+    val con = Java8UseCases.useCase1
 
     "return 2 for DELETE statement" in {
       con.prepareStatement("DELETE * FROM table").
@@ -64,7 +64,7 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
   }
 
   "Scala use case #2" should {
-    val con = ScalaUseCases.useCase2
+    val con = Java8UseCases.useCase2
 
     "throw exception for update statement" in {
       con.prepareStatement("DELETE * FROM table").
@@ -122,7 +122,7 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
   }
 
   "Scala use case #3" should {
-    val con = ScalaUseCases.useCase3
+    val con = Java8UseCases.useCase3
 
     "return expected result with 1 parameter" in {
       lazy val s = con.prepareStatement("SELECT * FROM table WHERE id = ?")
@@ -161,7 +161,7 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
   }
 
   "Scala use case #4" should {
-    val con = ScalaUseCases.useCase4
+    val con = Java8UseCases.useCase4
 
     "return expected boolean result" in {
       lazy val s = con.prepareStatement("SELECT * FROM table")
@@ -185,26 +185,29 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
 
     "always return provided result" >> {
       "for SELECT" in {
-        val str: String = AcolyteDSL.withQueryResult(res1) { c ⇒
-          val rs = query("SELECT * FROM table", c)
-          s"${rs.getString(1)} -> ${rs.getFloat(2) + 1f}"
-        }
+        val str: String = AcolyteDSL.withQueryResult(res1,
+          fun({ c: java.sql.Connection ⇒
+            val rs = query("SELECT * FROM table", c)
+            s"${rs.getString(1)} -> ${rs.getFloat(2) + 1f}"
+          }))
 
         str aka "from query result" mustEqual "test -> 4.45"
       }
 
-      "for EXEC" in AcolyteDSL.withQueryResult(res1) { c ⇒
-        query("EXEC proc", c) aka "proc result" must beLike {
-          case rs ⇒
-            (rs.getString(1) aka "col #1" mustEqual "test").
-              and(rs.getFloat(2) aka "col #2" mustEqual 3.45f)
-        }
-      }
+      "for EXEC" in AcolyteDSL.withQueryResult(res1,
+        fun({ c: java.sql.Connection ⇒
+          query("EXEC proc", c) aka "proc result" must beLike {
+            case rs ⇒
+              (rs.getString(1) aka "col #1" mustEqual "test").
+                and(rs.getFloat(2) aka "col #2" mustEqual 3.45f)
+          }
+        }))
+
     }
   }
 
   "Scala use case #5" should {
-    val con = ScalaUseCases.useCase5
+    val con = Java8UseCases.useCase5
 
     "return expected boolean result" in {
       lazy val s = con.prepareStatement("INSERT INTO table(x) VALUE('y')")
@@ -235,5 +238,8 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
         }
     }
   }
-   */
+
+  def fun[A, B](f: A ⇒ B): Fun[A, B] = new Fun[A, B] {
+    def apply(a: A): B = f(a)
+  }
 }
