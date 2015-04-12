@@ -1,3 +1,4 @@
+// -*- mode: java -*-
 package acolyte.jdbc;
 
 import java.io.InputStream;
@@ -784,36 +785,6 @@ public final class CallableStatement
         return this.result.getObject(parameterName, map);
     } // end of getObject
 
-    /* Java 1.7
-     * {@inheritDoc}
-    public <T extends Object> T getObject(final int parameterIndex, 
-                                          final Class<T> type) 
-        throws SQLException {
-
-        checkClosed();
-
-        if (this.result == null) {
-            throw new SQLException("No result");
-        } // end of if
-
-        return this.result.getObject(parameterIndex, type);
-    } // end of getObject
-
-    // {@inheritDoc}
-    public <T extends Object> T getObject(final String parameterName,
-                                          final Class<T> type) 
-        throws SQLException {
-
-        checkClosed();
-
-        if (this.result == null) {
-            throw new SQLException("No result");
-        } // end of if
-
-        return this.result.getObject(parameterName, type);
-    } // end of getObject
-    */
-
     /**
      * {@inheritDoc}
      */
@@ -1421,4 +1392,6 @@ public final class CallableStatement
 
         return this.result.getSQLXML(parameterName);
     } // end of getSQLXML
+
+    #JAVA_1_7#
 } // end of class CallableStatement

@@ -7,7 +7,7 @@ object RowSpec extends org.specs2.mutable.Specification {
   "Row" title
 
   "Null single value" should {
-    lazy val list = (stringList :+ null)
+    lazy val list = stringList :+ null
     lazy val expectedRow = Rows.row1[String](null)
 
     "be inferred on :+" in {

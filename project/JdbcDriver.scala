@@ -1,3 +1,5 @@
+import scala.util.Properties.isJavaAtLeast
+
 import sbt._
 import Keys._
 
@@ -7,7 +9,6 @@ trait JdbcDriver { deps: Dependencies ⇒
       name := "jdbc-driver",
       javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
       autoScalaLibrary := false,
-      scalacOptions += "-feature",
       resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
       libraryDependencies ++= Seq(
         "commons-io" % "commons-io" % "2.4",
@@ -15,11 +16,61 @@ trait JdbcDriver { deps: Dependencies ⇒
       crossPaths := false,
       sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
         val (base, managed) = dirs
-        generateRowClasses(base, managed / "acolyte" / "jdbc", 
+        generateCallableStatement(base, managed / "acolyte" / "jdbc") +:
+        generateRowClasses(base, managed / "acolyte" / "jdbc",
           "acolyte.jdbc", false)
       }))
 
-  // Source generator
+  // Source generators
+  private def generateCallableStatement(basedir: File, outdir: File): File = {
+    val tmpl = basedir / "src" / "main" / "templates" / "CallableStatement.tmpl"
+    val f = outdir / "CallableStatement.java"
+
+    IO.writer[File](f, "", IO.defaultCharset, false) { w ⇒
+      // Generate by substitution on each line of template
+      IO.reader[Unit](tmpl) { r ⇒
+        IO.foreachLine(r) { l ⇒
+          w.append(l.replace("#JAVA_1_7#",
+            if (!isJavaAtLeast("1.7")) "" else """/** Java 1.7+
+     * {@inheritDoc}
+     */
+    public <T extends Object> T getObject(final int parameterIndex, 
+                                          final Class<T> type) 
+        throws SQLException {
+
+        checkClosed();
+
+        if (this.result == null) {
+            throw new SQLException("No result");
+        } // end of if
+
+        return this.result.getObject(parameterIndex, type);
+    } // end of getObject
+
+    /** Java 1.7+
+     * {@inheritDoc}
+     */
+    public <T extends Object> T getObject(final String parameterName,
+                                          final Class<T> type) 
+        throws SQLException {
+
+        checkClosed();
+
+        if (this.result == null) {
+            throw new SQLException("No result");
+        } // end of if
+
+        return this.result.getObject(parameterName, type);
+    } // end of getObject
+""")).
+            append("\n")
+
+        }
+      }
+      f
+    }
+  }
+
   private def generateRowClasses(basedir: File, outdir: File, pkg: String, deprecated: Boolean = false): Seq[File] = {
     val rowTmpl = basedir / "src" / "main" / "templates" / "Row.tmpl"
     val letter = ('A' to 'Z').map(_.toString) ++: ('A' to 'Z').map(l ⇒ "A" + l)
