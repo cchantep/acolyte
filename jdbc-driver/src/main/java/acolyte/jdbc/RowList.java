@@ -37,12 +37,14 @@ public abstract class RowList<R extends Row> {
 
     /**
      * Returns unmodifiable rows list.
+     * @return the list of row
      */
     public abstract List<R> getRows();
 
     /**
      * Appends |row|.
      *
+     * @param row the row to be appended
      * @return Updated row list
      * @deprecated Append operation with multiple column values provided by sub-classes.
      */
@@ -53,6 +55,7 @@ public abstract class RowList<R extends Row> {
      *
      * @param columnIndex Index of column (first index is 1)
      * @param label Column name/label
+     * @return a row list with specified column label
      * @see Column#name
      */
     public abstract RowList<R> withLabel(int columnIndex, String label);
@@ -63,6 +66,7 @@ public abstract class RowList<R extends Row> {
      *
      * @param columnIndex Index of column (first index is 1)
      * @param nullable Is column nullable?
+     * @return a row list with given nullable flag
      * @see Column#nullable
      */
     public abstract RowList<R> withNullable(int columnIndex, boolean nullable);
@@ -71,8 +75,9 @@ public abstract class RowList<R extends Row> {
      * Returns result set from these rows.
      *
      * @param maxRows Limit for the maximum number of rows. 
-     * If <= 0 no limit will be set.
+     * If &lt;= 0 no limit will be set.
      * If the limit is set and exceeded, the excess rows are silently dropped.
+     * @return ResultSet for this list of rows
      */
     public RowResultSet<R> resultSet(int maxRows) {
         if (maxRows <= 0) {
@@ -86,6 +91,7 @@ public abstract class RowList<R extends Row> {
      * Returns result set from these rows (without row limit).
      *
      * @see #resultSet(int)
+     * @return ResultSet for this list of rows
      */
     public RowResultSet<R> resultSet() {
         return resultSet(0);
@@ -93,6 +99,7 @@ public abstract class RowList<R extends Row> {
 
     /**
      * Returns this row list wrapped as handler result.
+     * @return Query result from this list of rows
      */
     public QueryResult asResult() {
         return new QueryResult.Default(this);
@@ -100,6 +107,7 @@ public abstract class RowList<R extends Row> {
 
     /**
      * Returns ordered classes of columns.
+     * @return Classes of columns
      */
     public abstract List<Class<?>> getColumnClasses();
 
@@ -217,6 +225,10 @@ public abstract class RowList<R extends Row> {
     /**
      * Creates column definition.
      *
+     * @param <T> the type of the column
+     * @param columnClass the class of the column
+     * @param name the column name
+     * @return the column definition
      * @throws IllegalArgumentException if |columnClass| is null, 
      * or |name| is empty.
      */
@@ -229,7 +241,7 @@ public abstract class RowList<R extends Row> {
     /**
      * Result set made from list of row.
      *
-     * @param R Row
+     * @param <R> the row type
      */
     public final class RowResultSet<R extends Row> extends AbstractResultSet {
         final List<Class<?>> columnClasses;
@@ -243,6 +255,7 @@ public abstract class RowList<R extends Row> {
 
         /**
          * Constructor
+         * @param rows the list of rows
          */
         protected RowResultSet(final List<R> rows) {
             if (rows == null) {
@@ -261,6 +274,11 @@ public abstract class RowList<R extends Row> {
 
         /**
          * Copy constructor.
+         * 
+         * @param rows the list of rows
+         * @param last the cursor to last result
+         * @param statement the associated statement
+         * @param warning the SQL warning
          */
         private RowResultSet(final List<R> rows,
                              final Object last,
@@ -293,6 +311,9 @@ public abstract class RowList<R extends Row> {
 
         /**
          * Returns updated resultset, attached with given |statement|.
+         *
+         * @param statement the associated statement
+         * @return Result set associated with given statement
          */
         public RowResultSet<R> withStatement(final AbstractStatement statement) {
             return new RowResultSet<R>(this.rows, this.last, 
@@ -302,6 +323,9 @@ public abstract class RowList<R extends Row> {
 
         /**
          * Returns updated resultset, with given |warning|.
+         *
+         * @param warning the SQL warning
+         * @return Result set associated with SQL warning
          */
         public RowResultSet<R> withWarning(final SQLWarning warning) {
             return new RowResultSet<R>(this.rows, this.last, 
@@ -1336,6 +1360,10 @@ public abstract class RowList<R extends Row> {
 
         /**
          * Tries to get bytes from raw |value|.
+         *
+         * @param value the binary value
+         * @return the created byte array
+         * @throws SQLException if fails to create the byte array
          */
         private byte[] getBytes(final Object value) throws SQLException {
             if (value instanceof byte[]) return (byte[]) value;
@@ -1370,6 +1398,10 @@ public abstract class RowList<R extends Row> {
 
         /**
          * Tries to get binary stream from raw |value|.
+         *
+         * @param value the binary value
+         * @return the created input stream
+         * @throws SQLException if fails to create the binary stream
          */
         private InputStream getBinaryStream(final Object value)
             throws SQLException {
@@ -1389,6 +1421,10 @@ public abstract class RowList<R extends Row> {
 
         /**
          * Tries to get BLOB from raw |value|.
+         *
+         * @param value the binary value
+         * @return the created BLOB
+         * @throws SQLException if fails to create the BLOB
          */
         public java.sql.Blob getBlob(final Object value) throws SQLException {
             if (value instanceof java.sql.Blob) return (java.sql.Blob) value;

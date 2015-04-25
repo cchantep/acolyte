@@ -12,6 +12,7 @@ public final class RowLists {
 
     /**
      * Convinience alias for row list of 1 string column.
+     * @return the created list of single string column
      */
     public static RowList1.Impl<String> stringList() {
         return rowList1(String.class);
@@ -20,6 +21,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 string column.
      * @param values Initial values
+     * @return the created list of single string column
      */
     public static RowList1.Impl<String> stringList(final String... values) {    
         RowList1.Impl<String> list = stringList();
@@ -33,6 +35,7 @@ public final class RowLists {
 
     /**
      * Convinience alias for row list of 1 binary column.
+     * @return the created list of single binary column
      */
     public static RowList1.Impl<byte[]> binaryList() {
         return rowList1(byte[].class);
@@ -41,6 +44,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 binary column.
      * @param values Initial values
+     * @return the created list of single binary column
      */
     public static RowList1.Impl<byte[]> binaryList(final byte[]... values) {
         RowList1.Impl<byte[]> list = binaryList();
@@ -54,6 +58,7 @@ public final class RowLists {
 
     /**
      * Convinience alias for row list of 1 blob column.
+     * @return the created list of single BLOB column
      */
     public static RowList1.Impl<Blob> blobList() {
         return rowList1(Blob.class);
@@ -62,6 +67,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 blob column.
      * @param values Initial values
+     * @return the created list of single BLOB column
      */
     public static RowList1.Impl<Blob> blobList(final Blob... values) {
         RowList1.Impl<Blob> list = blobList();
@@ -75,6 +81,7 @@ public final class RowLists {
 
     /**
      * Convinience alias for row list of 1 boolean column.
+     * @return the created list of single boolean column
      */
     public static RowList1.Impl<Boolean> booleanList() {
         return rowList1(Boolean.TYPE);
@@ -83,6 +90,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 boolean column.
      * @param values Initial values
+     * @return the created list of single boolean column
      */
     public static RowList1.Impl<Boolean> booleanList(final Boolean... values) {
         RowList1.Impl<Boolean> list = booleanList();
@@ -96,6 +104,7 @@ public final class RowLists {
 
     /**
      * Convinience alias for row list of 1 byte column.
+     * @return the created list of single byte column
      */
     public static RowList1.Impl<Byte> byteList() {
         return rowList1(Byte.TYPE);
@@ -104,6 +113,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 byte column.
      * @param values Initial values
+     * @return the created list of single byte column
      */
     public static RowList1.Impl<Byte> byteList(final Byte... values) {
         RowList1.Impl<Byte> list = byteList();
@@ -117,6 +127,7 @@ public final class RowLists {
 
     /**
      * Convinience alias for row list of 1 short column.
+     * @return the created list of single short column
      */
     public static RowList1.Impl<Short> shortList() {
         return rowList1(Short.TYPE);
@@ -125,6 +136,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 short column.
      * @param values Initial values
+     * @return the created list of single short column
      */
     public static RowList1.Impl<Short> shortList(final Short... values) {
         RowList1.Impl<Short> list = shortList();
@@ -138,6 +150,7 @@ public final class RowLists {
 
     /**
      * Convinience alias for row list of 1 int column.
+     * @return the created list of single integer column
      */
     public static RowList1.Impl<Integer> intList() {
         return rowList1(Integer.TYPE);
@@ -146,6 +159,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 int column.
      * @param values Initial values
+     * @return the created list of single integer column
      */
     public static RowList1.Impl<Integer> intList(final Integer... values) {
         RowList1.Impl<Integer> list = intList();
@@ -159,6 +173,7 @@ public final class RowLists {
 
     /**
      * Convinience alias for row list of 1 input stream column.
+     * @return the created list of single input stream column
      */
     public static RowList1.Impl<InputStream> streamList() {
         return rowList1(InputStream.class);
@@ -167,6 +182,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 int column.
      * @param values Initial values
+     * @return the created list of single input stream column
      */
     public static RowList1.Impl<InputStream> streamList(final InputStream... values) {
         RowList1.Impl<InputStream> list = streamList();
@@ -180,6 +196,7 @@ public final class RowLists {
 
     /**
      * Convinience alias for row list of 1 long column.
+     * @return the created list of single long column
      */
     public static RowList1.Impl<Long> longList() {
         return rowList1(Long.TYPE);
@@ -188,6 +205,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 long column.
      * @param values Initial values
+     * @return the created list of single long column
      */
     public static RowList1.Impl<Long> longList(final Long... values) {
         RowList1.Impl<Long> list = longList();
@@ -201,6 +219,7 @@ public final class RowLists {
 
     /**
      * Convinience alias for row list of 1 float column.
+     * @return the created list of single float column
      */
     public static RowList1.Impl<Float> floatList() {
         return rowList1(Float.TYPE);
@@ -209,6 +228,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 float column.
      * @param values Initial values
+     * @return the created list of single float column
      */
     public static RowList1.Impl<Float> floatList(final Float... values) {
         RowList1.Impl<Float> list = floatList();
@@ -222,6 +242,7 @@ public final class RowLists {
 
     /**
      * Convinience alias for row list of 1 double column.
+     * @return the created list of single double precision column
      */
     public static RowList1.Impl<Double> doubleList() {
         return rowList1(Double.TYPE);
@@ -230,6 +251,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 double column.
      * @param values Initial values
+     * @return the created list of single double precision column
      */
     public static RowList1.Impl<Double> doubleList(final Double... values) {
         RowList1.Impl<Double> list = doubleList();
@@ -243,6 +265,7 @@ public final class RowLists {
 
     /**
      * Convinience alias for row list of 1 big decimal column.
+     * @return the created list of single big decimal column
      */
     public static RowList1.Impl<java.math.BigDecimal> bigDecimalList() {
         return rowList1(java.math.BigDecimal.class);
@@ -251,6 +274,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 big decimal column.
      * @param values Initial values
+     * @return the created list of single big decimal column
      */
     public static RowList1.Impl<java.math.BigDecimal> bigDecimalList(final java.math.BigDecimal... values) {
         RowList1.Impl<java.math.BigDecimal> list = bigDecimalList();
@@ -264,6 +288,7 @@ public final class RowLists {
 
     /**
      * Convinience alias for row list of 1 date column.
+     * @return the created list of single date column
      */
     public static RowList1.Impl<java.sql.Date> dateList() {
         return rowList1(java.sql.Date.class);
@@ -272,6 +297,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 date column.
      * @param values Initial values
+     * @return the created list of date column
      */
     public static RowList1.Impl<java.sql.Date> dateList(final java.sql.Date... values) {
         RowList1.Impl<java.sql.Date> list = dateList();
@@ -285,6 +311,7 @@ public final class RowLists {
 
     /**
      * Convinience alias for row list of 1 time column.
+     * @return the created list of single time column
      */
     public static RowList1.Impl<java.sql.Time> timeList() {
         return rowList1(java.sql.Time.class);
@@ -293,6 +320,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 time column.
      * @param values Initial values
+     * @return the created list of single time column
      */
     public static RowList1.Impl<java.sql.Time> timeList(final java.sql.Time... values) {
 
@@ -307,6 +335,7 @@ public final class RowLists {
 
     /**
      * Convinience alias for row list of 1 timestamp column.
+     * @return the created list of single timestamp column
      */
     public static RowList1.Impl<java.sql.Timestamp> timestampList() {
         return rowList1(java.sql.Timestamp.class);
@@ -315,6 +344,7 @@ public final class RowLists {
     /**
      * Convinience alias for row list of 1 timestamp column.
      * @param values Initial values
+     * @return the created list of single timestamp column
      */
     public static RowList1.Impl<java.sql.Timestamp> timestampList(final java.sql.Timestamp... values) {
 
@@ -327,6 +357,14 @@ public final class RowLists {
         return list;
     }
 
+    /**
+     * Convinience alias for a scalar row list with, 
+     * with a single value of a single column with given |value|.
+     *
+     * @param <T> the value type
+     * @param value the single value
+     * @return the created list with the single value
+     */
     public static <T> RowList1.Impl<T> scalar(final T value) {
         if (value == null) {
             throw new IllegalArgumentException("Cannot create a scalar row list with a null value");

@@ -363,7 +363,7 @@ public class PreparedStatement
 
     /**
      * {@inheritDoc}
-     * @throws java.sql.SQLFeatureNotSupportedException
+     * @throws java.sql.SQLFeatureNotSupportedException Not currently supported
      */
     public void setUnicodeStream(final int parameterIndex, 
                                  final InputStream x, 
@@ -549,7 +549,7 @@ public class PreparedStatement
 
     /**
      * {@inheritDoc}
-     * @throws java.sql.SQLFeatureNotSupportedException
+     * @throws java.sql.SQLFeatureNotSupportedException Not currently supported
      */
     public void setRef(final int parameterIndex, final Ref x) 
         throws SQLException {
@@ -568,7 +568,7 @@ public class PreparedStatement
 
     /**
      * {@inheritDoc}
-     * @throws java.sql.SQLFeatureNotSupportedException
+     * @throws java.sql.SQLFeatureNotSupportedException Not currently supported
      */
     public void setClob(final int parameterIndex, final Clob clob) 
         throws SQLException {
@@ -578,7 +578,7 @@ public class PreparedStatement
 
     /**
      * {@inheritDoc}
-     * @throws java.sql.SQLFeatureNotSupportedException
+     * @throws java.sql.SQLFeatureNotSupportedException Not currently supported
      */
     public void setArray(final int parameterIndex, final Array x) 
         throws SQLException {
@@ -588,7 +588,7 @@ public class PreparedStatement
 
     /**
      * {@inheritDoc}
-     * @throws java.sql.SQLFeatureNotSupportedException
+     * @throws java.sql.SQLFeatureNotSupportedException Not currently supported
      */
     public ResultSetMetaData getMetaData() throws SQLException {
         throw new SQLFeatureNotSupportedException();
@@ -931,6 +931,8 @@ public class PreparedStatement
 
     /**
      * Sets parameter as DECIMAL.
+     *
+     * @throws SQLException if fails to set the big decimal value
      */
     void setDecimal(final int parameterIndex, 
                     final BigDecimal x) throws SQLException {
@@ -942,6 +944,10 @@ public class PreparedStatement
 
     /**
      * Sets parameter as REAL.
+     *
+     * @param parameterIndex the index of the float parameter
+     * @param x the float value
+     * @throws SQLException if fails to set the float value
      */
     public void setReal(final int parameterIndex, 
                         final float x) throws SQLException {
@@ -953,6 +959,10 @@ public class PreparedStatement
 
     /**
      * Set parameter
+     *
+     * @param inded the index of the parameter
+     * @param meta the metadata for the parameter
+     * @param val the parameter value
      */
     private void setParam(final int index, 
                           final ParameterDef meta, 

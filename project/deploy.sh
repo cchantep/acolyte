@@ -33,12 +33,20 @@ EOF
 }
 
 JAVA_MODULES="jdbc-driver"
+EXTRA_JAVA_MODULES="jdbc-java8"
 SCALA_MODULES="jdbc-scala scalac-plugin reactive-mongo"
 SCALA_VERSIONS="2.10 2.11"
 BASES=""
 
 for M in $JAVA_MODULES; do
   BASES="$BASES $M/target/$M-$VERSION"
+done
+
+for M in $EXTRA_JAVA_MODULES; do
+  B="$M/target/$M-$VERSION"
+  if [ -r "$B.jar" ]; then
+    BASES="$BASES $B"
+  fi
 done
 
 for V in $SCALA_VERSIONS; do

@@ -81,8 +81,8 @@ public final class AcolyteDSL {
     /**
      * Creates a connection, managed with given handler.
      *
-     * @param h connection handler
-     * @param p connection properties
+     * @param h the connection handler
+     * @param ps the connection properties
      * @return a new Acolyte connection
      *
      * <pre>

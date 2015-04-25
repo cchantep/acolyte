@@ -40,6 +40,57 @@
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.9.1</version>
+        <executions>
+          <execution>
+            <id>generate-driver-javadoc</id>
+            <phase>pre-site</phase>
+            <goals>
+              <goal>javadoc</goal>
+            </goals>
+
+            <configuration>
+              <outputDirectory>
+                ${project.build.directory}/site/jdbc-driver
+              </outputDirectory>
+              <reportOutputDirectory>
+                ${project.build.directory}/site/jdbc-driver
+              </reportOutputDirectory>              
+              <sourcepath>${basedir}/jdbc-driver/src/main/java:${basedir}/jdbc-driver/target/src_managed/main</sourcepath>
+              <links>
+                <link>https://commons.apache.org/proper/commons-io/javadocs/api-2.4/</link>
+                <link>http://commons.apache.org/proper/commons-lang/javadocs/api-3.3/</link>
+              </links>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>generate-java8-javadoc</id>
+            <phase>pre-site</phase>
+            <goals>
+              <goal>javadoc</goal>
+            </goals>
+
+            <configuration>
+              <outputDirectory>
+                ${project.build.directory}/site/jdbc-java8
+              </outputDirectory>
+              <reportOutputDirectory>
+                ${project.build.directory}/site/jdbc-java8
+              </reportOutputDirectory>              
+              <sourcepath>${basedir}/jdbc-java8/src/main/java:${basedir}/jdbc-java8/target/src_managed/main</sourcepath>
+              <links>
+                <link>https://commons.apache.org/proper/commons-io/javadocs/api-2.4/</link>
+                <link>http://commons.apache.org/proper/commons-lang/javadocs/api-3.3/</link>
+                <link>http://acolyte.eu.org/jdbc-driver-javadoc/</link>
+              </links>
+            </configuration>
+          </execution>          
+        </executions>
+      </plugin>
+
+      <plugin>
 	<artifactId>maven-antrun-plugin</artifactId>
 	<executions>
 	  <execution>
@@ -54,6 +105,14 @@
                 <copy todir="${generatedSite}">
                   <fileset dir="${basedir}/src/site" />
                 </copy>
+
+                <mkdir dir="${project.build.directory}/site/jdbc-driver-javadoc" />
+                <copy todir="${project.build.directory}/site/jdbc-driver-javadoc"><fileset dir="${project.build.directory}/site/jdbc-driver/apidocs" /></copy>
+                <delete dir="${project.build.directory}/site/jdbc-driver" />
+
+                <mkdir dir="${project.build.directory}/site/jdbc-java8-javadoc" />
+                <copy todir="${project.build.directory}/site/jdbc-java8-javadoc"><fileset dir="${project.build.directory}/site/jdbc-java8/apidocs" /></copy>
+                <delete dir="${project.build.directory}/site/jdbc-java8" />
 
                 <copy todir="${project.build.directory}/site/jdbc-scaladoc">
                   <fileset dir="${basedir}/jdbc-scala/target/scala-2.10/api" />
@@ -86,32 +145,7 @@
 	    </configuration>
 	  </execution>
 	</executions>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.9.1</version>
-        <executions>
-          <execution>
-            <id>generate-javadoc</id>
-            <phase>pre-site</phase>
-            <goals>
-              <goal>javadoc</goal>
-            </goals>
-
-            <configuration>
-              <outputDirectory>
-                ${project.build.directory}/site/javadocs
-              </outputDirectory>
-              <sourcepath>${basedir}/jdbc-driver/src/main/java:${basedir}/jdbc-driver/target/src_managed/main</sourcepath>
-              <links>
-                <link>https://commons.apache.org/proper/commons-io/javadocs/api-2.4/</link>
-                <link>http://commons.apache.org/proper/commons-lang/javadocs/api-3.3/</link>
-              </links>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+      </plugin>      
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

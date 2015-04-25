@@ -30,6 +30,8 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
 
     /**
      * Constructor.
+     *
+     * @param parameters the definitions for the parameters
      */
     public ParameterMetaData(final List<ParameterDef> parameters) {
         if (parameters == null) {
@@ -177,6 +179,8 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
 
     /**
      * Default parameter.
+     * @param sqlType the SQL type for the parameter definition
+     * @return the default definition for a parameter of specified SQL type
      */
     public static ParameterDef Default(final int sqlType) {
         return new ParameterDef(jdbcTypeMappings.get(sqlType),
@@ -191,6 +195,10 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
 
     /**
      * Decimal parameter.
+     *
+     * @param sqlType the SQL type for the parameter definition
+     * @param scale the scale of the numeric parameter
+     * @return the parameter definition for a number with specified scale
      */
     public static ParameterDef Scaled(final int sqlType, final int scale) {
         return new ParameterDef(jdbcTypeMappings.get(sqlType),
@@ -206,6 +214,9 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
 
     /**
      * Null constructor.
+     *
+     * @param sqlType the SQL type for the parameter definition
+     * @return the parameter definition for a null parameter of specified type
      */
     public static ParameterDef Null(final int sqlType) {
         return Default(sqlType);
@@ -248,6 +259,9 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
 
     /**
      * Float constructor.
+     *
+     * @param f the float value for the parameter
+     * @return Parameter definition for given float value
      */
     public static ParameterDef Float(final float f) {
         final BigDecimal bd = new BigDecimal(Float.toString(f));
@@ -257,6 +271,9 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
 
     /**
      * Float constructor (as REAL).
+     *
+     * @param f the float value for the parameter
+     * @return Parameter definition for given float value
      */
     public static ParameterDef Real(final float f) {
         final BigDecimal bd = new BigDecimal(Float.toString(f));
@@ -266,6 +283,9 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
 
     /**
      * Double constructor.
+     *
+     * @param d the double precision value for the parameter
+     * @return Parameter definition for given double precision value
      */
     public static ParameterDef Double(final double d) {
         final BigDecimal bd = new BigDecimal(String.format(Locale.US, "%f", d)).
@@ -281,6 +301,9 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
 
     /**
      * BigDecimal constructor.
+     *
+     * @param bd the big decimal for the parameter
+     * @return Parameter definition for given big decimal
      */
     public static ParameterDef Numeric(final BigDecimal bd) {
         return Scaled(Types.NUMERIC, bd.scale());
@@ -293,6 +316,9 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
 
     /**
      * BigDecimal constructor (as DECIMAL).
+     *
+     * @param bd the big decimal for the parameter
+     * @return Parameter definition for given big decimal
      */
     public static ParameterDef Decimal(final BigDecimal bd) {
         return Scaled(Types.DECIMAL, bd.scale());
@@ -342,6 +368,15 @@ public final class ParameterMetaData implements java.sql.ParameterMetaData {
 
         /**
          * Bulk constructor
+         *
+         * @param className the name of the parameter class
+         * @param mode the parameter mode
+         * @param sqlType the SQL type of the parameter
+         * @param sqlTypeName the name of the SQL type
+         * @param precision the numeric precision (for number parameter)
+         * @param scale the numeric scale (for number parameter)
+         * @param nullable true if the parameter is nullable, or false
+         * @param signed true if the parameter is a signed number, or false
          */
         public ParameterDef(final String className,
                             final int mode,

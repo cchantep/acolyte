@@ -89,6 +89,7 @@ trait JdbcDriver { deps: Dependencies ⇒
         val sp = for (i ← 0 until n) yield """/**
      * Sets value for cell #%s.
      *
+     * @param value the new value
      * @return Updated row
      */
     public Row%s<%s> set%d(final %s value) {
@@ -129,7 +130,7 @@ trait JdbcDriver { deps: Dependencies ⇒
 
 /**
  * Rows utility/factory.
- * @Deprecated Rows are created by append operation on row lists.
+ * @deprecated Rows are created by append operation on row lists.
  */
 %s
 public final class Rows {""".format(pkg, 
@@ -174,6 +175,7 @@ public final class Rows {""".format(pkg,
       }
       val ca = for (i ← 0 until n) yield s"c$i"
       val ap = cp map { l ⇒ s"final $l ${l.toLowerCase}" }
+      val pd = cp map { l ⇒ s"@param ${l.toLowerCase} the $l value" }
       val ps = for (i ← 0 until n) yield {
         s"""/**
          * Class of column #$i
@@ -182,7 +184,8 @@ public final class Rows {""".format(pkg,
       }
       val ags = for (i ← 0 until n) yield {
         s"""/**
-     * Returns class of column #$i.
+     * Returns the class of column #$i.
+     * @return Class of column #$i.
      */
     public abstract Class<${letter(i)}> c$i();"""
       }
@@ -204,6 +207,7 @@ public final class Rows {""".format(pkg,
               replaceAll("#N#", n.toString).
               replaceAll("#CP#", cp.mkString(",")).
               replaceAll("#CS#", cs.mkString(", ")).
+              replaceAll("#PD#", pd.mkString("\r     * ")).
               replaceAll("#AP#", ap.mkString(", ")).
               replaceAll("#AV#", cp.map(_.toLowerCase).mkString(", ")).
               replaceAll("#PS#", ps.mkString("\n\n        ")).

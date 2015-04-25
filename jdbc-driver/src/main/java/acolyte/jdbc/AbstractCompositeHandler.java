@@ -46,6 +46,10 @@ public abstract class AbstractCompositeHandler<T extends AbstractCompositeHandle
 
     /**
      * Copy constructor.
+     *
+     * @param queryDetection the patterns to detect a query
+     * @param queryHandler the handler for the queries
+     * @param updateHandler the handler for the updates
      */
     protected AbstractCompositeHandler(final Pattern[] queryDetection,
                                        final QueryHandler queryHandler,
@@ -108,8 +112,9 @@ public abstract class AbstractCompositeHandler<T extends AbstractCompositeHandle
      * the new one will be used after.
      *
      * @param pattern Query detection pattern list
+     * @return New composite handler with given detection pattern
      * @throws java.util.regex.PatternSyntaxException If |pattern| is invalid
-     * @see #withQueryDetection(java.util.regex.Pattern)
+     * @see #withQueryDetection(java.util.regex.Pattern[])
      */
     public T withQueryDetection(final String... pattern) {
         if (pattern == null) {
@@ -134,6 +139,7 @@ public abstract class AbstractCompositeHandler<T extends AbstractCompositeHandle
      * the new one will be used after.
      *
      * @param pattern Query detection pattern
+     * @return Composition handler with the given detection pattern
      * @throws IllegalArgumentException if pattern is null
      */
     public abstract T withQueryDetection(final Pattern[] pattern);
@@ -141,6 +147,8 @@ public abstract class AbstractCompositeHandler<T extends AbstractCompositeHandle
     /**
      * Appends given |pattern| to current query detection.
      *
+     * @param pattern the detection pattern
+     * @return the array of detection patterns
      * @throws IllegalArgumentException if pattern is null
      */
     protected Pattern[] queryDetectionPattern(final Pattern... pattern) {
@@ -178,6 +186,14 @@ public abstract class AbstractCompositeHandler<T extends AbstractCompositeHandle
      * Query handler.
      */
     public static interface QueryHandler {
+        /**
+         * Handles given query.
+         *
+         * @param sql the SQL statement
+         * @param parameters the parameters for the executed query
+         * @return Query result
+         * @throws SQLException if fails to handle the query
+         */
         public QueryResult apply(String sql, List<Parameter> parameters)
             throws SQLException;
 
@@ -188,9 +204,12 @@ public abstract class AbstractCompositeHandler<T extends AbstractCompositeHandle
      */
     public static interface UpdateHandler {
         /**
-         * Handles update.
+         * Handles given update.
          *
-         * @return Update count
+         * @param sql the SQL statement
+         * @param parameters the parameters for the executed updated
+         * @return Update result
+         * @throws SQLException if fails to handle the update
          */
         public UpdateResult apply(String sql, List<Parameter> parameters) 
             throws SQLException;

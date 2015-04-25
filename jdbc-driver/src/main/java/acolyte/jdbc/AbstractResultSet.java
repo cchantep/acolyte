@@ -82,6 +82,8 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
 
     /**
      * Cursor constructor.
+     *
+     * @param cursor the cursor name
      */
     protected AbstractResultSet(final String cursor) {
         if (cursor == null) {
@@ -94,6 +96,9 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
 
     /**
      * Bulk constructor.
+     *
+     * @param cursor the cursor name
+     * @param type the type of result set
      */
     protected AbstractResultSet(final String cursor, final int type) {
         if (cursor == null) {
@@ -451,6 +456,8 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
 
     /**
      * Returns true if at/after start and at/before end.
+     * @return Whether is on result
+     * @throws SQLException if fails to check whether is on result
      */
     public boolean isOn() throws SQLException {
         return (!isBeforeFirst() && !isAfterLast());
@@ -1728,6 +1735,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
 
     /**
      * Throws a SQLException("Result set is closed") if connection is closed.
+     * @throws SQLException if connection is closed
      */
     protected void checkClosed() throws SQLException {
         if (this.closed) {
@@ -1738,6 +1746,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
     /**
      * Throws a SQLException("Type of result set is forward only") 
      * if {java.sql.ResultSet#TYPE_FORWARD_ONLY}.
+     * @throws SQLException if {java.sql.ResultSet#TYPE_FORWARD_ONLY}
      */
     protected void checkNotForwardOnly() throws SQLException {
         if (this.type == TYPE_FORWARD_ONLY) {

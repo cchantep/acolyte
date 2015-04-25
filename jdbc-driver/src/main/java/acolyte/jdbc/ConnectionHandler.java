@@ -10,6 +10,7 @@ public interface ConnectionHandler {
     
     /**
      * Returns statement handler.
+     * @return the statement handler
      */
     public StatementHandler getStatementHandler();
 
@@ -23,6 +24,7 @@ public interface ConnectionHandler {
 
         /**
          * Bulk constructor.
+         * @param handler the statement handler
          */
         public Default(final StatementHandler handler) {
             if (handler == null) {

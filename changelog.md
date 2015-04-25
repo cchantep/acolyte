@@ -1,3 +1,28 @@
+## 1.0.33
+
+([56ca676e19164a251801579397c2411a9a503505](https://github.com/cchantep/acolyte/commit/56ca676e19164a251801579397c2411a9a503505) @ [jdbc-java8](https://github.com/cchantep/acolyte/tree/master/jdbc-java8)) Acolyte DSL for JDBC.
+
+([05d7fbaaf2d31c96afcfed9ddcdb101555d615ea](https://github.com/cchantep/acolyte/commit/05d7fbaaf2d31c96afcfed9ddcdb101555d615ea) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Add a new `RowList` factory for a single row with a single value.
+
+```java
+import static acolyte.jdbc.RowLists;
+
+RowLists.scalar("Foo"); // Scalar RowList of String
+```
+
+([92f72ae4bb716c1bfb853be401dc4761e8c5f251](https://github.com/cchantep/acolyte/commit/92f72ae4bb716c1bfb853be401dc4761e8c5f251) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Add class `Driver.Property`.
+
+```java
+import acolyte.jdbc.Driver;
+import acolyte.jdbc.Property;
+
+Driver.connection(handler,
+  new Property("name1, "Foo"),
+  new Property("name2", "Bar"));
+```
+
+([a8ed90b4c44a38626bf7e1935bca692fdc152012](https://github.com/cchantep/acolyte/commit/a8ed90b4c44a38626bf7e1935bca692fdc152012) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Java 1.7+ support
+
 ## 1.0.32
 
 ([42a9ddfdccc65c175edf7d22cd677592843af0bf](https://github.com/cchantep/acolyte/commit/42a9ddfdccc65c175edf7d22cd677592843af0bf) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Add connection property `acolyte.resultSet.initOnFirstRow` to make Acolyte ResultSet iterates rows as degraded Oracle one.

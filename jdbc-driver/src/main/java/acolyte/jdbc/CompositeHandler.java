@@ -26,6 +26,10 @@ public class CompositeHandler
 
     /**
      * Copy constructor.
+     *
+     * @param queryDetection the patterns to detect a query
+     * @param queryHandler the handler for the queries
+     * @param updateHandler the handler for the updates
      */
     public CompositeHandler(final Pattern[] queryDetection,
                             final QueryHandler queryHandler,
@@ -37,6 +41,8 @@ public class CompositeHandler
     /**
      * Returns 'empty' statement handler, 
      * without detection pattern, query handler or update handler.
+     *
+     * @return An empty handler
      */
     public static CompositeHandler empty() {
         return new CompositeHandler();
@@ -49,6 +55,7 @@ public class CompositeHandler
      * but with given query |handler| appended.
      *
      * @param handler Query handler
+     * @return a new composite handler with given query handler
      * @throws IllegalArgumentException if handler is null
      */
     public CompositeHandler withQueryHandler(final QueryHandler handler) {
@@ -69,6 +76,7 @@ public class CompositeHandler
      * but with given update |handler| appended.
      *
      * @param handler Update handler
+     * @return a new composite handler with given update handler
      * @throws IllegalArgumentException if handler is null
      */
     public CompositeHandler withUpdateHandler(final UpdateHandler handler) {

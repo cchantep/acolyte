@@ -88,6 +88,10 @@ public final class Driver implements java.sql.Driver {
     /**
      * Creates a connection to specified |url| with given configuration |info|.
      *
+     * @param url the JDBC URL
+     * @param info the properties for the new connection
+     * @return the configured connection
+     * @throws SQLException if fails to connect
      * @see #connect(java.lang.String, java.util.Properties)
      */
     public acolyte.jdbc.Connection connect(final String url,
@@ -145,6 +149,8 @@ public final class Driver implements java.sql.Driver {
     /**
      * Direct connection, with given |handler| and random URL.
      *
+     * @param handler the connection handler
+     * @return the configured connection
      * @throws IllegalArgumentException if handler is null
      */
     public static acolyte.jdbc.Connection connection(ConnectionHandler handler) {
@@ -156,6 +162,7 @@ public final class Driver implements java.sql.Driver {
      *
      * @param handler Connection handler
      * @param info Connection properties (optional)
+     * @return the configured connection
      * @throws IllegalArgumentException if handler is null
      * @see #connection(acolyte.jdbc.ConnectionHandler, java.util.Properties)
      */
@@ -168,6 +175,7 @@ public final class Driver implements java.sql.Driver {
      *
      * @param handler Connection handler
      * @param info Connection properties (optional)
+     * @return the configured connection
      * @throws IllegalArgumentException if handler is null
      * @see #connection(acolyte.jdbc.ConnectionHandler)
      */
@@ -186,6 +194,8 @@ public final class Driver implements java.sql.Driver {
     /**
      * Direct connection, with given |handler| and random URL.
      *
+     * @param handler the statement handler
+     * @return the configured connection
      * @throws IllegalArgumentException if handler is null
      */
     public static acolyte.jdbc.Connection connection(StatementHandler handler) {
@@ -197,6 +207,7 @@ public final class Driver implements java.sql.Driver {
      *
      * @param handler Statement handler
      * @param info Connection properties (optional)
+     * @return the configured connection
      * @throws IllegalArgumentException if handler is null
      */
     public static acolyte.jdbc.Connection connection(final StatementHandler handler, final Properties info) {
@@ -213,6 +224,7 @@ public final class Driver implements java.sql.Driver {
      *
      * @param handler Statement handler
      * @param info Connection properties (optional)
+     * @return the configured connection
      * @throws IllegalArgumentException if handler is null
      */
     public static acolyte.jdbc.Connection connection(final StatementHandler handler, final Property... info) {
@@ -281,7 +293,12 @@ public final class Driver implements java.sql.Driver {
         return handlers.remove(id);
     } // end of unregister
 
-    /** Returns prepared properties. */
+    /** 
+     * Returns prepared properties. 
+     *
+     * @param info the connection information
+     * @return the connection properties
+     */
     private static Properties props(final Property[] info) {
         final Properties ps = new Properties();
         

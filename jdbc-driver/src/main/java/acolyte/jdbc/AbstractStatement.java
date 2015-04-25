@@ -255,7 +255,7 @@ abstract class AbstractStatement implements java.sql.Statement {
 
     /**
      * {@inheritDoc}
-     * @throws java.sql.SQLFeatureNotSupportedException
+     * @throws java.sql.SQLFeatureNotSupportedException Not currently supported
      */
     public void cancel() throws SQLException {
         throw new SQLFeatureNotSupportedException();
@@ -650,6 +650,7 @@ abstract class AbstractStatement implements java.sql.Statement {
 
     /**
      * Throws a SQLException("Statement is closed") if connection is closed.
+     * @throws SQLException if connection is closed
      */
     protected void checkClosed() throws SQLException {
         if (this.closed) {

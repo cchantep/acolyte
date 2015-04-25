@@ -11,6 +11,7 @@ public interface QueryResult extends Result<QueryResult> {
 
     /**
      * Returns underlying row list.
+     * @return the list of rows in this result
      */
     public RowList<?> getRowList();
 
@@ -32,6 +33,8 @@ public interface QueryResult extends Result<QueryResult> {
 
         /**
          * Rows constructor.
+         *
+         * @param list the list of rows for this result
          */
         protected Default(final RowList<?> list) {
             this(list, null);
@@ -39,6 +42,9 @@ public interface QueryResult extends Result<QueryResult> {
 
         /**
          * Bulk constructor
+         *
+         * @param list the list of rows for this result
+         * @param warning the SQL warning
          */
         private Default(final RowList<?> list, final SQLWarning warning) {
             this.rowList = list;

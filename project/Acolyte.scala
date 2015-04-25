@@ -8,13 +8,15 @@ object Acolyte extends Build with Dependencies
     with ScalacPlugin with ReactiveMongo 
     with JdbcDriver with JdbcJava8 with JdbcScala with JdbcClojure with Studio {
 
+  val versionVariant = if (isJavaAtLeast("1.7")) "-j7p" else ""
+
   lazy val root = Project(id = "acolyte", base = file(".")).
     aggregate(scalacPlugin, reactiveMongo,
       jdbcDriver, jdbcScala, jdbcClojure, studio).
     settings(
       organization in ThisBuild := "org.eu.acolyte",
-      version in ThisBuild := "1.0.33",
-      javaOptions in ThisBuild ++= Seq("-source", "1.6", "-target", "1.6"),
+      version in ThisBuild := s"1.0.33${versionVariant}",
+      //javaOptions in ThisBuild ++= Seq("-source", "1.6", "-target", "1.6"),
       scalaVersion in ThisBuild := "2.10.4",
       crossScalaVersions in ThisBuild := Seq("2.10.4", "2.11.6"),
       publishTo in ThisBuild := Some(Resolver.file("file", 

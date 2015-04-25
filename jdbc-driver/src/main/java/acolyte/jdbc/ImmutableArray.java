@@ -46,6 +46,9 @@ public final class ImmutableArray<T> implements Array {
 
     /**
      * Constructor
+     *
+     * @param baseClass the class of array elements
+     * @param elements the values of array elements
      */
     private ImmutableArray(final Class<T> baseClass,
                            final List<T> elements) {
@@ -70,11 +73,20 @@ public final class ImmutableArray<T> implements Array {
 
     /**
      * Returns empty array for given base class.
+     *
+     * @param <A> the type of array elements
+     * @param baseClass the class of array elements
+     * @return Empty array for given class
      */
     public static <A> ImmutableArray<A> getInstance(final Class<A> baseClass) { return new ImmutableArray<A>(baseClass, Collections.unmodifiableList(Collections.<A>emptyList())); }
 
     /**
      * Returns array with copy of given |elements|.
+     *
+     * @param <A> the type of array elements
+     * @param baseClass the class of array elements
+     * @param elements the values of array elements
+     * @return New array
      */
     public static <A> ImmutableArray<A> getInstance(final Class<A> baseClass, final A[] elements) { 
         if (elements == null) {
@@ -86,6 +98,11 @@ public final class ImmutableArray<T> implements Array {
 
     /**
      * Returns array with copy of given |elements|.
+     *
+     * @param <A> the type of array elements
+     * @param baseClass the class of array elements
+     * @param elements the values of array elements
+     * @return New array
      */
     public static <A> ImmutableArray<A> getInstance(final Class<A> baseClass, final List<A> elements) {
         if (elements == null) {
@@ -124,6 +141,8 @@ public final class ImmutableArray<T> implements Array {
     } // end of getArray
 
     /**
+     * @param map the SQL type mapping
+     * @return the array according the type mapping
      * @throws SQLFeatureNotSupportedException as array convertion 
      * is not supported
      */

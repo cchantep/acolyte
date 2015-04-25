@@ -21,6 +21,7 @@ public interface StatementHandler {
      * @param sql SQL query (with '?' for prepared/callable statement)
      * @param parameters Parameters (or empty map if none)
      * @return Query result set
+     * @throws SQLException if fails to handle the specified query
      */
     public QueryResult whenSQLQuery(String sql, List<Parameter> parameters) 
         throws SQLException;
@@ -30,7 +31,8 @@ public interface StatementHandler {
      *
      * @param sql SQL query (with '?' for prepared/callable statement)
      * @param parameters Parameters (or empty map if none)
-     * @return Row count
+     * @return Update result
+     * @throws SQLException if fails to handle the specified update
      */
     public UpdateResult whenSQLUpdate(String sql, List<Parameter> parameters) 
         throws SQLException;
@@ -40,6 +42,9 @@ public interface StatementHandler {
      * determines whether given |sql| is a query.
      *
      * If returns true, whenSQLQuery will be called.
+     *
+     * @param sql the SQL statement to be checked
+     * @return true if the given SQL statement is a query, or false
      */
     public boolean isQuery(String sql);
 
@@ -47,7 +52,7 @@ public interface StatementHandler {
 
     /**
      * Meaningful, user-friendly and immutable type alias 
-     * for ugly Pair<ParameterDef,Object>
+     * for ugly Pair&lt;ParameterDef,Object&gt;.
      */
     public final class Parameter extends Pair<ParameterDef,Object> {
         public final ParameterDef left;
@@ -57,6 +62,9 @@ public interface StatementHandler {
 
         /**
          * Copy constructor.
+         *
+         * @param left the definition of the parameter
+         * @param right the parameter value
          */
         private Parameter(final ParameterDef left, final Object right) {
             this.left = left;
@@ -67,6 +75,10 @@ public interface StatementHandler {
 
         /**
          * Returns parameter made of |left| and |right| datas.
+         *
+         * @param left the definition of the parameter
+         * @param right the parameter value
+         * @return New parameter
          */
         public static Parameter of(final ParameterDef left, 
                                    final Object right) {
@@ -96,6 +108,7 @@ public interface StatementHandler {
         } // end of getValue
 
         /**
+         * @param value the parameter value
          * @throws UnsupportedOperationException
          */
         public Object setValue(final Object value) {
@@ -104,6 +117,9 @@ public interface StatementHandler {
 
         /**
          * Compares this parameter with an|other| one.
+         *
+         * @param other another parameter to compare this one with
+         * @return &lt;0 if this parameter is before, 0 if equal, &gt;0 if after
          */
         public int compareTo(final Parameter other) {
             return super.compareTo(other);

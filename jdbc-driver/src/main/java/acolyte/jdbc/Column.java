@@ -66,6 +66,7 @@ public final class Column<T> {
      * Returns similar metadata, but with specified |nullable| flag.
      *
      * @param nullable Whether new metadata is nullable
+     * @return an updated column definition with given nullable flag
      */
     public Column withNullable(final boolean nullable) {
         return new Column(this.columnClass, this.name, nullable);

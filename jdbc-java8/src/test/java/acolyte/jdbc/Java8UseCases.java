@@ -124,7 +124,7 @@ final class Java8UseCases {
      * Use case #4 - Connection with only query handler.
      */
     public static java.sql.Connection useCase4() {
-        return connection(handleQuery2((x, y) -> true));
+        return connection(handleQuery2((sql, ps) -> true));
     }
 
     /**

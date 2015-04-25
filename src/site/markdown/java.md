@@ -282,3 +282,64 @@ UpdateResult.One.withGeneratedKeys(RowLists.longList().append(2L));
 ```
 
 Keys specified on result will be given to JDBC statement `.getGeneratedKeys()`.
+
+## Java 8
+
+The module `jdbc-java8` provides a JDBC DSL benefiting from Java 8 features.
+
+```java
+import acolyte.jdbc.Java8CompositeHandler;
+import acolyte.jdbc.RowLists;
+import acolyte.jdbc.RowList3;
+
+import acolyte.jdbc.AcolyteDSL.handleStatement;
+import acolyte.jdbc.AcolyteDSL.handleQuery2;
+import acolyte.jdbc.AcolyteDSL.connection;
+
+connection(handleQuery2((sql, params) -> true));
+
+Java8CompositeHandler handler = handleStatement.
+  withQueryDetection("^SELECT ", // regex test from beginning
+                     "EXEC that_proc"). // second detection regex
+  withUpdateHandler1((sql, ps) -> {
+    if (sql.startsWith("DELETE ")) {
+      /* Process deletion ... deleted = */ return 2;
+    } else {
+      /* ... Process ... count = */ return 1;
+    }
+  }).
+  withQueryHandler((sql, ps) -> {
+    if (sql.startsWith("SELECT ")) {
+      return RowLists.rowList1(String.class).asResult();
+    } else {
+      // ... EXEC that_proc 
+      // (see previous withQueryDetection)
+
+      // Prepare list of 2 rows
+      // with 3 columns of types String, Float, Date
+      RowList3.Impl<String, Float, Date> rows =
+        RowLists.rowList3(String.class, Float.class, Date.class).
+                          // Optional: set labels
+                          withLabel(1, "String").withLabel(3, "Date").
+                          append("str", 1.2F, new Date(1l)).
+                          append("val", 2.34F, null);
+
+        return rows.asResult();
+      }
+    });
+
+```
+
+It can be added to your project with the following dependency.
+
+```xml
+<dependency>
+  <groupId>org.eu.acolyte</groupId>
+  <artifactId>jdbc-java8</artifactId>
+  <version>VERSION-j7p</version>
+</dependency>
+```
+
+> Note the suffix `-j7p` added at end of the version to get the Acolyte artifacts built as Java 1.7+ bytecode.
+
+*See online [API documentation](http://acolyte.eu.org/jdbc-java8-javadoc)*.
