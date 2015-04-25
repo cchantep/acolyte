@@ -56,18 +56,34 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
 
     }
 
-    "accept connection properties" in {
+    "accept connection properties" >> {
       val props = new java.util.Properties()
       props.put("_test", "_val")
 
       acolyte.jdbc.Driver.register(handlerId, defaultHandler)
+      
+      "as dictionary" in {
+        (new acolyte.jdbc.Driver().connect(jdbcUrl, props).getProperties.
+          aka("connection 1 properties") mustEqual props).
+          and(acolyte.jdbc.Driver.connection(defaultHandler, props).
+            getProperties aka "connection 2 properties" mustEqual props).
+          and(acolyte.jdbc.Driver.connection(CompositeHandler.empty, props).
+            getProperties aka "connection 3 properties" mustEqual props)
+      }
 
-      (new acolyte.jdbc.Driver().connect(jdbcUrl, props).getProperties.
-        aka("connection 1 properties") mustEqual props).
-        and(acolyte.jdbc.Driver.connection(defaultHandler, props).
-          getProperties aka "connection 2 properties" mustEqual props).
-        and(acolyte.jdbc.Driver.connection(CompositeHandler.empty, props).
-          getProperties aka "connection 3 properties" mustEqual props)
+      "as list" in {
+        import acolyte.jdbc.Driver.Property
+        def prop(n: String, v: String) = new Property(n, v)
+
+        (new acolyte.jdbc.Driver().connect(jdbcUrl, prop("_test", "_val")).
+          getProperties aka "connection 1 properties" mustEqual props).
+          and(acolyte.jdbc.Driver.
+            connection(defaultHandler, prop("_test", "_val")).
+            getProperties aka "connection 2 properties" mustEqual props).
+          and(acolyte.jdbc.Driver.
+            connection(CompositeHandler.empty, prop("_test", "_val")).
+            getProperties aka "connection 3 properties" mustEqual props)        
+      }
     }
 
     "not open connection without handler" in {
@@ -79,10 +95,12 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
           and(acolyte.jdbc.Driver.connection(null.asInstanceOf[StatementHandler]).
             aka("direct connection 2") must throwA[IllegalArgumentException]).
           and(acolyte.jdbc.Driver.
-            connection(null.asInstanceOf[ConnectionHandler], null).
+            connection(null.asInstanceOf[ConnectionHandler],
+              null.asInstanceOf[java.util.Properties]).
             aka("direct connection 3") must throwA[IllegalArgumentException]).
           and(acolyte.jdbc.Driver.
-            connection(null.asInstanceOf[StatementHandler], null).
+            connection(null.asInstanceOf[StatementHandler],
+              null.asInstanceOf[java.util.Properties]).
             aka("direct connection 4") must throwA[IllegalArgumentException])
 
     }

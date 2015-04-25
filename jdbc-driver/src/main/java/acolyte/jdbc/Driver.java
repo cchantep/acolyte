@@ -86,6 +86,18 @@ public final class Driver implements java.sql.Driver {
     } // end of connect
 
     /**
+     * Creates a connection to specified |url| with given configuration |info|.
+     *
+     * @see #connect(java.lang.String, java.util.Properties)
+     */
+    public acolyte.jdbc.Connection connect(final String url,
+                                           final Property... info) 
+        throws SQLException {
+    
+        return connect(url, props(info));
+    } // end of connect
+        
+    /**
      * {@inheritDoc}
      */
     public boolean acceptsURL(final String url) throws SQLException {
@@ -136,8 +148,20 @@ public final class Driver implements java.sql.Driver {
      * @throws IllegalArgumentException if handler is null
      */
     public static acolyte.jdbc.Connection connection(ConnectionHandler handler) {
-        return connection(handler, null);
+        return connection(handler, (Properties) null);
     } // end of connection
+
+    /**
+     * Direct connection, with given |handler| and random URL.
+     *
+     * @param handler Connection handler
+     * @param info Connection properties (optional)
+     * @throws IllegalArgumentException if handler is null
+     * @see #connection(acolyte.jdbc.ConnectionHandler, java.util.Properties)
+     */
+    public static acolyte.jdbc.Connection connection(final ConnectionHandler handler, final Property... info) {
+        return connection(handler, props(info));
+    } // end of connnection
 
     /**
      * Direct connection, with given |handler| and random URL.
@@ -154,8 +178,7 @@ public final class Driver implements java.sql.Driver {
         } // end of if
 
         final String url = String.
-            format("jdbc:acolyte:direct-%d",
-                   System.identityHashCode(handler));
+            format("jdbc:acolyte:direct-%d", System.identityHashCode(handler));
 
         return new acolyte.jdbc.Connection(url, info, handler);
     } // end of connection
@@ -166,7 +189,7 @@ public final class Driver implements java.sql.Driver {
      * @throws IllegalArgumentException if handler is null
      */
     public static acolyte.jdbc.Connection connection(StatementHandler handler) {
-        return connection(handler, null);
+        return connection(handler, (Properties) null);
     } // end of connection
 
     /**
@@ -183,6 +206,17 @@ public final class Driver implements java.sql.Driver {
         } // end of if
 
         return connection(new ConnectionHandler.Default(handler), info);
+    } // end of connection
+
+    /**
+     * Direct connection, with given |handler| and random URL.
+     *
+     * @param handler Statement handler
+     * @param info Connection properties (optional)
+     * @throws IllegalArgumentException if handler is null
+     */
+    public static acolyte.jdbc.Connection connection(final StatementHandler handler, final Property... info) {
+        return connection(handler, props(info));
     } // end of connection
 
     // ---
@@ -246,4 +280,36 @@ public final class Driver implements java.sql.Driver {
 
         return handlers.remove(id);
     } // end of unregister
+
+    /** Returns prepared properties. */
+    private static Properties props(final Property[] info) {
+        final Properties ps = new Properties();
+        
+        for (final Property p : info) {
+            ps.put(p.name, p.value);
+        }
+
+        return ps;
+    } // end of props
+
+    // --- Inner classes ---
+
+    /**
+     * Driver (configuration) property.
+     */
+    public static final class Property {
+        public final String name;
+        public final String value;
+
+        /**
+         * Bulk constructor.
+         *
+         * @param name the name of the property
+         * @param value the property value
+         */
+        public Property(String name, String value) {
+            this.name = name;
+            this.value = value;
+        }
+    } // end of class Property
 } // end of class Driver
