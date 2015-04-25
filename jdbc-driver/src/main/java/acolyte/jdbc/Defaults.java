@@ -1,5 +1,6 @@
 package acolyte.jdbc;
 
+import java.util.LinkedHashMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,7 +57,7 @@ final class Defaults {
 
     static {
         // JDBC type mappings
-        final HashMap<Integer,String> mappings = new HashMap<Integer,String>();
+        final LinkedHashMap<Integer,String> mappings = new LinkedHashMap<Integer,String>();
 
         mappings.put(Types.ARRAY, Array.class.getName());
         mappings.put(Types.BIGINT, Long.class.getName());
@@ -68,7 +69,6 @@ final class Defaults {
         mappings.put(Types.DOUBLE, Double.class.getName());
         mappings.put(Types.FLOAT, Float.class.getName());
         mappings.put(Types.INTEGER, Integer.class.getName());
-        mappings.put(Types.LONGVARCHAR, String.class.getName());
         mappings.put(Types.NUMERIC, BigDecimal.class.getName());
         mappings.put(Types.REAL, Float.class.getName());
         mappings.put(Types.SMALLINT, Short.class.getName());
@@ -76,6 +76,7 @@ final class Defaults {
         mappings.put(Types.TIME, Time.class.getName());
         mappings.put(Types.TIMESTAMP, Timestamp.class.getName());
         mappings.put(Types.VARCHAR, String.class.getName());
+        mappings.put(Types.LONGVARCHAR, String.class.getName());        
         mappings.put(Types.BINARY, byte[].class.getName());
         mappings.put(Types.VARBINARY, byte[].class.getName());
         mappings.put(Types.LONGVARBINARY, byte[].class.getName());

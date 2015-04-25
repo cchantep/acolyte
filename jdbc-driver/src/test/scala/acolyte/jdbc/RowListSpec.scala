@@ -1275,6 +1275,22 @@ object RowListSpec extends Specification with RowListTest {
     }
   }
 
+  "Scalar row list" should {
+    "be created for a string" in {
+      val rs = RowLists.scalar("Foo").resultSet
+      rs.next
+
+      rs.getString(1) aka "scalar value" must_== "Foo"
+    }
+
+    "be created for an integer" in {
+      val rs = RowLists.scalar(123).resultSet
+      rs.next
+
+      rs.getInt(1) aka "scalar value" must_== 123
+    }
+  }
+
   temporalGetterSpec[Date]("Date", new Date(1, 2, 3))
   temporalGetterSpec[Time]("Time", new Time(1, 2, 3))
   temporalGetterSpec[Timestamp]("Timestamp", new Timestamp(1, 2, 3, 5, 6, 7, 8))

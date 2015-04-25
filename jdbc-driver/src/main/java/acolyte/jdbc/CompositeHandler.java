@@ -89,8 +89,7 @@ public class CompositeHandler
      */
     public CompositeHandler withQueryDetection(final Pattern... pattern) {
         return new CompositeHandler(queryDetectionPattern(pattern),
-                                    this.queryHandler,
-                                    this.updateHandler);
+                                    this.queryHandler, this.updateHandler);
 
     } // end of withQueryDetection
 } // end of class CompositeHandler

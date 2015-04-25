@@ -52,6 +52,9 @@ public final class Column<T> {
 
     /**
      * Creates a not nullable column.
+     *
+     * @param columnClass the class of the column value
+     * @param name the colunm name
      */
     Column(final Class<T> columnClass, final String name) {
         this(columnClass, name, false);

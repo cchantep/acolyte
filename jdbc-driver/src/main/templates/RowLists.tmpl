@@ -327,5 +327,18 @@ public final class RowLists {
         return list;
     }
 
+    public static <T> RowList1.Impl<T> scalar(final T value) {
+        if (value == null) {
+            throw new IllegalArgumentException("Cannot create a scalar row list with a null value");
+        }
+
+        @SuppressWarnings("unchecked")
+        final Class<T> cls = (Class<T>) value.getClass();
+
+        RowList1.Impl<T> list = new RowList1.Impl<T>(cls);
+
+        return list.append(value);
+    }
+
     #F#
 }

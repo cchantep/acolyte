@@ -178,7 +178,8 @@ public abstract class AbstractCompositeHandler<T extends AbstractCompositeHandle
      * Query handler.
      */
     public static interface QueryHandler {
-        public QueryResult apply(String sql, List<Parameter> parameters) throws SQLException;
+        public QueryResult apply(String sql, List<Parameter> parameters)
+            throws SQLException;
 
     } // end of interfaceQueryHandler
 
