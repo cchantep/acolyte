@@ -1,14 +1,14 @@
 name := "reactivemongo-tutorial"
 
-scalaVersion := "2.11.5"
+scalaVersion := "2.11.6"
 
 organization := "org.eu.applidok"
 
-version := "1.0.32"
+version := "1.0.33"
 
 autoCompilerPlugins := true
 
-addCompilerPlugin("org.eu.acolyte" %% "scalac-plugin" % "1.0.32")
+addCompilerPlugin("org.eu.acolyte" %% "scalac-plugin" % "1.0.33")
 
 mainClass in (Compile, run) := Some("applidok.SbtRunner")
 
@@ -21,5 +21,5 @@ resolvers ++= Seq(
 libraryDependencies ++= Seq(
   "org.reactivemongo" %% "reactivemongo" % "0.10.5.0.akka23",
   "org.specs2" %% "specs2" % "2.4.6" % "test",
-  "org.eu.acolyte" %% "reactive-mongo" % "1.0.32" % "test"
+  "org.eu.acolyte" %% "reactive-mongo" % "1.0.33" % "test"
 )
