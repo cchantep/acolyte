@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eu.acolyte</groupId>
   <artifactId>acolyte</artifactId>
-  <version>1.0.33</version>
+  <version>1.0.34</version>
   <packaging>pom</packaging>
   <name>Acolyte</name>
 
@@ -65,6 +65,7 @@
             </configuration>
           </execution>
 
+<!--
           <execution>
             <id>generate-java8-javadoc</id>
             <phase>pre-site</phase>
@@ -86,7 +87,8 @@
                 <link>http://acolyte.eu.org/jdbc-driver-javadoc/</link>
               </links>
             </configuration>
-          </execution>          
+          </execution>
+-->
         </executions>
       </plugin>
 
@@ -110,9 +112,11 @@
                 <copy todir="${project.build.directory}/site/jdbc-driver-javadoc"><fileset dir="${project.build.directory}/site/jdbc-driver/apidocs" /></copy>
                 <delete dir="${project.build.directory}/site/jdbc-driver" />
 
+<!--
                 <mkdir dir="${project.build.directory}/site/jdbc-java8-javadoc" />
                 <copy todir="${project.build.directory}/site/jdbc-java8-javadoc"><fileset dir="${project.build.directory}/site/jdbc-java8/apidocs" /></copy>
                 <delete dir="${project.build.directory}/site/jdbc-java8" />
+-->
 
                 <copy todir="${project.build.directory}/site/jdbc-scaladoc">
                   <fileset dir="${basedir}/jdbc-scala/target/scala-2.10/api" />

@@ -1,3 +1,15 @@
+## 1.0.34
+
+([4f6afc2928fa3dbb469a1a54f7c556fa3e245afa](https://github.com/cchantep/acolyte/commit/4f6afc2928fa3dbb469a1a54f7c556fa3e245afa) @ [jdbc-scala](https://github.com/cchantep/acolyte/tree/master/jdbc-scala)) New debuging utility in the AcolyteDSL.
+
+```scala
+AcolyteDSL.debuging() { con =>
+  val stmt = con.prepareStatement("SELECT * FROM Test WHERE id = ?")
+  stmt.setString(1, "foo")
+  stmt.executeQuery()
+}
+```
+
 ## 1.0.33
 
 ([56ca676e19164a251801579397c2411a9a503505](https://github.com/cchantep/acolyte/commit/56ca676e19164a251801579397c2411a9a503505) @ [jdbc-java8](https://github.com/cchantep/acolyte/tree/master/jdbc-java8)) Acolyte DSL for JDBC.

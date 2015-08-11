@@ -4,32 +4,29 @@ REPO="https://oss.sonatype.org/service/local/staging/deploy/maven2/"
 
 VERSION="$1"
 KEY="$2"
-PASS="$3"
+
+if [ $# -lt 2 ]; then
+  echo "Usage: $0 version gpg-key"
+  exit 1
+fi
+
+echo "Password: "
+read -s PASS
 
 function deploy {
   BASE="$1"
   POM="$BASE.pom"
   FILES="$BASE.jar $BASE-javadoc.jar:javadoc $BASE-sources.jar:sources"
 
-  for FILE in $FILES; do
-    JAR=`echo "$FILE" | cut -d ':' -f 1`
-    CLASSIFIER=`echo "$FILE" | cut -d ':' -f 2`
-
-    if [ ! "$CLASSIFIER" = "$JAR" ]; then
-      ARG="-Dclassifier=$CLASSIFIER"
-    else
-      ARG=""
-    fi
-
-    expect << EOF
-set timeout 300
-spawn mvn gpg:sign-and-deploy-file -Dkeyname=$KEY -DpomFile=$POM -Dfile=$JAR $ARG -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
+  expect <<EOF
+spawn mvn gpg:sign-and-deploy-file -DuniqueVersion=false -Dkeyname=$KEY -DpomFile=$POM -Dfile=$BASE.jar -Djavadoc=$BASE-javadoc.jar -Dsources=$BASE-sources.jar $ARG -Durl=$REPO -DrepositoryId=sonatype-nexus-staging  
+log_user 0
 expect "GPG Passphrase:"
 send "$PASS\r"
+log_user 1
 expect "BUILD SUCCESS"
 expect eof
 EOF
-  done
 }
 
 JAVA_MODULES="jdbc-driver"

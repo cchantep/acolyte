@@ -304,7 +304,7 @@ val uh1: UpdateExecution => UpdateResult =
 
 ## Debug utility
 
-Acolyte can be use to create [scope of debuging](http://acolyte.eu.org/jdbc-scaladoc/#acolyte.jdbc.AcolyteDSL$@debuging[A](printer:acolyte.jdbc.QueryExecution=>Unit)(f:java.sql.Connection=>A):Unit), to check what is executed in the JDBC layer.
+Acolyte can be use to create [scope of debuging](http://acolyte.eu.org/jdbc-scaladoc/#acolyte.jdbc.AcolyteDSL$@debuging[A]%28printer:acolyte.jdbc.QueryExecution=%3EUnit%29%28f:java.sql.Connection=%3EA%29:Unit), to check what is executed in the JDBC layer.
 
 ```scala
 import acolyte.jdbc.AcolyteDSL
