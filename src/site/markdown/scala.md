@@ -8,6 +8,8 @@ Using SBT, Acolyte JDBC dependency can resolved as following:
 libraryDependencies += "org.eu.acolyte" %% "jdbc-scala" % "VERSION" % "test"
 ```
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.eu.acolyte/jdbc-scala_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.eu.acolyte/jdbc-scala_2.11/)
+
 Then code could be:
 
 ```scala
@@ -299,3 +301,31 @@ val uh1: UpdateExecution => UpdateResult =
   // Defined from UpdateExecution => Int
   { ex: UpdateExecution => /* update count = */ 2 }
 ```
+
+## Debug utility
+
+Acolyte can be use to create [scope of debuging](http://acolyte.eu.org/jdbc-scaladoc/#acolyte.jdbc.AcolyteDSL$@debuging[A]%28printer:QueryExecution=%3EUnit%29%28f:SqlConnection=%3EA%29:Unit), to check what is executed in the JDBC layer.
+
+```scala
+import acolyte.jdbc.AcolyteDSL
+
+AcolyteDSL.debuging() { con =>
+  val stmt = con.prepareStatement("SELECT * FROM Test WHERE id = ?")
+  stmt.setString(1, "foo")
+  stmt.executeQuery()
+}
+```
+
+The previous example will print `Executed query: QueryExecution(SELECT * FROM Test WHERE id = ?,List(Param(foo, VARCHAR)))`  on the stdout.
+
+The default printer (using stdout) can be replaced by any function `acolyte.jdbc.QueryExecution => Unit` (see [`QueryExecution`](http://acolyte.eu.org/jdbc-scaladoc/#acolyte.jdbc.QueryExecution) API).
+
+```scala
+import acolyte.jdbc.AcolyteDSL
+
+AcolyteDSL.debuging({ exec => myLogger.debug(s"Executed: $exec") }) { con =>
+  ???
+}
+```
+
+> Any function using JDBC which is called within the scope, will be passed to the debug printer.

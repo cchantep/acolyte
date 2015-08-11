@@ -3,7 +3,7 @@ package acolyte.jdbc
 
 import java.util.{ ArrayList, List ⇒ JList }
 import java.util.regex.Pattern
-import java.sql.{ Connection ⇒ SqlConnection, Statement }
+import java.sql.{ Connection ⇒ SqlConnection, Statement, SQLException }
 
 import scala.language.implicitConversions
 import scala.collection.JavaConversions
@@ -117,6 +117,45 @@ object AcolyteDSL {
    */
   def updateResult(count: Int, keys: RowList[_]): UpdateResult =
     new UpdateResult(count) withGeneratedKeys keys
+
+  /**
+   * Manages a scope to debug any JDBC execution
+   *
+   * @param printer the operation to print any [[QueryExecution]] that occurs within the scope of debuging.
+   * @param f the function working with the debug connection.
+   *
+   * {{{
+   * import acolyte.jdbc.AcolyteDSL
+   *
+   * AcolyteDSL.debuging() { con =>
+   *   val stmt = con.prepareStatement("SELECT * FROM Test WHERE id = ?")
+   *   stmt.setString(1, "foo")
+   *   stmt.executeQuery()
+   * }
+   * // print on stdout:
+   * "Executed query: QueryExecution(SELECT * FROM Test WHERE id = ?,List(Param(foo, VARCHAR)))"
+   * }}}
+   */
+  def debuging[A](printer: QueryExecution ⇒ Unit = { x ⇒ println(s"Executed query: $x") })(f: SqlConnection ⇒ A): Unit = {
+    implicit val con = connection(handleQuery { x ⇒
+      printer(x)
+      throw DebugException
+    })
+
+    try {
+      f(con)
+    } catch {
+      case e: SQLException ⇒ e.getCause match {
+        case DebugException ⇒ ()
+        case sqlError          ⇒ throw sqlError
+      }
+    } finally {
+      con.close()
+    }
+  }
+
+  private case object DebugException
+      extends Exception with scala.util.control.NoStackTrace
 }
 
 /**
