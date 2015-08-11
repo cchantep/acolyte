@@ -16,6 +16,8 @@ With Maven 2/3+, its dependency can be resolved in the following way:
   </dependencies>
 ```
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.eu.acolyte/jdbc-driver/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.eu.acolyte/jdbc-driver/)
+
 Then code could be:
 
 ```java

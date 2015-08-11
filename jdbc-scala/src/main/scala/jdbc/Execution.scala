@@ -11,6 +11,12 @@ sealed trait Execution {
   def parameters: List[ExecutedParameter]
 }
 
+/**
+ * Information about the execution of a query.
+ * 
+ * @param sql the SQL statement
+ * @param parameter the parameters the query is executed with
+ */
 case class QueryExecution(
   sql: String, parameters: List[ExecutedParameter] = Nil) extends Execution
 
@@ -28,7 +34,11 @@ case class ExecutedStatement(val p: String) {
     re.findFirstIn(x.sql).map(_ ⇒ (x.sql -> x.parameters))
 }
 
-sealed trait ExecutedParameter { def value: Any }
+/** Parameter used to executed a query or an update. */
+sealed trait ExecutedParameter {
+  /** The parameter value */
+  def value: Any
+}
 
 /** Executed parameter companion */
 object ExecutedParameter {
