@@ -223,6 +223,29 @@ connection(handler, <span class="lit">"acolyte.parameter.untypedNull"</span> -&g
 
 <span class="cmt">// With connection property to fallback untyped null</span>
 connection(handler, <span class="lit">"acolyte.parameter.untypedNull"</span> -&gt; <span class="lit">"true"</span>)</pre></dd></dl></div>
+    </li><li name="acolyte.jdbc.AcolyteDSL#debuging" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="debuging[A](printer:acolyte.jdbc.QueryExecution=&gt;Unit)(f:java.sql.Connection=&gt;A):Unit"></a>
+      <a id="debuging[A]((QueryExecution)⇒Unit)((java.sql.Connection)⇒A):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">debuging</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="printer">printer: (<a href="QueryExecution.html" class="extype" name="acolyte.jdbc.QueryExecution">QueryExecution</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span> = <span class="symbol">x ⇒ println(s&quot;Executed query: $x&quot;)</span></span>)</span><span class="params">(<span name="f">f: (<span class="extype" name="java.sql.Connection">java.sql.Connection</span>) ⇒ <span class="extype" name="acolyte.jdbc.AcolyteDSL.debuging.A">A</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Manages a scope to debug any JDBC execution
+</p><div class="fullcomment"><div class="comment cmt"><p>Manages a scope to debug any JDBC execution
+</p></div><dl class="paramcmts block"><dt class="param">printer</dt><dd class="cmt"><p>the operation to print any <a href="QueryExecution.html" class="extype" name="acolyte.jdbc.QueryExecution">QueryExecution</a> that occurs within the scope of debuging.</p></dd><dt class="param">f</dt><dd class="cmt"><p>the function working with the debug connection.</p><pre><span class="kw">import</span> acolyte.jdbc.AcolyteDSL
+
+AcolyteDSL.debuging() { con <span class="kw">=&gt;</span>
+  <span class="kw">val</span> stmt = con.prepareStatement(<span class="lit">"SELECT * FROM Test WHERE id = ?"</span>)
+  stmt.setString(<span class="num">1</span>, <span class="lit">"foo"</span>)
+  stmt.executeQuery()
+}
+<span class="cmt">// print on stdout:</span>
+<span class="lit">"Executed query: QueryExecution(SELECT * FROM Test WHERE id = ?,List(Param(foo, VARCHAR)))"</span></pre></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
