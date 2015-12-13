@@ -81,7 +81,8 @@ object AbstractStatementSpec extends Specification {
       lazy val s = statement(h = h)
 
       (s.execute("QUERY") aka "flag" must beTrue).
-        and(s.getResultSet aka "resultset" mustEqual RowLists.stringList.resultSet).
+        and(s.getResultSet.
+          aka("resultset") mustEqual RowLists.stringList.resultSet).
         and(s.getUpdateCount aka "update count" mustEqual -1).
         and(sql aka "executed SQL" mustEqual "QUERY")
 
@@ -286,6 +287,14 @@ object AbstractStatementSpec extends Specification {
   }
 
   "Max row count" should {
+    lazy val h = new StatementHandler {
+      def isQuery(s: String) = true
+      def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
+      def whenSQLQuery(s: String, p: Params) = {
+        RowLists.stringList.append("A").append("B").append("C").asResult
+      }
+    }
+
     "initially be zero" in {
       statement().getMaxRows aka "initial count" mustEqual 0
     }
@@ -308,20 +317,14 @@ object AbstractStatementSpec extends Specification {
     }
 
     "skip row #3 with max count 2" in {
-      lazy val h = new StatementHandler {
-        def isQuery(s: String) = true
-        def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
-        def whenSQLQuery(s: String, p: Params) = {
-          RowLists.stringList.append("A").append("B").append("C").asResult
-        }
-      }
       lazy val s = statement(h = h)
       s.setMaxRows(2)
+      lazy val rs = s.getResultSet
 
       (s.execute("QUERY") aka "flag" must beTrue).
-        and(s.getResultSet aka "resultset" mustEqual {
-          RowLists.stringList.append("A").append("B").resultSet
-        })
+        and(rs.getFetchSize must_== 2).
+        and(rs aka "resultset" mustEqual(
+          RowLists.stringList("A", "B").resultSet))
     }
   }
 
