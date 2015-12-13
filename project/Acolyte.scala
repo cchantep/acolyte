@@ -16,7 +16,7 @@ object Acolyte extends Build with Dependencies
     else "1.6"
 
   lazy val root = Project(id = "acolyte", base = file(".")).
-    aggregate(scalacPlugin, reactiveMongo,
+    aggregate(scalacPlugin/*, reactiveMongo*/,
       jdbcDriver, jdbcScala, jdbcClojure, studio).
     settings(
       organization in ThisBuild := "org.eu.acolyte",

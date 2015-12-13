@@ -43,6 +43,13 @@
     <menu ref="reports" />
   </body>
 
+  <custom>
+    <reflowSkin>
+      <theme>bootswatch-flatly</theme>
+      <highlightJs>true</highlightJs>
+    </reflowSkin>
+  </custom>
+
   <skin>
     <groupId>lt.velykis.maven.skins</groupId>
     <artifactId>reflow-maven-skin</artifactId>

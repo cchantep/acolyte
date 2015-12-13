@@ -10,6 +10,11 @@ trait JdbcScala { deps: Dependencies ⇒
     Project(id = "jdbc-scala", base = file("jdbc-scala")).settings(
       name := "jdbc-scala",
       javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
+      scalacOptions in Compile ++= Seq("-unchecked", "-deprecation"),
+      scalacOptions in Compile <++= (scalaVersion in ThisBuild).map { v =>
+        if (v startsWith "2.11") Seq("-Ywarn-unused-import")
+        else Nil
+      },
       scalacOptions in Test <++= (version in ThisBuild).
         zip(scalaVersion in ThisBuild).
         zip(baseDirectory in (scalacPlugin, Compile)).
@@ -30,11 +35,12 @@ trait JdbcScala { deps: Dependencies ⇒
       libraryDependencies ++= Seq(
         "org.eu.acolyte" % "jdbc-driver" % (version in ThisBuild).value, 
         specs2Test),
-      sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
-        val (base, managed) = dirs
-        generateRowClasses(base, managed / "acolyte" / "jdbc", 
-          "acolyte.jdbc", false)
-      })).dependsOn(scalacPlugin, jdbcDriver)
+      sourceGenerators in Compile <+= (baseDirectory in Compile).
+        zip(sourceManaged in Compile) map (dirs ⇒ {
+          val (base, managed) = dirs
+          generateRowClasses(base, managed / "acolyte" / "jdbc",
+            "acolyte.jdbc", false)
+        })).dependsOn(scalacPlugin, jdbcDriver)
 
   // Source generator
   private def generateRowClasses(base: File, outdir: File, pkg: String, deprecated: Boolean): Seq[File] = {

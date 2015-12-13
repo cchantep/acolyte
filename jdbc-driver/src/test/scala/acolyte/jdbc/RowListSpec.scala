@@ -664,12 +664,6 @@ object RowListSpec extends Specification with RowListTest {
   }
 
   "Result set fetch size" should {
-    "be immutable" in {
-      new RowList1.Impl(classOf[String]).resultSet.setFetchSize(1).
-        aka("setter") must throwA[UnsupportedOperationException]
-
-    }
-
     "be 1" in {
       (new RowList1.Impl(classOf[String]).append(row1("str")).
         resultSet.getFetchSize aka "size" must_== 1).
@@ -684,6 +678,21 @@ object RowListSpec extends Specification with RowListTest {
         resultSet.getFetchSize aka "size" mustEqual 2)
 
     }
+
+    "be updated to 4" in {
+      lazy val rows = RowLists.intList(10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
+      val rs = rows.resultSet()
+      rs.setFetchSize(4)
+
+      rs aka "resultset" mustEqual(RowLists.intList(10, 9, 8, 7).resultSet)
+    }
+
+    "not be updated on closed result set" in {
+      val rs = RowLists.intList(1).resultSet
+      rs.close()
+
+      rs.setFetchSize(1) must throwA[SQLException]("Result set is closed")
+    }
   }
 
   "Max rows limit" should {
@@ -696,19 +705,19 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "drop 2 rows at end (max = 8)" in {
-      rows.resultSet(8) aka "resultset" mustEqual {
-        RowLists.intList(10, 9, 8, 7, 6, 5, 4, 3).resultSet
-      }
+      rows.resultSet(8) aka "resultset" mustEqual(
+        RowLists.intList(10, 9, 8, 7, 6, 5, 4, 3).resultSet)
     }
 
     "extract only 3 rows" in {
-      rows.resultSet(3) aka "resultset" mustEqual {
-        RowLists.intList(10, 9, 8).resultSet
-      }
+      rows.resultSet(3) aka "resultset" mustEqual(
+        RowLists.intList(10, 9, 8).resultSet)
     }
 
     "get all rows" in {
-      rows.resultSet(11) aka "resultset" mustEqual rows.resultSet
+      rows.resultSet(11) aka "resultset" mustEqual rows.resultSet and (
+        rows.resultSet(0) mustEqual rows.resultSet) and (
+        rows.resultSet() mustEqual rows.resultSet)
     }
   }
 
