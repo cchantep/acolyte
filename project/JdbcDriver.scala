@@ -17,8 +17,8 @@ trait JdbcDriver { deps: Dependencies ⇒
       sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
         val (base, managed) = dirs
         generateCallableStatement(base, managed / "acolyte" / "jdbc") +:
-        generateRowClasses(base, managed / "acolyte" / "jdbc",
-          "acolyte.jdbc", false)
+          generateRowClasses(base, managed / "acolyte" / "jdbc",
+            "acolyte.jdbc", false)
       }))
 
   // Source generators
@@ -96,6 +96,16 @@ trait JdbcDriver { deps: Dependencies ⇒
       return new Row%s<%s>(%s);
     }""".format(i + 1, n, cp.mkString(","), i + 1, letter(i), n, cp.mkString(","), (for (j ← 0 until n) yield { if (j == i) "value" else s"this._$j" }).mkString(", "))
 
+        val ao = for (i ← (n + 1) to (lim - n)) yield {
+          val ol = for (j ← 0 until i) yield letter(n + j - 1)
+
+          s"""/**
+     * Appends the values of the rows.
+     */
+    public <${ol mkString ", "}> void append(Row$i<${ol mkString ", "}> other) {
+    }"""
+        }
+
         val hc = for (i ← 0 until n) yield s"append(this._$i)"
         val eq = for (i ← 0 until n) yield s"append(this._$i, other._$i)"
 
@@ -112,6 +122,7 @@ trait JdbcDriver { deps: Dependencies ⇒
               replace("#RP#", rp.mkString("\n        ")).
               replace("#NA#", na.mkString(", ")).
               replace("#SP#", sp.mkString("\n\n    ")).
+              replace("#AO#", ao.mkString("\n\n    ")).
               replace("#HC#", hc.mkString(".\n            ")).
               replace("#EQ#", eq.mkString(".\n            "))).
               append("\n")
@@ -133,8 +144,8 @@ trait JdbcDriver { deps: Dependencies ⇒
  * @deprecated Rows are created by append operation on row lists.
  */
 %s
-public final class Rows {""".format(pkg, 
-  { if (deprecated) "@Deprecated" else "" }))
+public final class Rows {""".format(pkg,
+          { if (deprecated) "@Deprecated" else "" }))
 
         for (n ← 1 to lim) yield {
           val g = for (i ← 0 until n) yield letter(i)
@@ -236,9 +247,9 @@ public final class Rows {""".format(pkg,
           val ps = for (i ← 0 until n) yield s"final Class<${letter(i)}> _c$i"
           val cs = for (i ← 0 until n) yield s"final Column<${letter(i)}> _c$i"
           val as = for (i ← 0 until n) yield s"_c$i"
-          val ls = for (i ← 0 until n) yield s"withLabel(${i+1}, _c$i.name)"
+          val ls = for (i ← 0 until n) yield s"withLabel(${i + 1}, _c$i.name)"
           val ns = for (i ← 0 until n) yield (
-            s"withNullable(${i+1}, _c$i.nullable)")
+            s"withNullable(${i + 1}, _c$i.nullable)")
           val gp = g.mkString(",")
 
           l :+ """

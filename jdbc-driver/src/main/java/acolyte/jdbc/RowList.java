@@ -246,7 +246,7 @@ public abstract class RowList<R extends Row> {
     public final class RowResultSet<R extends Row> extends AbstractResultSet {
         final List<Class<?>> columnClasses;
         final Map<String,Integer> columnLabels;
-        final List<R> rows;
+        List<R> rows;
         final AbstractStatement statement;
         final SQLWarning warning;
         private Object last;
@@ -387,8 +387,16 @@ public abstract class RowList<R extends Row> {
         /**
          * {@inheritDoc}
          */
-        public void setFetchSize(final int rows) throws SQLException {
-            throw new UnsupportedOperationException();
+        public void setFetchSize(final int maxRows) throws SQLException {
+            checkClosed();
+
+            synchronized(this) {
+                if (maxRows > this.rows.size()) {
+                    return;
+                }
+                
+                this.rows = this.rows.subList(0, maxRows);
+            }
         } // end of setFetchSize
         
         /**
