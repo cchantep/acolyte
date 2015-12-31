@@ -3,5 +3,7 @@ jdk:
    - openjdk6
    - oraclejdk8
 env: JAVA_OPTS="-Xms32m -Xmx128m"
+before_install:
+- sudo ./.travis_scripts/beforeInstall.sh $TRAVIS_SCALA_VERSION
 scala:
    - 2.11.7
