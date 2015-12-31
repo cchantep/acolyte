@@ -9,7 +9,7 @@ import scala.util.{ Failure, Success }
 import com.typesafe.config.ConfigFactory
 import akka.actor.{ ActorRef, ActorSystem ⇒ AkkaSystem, Props }
 
-import reactivemongo.core.commands.GetLastError
+import reactivemongo.api.commands.GetLastError
 import reactivemongo.core.actors.{
   Close,
   CheckedWriteRequestExpectingResponse ⇒ CheckedWriteRequestExResp,
@@ -44,13 +44,26 @@ object Akka {
   }
 }
 
-/** Acolyte Mongo actor */
 private[reactivemongo] class Actor(
-    handler: ConnectionHandler) extends akka.actor.Actor {
+  handler: ConnectionHandler) extends reactivemongo.core.actors.MongoDBSystem {
 
-  def receive = {
+  import reactivemongo.core.nodeset.{ Authenticate, ChannelFactory, Connection }
+
+  val initialAuthenticates = Seq.empty[Authenticate]
+
+  protected def authReceive: PartialFunction[Any, Unit] = { case _ => () }
+
+  val seeds = Seq.empty[String]
+
+  val options = reactivemongo.api.MongoConnectionOptions()
+
+  protected def sendAuthenticate(connection: Connection,authentication: Authenticate): Connection = ???
+
+  val channelFactory: ChannelFactory = new ChannelFactory(options)
+
+  override lazy val receive: Receive = {
     case msg @ CheckedWriteRequestExResp(
-      r @ CheckedWriteRequest(op, doc, GetLastError(_, _, _, _))) ⇒
+      r @ CheckedWriteRequest(op, doc, GetLastError(_, _, _, _))) ⇒ {
 
       val req = Request(op.fullCollectionName, doc.merged)
       val exp = new ExpectingResponse(msg)
@@ -60,8 +73,8 @@ private[reactivemongo] class Actor(
           case Success(err) ⇒ err
           case _            ⇒ MongoDB.MkWriteError(cid)
         }
-      }) { wop ⇒
-        handler.writeHandler(cid, wop, req).
+      }) { 
+        handler.writeHandler(cid, _, req).
           fold(NoWriteResponse(cid, msg.toString))(_ match {
             case Success(r) ⇒ r
             case Failure(e) ⇒ MongoDB.WriteError(cid, Option(e.getMessage).
@@ -73,9 +86,11 @@ private[reactivemongo] class Actor(
       }
 
       exp.promise.success(resp)
+    }
 
     case msg @ RequestMakerExpectingResponse(RequestMaker(
-      op @ RQuery(_ /*flags*/ , coln, off, len), doc, _ /*pref*/ , chanId)) ⇒
+      op @ RQuery(_ /*flags*/ , coln, off, len),
+      doc, _ /*pref*/ , chanId), _) ⇒ {
       val exp = new ExpectingResponse(msg)
       val cid = chanId getOrElse 1
       val resp = handler.queryHandler(cid, Request(coln, doc.merged)).
@@ -89,6 +104,7 @@ private[reactivemongo] class Actor(
         })
 
       resp.error.fold(exp.promise.success(resp))(exp.promise.failure(_))
+    }
 
     case close @ Close ⇒ /* Do nothing: next forward close */
     case msg ⇒

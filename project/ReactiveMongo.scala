@@ -34,7 +34,7 @@ trait ReactiveMongo { deps: Dependencies ⇒
         },
       resolvers ++= reactiveResolvers,
       libraryDependencies ++= Seq(
-        "org.reactivemongo" %% "reactivemongo" % "0.10.5.0.akka23",
+        "org.reactivemongo" %% "reactivemongo" % "0.11.9",
         "com.jsuereth" %% "scala-arm" % "1.4",
         "com.chuusai" % "shapeless" % "2.0.0" % Test cross CrossVersion.
           binaryMapped {
