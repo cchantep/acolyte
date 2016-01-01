@@ -7,7 +7,7 @@ import scala.concurrent.duration.Duration
 import resource.{ ManagedResource, managed }
 
 import reactivemongo.api.{ MongoDriver, MongoConnection, DefaultDB }
-import reactivemongo.api.collections.default.BSONCollection
+import reactivemongo.api.collections.bson.BSONCollection
 import reactivemongo.bson.{
   BSONBoolean,
   BSONDocument,
@@ -16,7 +16,7 @@ import reactivemongo.bson.{
   BSONString
 }
 import reactivemongo.core.errors.DetailedDatabaseException
-import reactivemongo.core.commands.LastError
+import reactivemongo.api.commands.{ LastError, WriteResult }
 
 object DriverSpec extends org.specs2.mutable.Specification
     with QueryHandlerFixtures with WriteHandlerFixtures
@@ -180,7 +180,8 @@ object DriverSpec extends org.specs2.mutable.Specification
 
       "when is successful #1" in {
         awaitRes(AcolyteDSL.withFlatCollection(chandler1, query1.collection) {
-          col ⇒ col.find(query1.body.head).cursor[BSONDocument].collect[List]()
+          col ⇒ col.find(query1.body.head).
+            cursor[BSONDocument]().collect[List]()
         }) aka "query result" must beSuccessfulTry[List[BSONDocument]].like {
           case ValueDocument(("b", BSONInteger(3)) :: Nil) :: Nil ⇒ ok
         }
@@ -189,7 +190,7 @@ object DriverSpec extends org.specs2.mutable.Specification
       "when is successful #2" in {
         awaitRes(AcolyteDSL.withFlatDB(chandler1) { db ⇒
           db(query2.collection).find(query2.body.head).
-            cursor[BSONDocument].collect[List]()
+            cursor[BSONDocument]().collect[List]()
         }) aka ("query result") must beSuccessfulTry[List[BSONDocument]].like {
           case ValueDocument(("d", BSONDouble(4.56d)) :: Nil) ::
             ValueDocument(("ef", BSONString("ghi")) :: Nil) :: Nil ⇒ ok
@@ -203,7 +204,7 @@ object DriverSpec extends org.specs2.mutable.Specification
               AcolyteDSL.withFlatConnection(driver) { con ⇒
                 val db = con("anyDb")
                 db("anyCol").find(query1.body.head).
-                  cursor[BSONDocument].collect[List]()
+                  cursor[BSONDocument]().collect[List]()
               }
             }) aka "query result" must beSuccessfulTry[List[BSONDocument]].
             like {
@@ -216,7 +217,7 @@ object DriverSpec extends org.specs2.mutable.Specification
           awaitRes(AcolyteDSL.withFlatQueryResult(
             List(BSONDocument("doc" -> 1), BSONDocument("doc" -> 2.3d))) { d ⇒
               AcolyteDSL.withFlatCollection(d, "anyCol") {
-                _.find(query1.body.head).cursor[BSONDocument].collect[List]()
+                _.find(query1.body.head).cursor[BSONDocument]().collect[List]()
               }
             }) aka "query result" must beSuccessfulTry[List[BSONDocument]].
             like {
@@ -228,7 +229,7 @@ object DriverSpec extends org.specs2.mutable.Specification
         "for an explicit error" in {
           awaitRes(AcolyteDSL.withFlatQueryResult("Error" -> 7) { driver ⇒
             AcolyteDSL.withFlatCollection(driver, query1.collection) {
-              _.find(query1.body.head).cursor[BSONDocument].collect[List]()
+              _.find(query1.body.head).cursor[BSONDocument]().collect[List]()
             }
           }) aka "query result" must beFailedTry.
             withThrowable[DetailedDatabaseException](".*Error.*code = 7.*")
@@ -237,7 +238,7 @@ object DriverSpec extends org.specs2.mutable.Specification
         "when undefined" in {
           awaitRes(AcolyteDSL.withFlatQueryResult(None) { driver ⇒
             AcolyteDSL.withFlatCollection(driver, query1.collection) {
-              _.find(query1.body.head).cursor[BSONDocument].collect[List]()
+              _.find(query1.body.head).cursor[BSONDocument]().collect[List]()
             }
           }) aka "query result" must beFailedTry.
             withThrowable[DetailedDatabaseException](".*No response:.*")
@@ -248,7 +249,7 @@ object DriverSpec extends org.specs2.mutable.Specification
         awaitRes(AcolyteDSL.withFlatQueryHandler(
           { _: Request ⇒ QueryResponse.empty }) { d ⇒
             AcolyteDSL.withFlatCollection(d, query3.collection) {
-              _.find(query3.body.head).cursor[BSONDocument].collect[List]()
+              _.find(query3.body.head).cursor[BSONDocument]().collect[List]()
             }
           }) aka "query result" must beSuccessfulTry.like {
           case res if res.isEmpty ⇒ ok
@@ -258,7 +259,7 @@ object DriverSpec extends org.specs2.mutable.Specification
       "as error when connection handler is empty" in {
         awaitRes(AcolyteDSL.withFlatCollection(AcolyteDSL.handle,
           query3.collection) {
-            _.find(query3.body.head).cursor[BSONDocument].collect[List]()
+            _.find(query3.body.head).cursor[BSONDocument]().collect[List]()
           }) aka "query result" must beFailedTry.
           withThrowable[DetailedDatabaseException](".*No response: .*")
       }
@@ -270,7 +271,7 @@ object DriverSpec extends org.specs2.mutable.Specification
         awaitRes(AcolyteDSL.withFlatConnection(handler) { con ⇒
           val db = con("anyDb")
           db(query3.collection).find(query3.body.head).
-            cursor[BSONDocument].collect[List]()
+            cursor[BSONDocument]().collect[List]()
 
         }) aka "query result" must beFailedTry.
           withThrowable[DetailedDatabaseException](".*No response: .*")
@@ -292,16 +293,11 @@ object DriverSpec extends org.specs2.mutable.Specification
         awaitRes(AcolyteDSL.withFlatDB(chandler1) {
           _(write2._2.collection).insert(write2._2.body.head)
         }) aka "result" must beSuccessfulTry.like {
-          case lastError ⇒
-            lastError.elements.toList aka "body" must beLike {
-              case ("ok", BSONInteger(1)) ::
-                ("updatedExisting", BSONBoolean(false)) ::
-                ("n", BSONInteger(0)) :: Nil ⇒ ok
-            } and (lastError.ok aka "ok" must beTrue) and (
-              lastError.n aka "updated" must_== 0) and (
-                lastError.inError aka "in-error" must beFalse) and (
-                  lastError.err aka "err" must beNone) and (
-                    lastError.errMsg aka "errmsg" must beNone)
+          case result ⇒
+            result.ok aka "ok" must beTrue and (
+              result.n aka "updated" must_== 0) and (
+                result.inError aka "in-error" must beFalse) and (
+              result.errmsg aka "errmsg" must beNone)
         }
       }
 
@@ -379,9 +375,9 @@ object DriverSpec extends org.specs2.mutable.Specification
               WriteResponse.successful(1, false)
           }) { driver ⇒
             AcolyteDSL.withFlatCollection(driver, "col1") {
-              _.save(BSONDocument("a" -> "val", "b" -> 2))
+              _.insert(BSONDocument("a" -> "val", "b" -> 2))
             }
-          }) aka "write result" must beSuccessfulTry[LastError]
+          }) aka "write result" must beSuccessfulTry[WriteResult]
         }
 
         "for update" in {
@@ -394,7 +390,7 @@ object DriverSpec extends org.specs2.mutable.Specification
             AcolyteDSL.withFlatCollection(driver, "col2") {
               _.update(BSONDocument("sel" -> "hector"), write3._2.body.head)
             }
-          }) aka "write result" must beSuccessfulTry[LastError]
+          }) aka "write result" must beSuccessfulTry[WriteResult]
         }
 
         "for delete" in {
@@ -406,7 +402,7 @@ object DriverSpec extends org.specs2.mutable.Specification
             AcolyteDSL.withFlatCollection(driver, "col3") {
               _.remove(BSONDocument("a" -> "val"))
             }
-          }) aka "write result" must beSuccessfulTry[LastError]
+          }) aka "write result" must beSuccessfulTry[WriteResult]
         }
       }
     }

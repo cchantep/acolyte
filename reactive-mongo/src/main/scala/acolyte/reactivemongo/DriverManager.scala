@@ -17,7 +17,7 @@ object DriverManager {
 
   /** Manager instance based on connection handler. */
   implicit object Default extends DriverManager {
-    def open = new MongoDriver(Some(Akka.actorSystem()))
+    def open = MongoDriver()
 
     /** Releases driver if necessary. */
     def releaseIfNecessary(driver: MongoDriver): Boolean = try {
@@ -43,7 +43,6 @@ trait ConnectionManager[T] {
 /** Connection manage companion. */
 object ConnectionManager {
   import akka.actor.Props
-  import reactivemongo.core.actors.MonitorActor
   import reactivemongo.api.MongoConnectionOptions
 
   /** Manager instance based on connection handler. */
@@ -52,9 +51,9 @@ object ConnectionManager {
 
     def open(driver: MongoDriver, handler: ConnectionHandler) = {
       val sys = driver.system
-      val actor = sys.actorOf(Props(classOf[Actor], handler))
-      val monitor = sys.actorOf(Props(new MonitorActor(actor)))
-      new MongoConnection(sys, actor, monitor, MongoConnectionOptions())
+      val actorRef = sys.actorOf(Props(classOf[Actor], handler))
+
+      new MongoConnection(sys, actorRef, MongoConnectionOptions())
     }
 
     /** Releases connection if necessary. */
