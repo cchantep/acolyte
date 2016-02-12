@@ -196,11 +196,15 @@ object CallableStatementSpec
 
       (stmt.getObject(1).
         aka("getter") must throwA[SQLException]("No result")).
-        and(stmt.getObject(1,
-          JavaConversions mapAsJavaMap Map[String, Class[_]]()).
+        and(stmt.getObject(
+          1,
+          JavaConversions mapAsJavaMap Map[String, Class[_]]()
+        ).
           aka("getter") must throwA[SQLException]("No result")).
-        and(stmt.getObject("param",
-          JavaConversions mapAsJavaMap Map[String, Class[_]]()).
+        and(stmt.getObject(
+          "param",
+          JavaConversions mapAsJavaMap Map[String, Class[_]]()
+        ).
           aka("getter") must throwA[SQLException]("No result")).
         /* Java 1.7
         and(stmt.getObject(1, classOf[String]).
@@ -304,7 +308,8 @@ object CallableStatementSpec
       stmt.close()
 
       stmt.wasNull aka "check" must throwA[SQLException](
-        message = "Statement is closed")
+        message = "Statement is closed"
+      )
 
     }
   }

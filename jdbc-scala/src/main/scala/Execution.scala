@@ -13,15 +13,17 @@ sealed trait Execution {
 
 /**
  * Information about the execution of a query.
- * 
+ *
  * @param sql the SQL statement
  * @param parameter the parameters the query is executed with
  */
 case class QueryExecution(
-  sql: String, parameters: List[ExecutedParameter] = Nil) extends Execution
+  sql: String, parameters: List[ExecutedParameter] = Nil
+) extends Execution
 
 case class UpdateExecution(
-  sql: String, parameters: List[ExecutedParameter] = Nil) extends Execution
+  sql: String, parameters: List[ExecutedParameter] = Nil
+) extends Execution
 
 /**
  * Statement extractor
@@ -31,7 +33,7 @@ case class ExecutedStatement(val p: String) {
   val re = p.r
 
   def unapply(x: Execution): Option[(String, List[ExecutedParameter])] =
-    re.findFirstIn(x.sql).map(_ ⇒ (x.sql -> x.parameters))
+    re.findFirstIn(x.sql).map(_ ⇒ (x.sql → x.parameters))
 }
 
 /** Parameter used to executed a query or an update. */
@@ -50,7 +52,8 @@ object ExecutedParameter {
 
 /** Parameter along with its definition. */
 case class DefinedParameter(
-    value: Any, definition: ParameterDef) extends ExecutedParameter {
+    value: Any, definition: ParameterDef
+) extends ExecutedParameter {
 
   override lazy val toString = s"Param($value, ${definition.sqlTypeName})"
 }

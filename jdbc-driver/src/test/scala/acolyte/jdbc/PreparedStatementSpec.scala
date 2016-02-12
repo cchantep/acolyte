@@ -112,7 +112,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
     "not be added from raw SQL" in {
       statement().addBatch("RAW") aka "add batch" must throwA[SQLException](
-        "Cannot add distinct SQL to prepared statement")
+        "Cannot add distinct SQL to prepared statement"
+      )
     }
 
     "not be added on closed statement" in {
@@ -120,7 +121,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       s.close()
 
       s.addBatch() aka "add batch" must throwA[SQLException](
-        message = "Statement is closed")
+        message = "Statement is closed"
+      )
     }
 
     "be executed with 2 elements" in {
@@ -131,17 +133,20 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       val a = Array[Parameter](
         Parameter.of(ParameterMetaData.Str, "A"),
-        Parameter.of(ParameterMetaData.Int, 3))
+        Parameter.of(ParameterMetaData.Int, 3)
+      )
 
       val b = Array[Parameter](
         Parameter.of(ParameterMetaData.Str, "B"),
-        Parameter.of(ParameterMetaData.Int, 4))
+        Parameter.of(ParameterMetaData.Int, 4)
+      )
 
       s.executeBatch() aka "batch execution" mustEqual Array[Int](1, 2) and (
         h.exed aka "executed" must beLike {
           case ("TEST", x) :: ("TEST", y) :: Nil ⇒
             (x aka "x" must_== a) and (y aka "y" must_== b)
-        })
+        }
+      )
     }
 
     "throw exception as error is raised while executing first element" in {
@@ -157,7 +162,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
         like {
           case ex: BatchUpdateException ⇒
             (ex.getUpdateCounts aka "update count" must_== Array[Int](
-              EXECUTE_FAILED, EXECUTE_FAILED)).
+              EXECUTE_FAILED, EXECUTE_FAILED
+            )).
               and(ex.getCause.getMessage aka "cause" mustEqual "Batch error")
         }
     }
@@ -175,7 +181,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
         }
       }
       lazy val s = statement(
-        c = new acolyte.jdbc.Connection(jdbcUrl, props, defaultHandler), h = h)
+        c = new acolyte.jdbc.Connection(jdbcUrl, props, defaultHandler), h = h
+      )
       s.setString(1, "A"); s.setInt(2, 3); s.addBatch()
       s.setString(1, "B"); s.setInt(2, 4); s.addBatch()
 
@@ -183,7 +190,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
         like {
           case ex: BatchUpdateException ⇒
             (ex.getUpdateCounts aka "update count" must_== Array[Int](
-              EXECUTE_FAILED, 2)).
+              EXECUTE_FAILED, 2
+            )).
               and(ex.getCause.getMessage aka "cause" mustEqual "Batch error: 1")
         }
     }
@@ -205,7 +213,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
         like {
           case ex: BatchUpdateException ⇒
             (ex.getUpdateCounts aka "update count" must_== Array[Int](
-              1, EXECUTE_FAILED)).
+              1, EXECUTE_FAILED
+            )).
               and(ex.getCause.getMessage aka "cause" mustEqual "Batch error: 2")
         }
     }
@@ -223,7 +232,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
         }
       }
       lazy val s = statement(
-        c = new acolyte.jdbc.Connection(jdbcUrl, props, defaultHandler), h = h)
+        c = new acolyte.jdbc.Connection(jdbcUrl, props, defaultHandler), h = h
+      )
       s.setString(1, "A"); s.setInt(2, 3); s.addBatch()
       s.setString(1, "B"); s.setInt(2, 4); s.addBatch()
 
@@ -231,7 +241,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
         like {
           case ex: BatchUpdateException ⇒
             (ex.getUpdateCounts aka "update count" must_== Array[Int](
-              1, EXECUTE_FAILED)).
+              1, EXECUTE_FAILED
+            )).
               and(ex.getCause.getMessage aka "cause" mustEqual "Batch error: 2")
         }
     }
@@ -243,7 +254,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       s.setString(1, "B"); s.setInt(2, 4); s.addBatch()
 
       s.clearBatch() aka "clear batch" must not(throwA[SQLException]) and (
-        h.exed.size aka "executed" must_== 0)
+        h.exed.size aka "executed" must_== 0
+      )
     }
   }
 
@@ -295,7 +307,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
     "cannot be set as object without SQL type" in {
       statement().setObject(1, null).
         aka("set null object") must throwA[SQLException](
-          message = "Cannot set parameter from null object")
+          message = "Cannot set parameter from null object"
+        )
 
     }
 
@@ -322,8 +335,10 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
   }
 
   "Array" should {
-    val stringArray = ImmutableArray.getInstance(classOf[String], 
-        JavaConversions.seqAsJavaList(List("A", "B")))
+    val stringArray = ImmutableArray.getInstance(
+      classOf[String],
+      JavaConversions.seqAsJavaList(List("A", "B"))
+    )
 
     "be set as first parameter" in {
       lazy val s = statement()
@@ -1144,9 +1159,12 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       "when LONGVARBINARY" in {
         (executeUpdate("TEST ?, y", Types.LONGVARBINARY, bindata).
           aka("SQL update") mustEqual ("TEST ?, y" -> bindata)).
-          and(executeQuery("SELECT ? WHERE false",
-            Types.LONGVARBINARY, bindata) aka "SQL query" mustEqual (
-              "SELECT ? WHERE false" -> bindata))
+          and(executeQuery(
+            "SELECT ? WHERE false",
+            Types.LONGVARBINARY, bindata
+          ) aka "SQL query" mustEqual (
+            "SELECT ? WHERE false" -> bindata
+          ))
 
       }
 
@@ -1171,9 +1189,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
               aka("same content") must beTrue
           }) and (executeQuery("SELECT ? WHERE false", Types.VARBINARY,
             binstream).aka("SQL query") must beLike {
-              case ("SELECT ? WHERE false", s) ⇒ contentEquals(binstream, s).
-                aka("same content") must beTrue
-            })
+            case ("SELECT ? WHERE false", s) ⇒ contentEquals(binstream, s).
+              aka("same content") must beTrue
+          })
 
       }
 
@@ -1182,11 +1200,13 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
           aka("SQL update") must beLike {
             case ("TEST ?, y", s) ⇒ contentEquals(binstream, s).
               aka("same content") must beTrue
-          }) and (executeQuery("SELECT ? WHERE false",
-            Types.LONGVARBINARY, binstream) aka "SQL query" must beLike {
-              case ("SELECT ? WHERE false", s) ⇒ contentEquals(binstream, s).
-                aka("same content") must beTrue
-            })
+          }) and (executeQuery(
+            "SELECT ? WHERE false",
+            Types.LONGVARBINARY, binstream
+          ) aka "SQL query" must beLike {
+            case ("SELECT ? WHERE false", s) ⇒ contentEquals(binstream, s).
+              aka("same content") must beTrue
+          })
 
       }
     }
@@ -1200,7 +1220,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       lazy val m = s.getParameterMetaData
 
       m.getParameterCount aka "count" must_== 1 and (
-        m.getParameterType(1) aka "SQL type" mustEqual Types.DATE)
+        m.getParameterType(1) aka "SQL type" mustEqual Types.DATE
+      )
 
     }
 
@@ -1477,7 +1498,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       (m.getParameterCount aka "count" mustEqual 2).
         and(m.getParameterType(2) aka "SQL type" mustEqual Types.DOUBLE).
         and(m.getParameterType(1) aka "missing" must throwA[SQLException](
-          message = "Parameter is not set: 1"))
+          message = "Parameter is not set: 1"
+        ))
 
     }
 
@@ -1492,7 +1514,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
         and(m.getParameterType(3) aka "third type" mustEqual Types.DOUBLE).
         and(m.getParameterType(1) aka "first type" mustEqual Types.INTEGER).
         and(m.getParameterType(2) aka "missing" must throwA[SQLException](
-          message = "Parameter is not set: 2"))
+          message = "Parameter is not set: 2"
+        ))
 
     }
 
@@ -1588,7 +1611,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       }
 
       statement(h = h).executeUpdate() aka "update" must throwA[SQLException](
-        message = "Cannot update with query")
+        message = "Cannot update with query"
+      )
 
     }
 
@@ -1621,13 +1645,17 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       q.setFloat(2, 1.23f)
 
       (u.executeUpdate() aka "update" must throwA[SQLException](
-        message = "Missing parameter value: 1")).
+        message = "Missing parameter value: 1"
+      )).
         and(u.execute() aka "update" must throwA[SQLException](
-          message = "Missing parameter value: 1")).
+          message = "Missing parameter value: 1"
+        )).
         and(q.executeQuery() aka "query" must throwA[SQLException](
-          message = "Missing parameter value: 1")).
+          message = "Missing parameter value: 1"
+        )).
         and(q.execute() aka "query" must throwA[SQLException](
-          message = "Missing parameter value: 1"))
+          message = "Missing parameter value: 1"
+        ))
     }
 
     "fail with missing parameter at middle" in {
@@ -1641,13 +1669,17 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       q.setFloat(3, 1.23f)
 
       (u.executeUpdate() aka "update" must throwA[SQLException](
-        message = "Missing parameter value: 2")).
+        message = "Missing parameter value: 2"
+      )).
         and(u.execute() aka "update" must throwA[SQLException](
-          message = "Missing parameter value: 2")).
+          message = "Missing parameter value: 2"
+        )).
         and(q.executeQuery() aka "query" must throwA[SQLException](
-          message = "Missing parameter value: 2")).
+          message = "Missing parameter value: 2"
+        )).
         and(q.execute() aka "query" must throwA[SQLException](
-          message = "Missing parameter value: 2"))
+          message = "Missing parameter value: 2"
+        ))
     }
   }
 
