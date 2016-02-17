@@ -49,11 +49,11 @@ private[reactivemongo] class Actor(
 
   import reactivemongo.core.nodeset.{ Authenticate, ChannelFactory, Connection }
 
-  val initialAuthenticates = Seq.empty[Authenticate]
+  lazy val initialAuthenticates = Seq.empty[Authenticate]
 
   protected def authReceive: PartialFunction[Any, Unit] = { case _ => () }
 
-  val seeds = Seq.empty[String]
+  lazy val seeds = Seq.empty[String]
 
   val options = reactivemongo.api.MongoConnectionOptions()
 
