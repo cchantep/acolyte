@@ -2,19 +2,19 @@ organization := "org.eu.acolyte"
 
 name := "play-demo"
 
-version := "1.2"
+version := "1.3"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.7"
 
 libraryDependencies ++= Seq(
   "com.jsuereth" %% "scala-arm" % "1.4",
-  "org.eu.acolyte" %% "jdbc-scala" % "1.0.33" changing()
+  "org.eu.acolyte" %% "jdbc-scala" % "1.0.35-j7p" changing()
 )
 
 // scalacOptions ++= Seq("-feature", "-P:acolyte:debug")
 
 // autoCompilerPlugins := true
 
-// addCompilerPlugin("org.eu.acolyte" %% "scalac-plugin" % "1.0.33")
+// addCompilerPlugin("org.eu.acolyte" %% "scalac-plugin" % "1.0.35")
