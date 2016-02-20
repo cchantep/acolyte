@@ -121,7 +121,7 @@ trait ConnectionHandlerFixtures {
     case q ⇒ QueryResponse(None)
   }, WriteHandler {
     case (DeleteOp, _) ⇒ WriteResponse("Error #2")
-    case (InsertOp, _) ⇒ WriteResponse()
+    case (InsertOp, _) ⇒ WriteResponse({})
     case _             ⇒ WriteResponse(None)
   })
 }

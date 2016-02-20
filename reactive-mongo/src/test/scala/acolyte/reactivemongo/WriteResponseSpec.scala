@@ -80,7 +80,7 @@ object WriteResponseSpec
       }
 
       "with a unit (effect)" in {
-        WriteResponse() aka "prepared" must beLike {
+        WriteResponse({}) aka "prepared" must beLike {
           case prepared ⇒ prepared(4) aka "applied" must beSome.which(
             _ aka "result" must beResponse {
               _ aka "response" must beWriteSuccess(0, false)
