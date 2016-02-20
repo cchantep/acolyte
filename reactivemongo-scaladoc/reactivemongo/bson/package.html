@@ -179,6 +179,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
+    </li><li name="reactivemongo.bson.DefaultBSONHandlers.BSONBinaryHandler" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="BSONBinaryHandler"></a>
+      <a id="BSONBinaryHandler:BSONBinaryHandler"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <span class="name">BSONBinaryHandler</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.BSONHandler">BSONHandler</span>[<span class="extype" name="reactivemongo.bson.BSONBinary">BSONBinary</span>, <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
     </li><li name="reactivemongo.bson.DefaultBSONHandlers.BSONBinaryIdentity" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="BSONBinaryIdentity"></a>
       <a id="BSONBinaryIdentity:BSONBinaryIdentity"></a>
@@ -228,6 +241,19 @@
       </span>
       <span class="symbol">
         <span class="name">BSONBooleanLikeWriter</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.VariantBSONWriter">VariantBSONWriter</span>[<span class="extype" name="reactivemongo.bson.BSONBooleanLike">BSONBooleanLike</span>, <span class="extype" name="reactivemongo.bson.BSONValue">BSONValue</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
+    </li><li name="reactivemongo.bson.DefaultBSONHandlers.BSONDateTimeHandler" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="BSONDateTimeHandler"></a>
+      <a id="BSONDateTimeHandler:BSONDateTimeHandler"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <span class="name">BSONDateTimeHandler</span><span class="result"> extends <span class="extype" name="reactivemongo.bson.BSONHandler">BSONHandler</span>[<span class="extype" name="reactivemongo.bson.BSONDateTime">BSONDateTime</span>, <span class="extype" name="java.util.Date">Date</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
@@ -452,6 +478,32 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
+    </li><li name="reactivemongo.bson.package#array" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="array(values:&lt;?&gt;):reactivemongo.bson.BSONArray"></a>
+      <a id="array(Producer[BSONValue]*):BSONArray"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">array</span><span class="params">(<span name="values">values: <span class="extype" name="reactivemongo.bson.Producer">Producer</span>[<span class="extype" name="reactivemongo.bson.BSONValue">BSONValue</span>]*</span>)</span><span class="result">: <span class="extype" name="reactivemongo.bson.BSONArray">BSONArray</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="reactivemongo.bson.package#array" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="array:reactivemongo.bson.BSONArray"></a>
+      <a id="array:BSONArray"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">array</span><span class="result">: <span class="extype" name="reactivemongo.bson.BSONArray">BSONArray</span></span>
+      </span>
+      </h4>
+      
     </li><li name="reactivemongo.bson.DefaultBSONHandlers#bsonArrayToCollectionReader" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="bsonArrayToCollectionReader[M[_],T](implicitcbf:scala.collection.generic.CanBuildFrom[M[_],T,M[T]],implicitreader:reactivemongo.bson.BSONReader[_&lt;:reactivemongo.bson.BSONValue,T]):reactivemongo.bson.BSONReader[reactivemongo.bson.BSONArray,M[T]]"></a>
       <a id="bsonArrayToCollectionReader[M[_],T](CanBuildFrom[M[_],T,M[T]],BSONReader[_&lt;:BSONValue,T]):BSONReader[BSONArray,M[T]]"></a>
@@ -504,6 +556,32 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
+    </li><li name="reactivemongo.bson.package#document" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="document(elements:&lt;?&gt;):reactivemongo.bson.BSONDocument"></a>
+      <a id="document(Producer[(String,BSONValue)]*):BSONDocument"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">document</span><span class="params">(<span name="elements">elements: <span class="extype" name="reactivemongo.bson.Producer">Producer</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="reactivemongo.bson.BSONValue">BSONValue</span>)]*</span>)</span><span class="result">: <span class="extype" name="reactivemongo.bson.BSONDocument">BSONDocument</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="reactivemongo.bson.package#document" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="document:reactivemongo.bson.BSONDocument"></a>
+      <a id="document:BSONDocument"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">document</span><span class="result">: <span class="extype" name="reactivemongo.bson.BSONDocument">BSONDocument</span></span>
+      </span>
+      </h4>
+      
     </li><li name="reactivemongo.bson.DefaultBSONHandlers#findReader" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="findReader[T](implicitreader:reactivemongo.bson.VariantBSONReader[_&lt;:reactivemongo.bson.BSONValue,T]):reactivemongo.bson.BSONReader[_&lt;:reactivemongo.bson.BSONValue,T]"></a>
       <a id="findReader[T](VariantBSONReader[_&lt;:BSONValue,T]):BSONReader[_&lt;:BSONValue,T]"></a>
@@ -530,6 +608,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>DefaultBSONHandlers</dd></dl></div>
+    </li><li name="reactivemongo.bson.package#generateId" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="generateId:reactivemongo.bson.BSONObjectID"></a>
+      <a id="generateId:BSONObjectID"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">generateId</span><span class="result">: <span class="extype" name="reactivemongo.bson.BSONObjectID">BSONObjectID</span></span>
+      </span>
+      </h4>
+      
     </li></ol>
             </div>
 
