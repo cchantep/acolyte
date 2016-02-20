@@ -1,3 +1,9 @@
+## 1.0.35
+
+([de0179bd758b93861fb9405869743005ec31ff09](https://github.com/cchantep/acolyte/commit/de0179bd758b93861fb9405869743005ec31ff09) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Support ReactiveMongo 0.11.x.
+
+([d60d07e1afb887e055c46f5d49ace4842a93946f](https://github.com/cchantep/acolyte/commit/d60d07e1afb887e055c46f5d49ace4842a93946f) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Better fetch-size support.
+
 ## 1.0.34
 
 ([4f6afc2928fa3dbb469a1a54f7c556fa3e245afa](https://github.com/cchantep/acolyte/commit/4f6afc2928fa3dbb469a1a54f7c556fa3e245afa) @ [jdbc-scala](https://github.com/cchantep/acolyte/tree/master/jdbc-scala)) New debuging utility in the AcolyteDSL.

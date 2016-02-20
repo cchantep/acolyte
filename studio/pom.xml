@@ -4,7 +4,7 @@
   <artifactId>studio</artifactId>
   <packaging>jar</packaging>
   <name>Acolyte Studio</name>
-  <version>1.0.35</version>
+  <version>1.0.36</version>
   <url>https://github.com/cchantep/acolyte/</url>
 
   <scm>
@@ -35,8 +35,8 @@
 
   <repositories>
     <repository>
-      <id>applicius-releases</id>
-      <name>Applicius Releases Repo</name>
+      <id>tatami-releases</id>
+      <name>Tatami Releases Repo</name>
       <url>https://raw.github.com/cchantep/tatami/master/releases</url>
     </repository>
   </repositories>

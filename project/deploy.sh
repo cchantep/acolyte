@@ -16,7 +16,6 @@ read -s PASS
 function deploy {
   BASE="$1"
   POM="$BASE.pom"
-  FILES="$BASE.jar $BASE-javadoc.jar:javadoc $BASE-sources.jar:sources"
 
   expect <<EOF
 spawn mvn gpg:sign-and-deploy-file -DuniqueVersion=false -Dkeyname=$KEY -DpomFile=$POM -Dfile=$BASE.jar -Djavadoc=$BASE-javadoc.jar -Dsources=$BASE-sources.jar $ARG -Durl=$REPO -DrepositoryId=sonatype-nexus-staging  
@@ -35,9 +34,9 @@ SCALA_MODULES="jdbc-scala scalac-plugin reactive-mongo"
 SCALA_VERSIONS="2.10 2.11"
 BASES=""
 
-for M in $JAVA_MODULES; do
-  BASES="$BASES $M/target/$M-$VERSION"
-done
+#for M in $JAVA_MODULES; do
+#  BASES="$BASES $M/target/$M-$VERSION"
+#done
 
 for M in $EXTRA_JAVA_MODULES; do
   B="$M/target/$M-$VERSION"

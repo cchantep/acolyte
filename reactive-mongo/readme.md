@@ -1,6 +1,6 @@
 # Acolyte for ReactiveMongo
 
-Acolyte API for ReactiveMongo (0.10.5.0.akka23).
+Acolyte API for ReactiveMongo.
 
 ## Motivation
 
@@ -71,13 +71,13 @@ val res: Future[String] = withConnection(yourConnectionHandler) { c =>
 
 As in previous example, main API object is [AcolyteDSL](https://github.com/cchantep/acolyte/blob/master/reactive-mongo/src/main/scala/acolyte/reactivemongo/AcolyteDSL.scala).
 
-Dependency can be added to SBT project with `"org.eu.acolyte" %% "reactive-mongo" % "1.0.31"`, or in a Maven one as following:
+Dependency can be added to SBT project with `"org.eu.acolyte" %% "reactive-mongo" % "1.0.36"`, or in a Maven one as following:
 
 ```xml
 <dependency>
   <groupId>org.eu.acolyte</groupId>
   <artifactId>reactive-mongo</artifactId>
-  <version>1.0.31</version>
+  <version>1.0.36</version>
 </dependency>
 ```
 
