@@ -1,14 +1,14 @@
 name := "reactivemongo-tutorial"
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.8"
 
-organization := "org.eu.applidok"
+organization := "org.eu.acolyte"
 
-version := "1.0.33"
+version := "1.0.41"
 
 autoCompilerPlugins := true
 
-addCompilerPlugin("org.eu.acolyte" %% "scalac-plugin" % "1.0.33")
+addCompilerPlugin("org.eu.acolyte" %% "scalac-plugin" % "1.0.41-j7p")
 
 mainClass in (Compile, run) := Some("applidok.SbtRunner")
 
@@ -16,10 +16,12 @@ mainClass in (Compile, run) := Some("applidok.SbtRunner")
 
 resolvers ++= Seq(
   "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases",
-  "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/")
+  "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/",
+  "Sonatype Staging" at "https://oss.sonatype.org/content/repositories/staging/"
+)
 
 libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "reactivemongo" % "0.10.5.0.akka23",
-  "org.specs2" %% "specs2" % "2.4.6" % "test",
-  "org.eu.acolyte" %% "reactive-mongo" % "1.0.33" % "test"
-)
+  "org.reactivemongo" %% "reactivemongo" % "0.12-RC6") ++ Seq(
+  "org.specs2" %% "specs2-core" % "3.8.3",
+    "org.eu.acolyte" %% "reactive-mongo" % s"${version.value}-j7p",
+    "org.slf4j" % "slf4j-simple" % "1.7.13").map(_ % Test)

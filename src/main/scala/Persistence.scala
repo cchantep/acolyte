@@ -1,7 +1,7 @@
 import scala.concurrent.{ ExecutionContext, Future }
 
 import reactivemongo.api.DB
-import reactivemongo.api.collections.default.BSONCollection
+import reactivemongo.api.collections.bson.BSONCollection
 import reactivemongo.bson.{
   BSONArray,
   BSONDocument,
@@ -9,7 +9,7 @@ import reactivemongo.bson.{
   BSONDocumentWriter,
   BSONValue
 }
-import reactivemongo.core.commands.{ Count, LastError }
+import reactivemongo.api.commands.WriteResult
 
 object Persistence {
   implicit object UserInfoReader extends BSONDocumentReader[UserInfo] {
@@ -22,10 +22,10 @@ object Persistence {
   implicit object UserWriter extends BSONDocumentWriter[User] {
     def write(u: User): BSONDocument = {
       val base = BSONDocument("name" -> u.name, "password" -> u.password)
-      val extra = u.description.fold(BSONDocument()) {
+      val extra = u.description.fold(BSONDocument.empty) {
         d ⇒ BSONDocument("description" -> d)
       }
-      val roles = if (u.roles.isEmpty) BSONDocument()
+      val roles = if (u.roles.isEmpty) BSONDocument.empty
       else BSONDocument("roles" -> BSONArray(u.roles))
 
       base ++ extra ++ roles
@@ -33,7 +33,7 @@ object Persistence {
   }
 
   /** Returns names and descriptions for all users. */
-  def all(implicit c: BSONCollection, x: ExecutionContext): Future[List[UserInfo]] = c.find(BSONDocument(),
+  def all(implicit c: BSONCollection, ec: ExecutionContext): Future[List[UserInfo]] = c.find(BSONDocument.empty,
     BSONDocument("name" -> true, "description" -> true)).
     cursor[UserInfo].collect[List]()
 
@@ -41,18 +41,18 @@ object Persistence {
    * Saves given `user`: creates it if doesn't already exist, or update it.
    * @return Information about saved user
    */
-  def save(user: User)(implicit c: BSONCollection, x: ExecutionContext): Future[UserInfo] = {
+  def save(user: User)(implicit c: BSONCollection, ec: ExecutionContext): Future[UserInfo] = {
     val selector = BSONDocument("name" -> user.name)
     for {
       exists ← c.find(selector).cursor[BSONDocument].collect[List]()
-      _ ← exists.headOption.fold[Future[LastError]](
-        c.save(user))(_ ⇒ c.update(selector, user))
+      _ ← exists.headOption.fold[Future[WriteResult]](
+        c.insert(user))(_ ⇒ c.update(selector, user))
     } yield UserInfo(user.name, user.description)
   }
 
   /** Returns count of user matching specified `role`. */
-  def countRole(role: String)(implicit db: DB, x: ExecutionContext): Future[Int] = db.command(Count("users", Some(BSONDocument(
-    "roles" -> BSONDocument("$in" -> BSONArray(role))))))
+  def countRole(role: String)(implicit c: BSONCollection, ec: ExecutionContext): Future[Int] = c.count(Some(BSONDocument(
+    "roles" -> BSONDocument("$in" -> BSONArray(role)))))
   // db.users.count({ "roles": { "$in": [role] } })
 }
 

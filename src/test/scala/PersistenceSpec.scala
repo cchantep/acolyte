@@ -5,9 +5,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 import reactivemongo.bson.{ BSONArray, BSONDocument, BSONString }
-import reactivemongo.core.commands.LastError
+import reactivemongo.api.commands.CommandError
 
 import org.specs2.mutable.Specification
+import org.specs2.concurrent.{ ExecutionEnv => EE }
 
 import acolyte.reactivemongo.{
   CountRequest,
@@ -30,16 +31,20 @@ import acolyte.reactivemongo.AcolyteDSL, AcolyteDSL.{
 }
 
 /** Manage a single Mongo driver for all (isolated) Acolyte handlers. */
-sealed trait AcolyteDriver { specs: Specification ⇒
-  import org.specs2.specification.{ Fragments, Step }
+sealed trait AcolyteDriver
+    extends org.specs2.specification.AfterAll { specs: Specification ⇒
 
-  implicit lazy val driver = AcolyteDSL.driver
-  override def map(fs: ⇒ Fragments) = fs ^ Step(driver.close())
+  implicit val driver = AcolyteDSL.driver
+
+  def afterAll() = driver.close()
 }
 
 /** Persitence executable specification (tests). */
 object PersistenceSpec extends Specification with AcolyteDriver {
+
   "Persistence" title
+
+  val timeout = Duration(5, "seconds")
 
   "List all user information" should {
     /* Mongo fixtures:
@@ -58,7 +63,7 @@ object PersistenceSpec extends Specification with AcolyteDriver {
       BSONDocument("name" -> "user3", "password" -> "pass3",
         "description" -> "Third user"))
 
-    "be successfully found" in {
+    "be successfully found" in { implicit ee: EE =>
       val withFixtures = handleQuery { r: Request ⇒ userFixtures }
 
       withFlatCollection(withFixtures, "users") { implicit col ⇒
@@ -68,10 +73,10 @@ object PersistenceSpec extends Specification with AcolyteDriver {
         UserInfo("administrator"),
         UserInfo("user2", Some("User #2")),
         UserInfo("user3", Some("Third user"))
-      )).await(5)
+      )).await(0, timeout)
     }
 
-    "fail on missing 'name' property" in {
+    "fail on missing 'name' property" in { implicit ee: EE =>
       // Check error case is handled properly by persistence code
       awaitRes(
         withFlatQueryResult(BSONDocument("description" -> "no name")) { drv ⇒
@@ -121,38 +126,36 @@ object PersistenceSpec extends Specification with AcolyteDriver {
           // "name" -> "user3", then ...
           WriteResponse.failed("Unexpected error", 123 /* error code */ )
 
-        case _ ⇒ WriteResponse.undefined
+        case q ⇒ println(s"q = $q"); WriteResponse.undefined
       }
     }
 
-    "create 'administrator' (case A)" in {
+    "create 'administrator' (case A)" in { implicit ee: EE =>
       withFlatCollection(withFixtures, "users") { implicit col ⇒
         Persistence.save(User("administrator", "pass1", None, List("admin")))
       } aka "save administrator" must beEqualTo(UserInfo("administrator")).
-        await(5)
+        await(0, timeout)
     }
 
-    "update 'user2' (case B)" in {
+    "update 'user2' (case B)" in { implicit ee: EE =>
       withFlatCollection(withFixtures, "users") { implicit col ⇒
         Persistence.save(User("user2", "pass2", Some("User #2"),
           roles = List("editor", "reviewer")))
       } aka "save user2" must beEqualTo(UserInfo("user2", Some("User #2"))).
-        await(5)
+        await(0, timeout)
     }
 
-    "update 'user3' (case C)" in {
+    "update 'user3' (case C)" in { implicit ee: EE =>
       awaitRes(withFlatCollection(withFixtures, "users") { implicit col ⇒
         Persistence.save(User("user3", "pass3", Some("Third user"), Nil))
       }) aka "save user3" must beLike {
-        case Failure(LastError(_, msg, code, _, _, _, _)) ⇒
-          msg aka "message" must beSome.which(
-            _ must contain("Unexpected error")) and (
-              code aka "code" must beSome(123))
+        case Failure(err @ CommandError.Code(123)) ⇒ 
+          err.getMessage.indexOf("Unexpected error") must not(beEqualTo(-1))
       }
     }
   }
 
-  "Counting role members" in {
+  "Counting role members" >> {
     val withFixtures = handleQuery { r: Request ⇒
       r match {
         case CountRequest(_,
@@ -166,28 +169,30 @@ object PersistenceSpec extends Specification with AcolyteDriver {
           QueryResponse.count(2)
 
         case CountRequest(_, _) ⇒ QueryResponse.count(0) // otherwise count = 0
+
+        case Request(_, SimpleBody(q)) => sys.error(s"q = $q")
       }
     }
 
-    "find one administrator" in {
-      withFlatDB(withFixtures) { implicit db ⇒
+    "find one administrator" in { implicit ee: EE =>
+      withFlatCollection(withFixtures, "roles") { implicit db ⇒
         Persistence.countRole("administrator")
-      } aka "count administrators" must beEqualTo(1).await(5)
+      } aka "count administrators" must beEqualTo(1).await(0, timeout)
     }
 
-    "find two users" in {
-      withFlatDB(withFixtures) { implicit db ⇒
+    "find two users" in { implicit ee: EE =>
+      withFlatCollection(withFixtures, "roles") { implicit db ⇒
         Persistence.countRole("user")
-      } aka "count users" must beEqualTo(2).await(5)
+      } aka "count users" must beEqualTo(2).await(0, timeout)
     }
 
-    "not find not existing role" in {
-      withFlatDB(withFixtures) { implicit db ⇒
+    "not find not existing role" in { implicit ee: EE =>
+      withFlatCollection(withFixtures, "roles") { implicit db ⇒
         Persistence.countRole("test")
-      } aka "count not existing role" must beEqualTo(0).await(5)
+      } aka "count not existing role" must beEqualTo(0).await(0, timeout)
     }
   }
 
-  def awaitRes[T](f: Future[T], tmout: Duration = Duration(5, "seconds")): Try[T] = Try[T](Await.result(f, tmout))
+  def awaitRes[T](f: Future[T], tmout: Duration = timeout): Try[T] = Try[T](Await.result(f, tmout))
 }
 
