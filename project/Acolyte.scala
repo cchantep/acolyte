@@ -24,7 +24,7 @@ object Acolyte extends Build with Dependencies
       javaOptions in ThisBuild ++= Seq(
         "-source", javaVersion, "-target", javaVersion),
       scalaVersion in ThisBuild := "2.11.7",
-      crossScalaVersions in ThisBuild := Seq("2.10.4", "2.11.7"),
+      crossScalaVersions in ThisBuild := Seq("2.10.5", "2.11.7"),
       publishTo in ThisBuild := Some(Resolver.file("file", 
         new File(Path.userHome.absolutePath+"/.m2/repository"))),
       homepage := Some(url("http://acolyte.eu.org")),

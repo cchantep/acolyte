@@ -32,7 +32,7 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
 
     "return a success response with unit" in {
       implicitly[WriteHandler]({
-        (_: WriteOp, _: Request) ⇒ WriteResponse()
+        (_: WriteOp, _: Request) ⇒ WriteResponse({})
       }) aka "write handler" must beLike {
         case h ⇒ h(1, write1._1, write1._2) must beSome.which(
           _ aka "result" must beResponse {
