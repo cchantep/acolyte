@@ -49,17 +49,17 @@ private[reactivemongo] class Actor(
 
   import reactivemongo.core.nodeset.{ Authenticate, ChannelFactory, Connection }
 
-  lazy val initialAuthenticates = Seq.empty[Authenticate]
+  override lazy val initialAuthenticates = Seq.empty[Authenticate]
 
-  protected def authReceive: PartialFunction[Any, Unit] = { case _ => () }
+  override protected def authReceive: PartialFunction[Any, Unit] = { case _ => () }
 
-  lazy val seeds = Seq.empty[String]
+  override lazy val seeds = Seq.empty[String]
 
-  val options = reactivemongo.api.MongoConnectionOptions()
+  override lazy val options = reactivemongo.api.MongoConnectionOptions()
 
-  protected def sendAuthenticate(connection: Connection,authentication: Authenticate): Connection = connection
+  override protected def sendAuthenticate(connection: Connection,authentication: Authenticate): Connection = ???
 
-  val channelFactory: ChannelFactory = new ChannelFactory(options)
+  override lazy val channelFactory: ChannelFactory = new ChannelFactory(options)
 
   override lazy val receive: Receive = {
     case msg @ CheckedWriteRequestExResp(

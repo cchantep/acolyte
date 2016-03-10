@@ -5,3 +5,12 @@ target
 semantic.cache
 .ensime
 .ensime_lucene
+
+# IntelliJ specific
+*.iml
+!intellijProject/*.iml
+.idea/
+!intellijProject/*.idea
+.idea_modules/
+final/*
+out/*
