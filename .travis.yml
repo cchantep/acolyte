@@ -1,6 +1,6 @@
 language: scala
 jdk:
-   - openjdk6
+   - openjdk7
    - oraclejdk8
 env: JAVA_OPTS="-Xms32m -Xmx128m"
 before_install:

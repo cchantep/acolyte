@@ -1439,6 +1439,21 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
     }
   }
 
+  "Unknown value" should {
+    "be set as OTHER object" in {
+      val v = new AnyRef {}
+      val s = statement()
+
+      s.setObject(1, v, Types.OTHER)
+
+      lazy val m = s.getParameterMetaData
+
+      (m.getParameterCount aka "count" mustEqual 1).
+        and(m.getParameterType(1) aka "first type" mustEqual Types.OTHER)
+
+    }
+  }
+
   "Parameters" should {
     "be kept in order when not set orderly" in {
       lazy val s = statement()
