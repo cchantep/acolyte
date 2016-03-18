@@ -81,6 +81,7 @@ final class Defaults {
         mappings.put(Types.VARBINARY, byte[].class.getName());
         mappings.put(Types.LONGVARBINARY, byte[].class.getName());
         mappings.put(Types.BLOB, java.sql.Blob.class.getName());
+        mappings.put(Types.OTHER, Object.class.getName());
 
         jdbcTypeMappings = Collections.unmodifiableMap(mappings);
 
@@ -125,6 +126,7 @@ final class Defaults {
         names.put(Types.VARBINARY, "VARBINARY");
         names.put(Types.LONGVARBINARY, "LONGVARBINARY");
         names.put(Types.BLOB, "BLOB");
+        names.put(Types.OTHER, "OTHER");
 
         jdbcTypeNames = Collections.unmodifiableMap(names);
 
@@ -162,6 +164,7 @@ final class Defaults {
         signs.put(Types.VARBINARY, Boolean.FALSE);
         signs.put(Types.LONGVARBINARY, Boolean.FALSE);
         signs.put(Types.BLOB, Boolean.FALSE);
+        signs.put(Types.OTHER, Boolean.FALSE);
 
         jdbcTypeSigns = Collections.unmodifiableMap(signs);
 
@@ -191,6 +194,7 @@ final class Defaults {
         precisions.put(Types.VARBINARY, 0);
         precisions.put(Types.LONGVARBINARY, 0);
         precisions.put(Types.BLOB, 0);
+        precisions.put(Types.OTHER, 0);
 
         jdbcTypePrecisions = Collections.unmodifiableMap(precisions);        
 
@@ -219,6 +223,7 @@ final class Defaults {
         scales.put(Types.VARBINARY, 0);
         scales.put(Types.LONGVARBINARY, 0);
         scales.put(Types.BLOB, 0);
+        scales.put(Types.OTHER, 0);
 
         jdbcTypeScales = Collections.unmodifiableMap(scales);
     } // end of <cinit>
