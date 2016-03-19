@@ -71,15 +71,17 @@ val res: Future[String] = withConnection(yourConnectionHandler) { c =>
 
 As in previous example, main API object is [AcolyteDSL](https://github.com/cchantep/acolyte/blob/master/reactive-mongo/src/main/scala/acolyte/reactivemongo/AcolyteDSL.scala).
 
-Dependency can be added to SBT project with `"org.eu.acolyte" %% "reactive-mongo" % "1.0.36"`, or in a Maven one as following:
+Dependency can be added to SBT project with `"org.eu.acolyte" %% "reactive-mongo" % "1.0.37"`, or in a Maven one as following:
 
 ```xml
 <dependency>
   <groupId>org.eu.acolyte</groupId>
-  <artifactId>reactive-mongo</artifactId>
-  <version>1.0.36</version>
+  <artifactId>reactive-mongo_2.11</artifactId>
+  <version>1.0.37-j7p</version>
 </dependency>
 ```
+
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.eu.acolyte/reactive-mongo_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.eu.acolyte/reactive-mongo_2.11/)
 
 ### Get started
 
