@@ -1,3 +1,7 @@
+## 1.0.36
+
+([40bfcf737112b166f2d7c2d4d56791d15178b90f](https://github.com/cchantep/acolyte/commit/40bfcf737112b166f2d7c2d4d56791d15178b90f) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Set opaque parameter as JDBC OTHER.
+
 ## 1.0.35
 
 ([de0179bd758b93861fb9405869743005ec31ff09](https://github.com/cchantep/acolyte/commit/de0179bd758b93861fb9405869743005ec31ff09) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Support ReactiveMongo 0.11.x.
