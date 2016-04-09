@@ -1,6 +1,6 @@
 package acolyte.reactivemongo
 
-import org.jboss.netty.buffer.ChannelBuffer
+import shaded.netty.buffer.ChannelBuffer
 
 import reactivemongo.bson.{ BSONArray, BSONDocument, BSONString, BSONValue }
 import reactivemongo.bson.buffer.{
