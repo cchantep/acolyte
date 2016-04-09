@@ -2,7 +2,7 @@ package acolyte.reactivemongo
 
 import java.nio.ByteOrder
 
-import org.jboss.netty.buffer.ChannelBuffers
+import shaded.netty.buffer.ChannelBuffers
 
 import scala.util.Try
 
