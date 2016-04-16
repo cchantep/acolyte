@@ -4,7 +4,9 @@ jdk:
    - oraclejdk8
 env: JAVA_OPTS="-Xms32m -Xmx128m"
 sudo: false
-#before_install:
-#- sudo ./.travis_scripts/beforeInstall.sh $TRAVIS_SCALA_VERSION
+cache:
+  directories:
+  - $HOME/.ivy2
+  - $HOME/.sbt
 scala:
    - 2.11.7
