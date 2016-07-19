@@ -23,8 +23,8 @@ object Acolyte extends Build with Dependencies
       version in ThisBuild := s"1.0.37${versionVariant}",
       javaOptions in ThisBuild ++= Seq(
         "-source", javaVersion, "-target", javaVersion),
-      scalaVersion in ThisBuild := "2.11.7",
-      crossScalaVersions in ThisBuild := Seq("2.10.5", "2.11.7"),
+      scalaVersion in ThisBuild := "2.11.8",
+      crossScalaVersions in ThisBuild := Seq("2.10.5", "2.11.8"),
       publishTo in ThisBuild := Some(Resolver.file("file", 
         new File(Path.userHome.absolutePath+"/.m2/repository"))),
       homepage := Some(url("http://acolyte.eu.org")),
@@ -59,5 +59,5 @@ object Acolyte extends Build with Dependencies
 }
 
 trait Dependencies {
-  val specs2Test = "org.specs2" %% "specs2" % "2.4.1" % "test"
+  val specs2Test = "org.specs2" %% "specs2-core" % "3.8.3" % "test"
 }
