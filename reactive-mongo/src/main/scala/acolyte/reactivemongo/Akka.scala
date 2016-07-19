@@ -53,6 +53,8 @@ private[reactivemongo] class Actor(
 
   protected def authReceive: PartialFunction[Any, Unit] = { case _ => () }
 
+  val supervisor = "Acolyte"
+  val name = "AcolyteConnection"
   lazy val seeds = Seq.empty[String]
 
   val options = reactivemongo.api.MongoConnectionOptions()
