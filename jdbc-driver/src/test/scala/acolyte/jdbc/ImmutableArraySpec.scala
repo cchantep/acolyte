@@ -19,7 +19,8 @@ object ImmutableArraySpec
     "fail with unsupported base class" in {
       ImmutableArray.getInstance(classOf[Seq[Int]]).
         aka("unsupported class") must throwA[IllegalArgumentException](
-          message = "Unsupported base class")
+          message = "Unsupported base class"
+        )
     }
 
     "be successful for String as base class" in {
@@ -47,9 +48,12 @@ object ImmutableArraySpec
 
   "Creation of array copy" should {
     "fail with null array" in {
-      ImmutableArray.getInstance(classOf[String],
-        null.asInstanceOf[Array[String]]) aka "creation" must (
-          throwA[IllegalArgumentException]("Invalid element array"))
+      ImmutableArray.getInstance(
+        classOf[String],
+        null.asInstanceOf[Array[String]]
+      ) aka "creation" must (
+        throwA[IllegalArgumentException]("Invalid element array")
+      )
     }
 
     "be successful with given array" in mustBeExpectedArray("array copy") {
@@ -59,9 +63,12 @@ object ImmutableArraySpec
 
   "Creation of list copy" should {
     "fail with null array" in {
-      ImmutableArray.getInstance(classOf[String],
-        null.asInstanceOf[java.util.List[String]]) aka "creation" must (
-          throwA[IllegalArgumentException]("Invalid element list"))
+      ImmutableArray.getInstance(
+        classOf[String],
+        null.asInstanceOf[java.util.List[String]]
+      ) aka "creation" must (
+        throwA[IllegalArgumentException]("Invalid element list")
+      )
     }
 
     "be successful with given list" in {
@@ -88,7 +95,8 @@ object ImmutableArraySpec
     "respect Object contract" in {
       ImmutableArray.getInstance(classOf[String], Array("a", "b")).
         aka("string array") must_== ImmutableArray.getInstance(
-          classOf[String], Array("a", "b"))
+          classOf[String], Array("a", "b")
+        )
     }
   }
 

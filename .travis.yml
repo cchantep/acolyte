@@ -2,11 +2,11 @@ language: scala
 jdk:
    - openjdk7
    - oraclejdk8
-env: JAVA_OPTS="-Xms32m -Xmx128m"
 sudo: false
 cache:
   directories:
   - $HOME/.ivy2
   - $HOME/.sbt
 scala:
-   - 2.11.7
+   - 2.11.8
+script: ./.travis_scripts/validate.sh

@@ -1,9 +1,9 @@
 // -*- mode: scala -*-
 package acolyte.jdbc
 
-import java.util.{ ArrayList, List ⇒ JList }
+import java.util.{ List ⇒ JList }
 import java.util.regex.Pattern
-import java.sql.{ Connection ⇒ SqlConnection, Statement, SQLException }
+import java.sql.{ Connection ⇒ SqlConnection, SQLException }
 
 import scala.language.implicitConversions
 import scala.collection.JavaConversions
@@ -91,8 +91,8 @@ object AcolyteDSL {
     handleStatement withQueryDetection ".*" withQueryHandler h
 
   /**
-   * Executes |f| using connection accepting only queries,
-   * and answering with |result| to any query.
+   * Executes `f` using a connection accepting only queries,
+   * and answering with `result` to any query.
    *
    * {{{
    * import acolyte.jdbc.AcolyteDSL.withQueryResult
@@ -104,7 +104,7 @@ object AcolyteDSL {
     f(connection(handleQuery(_ ⇒ res)))
 
   /**
-   * Returns an update result with row |count| and generated |keys|.
+   * Returns an update result with row `count` and generated `keys`.
    * @param count Updated (row) count
    * @param keys Generated keys
    *
@@ -147,7 +147,7 @@ object AcolyteDSL {
     } catch {
       case e: SQLException ⇒ e.getCause match {
         case DebugException ⇒ ()
-        case sqlError          ⇒ throw sqlError
+        case sqlError       ⇒ throw sqlError
       }
     } finally {
       con.close()
@@ -155,7 +155,7 @@ object AcolyteDSL {
   }
 
   private case object DebugException
-      extends Exception with scala.util.control.NoStackTrace
+    extends Exception with scala.util.control.NoStackTrace
 }
 
 /**
@@ -196,10 +196,11 @@ final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: Upda
    * }}}
    */
   def withQueryDetection(pattern: Array[Pattern]) = new ScalaCompositeHandler(
-    queryDetectionPattern(pattern: _*), queryHandler, updateHandler)
+    queryDetectionPattern(pattern: _*), queryHandler, updateHandler
+  )
 
   /**
-   * Returns handler that delegates query execution to |h| function.
+   * Returns handler that delegates query execution to `h` function.
    * Given function will be used only if executed statement is detected
    * as a query by withQueryDetection.
    *
@@ -227,7 +228,7 @@ final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: Upda
     }, updateHandler)
 
   /**
-   * Returns handler that delegates update execution to |h| function.
+   * Returns handler that delegates update execution to `h` function.
    * Given function will be used only if executed statement is not detected
    * as a query by withQueryDetection.
    *

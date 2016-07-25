@@ -61,7 +61,7 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
       props.put("_test", "_val")
 
       acolyte.jdbc.Driver.register(handlerId, defaultHandler)
-      
+
       "as dictionary" in {
         (new acolyte.jdbc.Driver().connect(jdbcUrl, props).getProperties.
           aka("connection 1 properties") mustEqual props).
@@ -82,33 +82,39 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
             getProperties aka "connection 2 properties" mustEqual props).
           and(acolyte.jdbc.Driver.
             connection(CompositeHandler.empty, prop("_test", "_val")).
-            getProperties aka "connection 3 properties" mustEqual props)        
+            getProperties aka "connection 3 properties" mustEqual props)
       }
     }
 
     "not open connection without handler" in {
       (directConnect("jdbc:acolyte:test").
         aka("connection") must throwA[IllegalArgumentException](
-          message = "Invalid handler ID: null")).
-          and(acolyte.jdbc.Driver.connection(null.asInstanceOf[ConnectionHandler]).
-            aka("direct connection 1") must throwA[IllegalArgumentException]).
-          and(acolyte.jdbc.Driver.connection(null.asInstanceOf[StatementHandler]).
-            aka("direct connection 2") must throwA[IllegalArgumentException]).
-          and(acolyte.jdbc.Driver.
-            connection(null.asInstanceOf[ConnectionHandler],
-              null.asInstanceOf[java.util.Properties]).
-            aka("direct connection 3") must throwA[IllegalArgumentException]).
-          and(acolyte.jdbc.Driver.
-            connection(null.asInstanceOf[StatementHandler],
-              null.asInstanceOf[java.util.Properties]).
-            aka("direct connection 4") must throwA[IllegalArgumentException])
+          message = "Invalid handler ID: null"
+        )).
+        and(acolyte.jdbc.Driver.connection(null.asInstanceOf[ConnectionHandler]).
+          aka("direct connection 1") must throwA[IllegalArgumentException]).
+        and(acolyte.jdbc.Driver.connection(null.asInstanceOf[StatementHandler]).
+          aka("direct connection 2") must throwA[IllegalArgumentException]).
+        and(acolyte.jdbc.Driver.
+          connection(
+            null.asInstanceOf[ConnectionHandler],
+            null.asInstanceOf[java.util.Properties]
+          ).
+          aka("direct connection 3") must throwA[IllegalArgumentException]).
+        and(acolyte.jdbc.Driver.
+          connection(
+            null.asInstanceOf[StatementHandler],
+            null.asInstanceOf[java.util.Properties]
+          ).
+          aka("direct connection 4") must throwA[IllegalArgumentException])
 
     }
 
     "not open connection with invalid handler" in {
       directConnect("jdbc:acolyte:test?handler=test").
         aka("connection") must throwA[IllegalArgumentException](
-          message = "No matching handler: test")
+          message = "No matching handler: test"
+        )
 
     }
 
@@ -118,7 +124,8 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
       directConnect(
         url = jdbcUrl,
         props = null,
-        handler = defaultHandler) aka "connection" must not beNull
+        handler = defaultHandler
+      ) aka "connection" must not beNull
     }
   }
 

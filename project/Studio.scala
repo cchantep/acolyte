@@ -23,6 +23,7 @@ trait Studio {
         (r \ "name").text at (r \ "url").text)
     },
     externalResolvers += Resolver.mavenLocal,
-    publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository")))
+    publishTo := Some(Resolver.file("file", new File(
+      Path.userHome.absolutePath+"/.m2/repository")))
   ) ++ externalPom( /*dependencies*/ )
 }

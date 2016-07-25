@@ -2,7 +2,7 @@ package acolyte.jdbc
 
 import java.sql.{ Date, SQLException }
 
-object AcolyteSpec extends org.specs2.mutable.Specification {
+class AcolyteSpec extends org.specs2.mutable.Specification {
   "Acolyte" title
 
   sequential
@@ -18,7 +18,8 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
 
     "return 1 for other update statement" in {
       lazy val s = con.prepareStatement(
-        "INSERT INTO table('id', 'name') VALUES (?, ?)")
+        "INSERT INTO table('id', 'name') VALUES (?, ?)"
+      )
 
       s.setString(1, "idVal");
       s.setString(2, "idName")
@@ -68,7 +69,8 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
     "throw exception for update statement" in {
       con.prepareStatement("DELETE * FROM table").
         executeUpdate aka "update" must throwA[SQLException](
-          message = "No update handler")
+          message = "No update handler"
+        )
 
     }
 

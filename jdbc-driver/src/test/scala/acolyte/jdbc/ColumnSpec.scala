@@ -10,17 +10,20 @@ object ColumnSpec extends Specification {
   "Definition" should {
     "refuse null class" in {
       Col(null, "col") aka "define" must throwA[IllegalArgumentException](
-        message = "No column class")
+        message = "No column class"
+      )
 
     }
 
     "refuse empty name" in {
       (Col(classOf[String], null).
         aka("null name") must throwA[IllegalArgumentException](
-          message = "Invalid column name: null")).
-          and(Col(classOf[String], "").
-            aka("empty name") must throwA[IllegalArgumentException](
-              message = "Invalid column name: "))
+          message = "Invalid column name: null"
+        )).
+        and(Col(classOf[String], "").
+          aka("empty name") must throwA[IllegalArgumentException](
+            message = "Invalid column name: "
+          ))
 
     }
 

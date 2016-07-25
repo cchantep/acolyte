@@ -44,13 +44,15 @@ object ParameterMetaDataSpec
     "not be maid with invalid class name" in {
       param(cn = null, stn = "VARCHAR").
         aka("def") must throwA[IllegalArgumentException](
-          message = "Missing class name")
+          message = "Missing class name"
+        )
     }
 
     "not be maid with invalid SQL type name" in {
       param(cn = "java.lang.String", stn = null).
         aka("def") must throwA[IllegalArgumentException](
-          message = "Missing SQL type name")
+          message = "Missing SQL type name"
+        )
     }
   }
 
@@ -111,7 +113,8 @@ object ParameterMetaDataSpec
 
     "be (-1, 10)" in {
       twoParams.getPrecision(1) aka "first" mustEqual -1 and (
-        twoParams.getPrecision(2) aka "second" mustEqual 10)
+        twoParams.getPrecision(2) aka "second" mustEqual 10
+      )
 
     }
   }
@@ -124,7 +127,8 @@ object ParameterMetaDataSpec
 
     "be (-1, 1)" in {
       twoParams.getScale(1) aka "first" must_== -1 and (
-        twoParams.getScale(2) aka "second" must_== 1)
+        twoParams.getScale(2) aka "second" must_== 1
+      )
 
     }
   }
@@ -193,7 +197,8 @@ object ParameterMetaDataSpec
     "be unwrapped to java.sql.ParameterMetaData" in {
       Option(metadata().unwrap(classOf[java.sql.ParameterMetaData])).
         aka("unwrapped") must beSome.which(
-          _.isInstanceOf[java.sql.ParameterMetaData])
+          _.isInstanceOf[java.sql.ParameterMetaData]
+        )
 
     }
   }
@@ -213,8 +218,10 @@ object ParameterMetaDataSpec
   "Decimal" should {
     Seq(Types.DECIMAL, Types.DOUBLE, Types.FLOAT, Types.REAL) foreach { t ⇒
       (1 to 32) foreach { s ⇒
-        ScaledP(t, s) aka "decimal parameter" mustEqual param(jdbcTypeMap(t),
-          IN, t, typeName(t), typePrecision(t), s, UNKNOWN_NULL, typeSign(t))
+        ScaledP(t, s) aka "decimal parameter" mustEqual param(
+          jdbcTypeMap(t),
+          IN, t, typeName(t), typePrecision(t), s, UNKNOWN_NULL, typeSign(t)
+        )
 
       }
     }
@@ -341,42 +348,50 @@ object ParameterMetaDataSpec
 
     "be handled for nullable check" in {
       m.isNullable(1) aka "check" must throwA[SQLException](
-        message = "Parameter is not set: 1")
+        message = "Parameter is not set: 1"
+      )
     }
 
     "be handled for sign check" in {
       m.isSigned(1) aka "check" must throwA[SQLException](
-        message = "Parameter is not set: 1")
+        message = "Parameter is not set: 1"
+      )
     }
 
     "be handled for precision check" in {
       m.getPrecision(1) aka "check" must throwA[SQLException](
-        message = "Parameter is not set: 1")
+        message = "Parameter is not set: 1"
+      )
     }
 
     "be handled for scale check" in {
       m.getScale(1) aka "check" must throwA[SQLException](
-        message = "Parameter is not set: 1")
+        message = "Parameter is not set: 1"
+      )
     }
 
     "be handled for type check" in {
       m.getParameterType(1) aka "check" must throwA[SQLException](
-        message = "Parameter is not set: 1")
+        message = "Parameter is not set: 1"
+      )
     }
 
     "be handled for type name check" in {
       m.getParameterTypeName(1) aka "check" must throwA[SQLException](
-        message = "Parameter is not set: 1")
+        message = "Parameter is not set: 1"
+      )
     }
 
     "be handled for class name check" in {
       m.getParameterClassName(1) aka "check" must throwA[SQLException](
-        message = "Parameter is not set: 1")
+        message = "Parameter is not set: 1"
+      )
     }
 
     "be handled for mode check" in {
       m.getParameterMode(1) aka "check" must throwA[SQLException](
-        message = "Parameter is not set: 1")
+        message = "Parameter is not set: 1"
+      )
     }
   }
 }
@@ -386,9 +401,10 @@ sealed trait ParameterMetaDataFixtures {
   import acolyte.jdbc.ParameterMetaData.ParameterDef
 
   lazy val jdbcTypeMap = JavaConversions.mapAsScalaMap[Integer, String](
-    Defaults.jdbcTypeMappings).foldLeft(Map[Int, String]()) { (m, p) ⇒
-      m + (p._1.toInt -> p._2)
-    }
+    Defaults.jdbcTypeMappings
+  ).foldLeft(Map[Int, String]()) { (m, p) ⇒
+    m + (p._1.toInt -> p._2)
+  }
 
   def typeName(t: Int): String = Defaults.jdbcTypeNames.get(t)
   def typeSign(t: Int): Boolean = Defaults.jdbcTypeSigns.get(t)
@@ -400,16 +416,21 @@ sealed trait ParameterMetaDataFixtures {
   def metadata(p: Seq[ParameterDef] = Nil) = new ParameterMetaData(JavaConversions seqAsJavaList p)
 
   lazy val twoParams = metadata(Seq(
-    param(cn = "java.lang.String",
+    param(
+      cn = "java.lang.String",
       m = IN_OUT,
       st = Types.VARCHAR,
       stn = "VARCHAR",
-      n = NOT_NULL),
-    param(cn = "java.lang.Integer",
+      n = NOT_NULL
+    ),
+    param(
+      cn = "java.lang.Integer",
       st = Types.INTEGER,
       stn = "INTEGER",
       p = 10,
       s = 1,
-      sg = true)))
+      sg = true
+    )
+  ))
 
 }
