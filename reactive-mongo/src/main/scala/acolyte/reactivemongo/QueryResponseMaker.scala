@@ -20,7 +20,7 @@ trait QueryResponseMaker[T] extends ((Int, T) ⇒ Option[Try[Response]]) {
 /** Response maker companion. */
 object QueryResponseMaker {
   /** Identity maker for already prepared response. */
-  implicit object IdentityQueryResponseMaker 
+  implicit object IdentityQueryResponseMaker
       extends QueryResponseMaker[PreparedResponse] {
 
     def apply(channelId: Int, already: PreparedResponse): Option[Try[Response]] = already(channelId)
@@ -49,8 +49,8 @@ object QueryResponseMaker {
    * }}}
    */
   implicit def SingleQueryResponseMaker = new QueryResponseMaker[BSONDocument] {
-      def apply(channelId: Int, result: BSONDocument): Option[Try[Response]] = Some(MongoDB.QuerySuccess(channelId, Seq(result)))
-    }
+    def apply(channelId: Int, result: BSONDocument): Option[Try[Response]] = Some(MongoDB.QuerySuccess(channelId, Seq(result)))
+  }
 
   /**
    * Provides response maker for an error.

@@ -25,7 +25,7 @@ object WriteResponse {
    * @param message Error message
    * @param code Error code
    */
-  def failed(message: String, code: Int) = apply(message -> code)
+  def failed(message: String, code: Int) = apply(message → code)
 
   /**
    * Factory for successful response.
@@ -34,7 +34,7 @@ object WriteResponse {
    * @param updatedExisting Some existing document has been updated
    */
   def successful(count: Int = 0, updatedExisting: Boolean = false) =
-    apply(count -> updatedExisting)
+    apply(count → updatedExisting)
 
   /**
    * Undefined response, returned by handler no supporting

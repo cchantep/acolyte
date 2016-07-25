@@ -116,11 +116,11 @@ trait WithDriver {
    * @see [[withConnection]]
    */
   def withFlatConnection[A, B](conParam: ⇒ A)(f: MongoConnection ⇒ Future[B])(implicit d: MongoDriver, m: ConnectionManager[A], c: ExecutionContext): Future[B] = for {
-      con ← Future(m.open(d, conParam))
-      res ← {
-        val result = f(con)
-        result.onComplete(_ ⇒ con.close())
-        result
-      }
-    } yield res
+    con ← Future(m.open(d, conParam))
+    res ← {
+      val result = f(con)
+      result.onComplete(_ ⇒ con.close())
+      result
+    }
+  } yield res
 }

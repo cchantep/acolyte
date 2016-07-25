@@ -17,15 +17,16 @@ object Acolyte extends Build with Dependencies with Format
     else "1.6"
 
   lazy val root = Project(id = "acolyte", base = file(".")).
-    aggregate(scalacPlugin/*, reactiveMongo*/,
+    aggregate(scalacPlugin, reactiveMongo,
       jdbcDriver, jdbcScala, jdbcClojure, studio).
     settings(
       organization in ThisBuild := "org.eu.acolyte",
-      version in ThisBuild := s"1.0.37${versionVariant}",
+      version in ThisBuild := s"1.0.38${versionVariant}",
       javaOptions in ThisBuild ++= Seq(
         "-source", javaVersion, "-target", javaVersion),
       scalaVersion in ThisBuild := "2.11.8",
-      crossScalaVersions in ThisBuild := Seq("2.10.5", (scalaVersion in ThisBuild).value),
+      crossScalaVersions in ThisBuild := Seq(
+        "2.10.5", (scalaVersion in ThisBuild).value),
       publishTo in ThisBuild := Some(Resolver.file("file", 
         new File(Path.userHome.absolutePath+"/.m2/repository"))),
       homepage := Some(url("http://acolyte.eu.org")),
@@ -55,7 +56,8 @@ object Acolyte extends Build with Dependencies with Format
           <name>Cedric Chantepie</name>
         </developer>
       </developers>) configure { p =>
-      if (isJavaAtLeast("1.8")) p.aggregate(playJdbc, jdbcJava8) else p
+      if (isJavaAtLeast("1.8")) p.aggregate(playJdbc, jdbcJava8)
+      else p
     }
 }
 
