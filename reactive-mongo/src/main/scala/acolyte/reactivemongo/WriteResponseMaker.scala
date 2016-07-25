@@ -20,7 +20,7 @@ trait WriteResponseMaker[T] extends ((Int, T) ⇒ Option[Try[Response]]) {
 /** Response maker companion. */
 object WriteResponseMaker {
   /** Identity maker for already prepared response. */
-  implicit object IdentityWriteResponseMaker 
+  implicit object IdentityWriteResponseMaker
       extends WriteResponseMaker[PreparedResponse] {
 
     def apply(channelId: Int, already: PreparedResponse): Option[Try[Response]] = already(channelId)
@@ -44,11 +44,11 @@ object WriteResponseMaker {
    * val maker = implicitly[WriteResponseMaker[Int]]
    * }}}
    */
-  implicit def SuccessNotUpdatedWriteResponseMaker = 
+  implicit def SuccessNotUpdatedWriteResponseMaker =
     new WriteResponseMaker[Int] {
-      def apply(channelId: Int, count: Int): Option[Try[Response]] = 
+      def apply(channelId: Int, count: Int): Option[Try[Response]] =
         Some(MongoDB.WriteSuccess(channelId, count))
-  }
+    }
 
   /**
    * {{{

@@ -11,6 +11,8 @@ trait PlayJdbc { deps: Dependencies with Format ⇒
       settings(formatSettings).settings(
         name := "play-jdbc",
         javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
+        scalaVersion := "2.11.8",
+        crossScalaVersions := Seq(scalaVersion.value),
         scalacOptions in Compile ++= Seq("-unchecked", "-deprecation"),
         scalacOptions in Compile <++= (scalaVersion in ThisBuild).map { v =>
           if (v startsWith "2.11") Seq("-Ywarn-unused-import")
@@ -34,11 +36,18 @@ trait PlayJdbc { deps: Dependencies with Format ⇒
         compile in Test <<= (compile in Test).
           dependsOn(compile in (scalacPlugin, Test)),
         // make sure plugin is there
-        libraryDependencies ++= Seq(
-          "org.eu.acolyte" % "jdbc-driver" % (version in ThisBuild).value,
-          "com.typesafe.play" %% "play-jdbc-api" % "2.5.2" % "provided",
-          "com.typesafe.play" %% "anorm" % "2.5.1" % Test,
-          specs2Test)
+        libraryDependencies ++= {
+          val playVer = {
+            if (scalaVersion.value startsWith "2.11") "2.5.2"
+            else "2.4.8"
+          }
+
+          Seq(
+            "org.eu.acolyte" % "jdbc-driver" % (version in ThisBuild).value,
+            "com.typesafe.play" %% "play-jdbc-api" % "2.4.8" % "provided",
+            "com.typesafe.play" %% "anorm" % "2.5.0" % Test,
+            specs2Test)
+        }
       ).dependsOn(scalacPlugin, jdbcScala)
 
 }

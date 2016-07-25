@@ -45,13 +45,14 @@ object Akka {
 }
 
 private[reactivemongo] class Actor(
-  handler: ConnectionHandler) extends reactivemongo.core.actors.MongoDBSystem {
+    handler: ConnectionHandler
+) extends reactivemongo.core.actors.MongoDBSystem {
 
   import reactivemongo.core.nodeset.{ Authenticate, ChannelFactory, Connection }
 
   lazy val initialAuthenticates = Seq.empty[Authenticate]
 
-  protected def authReceive: PartialFunction[Any, Unit] = { case _ => () }
+  protected def authReceive: PartialFunction[Any, Unit] = { case _ ⇒ () }
 
   val supervisor = "Acolyte"
   val name = "AcolyteConnection"
@@ -59,7 +60,7 @@ private[reactivemongo] class Actor(
 
   val options = reactivemongo.api.MongoConnectionOptions()
 
-  protected def sendAuthenticate(connection: Connection,authentication: Authenticate): Connection = connection
+  protected def sendAuthenticate(connection: Connection, authentication: Authenticate): Connection = connection
 
   val channelFactory: ChannelFactory = new ChannelFactory(options)
 
@@ -75,7 +76,7 @@ private[reactivemongo] class Actor(
           case Success(err) ⇒ err
           case _            ⇒ MongoDB.MkWriteError(cid)
         }
-      }) { 
+      }) {
         handler.writeHandler(cid, _, req).
           fold(NoWriteResponse(cid, msg.toString))(_ match {
             case Success(r) ⇒ r

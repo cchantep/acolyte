@@ -28,8 +28,8 @@ object MongoDB {
    * @param error Error message
    */
   def QueryError(channelId: Int, error: String, code: Option[Int] = None): Try[Response] = mkResponse(channelId, 1 /*QueryFailure*/ , {
-    val doc = BSONDocument("$err" -> error)
-    code.fold(Seq(doc)) { c ⇒ Seq(doc ++ ("code" -> c)) }
+    val doc = BSONDocument("$err" → error)
+    code.fold(Seq(doc)) { c ⇒ Seq(doc ++ ("code" → c)) }
   })
 
   /**
@@ -48,8 +48,9 @@ object MongoDB {
    * @param code Error code
    */
   def WriteError(channelId: Int, error: String, code: Option[Int] = None): Try[Response] = mkResponse(channelId, 4 /* unspecified */ , List(
-    BSONDocument("ok" -> 0, "err" -> error, "errmsg" -> error,
-      "code" -> code.getOrElse(-1), "updatedExisting" -> false, "n" -> 0)))
+    BSONDocument("ok" → 0, "err" → error, "errmsg" → error,
+      "code" → code.getOrElse(-1), "updatedExisting" → false, "n" → 0)
+  ))
 
   /**
    * Builds a response for a successful write operation.
@@ -60,7 +61,8 @@ object MongoDB {
    */
   def WriteSuccess(channelId: Int, count: Int, updatedExisting: Boolean = false): Try[Response] = mkResponse(channelId, 4 /*unspecified*/ ,
     List(BSONDocument(
-      "ok" -> 1, "updatedExisting" -> updatedExisting, "n" -> count)))
+      "ok" → 1, "updatedExisting" → updatedExisting, "n" → count
+    )))
 
   /**
    * Builds a Mongo response.
@@ -108,7 +110,8 @@ object MongoDB {
 
   @inline private def mkError(channelId: Int, docs: Array[Byte]): Response = {
     val buf = ChannelBuffers.unmodifiableBuffer(
-      ChannelBuffers.copiedBuffer(ByteOrder.LITTLE_ENDIAN, docs))
+      ChannelBuffers.copiedBuffer(ByteOrder.LITTLE_ENDIAN, docs)
+    )
 
     Response(MessageHeader(buf), Reply(buf), buf, ResponseInfo(channelId))
   }

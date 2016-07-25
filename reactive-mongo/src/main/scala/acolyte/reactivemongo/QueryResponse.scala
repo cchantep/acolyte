@@ -21,7 +21,7 @@ object QueryResponse {
    * @param message Error message
    * @param code Error code
    */
-  def failed(message: String, code: Int) = apply(message -> code)
+  def failed(message: String, code: Int) = apply(message → code)
 
   /** Factory for successful response. */
   def successful(result: BSONDocument*) = apply(result)
@@ -31,7 +31,7 @@ object QueryResponse {
    *
    * @param result Count result
    */
-  def count(result: Int = 0) = apply(BSONDocument("ok" -> 1, "n" -> result))
+  def count(result: Int = 0) = apply(BSONDocument("ok" → 1, "n" → result))
 
   /**
    * Undefined response, returned by handler no supporting

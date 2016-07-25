@@ -95,7 +95,7 @@ object Request {
    * @see CountRequest
    */
   def unapply(q: Request): Option[(String, List[BDoc])] =
-    Some(q.collection -> q.body.map(BDoc.apply))
+    Some(q.collection → q.body.map(BDoc.apply))
 }
 
 /** BSONDocument wrapper for pattern matching */
@@ -124,7 +124,7 @@ object InsertRequest {
   /** @return Collection name and elements of document to be inserted. */
   def unapply(insert: (WriteOp, Request)): Option[(String, List[(String, BSONValue)])] = (insert._1, insert._2.body) match {
     case (InsertOp, body :: Nil) ⇒
-      Some(insert._2.collection -> body.elements.toList)
+      Some(insert._2.collection → body.elements.toList)
     case _ ⇒ None
   }
 }
@@ -134,8 +134,10 @@ object UpdateRequest {
   /** @return Collection name, elements of selector/document to be updated. */
   def unapply(update: (WriteOp, Request)): Option[(String, List[(String, BSONValue)], List[(String, BSONValue)])] = (update._1, update._2.body) match {
     case (UpdateOp, selector :: body :: Nil) ⇒
-      Some(update._2.collection,
-        selector.elements.toList, body.elements.toList)
+      Some(
+        update._2.collection,
+        selector.elements.toList, body.elements.toList
+      )
     case _ ⇒ None
   }
 }
@@ -183,7 +185,7 @@ object CountRequest {
   def unapply(q: Request): Option[(String, List[(String, BSONValue)])] =
     q match {
       case Request(col, SimpleBody(("count", BSONString(_)) ::
-        ("query", ValueDocument(query)) :: Nil)) ⇒ Some(col -> query)
+        ("query", ValueDocument(query)) :: Nil)) ⇒ Some(col → query)
       case _ ⇒ None
     }
 }

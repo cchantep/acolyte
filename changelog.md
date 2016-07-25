@@ -1,3 +1,9 @@
+## 1.0.37
+
+([b527a212302abda6c3943aad97a60c37676a2d58](https://github.com/cchantep/acolyte/commit/b527a212302abda6c3943aad97a60c37676a2d58) @ [play-jdbc](https://github.com/cchantep/acolyte/tree/master/play-jdbc)) New Play JDBC module (with DSL).
+
+([2eb464aa7ad36a550d230c69074da2c24d21421b](https://github.com/cchantep/acolyte/commit/2eb464aa7ad36a550d230c69074da2c24d21421b) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Update ReactiveMongo to 0.12-RC0.
+
 ## 1.0.36
 
 ([40bfcf737112b166f2d7c2d4d56791d15178b90f](https://github.com/cchantep/acolyte/commit/40bfcf737112b166f2d7c2d4d56791d15178b90f) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Set opaque parameter as JDBC OTHER.
