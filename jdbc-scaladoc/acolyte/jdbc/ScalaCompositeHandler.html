@@ -512,7 +512,7 @@ handleStatement.withQueryDetection(<span class="lit">"^SELECT "</span>, <span cl
         <span class="name">withQueryHandler</span><span class="params">(<span name="h">h: (<a href="QueryExecution.html" class="extype" name="acolyte.jdbc.QueryExecution">QueryExecution</a>) ⇒ <span class="extype" name="acolyte.jdbc.QueryResult">QueryResult</span></span>)</span><span class="result">: <a href="" class="extype" name="acolyte.jdbc.ScalaCompositeHandler">ScalaCompositeHandler</a></span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Returns handler that delegates query execution to |h| function.</p><div class="fullcomment"><div class="comment cmt"><p>Returns handler that delegates query execution to |h| function.
+      <p class="shortcomment cmt">Returns handler that delegates query execution to <code>h</code> function.</p><div class="fullcomment"><div class="comment cmt"><p>Returns handler that delegates query execution to <code>h</code> function.
 Given function will be used only if executed statement is detected
 as a query by withQueryDetection.</p><pre><span class="kw">import</span> acolyte.jdbc.QueryExecution
 <span class="kw">import</span> acolyte.jdbc.AcolyteDSL.handleStatement
@@ -540,7 +540,7 @@ handleStatement withQueryHandler {
         <span class="name">withUpdateHandler</span><span class="params">(<span name="h">h: (<a href="UpdateExecution.html" class="extype" name="acolyte.jdbc.UpdateExecution">UpdateExecution</a>) ⇒ <span class="extype" name="acolyte.jdbc.UpdateResult">UpdateResult</span></span>)</span><span class="result">: <a href="" class="extype" name="acolyte.jdbc.ScalaCompositeHandler">ScalaCompositeHandler</a></span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Returns handler that delegates update execution to |h| function.</p><div class="fullcomment"><div class="comment cmt"><p>Returns handler that delegates update execution to |h| function.
+      <p class="shortcomment cmt">Returns handler that delegates update execution to <code>h</code> function.</p><div class="fullcomment"><div class="comment cmt"><p>Returns handler that delegates update execution to <code>h</code> function.
 Given function will be used only if executed statement is not detected
 as a query by withQueryDetection.</p><pre><span class="kw">import</span> acolyte.jdbc.UpdateExecution
 <span class="kw">import</span> acolyte.jdbc.AcolyteDSL.handleStatement
