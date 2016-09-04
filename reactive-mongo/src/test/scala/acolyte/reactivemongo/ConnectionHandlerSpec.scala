@@ -20,7 +20,8 @@ object ConnectionHandlerSpec extends org.specs2.mutable.Specification
         case h ⇒
           h.queryHandler(1, query1) aka "query result" must beNone and (
             h.writeHandler(2, write1._1, write1._2).
-            aka("write result") must beNone)
+            aka("write result") must beNone
+          )
       }
     }
   }
@@ -28,13 +29,14 @@ object ConnectionHandlerSpec extends org.specs2.mutable.Specification
   "Handler with query handler" should {
     "return some query result" in {
       val h = implicitly[QueryHandler] {
-        _: Request ⇒ QueryResponse(BSONDocument("a" -> "b"))
+        _: Request ⇒ QueryResponse(BSONDocument("a" → "b"))
       }
       val handler = ConnectionHandler.empty
 
       ConnectionHandler(h).queryHandler(1, query1).
         aka("query result #1") must beSome and (
-          handler.queryHandler(1, query1) aka "query result #2" must beNone).
+          handler.queryHandler(1, query1) aka "query result #2" must beNone
+        ).
           and(handler.withQueryHandler(h).queryHandler(1, query1).
             aka("query result #3") must beSome)
     }
@@ -49,16 +51,19 @@ object ConnectionHandlerSpec extends org.specs2.mutable.Specification
   "Handler with write handler" should {
     "return some write error" in {
       val h = implicitly[WriteHandler] {
-        (_: WriteOp, _: Request) ⇒ WriteResponse("Error #1" -> 8)
+        (_: WriteOp, _: Request) ⇒ WriteResponse("Error #1" → 8)
       }
       val handler = ConnectionHandler()
 
       ConnectionHandler(writeHandler = h).writeHandler(
-        1, write1._1, write1._2) aka "write result #1" must beSome and (
+        1, write1._1, write1._2
+      ) aka "write result #1" must beSome and (
           handler.writeHandler(1, write1._1, write1._2).
-          aka("write result #2") must beNone) and (
+          aka("write result #2") must beNone
+        ) and (
             handler.withWriteHandler(h).writeHandler(1, write1._1, write1._2).
-            aka("write result #3") must beSome)
+            aka("write result #3") must beSome
+          )
     }
 
     "return no write result" in {
@@ -73,7 +78,8 @@ object ConnectionHandlerSpec extends org.specs2.mutable.Specification
       chandler1.queryHandler(1, query1) aka "query result" must beSome.which(
         _ aka "response" must beResponse {
           case ValueDocument(("b", BSONInteger(3)) :: Nil) :: Nil ⇒ ok
-        })
+        }
+      )
     }
 
     "return expected query result #2" in {
@@ -81,7 +87,8 @@ object ConnectionHandlerSpec extends org.specs2.mutable.Specification
         _ aka "response" must beResponse {
           case ValueDocument(("d", BSONDouble(4.56d)) :: Nil) ::
             ValueDocument(("ef", BSONString("ghi")) :: Nil) :: Nil ⇒ ok
-        })
+        }
+      )
     }
 
     "return no query result" in {
@@ -91,7 +98,8 @@ object ConnectionHandlerSpec extends org.specs2.mutable.Specification
     "return expected write result #1" in {
       chandler1.writeHandler(1, write1._1, write1._2).
         aka("write result") must beSome.which(
-          _ aka "response" must beWriteError("Error #2"))
+          _ aka "response" must beWriteError("Error #2")
+        )
     }
 
     "return expected write result #2" in {
@@ -115,9 +123,10 @@ trait ConnectionHandlerFixtures {
 
   lazy val chandler1 = ConnectionHandler(QueryHandler {
     case Request(col, _) if col.endsWith("test1") ⇒
-      QueryResponse(BSONDocument("b" -> 3))
+      QueryResponse(BSONDocument("b" → 3))
     case Request(col, _) if col.endsWith("test2") ⇒ QueryResponse(
-      Seq(BSONDocument("d" -> 4.56d), BSONDocument("ef" -> "ghi")))
+      Seq(BSONDocument("d" → 4.56d), BSONDocument("ef" → "ghi"))
+    )
     case q ⇒ QueryResponse(None)
   }, WriteHandler {
     case (DeleteOp, _) ⇒ WriteResponse("Error #2")

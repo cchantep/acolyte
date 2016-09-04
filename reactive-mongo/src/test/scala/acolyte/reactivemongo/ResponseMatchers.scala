@@ -22,9 +22,11 @@ trait ResponseMatchers { specs: Specification ⇒
         e.value aka "prepared" must beSuccessfulTry.which { resp ⇒
           val r = f(Response.parse(resp).toList).toResult
 
-          result(r.isSuccess,
+          result(
+            r.isSuccess,
             s"response is valid and ${r.message}",
-            s"response is valid but ${r.message}", e)
+            s"response is valid but ${r.message}", e
+          )
         }
       }
     }
@@ -42,7 +44,8 @@ trait ResponseMatchers { specs: Specification ⇒
                     case (Some(a), ("code", BSONInteger(b)) :: Nil) ⇒
                       a aka "code" must_== b
                   })
-            })
+            }
+          )
         }
     }
 
@@ -58,8 +61,10 @@ trait ResponseMatchers { specs: Specification ⇒
               ("updatedExisting", BSONBoolean(false)) ::
               ("n", BSONInteger(0)) :: Nil) :: Nil ⇒
               err aka "error message (err)" must_== msg and (
-                errmsg aka "error message (errmsg)" must_== msg) and (
-                  c aka "error code" must_== code.getOrElse(-1))
+                errmsg aka "error message (errmsg)" must_== msg
+              ) and (
+                  c aka "error code" must_== code.getOrElse(-1)
+                )
           }
         }
     }

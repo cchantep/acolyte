@@ -28,8 +28,10 @@ object MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
           Response.parse(_).toList aka "results" must beLike {
             case a :: b :: c :: Nil ⇒
               bson(a) aka "first document" must_== bson(doc2) and (
-                bson(b) aka "second document" must_== bson(doc1)) and (
-                  bson(c) aka "third document" must_== bson(doc3))
+                bson(b) aka "second document" must_== bson(doc1)
+              ) and (
+                  bson(c) aka "third document" must_== bson(doc3)
+                )
           }
         }
       }
@@ -41,7 +43,9 @@ object MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
       r.error aka "error" must beSome.which { err ⇒
         err.message aka "message" must_== msg and (
           err.originalDocument aka "document" must beSome(
-            BSONDocument("$err" -> msg)))
+            BSONDocument("$err" → msg)
+          )
+        )
       }
 
     "be expected MkResponseError" in {
@@ -121,23 +125,24 @@ private[reactivemongo] trait MongoFixtures {
     BSONValue
   }
 
-  val doc1 = BSONDocument("email" -> "test1@test.fr", "age" -> 3)
+  val doc1 = BSONDocument("email" → "test1@test.fr", "age" → 3)
 
-  val doc2 = BSONDocument("name" -> "Document #2", "price" -> 5.1D)
+  val doc2 = BSONDocument("name" → "Document #2", "price" → 5.1D)
 
   val doc3 = BSONDocument(
-    "title" -> "Title", "modified" -> BSONDateTime(System.currentTimeMillis))
+    "title" → "Title", "modified" → BSONDateTime(System.currentTimeMillis)
+  )
 
-  val doc4 = BSONDocument("ok" -> 0, "err" -> "Write Error #1",
-    "errmsg" -> "Write Error #1", "code" -> -1, 
-    "updatedExisting" -> false, "n" -> 0)
+  val doc4 = BSONDocument("ok" → 0, "err" → "Write Error #1",
+    "errmsg" → "Write Error #1", "code" → -1,
+    "updatedExisting" → false, "n" → 0)
 
-  val doc5 = BSONDocument("ok" -> 0, "err" -> "Write Error #2",
-    "errmsg" -> "Write Error #2", "code" -> 3,
-    "updatedExisting" -> false, "n" -> 0)
+  val doc5 = BSONDocument("ok" → 0, "err" → "Write Error #2",
+    "errmsg" → "Write Error #2", "code" → 3,
+    "updatedExisting" → false, "n" → 0)
 
-  val doc6 = BSONDocument("ok" -> 1, "updatedExisting" -> false, "n" -> 1)
-  val doc7 = BSONDocument("ok" -> 1, "updatedExisting" -> true, "n" -> 2)
+  val doc6 = BSONDocument("ok" → 1, "updatedExisting" → false, "n" → 1)
+  val doc7 = BSONDocument("ok" → 1, "updatedExisting" → true, "n" → 2)
 
   @inline def bson(d: BSONDocument) = d.elements.toList
 }

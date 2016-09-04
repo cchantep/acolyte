@@ -10,23 +10,25 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
   "Handler" should {
     "return a success response with existing document updated" in {
       implicitly[WriteHandler]({
-        (_: WriteOp, _: Request) ⇒ WriteResponse(1 -> true)
+        (_: WriteOp, _: Request) ⇒ WriteResponse(1 → true)
       }) aka "write handler" must beLike {
         case h ⇒ h(1, write1._1, write1._2) must beSome.which(
           _ aka "result" must beResponse {
             _ aka "response" must beWriteSuccess(1, true)
-          })
+          }
+        )
       }
     }
 
     "return a success response without existing document updated" in {
       implicitly[WriteHandler]({
-        (_: WriteOp, _: Request) ⇒ WriteResponse(0 -> false)
+        (_: WriteOp, _: Request) ⇒ WriteResponse(0 → false)
       }) aka "write handler" must beLike {
         case h ⇒ h(1, write1._1, write1._2) must beSome.which(
           _ aka "result" must beResponse {
             _ aka "response" must beWriteSuccess(0, false)
-          })
+          }
+        )
       }
     }
 
@@ -37,7 +39,8 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
         case h ⇒ h(1, write1._1, write1._2) must beSome.which(
           _ aka "result" must beResponse {
             _ aka "response" must beWriteSuccess(0, false)
-          })
+          }
+        )
       }
     }
 
@@ -46,7 +49,8 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
         WriteResponse("Error message #1")
       }) aka "write handler" must beLike {
         case h ⇒ h(2, write1._1, write1._2) must beSome.which(
-          _ aka "response" must beWriteError("Error message #1"))
+          _ aka "response" must beWriteError("Error message #1")
+        )
       }
     }
 
@@ -55,7 +59,8 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
         WriteResponse("Error message #2", 7)
       }) aka "write handler" must beLike {
         case h ⇒ h(2, write1._1, write1._2) must beSome.which(
-          _ aka "response" must beWriteError("Error message #2", Some(7)))
+          _ aka "response" must beWriteError("Error message #2", Some(7))
+        )
       }
     }
 
@@ -92,7 +97,8 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
 
     "return an error response" in {
       handler(2, write2._1, write2._2) aka "prepared" must beSome.which(
-        _ aka "write response" must beWriteError("Error #2"))
+        _ aka "write response" must beWriteError("Error #2")
+      )
     }
 
     "return an success response" in {
@@ -101,7 +107,8 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
           case ValueDocument(("ok", BSONInteger(1)) ::
             ("updatedExisting", BSONBoolean(true)) ::
             ("n", BSONInteger(2)) :: Nil) :: Nil ⇒ ok
-        })
+        }
+      )
     }
   }
 
@@ -117,10 +124,12 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
         }
       } apply (2, InsertOp, new Request {
         val collection = "col1"
-        val body = List(BSONDocument("a" -> 1, "b" -> true))
+        val body = List(BSONDocument("a" → 1, "b" → true))
       }) aka "prepared" must beSome.which(
         _ aka "result" must beResponse(
-          _ aka "response" must beWriteSuccess(1, false)))
+          _ aka "response" must beWriteSuccess(1, false)
+        )
+      )
     }
 
     "handle update" in {
@@ -134,11 +143,15 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
         }
       } apply (3, UpdateOp, new Request {
         val collection = "col2"
-        val body = List(BSONDocument("id" -> "id1"),
-          BSONDocument("a" -> 1, "b" -> true))
+        val body = List(
+          BSONDocument("id" → "id1"),
+          BSONDocument("a" → 1, "b" → true)
+        )
       }) aka "prepared" must beSome.which(
         _ aka "result" must beResponse(
-          _ aka "response" must beWriteSuccess(1, true)))
+          _ aka "response" must beWriteSuccess(1, true)
+        )
+      )
     }
 
     "handle delete" in {
@@ -151,10 +164,12 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
         }
       } apply (4, DeleteOp, new Request {
         val collection = "col3"
-        val body = List(BSONDocument("name" -> "xyz"))
+        val body = List(BSONDocument("name" → "xyz"))
       }) aka "prepared" must beSome.which(
         _ aka "result" must beResponse(
-          _ aka "response" must beWriteSuccess(2, true)))
+          _ aka "response" must beWriteSuccess(2, true)
+        )
+      )
     }
   }
 }
@@ -162,16 +177,16 @@ object WriteHandlerSpec extends org.specs2.mutable.Specification
 trait WriteHandlerFixtures {
   val write1 = (DeleteOp, new Request {
     val collection = "test1"
-    val body = List(BSONDocument("filter" -> "valA"))
+    val body = List(BSONDocument("filter" → "valA"))
   })
 
   val write2 = (InsertOp, new Request {
     val collection = "test2"
-    val body = List(BSONDocument("filter" -> "valB"))
+    val body = List(BSONDocument("filter" → "valB"))
   })
 
   val write3 = (UpdateOp, new Request {
     val collection = "test3"
-    val body = List(BSONDocument("filter" -> "valC"))
+    val body = List(BSONDocument("filter" → "valC"))
   })
 }
