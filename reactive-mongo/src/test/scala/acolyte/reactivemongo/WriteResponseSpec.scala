@@ -12,24 +12,28 @@ object WriteResponseSpec
       "using generic factory" in {
         WriteResponse("error message #1") aka "prepared" must beLike {
           case prepared ⇒ prepared(1) aka "applied" must beSome.which(
-            _ aka "write response" must beWriteError("error message #1"))
+            _ aka "write response" must beWriteError("error message #1")
+          )
         }
       }
 
       "using named factory" in {
         WriteResponse.failed("error message #2") aka "prepared" must beLike {
           case prepared ⇒ prepared(2) aka "applied" must beSome.which(
-            _ aka "write response" must beWriteError("error message #2"))
+            _ aka "write response" must beWriteError("error message #2")
+          )
         }
       }
     }
 
     "be made for error with code" >> {
       "using generic factory" in {
-        WriteResponse("error message #3" -> 9) aka "prepared" must beLike {
+        WriteResponse("error message #3" → 9) aka "prepared" must beLike {
           case prepared ⇒ prepared(1) aka "applied" must beSome.which(
             _ aka "write response" must beWriteError(
-              "error message #3", Some(9)))
+              "error message #3", Some(9)
+            )
+          )
         }
       }
 
@@ -37,18 +41,21 @@ object WriteResponseSpec
         WriteResponse.failed("error message #4", 7) aka "prepared" must beLike {
           case prepared ⇒ prepared(2) aka "applied" must beSome.which(
             _ aka "write response" must beWriteError(
-              "error message #4", Some(7)))
+              "error message #4", Some(7)
+            )
+          )
         }
       }
     }
 
     "be made for successful result" >> {
       "with count and updatedExisting flag" in {
-        WriteResponse(1 -> true) aka "prepared" must beLike {
+        WriteResponse(1 → true) aka "prepared" must beLike {
           case prepared ⇒ prepared(3) aka "applied" must beSome.which(
             _ aka "result" must beResponse {
               _ aka "response" must beWriteSuccess(1, true)
-            })
+            }
+          )
         }
       }
 
@@ -57,7 +64,8 @@ object WriteResponseSpec
           case prepared ⇒ prepared(3) aka "applied" must beSome.which(
             _ aka "result" must beResponse {
               _ aka "response" must beWriteSuccess(0, false)
-            })
+            }
+          )
         }
       }
 
@@ -66,7 +74,8 @@ object WriteResponseSpec
           case prepared ⇒ prepared(3) aka "applied" must beSome.which(
             _ aka "result" must beResponse {
               _ aka "response" must beWriteSuccess(1, false)
-            })
+            }
+          )
         }
       }
 
@@ -75,7 +84,8 @@ object WriteResponseSpec
           case prepared ⇒ prepared(3) aka "applied" must beSome.which(
             _ aka "result" must beResponse {
               _ aka "response" must beWriteSuccess(2, false)
-            })
+            }
+          )
         }
       }
 
@@ -84,7 +94,8 @@ object WriteResponseSpec
           case prepared ⇒ prepared(4) aka "applied" must beSome.which(
             _ aka "result" must beResponse {
               _ aka "response" must beWriteSuccess(0, false)
-            })
+            }
+          )
         }
       }
 
@@ -93,7 +104,8 @@ object WriteResponseSpec
           case prepared ⇒ prepared(4) aka "applied" must beSome.which(
             _ aka "result" must beResponse {
               _ aka "response" must beWriteSuccess(0, false)
-            })
+            }
+          )
         }
       }
     }
@@ -116,7 +128,8 @@ object WriteResponseSpec
       WriteResponse(WriteResponse("already")).
         aka("prepared") must beLike {
           case prepared ⇒ prepared(5) aka "applied" must beSome.which(
-            _ aka "write response" must beWriteError("already"))
+            _ aka "write response" must beWriteError("already")
+          )
         }
     }
   }

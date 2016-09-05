@@ -62,7 +62,8 @@ private[reactivemongo] class Actor(
 
   protected def sendAuthenticate(connection: Connection, authentication: Authenticate): Connection = connection
 
-  val channelFactory: ChannelFactory = new ChannelFactory(options)
+  protected def newChannelFactory(effect: Unit): ChannelFactory =
+    new ChannelFactory(options)
 
   override lazy val receive: Receive = {
     case msg @ CheckedWriteRequestExResp(

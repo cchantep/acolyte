@@ -34,7 +34,7 @@ object ResponseMakerSpec
     "be working for an error with code (String, Int)" in {
       val makr = implicitly[QueryResponseMaker[(String, Int)]]
 
-      makr(3, "Custom error" -> 5) aka "response" must beSome.
+      makr(3, "Custom error" → 5) aka "response" must beSome.
         which { prepared ⇒
           zip(prepared, MongoDB.QueryError(3, "Custom error", Some(5))).
             aka("maker") must beSuccessfulTry.like {
@@ -50,7 +50,7 @@ object ResponseMakerSpec
     "be a successful one for boolean (updatedExisting)" in {
       val makr = implicitly[WriteResponseMaker[(Int, Boolean)]]
 
-      makr(4, 1 -> true) aka "response" must beSome.which { prepared ⇒
+      makr(4, 1 → true) aka "response" must beSome.which { prepared ⇒
         zip(prepared, MongoDB.WriteSuccess(4, 1, true)).
           aka("maker") must beSuccessfulTry.like {
             case (a, b) ⇒ a.documents aka "response" must_== b.documents
@@ -84,7 +84,7 @@ object ResponseMakerSpec
     "be working for an error with code (String, Int)" in {
       val makr = implicitly[WriteResponseMaker[(String, Int)]]
 
-      makr(5, "Custom error #2" -> 7) aka "response" must beSome.
+      makr(5, "Custom error #2" → 7) aka "response" must beSome.
         which { prepared ⇒
           zip(prepared, MongoDB.WriteError(5, "Custom error #2", Some(7))).
             aka("maker") must beSuccessfulTry.like {
@@ -97,11 +97,12 @@ object ResponseMakerSpec
   }
 
   @inline def zip[A, B](a: Try[A], b: Try[B]): Try[(A, B)] =
-    for { x ← a; y ← b } yield (x -> y)
+    for { x ← a; y ← b } yield (x → y)
 }
 
 sealed trait ResponseMakerFixtures {
   val documents = Seq(
-    BSONDocument("prop1" -> "str", "propB" -> 1),
-    BSONDocument("propB" -> 3, "prop1" -> "text"))
+    BSONDocument("prop1" → "str", "propB" → 1),
+    BSONDocument("propB" → 3, "prop1" → "text")
+  )
 }
