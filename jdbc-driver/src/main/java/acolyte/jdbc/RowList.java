@@ -250,6 +250,7 @@ public abstract class RowList<R extends Row> {
         final AbstractStatement statement;
         final SQLWarning warning;
         private Object last;
+        // TODO: tableName
 
         // --- Constructors ---
 
@@ -1362,6 +1363,7 @@ public abstract class RowList<R extends Row> {
             for (final Map.Entry<String,Integer> kv : colNames.entrySet()) {
                 labels.put(kv.getValue(), kv.getKey());
             } // end of for
+            // TODO: Review
                 
             return new RowListMetaData();
         } // end of getMetaData

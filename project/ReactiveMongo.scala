@@ -35,7 +35,7 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
           },
         resolvers ++= reactiveResolvers,
         libraryDependencies ++= Seq(
-          "org.reactivemongo" %% "reactivemongo" % "0.12-RC3",
+          "org.reactivemongo" %% "reactivemongo" % "0.12-RC4" % "provided",
           "com.jsuereth" %% "scala-arm" % "1.4",
           "org.slf4j" % "slf4j-simple" % "1.7.13" % Test,
           "com.chuusai" % "shapeless" % "2.0.0" % Test cross CrossVersion.
