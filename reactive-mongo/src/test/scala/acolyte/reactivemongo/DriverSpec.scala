@@ -212,9 +212,9 @@ object DriverSpec extends org.specs2.mutable.Specification
             BSONDocument("res" → "ult", "n" → 3)
           ) { driver ⇒
               AcolyteDSL.withFlatConnection(driver) { con ⇒
-                val db = con("anyDb")
-                db("anyCol").find(query1.body.head).
-                  cursor[BSONDocument]().collect[List]()
+                val db = con.database("anyDb")
+                db.flatMap(_("anyCol").find(query1.body.head).
+                  cursor[BSONDocument]().collect[List]())
               }
             }) aka "query result" must beSuccessfulTry[List[BSONDocument]].
             like {
@@ -284,9 +284,9 @@ object DriverSpec extends org.specs2.mutable.Specification
         )
 
         awaitRes(AcolyteDSL.withFlatConnection(handler) { con ⇒
-          val db = con("anyDb")
-          db(query3.collection).find(query3.body.head).
-            cursor[BSONDocument]().collect[List]()
+          val db = con.database("anyDb")
+          db.flatMap(_(query3.collection).find(query3.body.head).
+            cursor[BSONDocument]().collect[List]())
 
         }) aka "query result" must beFailedTry.
           withThrowable[DetailedDatabaseException](".*No response: .*")
@@ -317,10 +317,10 @@ object DriverSpec extends org.specs2.mutable.Specification
 
       "as error when write handler returns no write result" in {
         awaitRes(AcolyteDSL.withFlatConnection(chandler1) { con ⇒
-          val db = con("anyDb")
-          val col = db(write3._2.collection)
+          val db = con.database("anyDb")
+          val col = db.map(_(write3._2.collection))
 
-          col.update(BSONDocument("name" → "x"), write3._2.body.head)
+          col.flatMap(_.update(BSONDocument("name" → "x"), write3._2.body.head))
         }) aka "result" must beFailedTry.
           withThrowable[LastError](".*No response: .*")
       }
@@ -350,9 +350,9 @@ object DriverSpec extends org.specs2.mutable.Specification
         "for success count" in {
           awaitRes(AcolyteDSL.withFlatWriteResult(2 → true) { driver ⇒
             AcolyteDSL.withFlatConnection(driver) { con ⇒
-              val db = con("anyDb")
-              val col = db(write1._2.collection)
-              col.remove(write1._2.body.head)
+              val db = con.database("anyDb")
+              val col = db.map(_(write1._2.collection))
+              col.flatMap(_.remove(write1._2.body.head))
             }
           }) aka "write result" must beSuccessfulTry.like {
             case lastError ⇒ lastError.ok aka "ok" must beTrue and (

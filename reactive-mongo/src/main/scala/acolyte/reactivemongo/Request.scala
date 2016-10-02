@@ -2,7 +2,13 @@ package acolyte.reactivemongo
 
 import shaded.netty.buffer.ChannelBuffer
 
-import reactivemongo.bson.{ BSONArray, BSONDocument, BSONString, BSONValue }
+import reactivemongo.bson.{
+  BSONArray,
+  BSONDocument,
+  BSONElement,
+  BSONString,
+  BSONValue
+}
 import reactivemongo.bson.buffer.{
   ArrayBSONBuffer,
   ReadableBuffer,
@@ -108,7 +114,9 @@ case class BDoc(underlying: BSONDocument)
 object SimpleBody {
   /** @return BSON properties from the first document of the body. */
   def unapply(body: List[BDoc]): Option[List[(String, BSONValue)]] =
-    body.headOption.map(_.underlying.elements.toList)
+    body.headOption.map(_.underlying.elements.map {
+      case BSONElement(name, value) ⇒ name → value
+    }.toList)
 
 }
 
@@ -116,7 +124,9 @@ object SimpleBody {
 object RequestBody {
   /** @return List of document, each document as list of its BSON properties. */
   def unapply(body: List[BDoc]): Option[List[List[(String, BSONValue)]]] =
-    Some(body.map(_.underlying.elements.toList))
+    Some(body.map(_.underlying.elements.map {
+      case BSONElement(name, value) ⇒ name → value
+    }.toList))
 }
 
 /** Insert request */
@@ -124,7 +134,9 @@ object InsertRequest {
   /** @return Collection name and elements of document to be inserted. */
   def unapply(insert: (WriteOp, Request)): Option[(String, List[(String, BSONValue)])] = (insert._1, insert._2.body) match {
     case (InsertOp, body :: Nil) ⇒
-      Some(insert._2.collection → body.elements.toList)
+      Some(insert._2.collection → (body.elements.map {
+        case BSONElement(name, value) ⇒ name → value
+      }.toList))
     case _ ⇒ None
   }
 }
@@ -134,10 +146,15 @@ object UpdateRequest {
   /** @return Collection name, elements of selector/document to be updated. */
   def unapply(update: (WriteOp, Request)): Option[(String, List[(String, BSONValue)], List[(String, BSONValue)])] = (update._1, update._2.body) match {
     case (UpdateOp, selector :: body :: Nil) ⇒
-      Some(
+      Some((
         update._2.collection,
-        selector.elements.toList, body.elements.toList
-      )
+        selector.elements.map {
+          case BSONElement(name, value) ⇒ name → value
+        }.toList,
+        body.elements.map {
+          case BSONElement(name, value) ⇒ name → value
+        }.toList
+      ))
     case _ ⇒ None
   }
 }
@@ -147,7 +164,9 @@ object DeleteRequest {
   /** @return Collection name and elements of selector. */
   def unapply(delete: (WriteOp, Request)): Option[(String, List[(String, BSONValue)])] = (delete._1, delete._2.body) match {
     case (DeleteOp, selector :: Nil) ⇒
-      Some(delete._2.collection, selector.elements.toList)
+      Some(delete._2.collection → (selector.elements.map {
+        case BSONElement(name, value) ⇒ name → value
+      }.toList))
     case _ ⇒ None
   }
 }
@@ -161,8 +180,10 @@ object DeleteRequest {
  */
 object ValueDocument {
   def unapply(v: BSONValue): Option[List[(String, BSONValue)]] = v match {
-    case doc @ BSONDocument(_) ⇒ Some(doc.elements.toList)
-    case _                     ⇒ None
+    case doc @ BSONDocument(_) ⇒ Some(doc.elements.map {
+      case BSONElement(name, value) ⇒ name → value
+    }.toList)
+    case _ ⇒ None
   }
 }
 
@@ -288,8 +309,7 @@ object & {
  */
 case class Property(name: String) {
   def unapply(properties: List[(String, BSONValue)]): Option[BSONValue] =
-    properties.toMap.lift(name)
-
+    properties.collectFirst { case (`name`, value) ⇒ value }
 }
 
 /** Operator, along with request when writing. */
