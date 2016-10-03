@@ -21,7 +21,7 @@ object Acolyte extends Build with Dependencies with Format
       jdbcDriver, jdbcScala, jdbcClojure, studio).
     settings(
       organization in ThisBuild := "org.eu.acolyte",
-      version in ThisBuild := s"1.0.38${versionVariant}",
+      version in ThisBuild := s"1.0.39${versionVariant}",
       javaOptions in ThisBuild ++= Seq(
         "-source", javaVersion, "-target", javaVersion),
       scalaVersion in ThisBuild := "2.11.8",

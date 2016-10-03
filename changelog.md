@@ -1,3 +1,7 @@
+## 1.0.38
+
+Update to ReactiveMongo 0.12-RC4
+
 ## 1.0.37
 
 ([b527a212302abda6c3943aad97a60c37676a2d58](https://github.com/cchantep/acolyte/commit/b527a212302abda6c3943aad97a60c37676a2d58) @ [play-jdbc](https://github.com/cchantep/acolyte/tree/master/play-jdbc)) New Play JDBC module (with DSL).
