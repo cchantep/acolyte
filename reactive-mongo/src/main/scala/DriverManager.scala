@@ -5,7 +5,7 @@ import reactivemongo.api.{ DB, MongoConnection, MongoDriver }
 /** Driver manager */
 trait DriverManager {
   /** Initializes driver. */
-  def open: MongoDriver
+  def open(): MongoDriver
 
   /** Releases driver if necessary. */
   def releaseIfNecessary(driver: MongoDriver): Boolean
@@ -13,21 +13,32 @@ trait DriverManager {
 
 /** Driver manage companion. */
 object DriverManager {
-  import akka.actor.ActorSystem
+  import scala.concurrent.duration._
 
-  /** Manager instance based on connection handler. */
-  implicit object Default extends DriverManager {
-    def open = MongoDriver()
+  private class Default(timeout: FiniteDuration) extends DriverManager {
+    def open() = MongoDriver()
 
     /** Releases driver if necessary. */
     def releaseIfNecessary(driver: MongoDriver): Boolean = try {
-      driver.close()
+      driver.close(timeout)
       true
     } catch {
       case e: Throwable ⇒
         e.printStackTrace()
         false
     }
+
+    override lazy val toString = s"DriverManager(timeout = $timeout)"
+  }
+
+  implicit val Default: DriverManager = new Default(2.seconds)
+
+  def withTimeout(timeout: FiniteDuration): DriverManager =
+    new Default(timeout)
+
+  def identity(existing: MongoDriver): DriverManager = new DriverManager {
+    def open() = existing
+    def releaseIfNecessary(driver: MongoDriver): Boolean = false
   }
 }
 
@@ -52,7 +63,6 @@ object ConnectionManager {
     def open(driver: MongoDriver, handler: ConnectionHandler) = {
       val sys = driver.system
       val actorRef = sys.actorOf(Props(classOf[Actor], handler))
-
       new MongoConnection(sys, actorRef, MongoConnectionOptions())
     }
 

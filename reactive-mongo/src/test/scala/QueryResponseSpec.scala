@@ -2,7 +2,7 @@ package acolyte.reactivemongo
 
 import reactivemongo.bson.{ BSONDocument, BSONInteger, BSONString }
 
-object QueryResponseSpec
+class QueryResponseSpec
     extends org.specs2.mutable.Specification with ResponseMatchers {
 
   "Query response" title

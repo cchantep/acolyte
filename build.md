@@ -2,7 +2,7 @@
 
 Acolyte can be built from these sources using SBT (0.12.2+): `sbt publish`
 
-[![Build Status](https://secure.travis-ci.org/cchantep/acolyte.png?branch=master)](http://travis-ci.org/cchantep/acolyte)
+[![TravisCI](https://secure.travis-ci.org/cchantep/acolyte.png?branch=master)](http://travis-ci.org/cchantep/acolyte) [![CircleCI](https://circleci.com/gh/cchantep/acolyte.svg?style=svg)](https://circleci.com/gh/cchantep/acolyte)
 
 ## Documentation
 

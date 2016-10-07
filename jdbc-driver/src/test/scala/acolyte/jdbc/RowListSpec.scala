@@ -15,6 +15,7 @@ import java.sql.{
   Types
 }
 
+import org.specs2.specification.core.Fragment
 import org.specs2.mutable.Specification
 
 import org.apache.commons.io.IOUtils.contentEquals
@@ -1055,10 +1056,8 @@ object RowListSpec extends Specification with RowListTest {
 
       rs.foreach(_._2.next)
 
-      examplesBlock {
-        rs foreach { r ⇒
-          s"from ${r._1}" in { r._2.getBoolean(1) aka "boolean" must beFalse }
-        }
+      Fragment.foreach(rs) { r =>
+        s"from ${r._1}" in { r._2.getBoolean(1) aka "boolean" must beFalse }
       }
     }
 
@@ -1073,10 +1072,8 @@ object RowListSpec extends Specification with RowListTest {
 
       rs.foreach(_._2.next)
 
-      examplesBlock {
-        rs foreach { r ⇒
-          s"from ${r._1}" in { r._2.getBoolean(1) aka "boolean" must beTrue }
-        }
+      Fragment.foreach(rs) { r =>
+        s"from ${r._1}" in { r._2.getBoolean(1) aka "boolean" must beTrue }
       }
     }
 
@@ -1096,10 +1093,8 @@ object RowListSpec extends Specification with RowListTest {
 
       rs.foreach(_._2.next)
 
-      examplesBlock {
-        rs foreach { r ⇒
-          s"from ${r._1}" in { r._2.getBoolean("n") aka "boolean" must beFalse }
-        }
+      Fragment.foreach(rs) { r =>
+        s"from ${r._1}" in { r._2.getBoolean("n") aka "boolean" must beFalse }
       }
     }
 
@@ -1119,10 +1114,8 @@ object RowListSpec extends Specification with RowListTest {
 
       rs.foreach(_._2.next)
 
-      examplesBlock {
-        rs foreach { r ⇒
-          s"from ${r._1}" in { r._2.getBoolean("n") aka "boolean" must beTrue }
-        }
+      Fragment.foreach(rs) { r =>
+        s"from ${r._1}" in { r._2.getBoolean("n") aka "boolean" must beTrue }
       }
     }
   }
@@ -1218,12 +1211,10 @@ object RowListSpec extends Specification with RowListTest {
 
       rs.foreach(_._2.next)
 
-      examplesBlock {
-        rs foreach { r ⇒
-          s"from ${r._1}" in {
-            r._2.getBigDecimal(1).doubleValue.
-              aka("big decimal") mustEqual v.doubleValue
-          }
+      Fragment.foreach(rs) { r =>
+        s"from ${r._1}" in {
+          r._2.getBigDecimal(1).doubleValue.
+            aka("big decimal") mustEqual v.doubleValue
         }
       }
     }
@@ -1246,12 +1237,10 @@ object RowListSpec extends Specification with RowListTest {
 
       rs.foreach(_._2.next)
 
-      examplesBlock {
-        rs foreach { r ⇒
-          s"from ${r._1}" in {
-            r._2.getBigDecimal("n").doubleValue.
-              aka("big decimal") mustEqual v.doubleValue
-          }
+      Fragment.foreach(rs) { r =>
+        s"from ${r._1}" in {
+          r._2.getBigDecimal("n").doubleValue.
+            aka("big decimal") mustEqual v.doubleValue
         }
       }
     }
@@ -1312,11 +1301,9 @@ object RowListSpec extends Specification with RowListTest {
 
       rs.foreach(_._2.next)
 
-      examplesBlock {
-        rs foreach { r ⇒
-          s"from ${r._1}" in {
-            r._2.getArray(1) aka "array" mustEqual v
-          }
+      Fragment.foreach(rs) { r =>
+        s"from ${r._1}" in {
+          r._2.getArray(1) aka "array" mustEqual v
         }
       }
     }
@@ -1329,11 +1316,9 @@ object RowListSpec extends Specification with RowListTest {
 
       rs.foreach(_._2.next)
 
-      examplesBlock {
-        rs foreach { r ⇒
-          s"from ${r._1}" in {
-            r._2.getArray("n") aka "array" mustEqual v
-          }
+      Fragment.foreach(rs) { r =>
+        s"from ${r._1}" in {
+          r._2.getArray("n") aka "array" mustEqual v
         }
       }
     }
@@ -1455,11 +1440,9 @@ sealed trait RowListTest { specs: Specification ⇒
 
         rs.foreach(_._2.next)
 
-        examplesBlock {
-          rs foreach { r ⇒
-            s"from ${r._1}" in {
-              byIndex(r._2, 1) aka "get" must not(throwA[SQLException])
-            }
+        Fragment.foreach(rs) { r =>
+          s"from ${r._1}" in {
+            byIndex(r._2, 1) aka "get" must not(throwA[SQLException])
           }
         }
       }
@@ -1476,11 +1459,9 @@ sealed trait RowListTest { specs: Specification ⇒
 
         rs.foreach(_._2.next)
 
-        examplesBlock {
-          rs foreach { r ⇒
-            s"from ${r._1}" in {
-              byLabel(r._2, "n") aka "get" must not(throwA[SQLException])
-            }
+        Fragment.foreach(rs) { r =>
+          s"from ${r._1}" in {
+            byLabel(r._2, "n") aka "get" must not(throwA[SQLException])
           }
         }
       }
@@ -1560,10 +1541,8 @@ sealed trait RowListTest { specs: Specification ⇒
 
         rs.foreach(_._2.next)
 
-        examplesBlock {
-          rs foreach { r ⇒
-            s"from ${r._1}" in { byIndex(r._2, 1) aka s"$name" mustEqual 1 }
-          }
+        Fragment.foreach(rs) { r =>
+          s"from ${r._1}" in { byIndex(r._2, 1) aka s"$name" mustEqual 1 }
         }
       }
 
@@ -1585,12 +1564,9 @@ sealed trait RowListTest { specs: Specification ⇒
 
         rs.foreach(_._2.next)
 
-        examplesBlock {
-          rs foreach { r ⇒
-            s"from ${r._1}" in { byLabel(r._2, "n") aka s"$name" mustEqual 1 }
-          }
+        Fragment.foreach(rs) { r =>
+          s"from ${r._1}" in { byLabel(r._2, "n") aka s"$name" mustEqual 1 }
         }
       }
     }
-
 }

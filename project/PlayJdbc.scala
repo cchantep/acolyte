@@ -38,14 +38,14 @@ trait PlayJdbc { deps: Dependencies with Format ⇒
         // make sure plugin is there
         libraryDependencies ++= {
           val playVer = {
-            if (scalaVersion.value startsWith "2.11") "2.5.2"
+            if (scalaVersion.value startsWith "2.11") "2.5.8"
             else "2.4.8"
           }
 
           Seq(
             "org.eu.acolyte" % "jdbc-driver" % (version in ThisBuild).value,
             "com.typesafe.play" %% "play-jdbc-api" % "2.4.8" % "provided",
-            "com.typesafe.play" %% "anorm" % "2.5.0" % Test,
+            "com.typesafe.play" %% "anorm" % "2.5.2" % Test,
             specs2Test)
         }
       ).dependsOn(scalacPlugin, jdbcScala)

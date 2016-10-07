@@ -1163,8 +1163,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
             "SELECT ? WHERE false",
             Types.LONGVARBINARY, bindata
           ) aka "SQL query" mustEqual (
-            "SELECT ? WHERE false" -> bindata
-          ))
+              "SELECT ? WHERE false" -> bindata
+            ))
 
       }
 
@@ -1204,9 +1204,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
             "SELECT ? WHERE false",
             Types.LONGVARBINARY, binstream
           ) aka "SQL query" must beLike {
-            case ("SELECT ? WHERE false", s) ⇒ contentEquals(binstream, s).
-              aka("same content") must beTrue
-          })
+              case ("SELECT ? WHERE false", s) ⇒ contentEquals(binstream, s).
+                aka("same content") must beTrue
+            })
 
       }
     }

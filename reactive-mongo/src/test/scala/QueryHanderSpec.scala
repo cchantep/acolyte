@@ -2,7 +2,7 @@ package acolyte.reactivemongo
 
 import reactivemongo.bson.{ BSONDocument, BSONInteger, BSONString }
 
-object QueryHandlerSpec extends org.specs2.mutable.Specification
+class QueryHandlerSpec extends org.specs2.mutable.Specification
     with ResponseMatchers with QueryHandlerFixtures {
 
   "Query handler" title

@@ -62,7 +62,7 @@ object Acolyte extends Build with Dependencies with Format
 }
 
 trait Dependencies {
-  val specs2Test = "org.specs2" %% "specs2" % "2.4.1" % "test"
+  val specs2Test = "org.specs2" %% "specs2-core" % "3.8.3" % Test
 }
 
 trait Format {

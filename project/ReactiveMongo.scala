@@ -17,7 +17,6 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
       settings(formatSettings).settings(
         name := "reactive-mongo",
         javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
-        autoScalaLibrary := false,
         scalacOptions <++= (version in ThisBuild).
           zip(scalaVersion in ThisBuild).
           zip(baseDirectory in (scalacPlugin, Compile)).
@@ -45,4 +44,31 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
             },
           specs2Test)
       ).dependsOn(scalacPlugin)
+
+  lazy val playReactiveMongo =
+    Project(id = "play-reactive-mongo", base = file("play-reactive-mongo")).
+      settings(formatSettings).settings(
+        name := "play-reactive-mongo",
+        javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
+        scalaVersion := "2.11.8",
+        crossScalaVersions := Seq(scalaVersion.value),
+        scalacOptions <++= (version in ThisBuild).
+          zip(scalaVersion in ThisBuild).
+          zip(baseDirectory in (scalacPlugin, Compile)).
+          zip(name in (scalacPlugin, Compile)) map { d =>
+            val (((v, sv), b), n) = d
+            val msv = "2.11"
+
+            val td = b / "target" / s"scala-$msv"
+            val j = td / s"${n}_${msv}-$v.jar"
+
+            Seq("-feature", "-deprecation", s"-Xplugin:${j.getAbsolutePath}")
+          },
+        resolvers ++= reactiveResolvers,
+        libraryDependencies ++= Seq(
+          "com.typesafe.play" %% "play" % "2.5.4" % "provided",
+          "org.reactivemongo" %% "play2-reactivemongo" % "0.12-RC4" % "provided",
+          specs2Test)
+      ).dependsOn(scalacPlugin, reactiveMongo)
+
 }

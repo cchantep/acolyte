@@ -30,7 +30,7 @@ EOF
 
 JAVA_MODULES="jdbc-driver"
 EXTRA_JAVA_MODULES="jdbc-java8"
-SCALA_MODULES="jdbc-scala scalac-plugin reactive-mongo play-jdbc"
+SCALA_MODULES="jdbc-scala scalac-plugin reactive-mongo play-jdbc play-reactive-mongo"
 SCALA_VERSIONS="2.10 2.11"
 BASES=""
 
