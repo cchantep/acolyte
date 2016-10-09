@@ -8,7 +8,7 @@ import reactivemongo.bson.{
   BSONString
 }
 
-object ConnectionHandlerSpec extends org.specs2.mutable.Specification
+class ConnectionHandlerSpec extends org.specs2.mutable.Specification
     with QueryHandlerFixtures with WriteHandlerFixtures
     with ConnectionHandlerFixtures with ResponseMatchers {
 
@@ -124,10 +124,11 @@ trait ConnectionHandlerFixtures {
   lazy val chandler1 = ConnectionHandler(QueryHandler {
     case Request(col, _) if col.endsWith("test1") ⇒
       QueryResponse(BSONDocument("b" → 3))
+
     case Request(col, _) if col.endsWith("test2") ⇒ QueryResponse(
       Seq(BSONDocument("d" → 4.56d), BSONDocument("ef" → "ghi"))
     )
-    case q ⇒ QueryResponse(None)
+    case _ ⇒ QueryResponse(None)
   }, WriteHandler {
     case (DeleteOp, _) ⇒ WriteResponse("Error #2")
     case (InsertOp, _) ⇒ WriteResponse({})

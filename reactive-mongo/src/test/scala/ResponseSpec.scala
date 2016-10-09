@@ -4,7 +4,7 @@ import scala.util.Try
 import reactivemongo.bson.{ BSONDocument, BSONString, BSONDouble, BSONLong }
 import reactivemongo.core.protocol.{ Response, ResponseInfo }
 
-object ResponseSpec extends org.specs2.mutable.Specification {
+class ResponseSpec extends org.specs2.mutable.Specification {
   "Response" title
 
   "Response" should {

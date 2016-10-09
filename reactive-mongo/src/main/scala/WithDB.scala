@@ -1,9 +1,15 @@
 package acolyte.reactivemongo
 
 import scala.concurrent.{ ExecutionContext, Future }
-import reactivemongo.api.{ DB, MongoConnection, MongoDriver }
+import reactivemongo.api.{ DefaultDB, MongoConnection, MongoDriver }
 
-/** Functions to work with Mongo DB (provided driver functions). */
+/**
+ * Functions to work with MongoDB (provided driver functions).
+ *
+ * @define conParam the connection manager parameter (see [[ConnectionManager]])
+ * @define con a previously initialized connection
+ * @define f the function applied to initialized Mongo DB
+ */
 trait WithDB { withDriver: WithDriver ⇒
   /**
    * Works with Mongo database (named "acolyte") resolved using given driver
@@ -12,8 +18,8 @@ trait WithDB { withDriver: WithDriver ⇒
    * Driver and associated resources are released
    * after the function `f` the result `Future` is completed.
    *
-   * @param conParam Connection manager parameter (see [[ConnectionManager]])
-   * @param f Function applied to initialized Mongo DB
+   * @param conParam $conParam
+   * @param f $f
    *
    * {{{
    * import reactivemongo.api.DB
@@ -28,16 +34,16 @@ trait WithDB { withDriver: WithDriver ⇒
    * @see AcolyteDSL.withConnection
    * @see withFlatDB[A,B]
    */
-  def withDB[A, B](conParam: ⇒ A)(f: DB ⇒ B)(implicit d: MongoDriver, m: ConnectionManager[A], c: ExecutionContext): Future[B] =
-    withConnection(conParam) { con ⇒ f(con("acolyte")) }
+  def withDB[A, B](conParam: ⇒ A)(f: DefaultDB ⇒ B)(implicit d: MongoDriver, m: ConnectionManager[A], c: ExecutionContext): Future[B] =
+    withFlatConnection(conParam) { _.database("acolyte").map(f) }
 
   /**
    * Works with Mongo database (named "acolyte") resolved using given driver
    * initialized using Acolyte for ReactiveMongo
    * (should not be used with other driver instances).
    *
-   * @param con Previously initialized connection
-   * @param f Function applied to initialized Mongo DB
+   * @param con $con
+   * @param f $f
    *
    * {{{
    * import reactivemongo.api.DB
@@ -46,7 +52,7 @@ trait WithDB { withDriver: WithDriver ⇒
    * // handler: ConnectionHandler
    * val s: Future[String] = AcolyteDSL withConnection(handler) { con =>
    *   AcolyteDSL withDB(con) { db =>
-   *     val d: DB = db
+   *     val d: DefaultDB = db
    *     "Result"
    *   }
    * }
@@ -54,15 +60,15 @@ trait WithDB { withDriver: WithDriver ⇒
    * @see AcolyteDSL.withConnection
    * @see withFlatDB[T]
    */
-  def withDB[T](con: ⇒ MongoConnection)(f: DB ⇒ T)(implicit c: ExecutionContext): Future[T] = Future(f(con("acolyte")))
+  def withDB[T](con: ⇒ MongoConnection)(f: DefaultDB ⇒ T)(implicit c: ExecutionContext): Future[T] = con.database("acolyte").map(f)
 
   /**
    * Works with Mongo database (named "acolyte") resolved using given driver
    * initialized using Acolyte for ReactiveMongo
    * (should not be used with other driver instances).
    *
-   * @param conParam Connection manager parameter (see [[ConnectionManager]])
-   * @param f Function applied to initialized Mongo DB
+   * @param conParam $conParam
+   * @param f $f
    *
    * {{{
    * import reactivemongo.api.DB
@@ -70,23 +76,23 @@ trait WithDB { withDriver: WithDriver ⇒
    *
    * // handler: ConnectionHandler
    * val s: Future[String] = AcolyteDSL withFlatDB(handler) { db =>
-   *   val d: DB = db
+   *   val d: DefaultDB = db
    *   Future.successful("Result")
    * }
    * }}}
    * @see AcolyteDSL.withFlatConnection
    * @see withDB[A,B]
    */
-  def withFlatDB[A, B](conParam: ⇒ A)(f: DB ⇒ Future[B])(implicit d: MongoDriver, m: ConnectionManager[A], c: ExecutionContext): Future[B] =
-    withFlatConnection(conParam) { con ⇒ f(con("acolyte")) }
+  def withFlatDB[A, B](conParam: ⇒ A)(f: DefaultDB ⇒ Future[B])(implicit d: MongoDriver, m: ConnectionManager[A], c: ExecutionContext): Future[B] =
+    withFlatConnection(conParam) { _.database("acolyte").flatMap(f) }
 
   /**
    * Works with Mongo database (named "acolyte") resolved using given driver
    * initialized using Acolyte for ReactiveMongo
    * (should not be used with other driver instances).
    *
-   * @param con Previously initialized connection
-   * @param f Function applied to initialized Mongo DB
+   * @param con $con
+   * @param f $f
    *
    * {{{
    * import reactivemongo.api.DB
@@ -95,7 +101,7 @@ trait WithDB { withDriver: WithDriver ⇒
    * // handler: ConnectionHandler
    * val s: Future[String] = AcolyteDSL withConnection(handler) { con =>
    *   AcolyteDSL withDB(con) { db =>
-   *     val d: DB = db
+   *     val d: DefaultDB = db
    *     Future.successful("Result")
    *   }
    * }
@@ -103,6 +109,6 @@ trait WithDB { withDriver: WithDriver ⇒
    * @see AcolyteDSL.withConnection
    * @see withFlatDB[T]
    */
-  def withFlatDB[T](con: ⇒ MongoConnection)(f: DB ⇒ Future[T])(implicit c: ExecutionContext): Future[T] = f(con("acolyte"))
+  def withFlatDB[T](con: ⇒ MongoConnection)(f: DefaultDB ⇒ Future[T])(implicit c: ExecutionContext): Future[T] = con.database("acolyte").flatMap(f)
 
 }

@@ -2,7 +2,7 @@ package acolyte.reactivemongo
 
 import reactivemongo.bson.{ BSONDocument, BSONBoolean, BSONInteger, BSONString }
 
-object WriteHandlerSpec extends org.specs2.mutable.Specification
+class WriteHandlerSpec extends org.specs2.mutable.Specification
     with ResponseMatchers with WriteHandlerFixtures {
 
   "Write handler" title

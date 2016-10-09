@@ -8,7 +8,7 @@ import reactivemongo.api.{ MongoConnection, MongoDriver }
 trait WithHandler { up: WithDriver ⇒
 
   /**
-   * Works with a Mongo driver handling only queries,
+   * Works with a MongoDB driver handling only queries,
    * using given query `handler`.
    * Driver and associated resources are released
    * after the function `f` the result `Future` is completed.
@@ -33,7 +33,7 @@ trait WithHandler { up: WithDriver ⇒
     withConnection(AcolyteDSL handleQuery QueryHandler(handler))(f)
 
   /**
-   * Works with a Mongo driver handling only queries,
+   * Works with a MongoDB driver handling only queries,
    * using given query `handler`.
    * Driver and associated resources are released
    * after the function `f` the result `Future` is completed.
@@ -58,7 +58,7 @@ trait WithHandler { up: WithDriver ⇒
     withFlatConnection(AcolyteDSL handleQuery QueryHandler(handler))(f)
 
   /**
-   * Works with a Mongo driver handling only write operations,
+   * Works with a MongoDB driver handling only write operations,
    * using given write `handler`.
    * Driver and associated resources are released
    * after the function `f` the result `Future` is completed.
@@ -83,7 +83,7 @@ trait WithHandler { up: WithDriver ⇒
     withConnection(AcolyteDSL handleWrite handler)(f)
 
   /**
-   * Works with a Mongo driver handling only write operations,
+   * Works with a MongoDB driver handling only write operations,
    * using given write `handler`.
    * Driver and associated resources are released
    * after the function `f` the result `Future` is completed.

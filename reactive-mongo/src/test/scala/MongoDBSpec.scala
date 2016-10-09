@@ -8,7 +8,7 @@ import reactivemongo.core.protocol.{
   Update
 }
 
-object MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
+class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
   "MongoDB" title
 
   "Response to successful query" should {

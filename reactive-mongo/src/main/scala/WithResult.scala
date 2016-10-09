@@ -8,7 +8,7 @@ import reactivemongo.api.{ MongoConnection, MongoDriver }
 trait WithResult { withHandler: WithHandler ⇒
 
   /**
-   * Works with a Mongo driver handling only queries,
+   * Works with a MongoDB driver handling only queries,
    * and returning given `result` for all of them.
    * Driver and associated resources are released
    * after the function `f` the result `Future` is completed.
@@ -22,7 +22,7 @@ trait WithResult { withHandler: WithHandler ⇒
   def withQueryResult[A, B](result: ⇒ A)(f: MongoConnection ⇒ B)(implicit d: MongoDriver, m: ConnectionManager[ConnectionHandler], mk: QueryResponseMaker[A], c: ExecutionContext): Future[B] = withQueryHandler({ _: Request ⇒ QueryResponse(result) })(f)
 
   /**
-   * Works with a Mongo driver handling only queries,
+   * Works with a MongoDB driver handling only queries,
    * and returning given `result` for all of them.
    * Driver and associated resources are released
    * after the function `f` the result `Future` is completed.
@@ -36,7 +36,7 @@ trait WithResult { withHandler: WithHandler ⇒
     withFlatQueryHandler({ _: Request ⇒ QueryResponse(result) })(f)
 
   /**
-   * Works with a Mongo driver handling only write operations,
+   * Works with a MongoDB driver handling only write operations,
    * and returning given `result` for all of them.
    * Driver and associated resources are released
    * after the function `f` the result `Future` is completed.
@@ -50,7 +50,7 @@ trait WithResult { withHandler: WithHandler ⇒
   )(f)
 
   /**
-   * Works with a Mongo driver handling only write operations,
+   * Works with a MongoDB driver handling only write operations,
    * and returning given `result` for all of them.
    * Driver and associated resources are released
    * after the function `f` the result `Future` is completed.

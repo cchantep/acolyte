@@ -3,12 +3,14 @@ package acolyte.reactivemongo
 import scala.util.Try
 import reactivemongo.bson.BSONDocument
 
-object ResponseMakerSpec
+class ResponseMakerSpec
     extends org.specs2.mutable.Specification with ResponseMakerFixtures {
 
   "Response maker" title
 
   "Query response maker" should {
+    shapeless.test.illTyped("implicitly[QueryResponseMaker[Any]]")
+
     "be working for Traversable[BSONDocument]" in {
       val makr = implicitly[QueryResponseMaker[Traversable[BSONDocument]]]
 
@@ -42,11 +44,11 @@ object ResponseMakerSpec
             }
         }
     }
-
-    shapeless.test.illTyped("implicitly[QueryResponseMaker[Any]]")
   }
 
   "Write response maker" should {
+    shapeless.test.illTyped("implicitly[WriteResponseMaker[Any]]")
+
     "be a successful one for boolean (updatedExisting)" in {
       val makr = implicitly[WriteResponseMaker[(Int, Boolean)]]
 
@@ -92,8 +94,6 @@ object ResponseMakerSpec
             }
         }
     }
-
-    shapeless.test.illTyped("implicitly[WriteResponseMaker[Any]]")
   }
 
   @inline def zip[A, B](a: Try[A], b: Try[B]): Try[(A, B)] =

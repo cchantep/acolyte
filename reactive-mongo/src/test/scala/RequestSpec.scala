@@ -1,8 +1,14 @@
 package acolyte.reactivemongo
 
-import reactivemongo.bson.{ BSONArray, BSONDocument, BSONDouble, BSONInteger, BSONString }
+import reactivemongo.bson.{
+  BSONArray,
+  BSONDocument,
+  BSONDouble,
+  BSONInteger,
+  BSONString
+}
 
-object RequestSpec extends org.specs2.mutable.Specification
+class RequestSpec extends org.specs2.mutable.Specification
     with RequestFixtures {
 
   "Request" title

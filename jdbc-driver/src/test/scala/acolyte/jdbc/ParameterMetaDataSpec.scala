@@ -9,6 +9,7 @@ import java.sql.ParameterMetaData.{
   parameterNoNulls ⇒ NOT_NULL
 }
 
+import org.specs2.specification.core.Fragment
 import org.specs2.mutable.Specification
 
 import acolyte.jdbc.ParameterMetaData.{
@@ -204,31 +205,36 @@ object ParameterMetaDataSpec
   }
 
   "Defaults" should {
-    jdbcTypeMap foreach { p ⇒
-      val (k, v) = p
-      s"be expected one for ${typeName(k)}" in {
-        DefaultP(k) aka "default parameter" mustEqual param(v, IN, k,
-          typeName(k), typePrecision(k), typeScale(k), UNKNOWN_NULL,
-          typeSign(k))
+    Fragment.foreach(jdbcTypeMap.toList) {
+      case (k, v) =>
+        s"be expected one for ${typeName(k)}" in {
+          DefaultP(k) aka "default parameter" mustEqual param(v, IN, k,
+            typeName(k), typePrecision(k), typeScale(k), UNKNOWN_NULL,
+            typeSign(k))
 
-      }
+        }
     }
   }
 
   "Decimal" should {
-    Seq(Types.DECIMAL, Types.DOUBLE, Types.FLOAT, Types.REAL) foreach { t ⇒
-      (1 to 32) foreach { s ⇒
-        ScaledP(t, s) aka "decimal parameter" mustEqual param(
-          jdbcTypeMap(t),
-          IN, t, typeName(t), typePrecision(t), s, UNKNOWN_NULL, typeSign(t)
-        )
-
+    Fragment.foreach(
+      Seq(Types.DECIMAL, Types.DOUBLE, Types.FLOAT, Types.REAL)
+    ) { t =>
+        s"be ok for $t" in {
+          (1 to 32).foldLeft(ok) { (prev, s) ⇒
+            prev and {
+              ScaledP(t, s) mustEqual param(
+                jdbcTypeMap(t),
+                IN, t, typeName(t), typePrecision(t), s, UNKNOWN_NULL, typeSign(t)
+              )
+            }
+          }
+        }
       }
-    }
   }
 
   "Null parameter" should {
-    jdbcTypeMap.keys foreach { k ⇒
+    Fragment.foreach(jdbcTypeMap.keys.toSeq) { k ⇒
       s"be expected ${typeName(k)}" in {
         NullP(k) aka "null parameter" mustEqual DefaultP(k)
       }

@@ -9,4 +9,4 @@ cache:
   - $HOME/.sbt
 scala:
    - 2.11.8
-script: ./.travis_scripts/validate.sh
+script: ./.ci_scripts/validate.sh

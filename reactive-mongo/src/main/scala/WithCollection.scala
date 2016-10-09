@@ -7,7 +7,7 @@ import reactivemongo.api.{ DB, MongoConnection, MongoDriver }
 /** Functions to work with a Mongo collection (provided DB functions). */
 trait WithCollection { withDB: WithDB ⇒
   /**
-   * Works with specified collection from Mongo database "acolyte"
+   * Works with specified collection from MongoDB "acolyte"
    * resolved using given driver initialized with Acolyte for ReactiveMongo
    * (should not be used with other driver instances).
    * Driver and associated resources are released
@@ -32,7 +32,7 @@ trait WithCollection { withDB: WithDB ⇒
   def withCollection[A, B](conParam: ⇒ A, name: String)(f: BSONCollection ⇒ B)(implicit d: MongoDriver, m: ConnectionManager[A], c: ExecutionContext): Future[B] = withFlatDB(conParam) { db ⇒ Future(f(db(name))) }
 
   /**
-   * Works with specified collection from Mongo database "acolyte"
+   * Works with specified collection from MongoDB "acolyte"
    * resolved using given connection.
    *
    * @param con Previously initialized connection
@@ -55,7 +55,7 @@ trait WithCollection { withDB: WithDB ⇒
   def withCollection[T](con: ⇒ MongoConnection, name: String)(f: BSONCollection ⇒ T)(implicit c: ExecutionContext): Future[T] = withFlatDB(con) { db ⇒ Future(f(db(name))) }
 
   /**
-   * Works with specified collection from Mongo database "acolyte"
+   * Works with specified collection from MongoDB "acolyte"
    * resolved using given Mongo DB.
    *
    * @param db Previously resolved Mongo DB
@@ -77,7 +77,7 @@ trait WithCollection { withDB: WithDB ⇒
   def withCollection[T](db: DB, name: String)(f: BSONCollection ⇒ T)(implicit c: ExecutionContext): Future[T] = Future(f(db(name)))
 
   /**
-   * Works with specified collection from Mongo database "acolyte"
+   * Works with specified collection from MongoDB "acolyte"
    * resolved using given driver initialized with Acolyte for ReactiveMongo
    * (should not be used with other driver instances).
    * Driver and associated resources are released
@@ -102,7 +102,7 @@ trait WithCollection { withDB: WithDB ⇒
   def withFlatCollection[A, B](conParam: ⇒ A, name: String)(f: BSONCollection ⇒ Future[B])(implicit d: MongoDriver, m: ConnectionManager[A], c: ExecutionContext): Future[B] = withFlatDB(conParam) { db ⇒ f(db(name)) }
 
   /**
-   * Works with specified collection from Mongo database "acolyte"
+   * Works with specified collection from MongoDB "acolyte"
    * resolved using given connection.
    *
    * @param con Previously initialized connection
@@ -125,7 +125,7 @@ trait WithCollection { withDB: WithDB ⇒
   def withFlatCollection[T](con: ⇒ MongoConnection, name: String)(f: BSONCollection ⇒ Future[T])(implicit c: ExecutionContext): Future[T] = withFlatDB(con) { db ⇒ f(db(name)) }
 
   /**
-   * Works with specified collection from Mongo database "acolyte"
+   * Works with specified collection from MongoDB "acolyte"
    * resolved using given Mongo DB.
    *
    * @param db Previously resolved Mongo DB
