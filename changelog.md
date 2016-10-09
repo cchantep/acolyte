@@ -1,3 +1,7 @@
+## 1.0.39
+
+Fix the ReactiveMongo module
+
 ## 1.0.38
 
 Update to ReactiveMongo 0.12-RC4
