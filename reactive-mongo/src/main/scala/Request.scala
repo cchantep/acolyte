@@ -206,7 +206,9 @@ object CountRequest {
   def unapply(q: Request): Option[(String, List[(String, BSONValue)])] =
     q match {
       case Request(col, SimpleBody(("count", BSONString(_)) ::
-        ("query", ValueDocument(query)) :: Nil)) ⇒ Some(col → query)
+        ("query", ValueDocument(query)) :: _)) ⇒ Some(col → query)
+      // TODO: limit
+
       case _ ⇒ None
     }
 }
