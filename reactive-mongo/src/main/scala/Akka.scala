@@ -125,19 +125,26 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
           )
         }
 
-        case _ ⇒ Try(handler.queryHandler(cid, req)) match {
-          case Failure(cause) ⇒ InvalidQueryHandler(cid, cause.getMessage)
+        case Request(coln, SimpleBody(ps)) ⇒ {
+          val qreq = new Request {
+            val collection = coln
+            val body = ps.collectFirst {
+              case ("$query", q @ BSONDocument(_)) ⇒ q
+            }.fold(req.body)(List(_))
+          }
 
-          case Success(res) ⇒ res.fold(
-            NoQueryResponse(cid, msg.toString)
-          )(_ match {
+          Try(handler.queryHandler(cid, qreq)) match {
+            case Failure(cause) ⇒ InvalidQueryHandler(cid, cause.getMessage)
+
+            case Success(res) ⇒ res.fold(NoQueryResponse(cid, msg.toString)) {
               case Success(r) ⇒ r
               case Failure(e) ⇒ MongoDB.QueryError(cid, Option(e.getMessage).
                 getOrElse(e.getClass.getName)) match {
                 case Success(err) ⇒ err
                 case _            ⇒ MongoDB.MkQueryError(cid)
               }
-            })
+            }
+          }
         }
       }
 

@@ -298,13 +298,15 @@ class DriverSpec extends org.specs2.mutable.Specification
       "as error when query handler returns no query result" in {
         implicit ee: EE ⇒
           withFlatDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withFlatQueryHandler(
-              { _: Request ⇒ QueryResponse.empty }
-            ) { con: MongoConnection ⇒
-                AcolyteDSL.withFlatCollection(con, query3.collection) {
-                  _.find(query3.body.head).cursor[BSONDocument]().collect[List]()
-                }
+            AcolyteDSL.withFlatQueryHandler({
+              case Request("acolyte.test3", SimpleBody(
+                ("filter", BSONString("valC")) :: Nil)) ⇒ QueryResponse.empty
+            }) { con: MongoConnection ⇒
+              AcolyteDSL.withFlatCollection(con, query3.collection) {
+                _.find(query3.body.head).
+                  cursor[BSONDocument]().collect[List]()
               }
+            }
           }.map(_.isEmpty) aka "query result" must beTrue.await(0, timeout)
       }
 
