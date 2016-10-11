@@ -17,8 +17,9 @@ function deploy {
   BASE="$1"
   POM="$BASE.pom"
 
-  expect <<EOF
-spawn mvn gpg:sign-and-deploy-file -DuniqueVersion=false -Dkeyname=$KEY -DpomFile=$POM -Dfile=$BASE.jar -Djavadoc=$BASE-javadoc.jar -Dsources=$BASE-sources.jar $ARG -Durl=$REPO -DrepositoryId=sonatype-nexus-staging  
+  expect << EOF
+set timeout 300
+spawn mvn gpg:sign-and-deploy-file -DuniqueVersion=false -Dkeyname=$KEY -DpomFile=$POM -Dfile=$BASE.jar -Djavadoc=$BASE-javadoc.jar -Dsources=$BASE-sources.jar $ARG -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 log_user 0
 expect "GPG Passphrase:"
 send "$PASS\r"
