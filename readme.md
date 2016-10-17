@@ -35,11 +35,11 @@ You can get a quick interactive tour of Acolyte, online at [tour.acolyte.eu.org]
 
 Acolyte is usable with any code relying on JDBC. It makes it available for any JVM language:
 
-* vanilla [Java](./java.html),
-* [Scala](./scala.html) (with DSL),
+* vanilla [Java](http://acolyte.eu.org/java/),
+* [Scala](http://acolyte.eu.org/scala/) (with DSL),
 * [Clojure](http://clojure.com), [Fredge](https://github.com/Frege/frege), ...
 
-You can get connection defined by Acolyte using the well-known `java.sql.DriverManager.getConnection(jdbcUrl)` (see [connection management](./java.html#Connection)).
+You can get connection defined by Acolyte using the well-known `java.sql.DriverManager.getConnection(jdbcUrl)` (see [connection management](http://acolyte.eu.org/java/#Connection)).
 
 ```java
 final String jdbcUrl = "jdbc:acolyte:anything-you-want?handler=my-unique-id";
@@ -67,15 +67,14 @@ Connection con = DriverManager.getConnection(jdbcUrl);
 // ... Connection |con| is managed through Acolyte |handler|
 ```
 
-You can use Acolyte with various JVM test and persistence frameworks (see [Integration guide](integration.html)).
+You can use Acolyte with various JVM test and persistence frameworks (see [Integration guide](http://acolyte.eu.org/integration/)).
 
-With [Studio](studio.html), you can use data extracted from existing database with Acolyte handler.
+With [Studio](http://acolyte.eu.org/studio/), you can use data extracted from existing database with Acolyte handler.
 
 _Projects using Acolyte:_
 
-- [Play Framework](http://www.playframework.com/) Anorm ([AnormSpec](https://github.com/playframework/playframework/blob/master/framework/src/anorm/src/test/jdbc-scala/anorm/AnormSpec.scala)). 
+- [Play Framework](http://www.playframework.com/) Anorm ([AnormSpec](https://github.com/playframework/anorm/blob/master/core/src/test/scala/anorm/AnormSpec.scala)). 
 - [Youtube Vitess](https://github.com/youtube/vitess).
-- [Cielago](https://github.com/cchantep/cielago-tracker) ([DispatchReportSpec](https://github.com/cchantep/cielago-tracker/blob/master/test/models/DispatchReportSpec.scala), [ListInfoSpec](https://github.com/cchantep/cielago-tracker/blob/master/test/models/ListInfoSpec.scala), [MainSpec](https://github.com/cchantep/cielago-tracker/blob/master/test/controllers/MainSpec.scala), …).
 
 To share questions, answers & ideas, you can go to the [mailing list](https://groups.google.com/forum/#!forum/acolyte-support).
 
@@ -92,5 +91,5 @@ To share questions, answers & ideas, you can go to the [mailing list](https://gr
 
 ## Related applications
 
-- [Acolyte Studio](./studio.html): Application with CLI and GUI which is useful when you already have a database and want tests to use data extracted from there.
-- [Acolyte for ReactiveMongo](./reactive-mongo.html). Acolyte module to unit test persistence based on [ReactiveMongo](http://reactivemongo.org/).
+- [Acolyte Studio](http://acolyte.eu.org/studio/): Application with CLI and GUI which is useful when you already have a database and want tests to use data extracted from there.
+- [Acolyte for ReactiveMongo](http://acolyte.eu.org/reactive-mongo/). Acolyte module to unit test persistence based on [ReactiveMongo](http://reactivemongo.org/).
