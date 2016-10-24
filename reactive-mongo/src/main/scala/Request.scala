@@ -171,6 +171,30 @@ object DeleteRequest {
   }
 }
 
+/** FindAndModify request */
+object FindAndModifyRequest {
+  /**
+   * @return Collection name, query, update and then options
+   */
+  def unapply(findAndModify: Request): Option[(String, List[(String, BSONValue)], List[(String, BSONValue)], List[(String, BSONValue)])] = findAndModify match {
+    case Request(_, SimpleBody(("findAndModify", BSONString(col)) :: ps)) ⇒ {
+      var q = List.empty[(String, BSONValue)]
+      var u = List.empty[(String, BSONValue)]
+      val o = List.newBuilder[(String, BSONValue)]
+
+      ps.foreach {
+        case ("query", ValueDocument(query))   ⇒ q = query
+        case ("update", ValueDocument(update)) ⇒ u = update
+        case opt                               ⇒ o += opt
+      }
+
+      Some((col, q, u, o.result()))
+    }
+
+    case _ ⇒ None
+  }
+}
+
 /**
  * Extractor of properties for a document used a BSON value
  * (when operator is used, e.g. `{ 'age': { '\$gt': 10 } }`).

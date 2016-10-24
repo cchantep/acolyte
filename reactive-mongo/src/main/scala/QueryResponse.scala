@@ -34,6 +34,14 @@ object QueryResponse {
   def count(result: Int = 0) = apply(BSONDocument("ok" → 1, "n" → result))
 
   /**
+   * Prepares a response to a successful findAndModify command.
+   *
+   * @param result FindAndModify result
+   */
+  def findAndModify(result: BSONDocument) =
+    apply(BSONDocument("ok" → 1, "value" → result))
+
+  /**
    * Undefined response, returned by handler no supporting
    * a specific query that may be handled by others.
    */

@@ -263,7 +263,8 @@ class DriverSpec extends org.specs2.mutable.Specification
               List(BSONDocument("doc" → 1), BSONDocument("doc" → 2.3d))
             ) { d ⇒
                 AcolyteDSL.withFlatCollection(d, "anyCol") {
-                  _.find(query1.body.head).cursor[BSONDocument]().collect[List]()
+                  _.find(query1.body.head).
+                    cursor[BSONDocument]().collect[List]()
                 }
               }
           } aka "query result" must beLike[List[BSONDocument]] {
@@ -308,6 +309,44 @@ class DriverSpec extends org.specs2.mutable.Specification
               }
             }
           }.map(_.isEmpty) aka "query result" must beTrue.await(0, timeout)
+      }
+
+      "support query options" in { implicit ee: EE ⇒
+        withFlatDriver { implicit drv: MongoDriver ⇒
+          AcolyteDSL.withFlatQueryHandler({
+            case Request("acolyte.test3", RequestBody(
+              List(("filter", BSONString("valC"))) :: List(
+                ("$orderby", ValueDocument(List(("foo", BSONInteger(1))))),
+                ("$readPreference", ValueDocument(
+                  List(("mode", BSONString("primary")))))
+                ) :: Nil)) ⇒
+              QueryResponse(BSONDocument("lorem" → 1.2D))
+          }) { con: MongoConnection ⇒
+            AcolyteDSL.withFlatCollection(con, query3.collection) {
+              _.find(query3.body.head).sort(BSONDocument("foo" → 1)).
+                cursor[BSONDocument]().collect[List]()
+            }
+          }
+        }.map(_.size) aka "query result" must beEqualTo(1).await(0, timeout)
+      }
+
+      "support findAndModify" in { implicit ee: EE ⇒
+        withFlatDriver { implicit drv: MongoDriver ⇒
+          AcolyteDSL.withFlatQueryHandler({
+            case FindAndModifyRequest("test3", List(("id", BSONInteger(1))),
+              List(("title", BSONString("foo"))), opts) ⇒
+              QueryResponse.findAndModify(BSONDocument(opts))
+          }) { con: MongoConnection ⇒
+            AcolyteDSL.withFlatCollection(con, query3.collection) {
+              _.findAndUpdate(
+                BSONDocument("id" → 1),
+                BSONDocument("title" → "foo")
+              ).map(_.value)
+            }
+          }
+        } aka "query result" must beSome(BSONDocument(
+          "upsert" → false, "new" → false
+        )).await(0, timeout)
       }
 
       "as error when connection handler is empty" in { implicit ee: EE ⇒
