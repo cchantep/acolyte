@@ -10,7 +10,7 @@ import com.typesafe.config.ConfigFactory
 import akka.actor.{ ActorRef, ActorSystem ⇒ AkkaSystem, Props }
 
 import reactivemongo.api.commands.GetLastError
-import reactivemongo.bson.{ BSONArray, BSONDocument, BSONString }
+import reactivemongo.bson.{ BSONArray, BSONDocument, BSONString, BSONValue }
 import reactivemongo.core.actors.{
   Close,
   CheckedWriteRequestExpectingResponse ⇒ CheckedWriteRequestExResp,
@@ -128,9 +128,17 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
         case Request(coln, SimpleBody(ps)) ⇒ {
           val qreq = new Request {
             val collection = coln
-            val body = ps.collectFirst {
-              case ("$query", q @ BSONDocument(_)) ⇒ q
-            }.fold(req.body)(List(_))
+
+            val body = ps.foldLeft(Option.empty[BSONDocument] → (
+              List.empty[(String, BSONValue)]
+            )) {
+              case ((_, opts), ("$query", q @ BSONDocument(_))) ⇒
+                Some(q) → opts
+
+              case ((q, opts), opt) ⇒ q → (opts :+ opt)
+            } match {
+              case (q, opts) ⇒ q.toList :+ BSONDocument(opts)
+            }
           }
 
           Try(handler.queryHandler(cid, qreq)) match {
