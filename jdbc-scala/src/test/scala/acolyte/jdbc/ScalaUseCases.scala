@@ -3,8 +3,7 @@ package acolyte.jdbc
 import java.sql.{ Connection ⇒ SqlConnection, Date, DriverManager }
 
 import acolyte.jdbc.{ Driver ⇒ AcolyteDriver }
-import acolyte.jdbc.RowLists.{ rowList1, rowList3, stringList, intList }
-import acolyte.jdbc.Rows.{ row1, row3 }
+import acolyte.jdbc.RowLists.{ rowList3, stringList, intList }
 import acolyte.jdbc.AcolyteDSL.{ connection, handleQuery, handleStatement }
 import acolyte.jdbc.Implicits._
 

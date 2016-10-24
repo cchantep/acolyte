@@ -21,7 +21,7 @@ object Acolyte extends Build with Dependencies with Format
       jdbcDriver, jdbcScala, jdbcClojure, studio).
     settings(
       organization in ThisBuild := "org.eu.acolyte",
-      version in ThisBuild := s"1.0.42${versionVariant}",
+      version in ThisBuild := s"1.0.43${versionVariant}",
       javaOptions in ThisBuild ++= Seq(
         "-source", javaVersion, "-target", javaVersion),
       scalaVersion in ThisBuild := "2.11.8",
@@ -55,9 +55,9 @@ object Acolyte extends Build with Dependencies with Format
           <id>cchantep</id>
           <name>Cedric Chantepie</name>
         </developer>
-      </developers>) configure { p =>
+        </developers>) configure { p =>
       if (isJavaAtLeast("1.8")) {
-        p.aggregate(playJdbc, jdbcJava8, playReactiveMongo)
+        p.aggregate(playJdbc, jdbcJava8/*, playReactiveMongo*/)
       }
       else p
     }

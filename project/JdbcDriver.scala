@@ -17,8 +17,8 @@ trait JdbcDriver { deps: Dependencies ⇒
       sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
         val (base, managed) = dirs
         generateCallableStatement(base, managed / "acolyte" / "jdbc") +:
-          generateRowClasses(base, managed / "acolyte" / "jdbc",
-            "acolyte.jdbc", false)
+        generateRowClasses(base, managed / "acolyte" / "jdbc",
+          "acolyte.jdbc", false)
       }))
 
   // Source generators

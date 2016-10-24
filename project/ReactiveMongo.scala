@@ -66,8 +66,8 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
           },
         resolvers ++= reactiveResolvers,
         libraryDependencies ++= Seq(
-          "com.typesafe.play" %% "play" % "2.5.4" % "provided",
-          "org.reactivemongo" %% "play2-reactivemongo" % "0.12-RC4" % "provided",
+          "com.typesafe.play" %% "play" % "2.5.8" % "provided",
+          "org.reactivemongo" %% "play2-reactivemongo" % "0.12.0" % "provided",
           specs2Test)
       ).dependsOn(scalacPlugin, reactiveMongo)
 
