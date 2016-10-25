@@ -1,5 +1,7 @@
 #! /bin/bash
 
+SCRIPT_DIR=`dirname $0`
+
 source "$SCRIPT_DIR/jvmopts.sh"
 
 cat > /dev/stdout <<EOF

@@ -1,3 +1,7 @@
+## 1.0.42
+
+Support findAndModify in the ReactiveMongo module
+
 ## 1.0.39 & 1.0.41
 
 Fix the ReactiveMongo module
