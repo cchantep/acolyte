@@ -71,6 +71,17 @@ class WriteHandlerSpec extends org.specs2.mutable.Specification
         case h ⇒ h(1, write1._1, write1._2) must beNone
       }
     }
+
+    "be combined using orElse" in {
+      WriteHandler { (_, _) ⇒ WriteResponse(1 → true) }.
+        orElse(WriteHandler.empty) must beLike {
+          case h ⇒ h(1, write1._1, write1._2) must beSome.which(
+            _ aka "response" must beResponse {
+              _ aka "response" must beWriteSuccess(1, true)
+            }
+          )
+        }
+    }
   }
 
   "Empty handler" should {
@@ -78,6 +89,18 @@ class WriteHandlerSpec extends org.specs2.mutable.Specification
       WriteHandler.empty aka "write handler" must beLike {
         case h ⇒ h(1, write1._1, write1._2) must beNone
       }
+    }
+
+    "be combined using orElse" in {
+      WriteHandler.empty.orElse(
+        WriteHandler { (_, _) ⇒ WriteResponse(1 → true) }
+      ) must beLike {
+          case h ⇒ h(1, write1._1, write1._2) must beSome.which(
+            _ aka "response" must beResponse {
+              _ aka "response" must beWriteSuccess(1, true)
+            }
+          )
+        }
     }
   }
 
