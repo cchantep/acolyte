@@ -19,7 +19,7 @@ sealed trait ConnectionHandler { self ⇒
    *
    * @param handler Query handler
    */
-  def withQueryHandler[T](handler: T)(implicit f: T ⇒ QueryHandler) =
+  final def withQueryHandler[T](handler: T)(implicit f: T ⇒ QueryHandler) =
     ConnectionHandler(new QueryHandler {
       def apply(cid: Int, q: Request) =
         self.queryHandler(cid, q).orElse(f(handler)(cid, q))
@@ -31,11 +31,25 @@ sealed trait ConnectionHandler { self ⇒
    *
    * @param handler Write handler
    */
-  def withWriteHandler[T](handler: T)(implicit f: T ⇒ WriteHandler) =
+  final def withWriteHandler[T](handler: T)(implicit f: T ⇒ WriteHandler) =
     ConnectionHandler(queryHandler, new WriteHandler {
       def apply(cid: Int, op: WriteOp, w: Request) =
         self.writeHandler(cid, op, w).orElse(f(handler)(cid, op, w))
     })
+
+  /**
+   * Returns a new connection handler that first try this one,
+   * or else if it doesn't match, use the other one.
+   *
+   * {{{
+   * val connectionHandler3 = connectionHandler1 orElse connectionHandler2
+   * }}}
+   */
+  final def orElse(other: ConnectionHandler): ConnectionHandler =
+    new ConnectionHandler {
+      val queryHandler = self.queryHandler orElse other.queryHandler
+      val writeHandler = self.writeHandler orElse other.writeHandler
+    }
 }
 
 /** Companion object for connection handler. */
@@ -68,11 +82,26 @@ object ConnectionHandler {
 
 /** Query handler. */
 sealed trait QueryHandler extends ((Int, Request) ⇒ Option[Try[Response]]) {
+  self ⇒
+
   /**
    * @param channelId ID of channel
    * @param query Query to respond to
    */
   override def apply(channelId: Int, query: Request): Option[Try[Response]]
+
+  /**
+   * Returns a new query handler that first try this one,
+   * or else if it doesn't match, use the other one.
+   *
+   * {{{
+   * val queryHandler3 = queryHandler1 orElse queryHandler2
+   * }}}
+   */
+  final def orElse(other: QueryHandler): QueryHandler = new QueryHandler {
+    def apply(channelId: Int, query: Request): Option[Try[Response]] =
+      self(channelId, query).orElse(other(channelId, query))
+  }
 }
 
 /** Query handler companion. */
@@ -106,7 +135,7 @@ object QueryHandler {
 
 /** Write handler. */
 sealed trait WriteHandler
-    extends ((Int, WriteOp, Request) ⇒ Option[Try[Response]]) {
+    extends ((Int, WriteOp, Request) ⇒ Option[Try[Response]]) { self ⇒
 
   /**
    * @param channelId ID of channel
@@ -115,6 +144,17 @@ sealed trait WriteHandler
    */
   override def apply(channelId: Int, op: WriteOp, req: Request): Option[Try[Response]]
 
+  /**
+   * Returns a new write handler that first try this one,
+   * or else if it doesn't match, use the other one.
+   *
+   * {{{
+   * val writeHandler3 = writeHandler1 orElse writeHandler2
+   * }}}
+   */
+  final def orElse(other: WriteHandler): WriteHandler = new WriteHandler {
+    def apply(channelId: Int, op: WriteOp, req: Request): Option[Try[Response]] = self(channelId, op, req).orElse(other(channelId, op, req))
+  }
 }
 
 /** Write handler companion. */

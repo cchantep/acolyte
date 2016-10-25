@@ -57,12 +57,35 @@ class QueryHandlerSpec extends org.specs2.mutable.Specification
           case h ⇒ h(1, query1) must beNone
         }
     }
+
+    "be combined using orElse" in {
+      QueryHandler { _ ⇒ QueryResponse.successful(BSONDocument("foo" → 1)) }.
+        orElse(QueryHandler.empty) must beLike {
+          case h ⇒ h(1, query1) must beSome.which(
+            _ aka "response" must beResponse {
+              case ValueDocument(("foo", BSONInteger(1)) :: Nil) :: Nil ⇒ ok
+            }
+          )
+        }
+    }
   }
 
   "Empty handler" should {
     "return no response" in {
       QueryHandler.empty aka "query handler" must beLike {
         case h ⇒ h(1, query1) must beNone
+      }
+    }
+
+    "be combined using orElse" in {
+      QueryHandler.empty.orElse(QueryHandler { _ ⇒
+        QueryResponse.successful(BSONDocument("foo" → 1))
+      }) aka "query handler" must beLike {
+        case h ⇒ h(1, query1) must beSome.which(
+          _ aka "response" must beResponse {
+            case ValueDocument(("foo", BSONInteger(1)) :: Nil) :: Nil ⇒ ok
+          }
+        )
       }
     }
   }

@@ -36,8 +36,7 @@ class ConnectionHandlerSpec extends org.specs2.mutable.Specification
       ConnectionHandler(h).queryHandler(1, query1).
         aka("query result #1") must beSome and (
           handler.queryHandler(1, query1) aka "query result #2" must beNone
-        ).
-          and(handler.withQueryHandler(h).queryHandler(1, query1).
+        ).and(handler.withQueryHandler(h).queryHandler(1, query1).
             aka("query result #3") must beSome)
     }
 
@@ -45,6 +44,26 @@ class ConnectionHandlerSpec extends org.specs2.mutable.Specification
       ConnectionHandler({
         _: Request ⇒ QueryResponse(None)
       }).queryHandler(1, query1) aka "query result" must beNone
+    }
+
+    "be combined with orElse #1" in {
+      ConnectionHandler({
+        _: Request ⇒ QueryResponse(BSONDocument("a" → "b"))
+      }).orElse(ConnectionHandler { _: Request ⇒ QueryResponse.empty }).
+        queryHandler(1, query1) aka "query result" must beSome.which(
+          _ aka "response" must beResponse {
+            case ValueDocument(("a", BSONString("b")) :: Nil) :: Nil ⇒ ok
+          }
+        )
+    }
+
+    "be combined with orElse #2" in {
+      ConnectionHandler({ _: Request ⇒ QueryResponse.empty }).
+        orElse(ConnectionHandler { _: Request ⇒
+          QueryResponse(BSONDocument("a" → "b"))
+        }).queryHandler(1, query1) aka "query result" must beSome.which(
+          _ aka "response" must beResponse { case res if res.isEmpty ⇒ ok }
+        )
     }
   }
 
@@ -70,6 +89,22 @@ class ConnectionHandlerSpec extends org.specs2.mutable.Specification
       ConnectionHandler(writeHandler = implicitly[WriteHandler] {
         (_: WriteOp, _: Request) ⇒ WriteResponse(None)
       }).writeHandler(1, write1._1, write1._2) aka "write result" must beNone
+    }
+
+    "be combined using orElse" in {
+      val handler: ConnectionHandler = ConnectionHandler({
+        _: Request ⇒ QueryResponse(BSONDocument("a" → "b"))
+      })
+
+      ConnectionHandler(writeHandler = {
+        (_: WriteOp, _: Request) ⇒ WriteResponse.successful(1, false)
+      })
+
+      handler.queryHandler(1, query1) aka "query result" must beSome.which(
+        _ aka "response" must beResponse {
+          case ValueDocument(("a", BSONString("b")) :: Nil) :: Nil ⇒ ok
+        }
+      )
     }
   }
 
