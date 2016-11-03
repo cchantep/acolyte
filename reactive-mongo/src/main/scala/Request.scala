@@ -171,13 +171,25 @@ object DeleteRequest {
   }
 }
 
-/** FindAndModify request */
+/** Request extractor for any command (at DB or collection level) */
+object CommandRequest {
+  /** @return The body of the command request */
+  def unapply(request: Request): Option[List[(String, BSONValue)]] =
+    request match {
+      case Request(c, SimpleBody(body)) if (c endsWith ".$cmd") ⇒
+        Some(body)
+
+      case _ ⇒ None
+    }
+}
+
+/** Request extractor for the `findAndModify` command */
 object FindAndModifyRequest {
   /**
    * @return Collection name, query, update and then options
    */
-  def unapply(findAndModify: Request): Option[(String, List[(String, BSONValue)], List[(String, BSONValue)], List[(String, BSONValue)])] = findAndModify match {
-    case Request(_, SimpleBody(("findAndModify", BSONString(col)) :: ps)) ⇒ {
+  def unapply(request: Request): Option[(String, List[(String, BSONValue)], List[(String, BSONValue)], List[(String, BSONValue)])] = request match {
+    case CommandRequest(("findAndModify", BSONString(col)) :: ps) ⇒ {
       var q = List.empty[(String, BSONValue)]
       var u = List.empty[(String, BSONValue)]
       val o = List.newBuilder[(String, BSONValue)]
