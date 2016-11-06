@@ -351,6 +351,18 @@ class RequestSpec extends org.specs2.mutable.Specification
     }
   }
 
+  "Find and modify request" should {
+    "be extracted" in {
+      findAndModify1 aka "request" must beLike {
+        case FindAndModifyRequest("col3",
+          List(("_id", BSONInteger(1))),
+          List(("$set", ValueDocument(List(("foo", BSONString("bar")))))),
+          List(("limit", BSONInteger(2)))
+          ) ⇒ ok
+      }
+    }
+  }
+
   "Array" should {
     "be extracted as list values" in {
       BSONArray("a", 2, 3.45d) aka "array" must beLike {
@@ -409,6 +421,16 @@ sealed trait RequestFixtures {
     val body = List(BSONDocument(
       "count" → "col3",
       "query" → BSONDocument("fil" → "ter")
+    ))
+  }
+
+  val findAndModify1 = new Request {
+    val collection = "db1.$cmd"
+    val body = List(BSONDocument(
+      "findAndModify" → "col3",
+      "update" → BSONDocument("$set" → BSONDocument("foo" → "bar")),
+      "query" → BSONDocument("_id" → 1),
+      "limit" → 2
     ))
   }
 
