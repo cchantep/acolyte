@@ -239,10 +239,10 @@ object CountRequest {
   /**
    * @return Collection name -> query body (count BSON properties)
    */
-  def unapply(q: Request): Option[(String, List[(String, BSONValue)])] =
-    q match {
-      case Request(col, SimpleBody(("count", BSONString(_)) ::
-        ("query", ValueDocument(query)) :: _)) ⇒ Some(col → query)
+  def unapply(request: Request): Option[(String, List[(String, BSONValue)])] =
+    request match {
+      case CommandRequest(("count", BSONString(col)) ::
+        ("query", ValueDocument(query)) :: _) ⇒ Some(col → query)
       // TODO: limit
 
       case _ ⇒ None

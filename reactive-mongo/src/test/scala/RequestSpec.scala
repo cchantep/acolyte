@@ -346,7 +346,7 @@ class RequestSpec extends org.specs2.mutable.Specification
   "Count request" should {
     "be extracted" in {
       count1 aka "request" must beLike {
-        case CountRequest("db1.col3", ("fil", BSONString("ter")) :: Nil) ⇒ ok
+        case CountRequest("col3", ("fil", BSONString("ter")) :: Nil) ⇒ ok
       }
     }
   }
@@ -405,7 +405,7 @@ sealed trait RequestFixtures {
   }
 
   val count1 = new Request {
-    val collection = "db1.col3"
+    val collection = "db1.$cmd"
     val body = List(BSONDocument(
       "count" → "col3",
       "query" → BSONDocument("fil" → "ter")
