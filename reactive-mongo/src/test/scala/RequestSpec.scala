@@ -395,6 +395,16 @@ class RequestSpec extends org.specs2.mutable.Specification
           List(("updated", BSONString("property"))) :: Nil)) ⇒ ok
       }
     }
+
+    "be pretty-printed" in {
+      Request.pretty(update1) aka "representation" must beTypedEqualTo(
+        s"""Request(db1.col4, [ {
+  sel: "hector"
+}, {
+  updated: "property"
+} ])"""
+      )
+    }
   }
 }
 
