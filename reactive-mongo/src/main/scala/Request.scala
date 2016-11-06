@@ -26,6 +26,7 @@ trait Request {
   /** Request body (BSON statement) */
   def body: List[BSONDocument]
 
+  /** See [[Request.pretty]] */
   override lazy val toString = s"Request($collection, $body)"
 }
 
@@ -41,6 +42,12 @@ object Request {
     val collection = name
     val body = parse(go(buffer), Nil)
   }
+
+  /**
+   * Returns a string representation of the given request,
+   * for pretty-print it (debug).
+   */
+  def pretty(request: Request): String = s"""Request(${request.collection}, [ ${request.body.map(BSONDocument.pretty) mkString ", "} ])"""
 
   /** Parses body documents from prepared buffer. */
   @annotation.tailrec
