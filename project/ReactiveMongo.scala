@@ -12,6 +12,8 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
   lazy val generatedClassDirectory = settingKey[File](
     "Directory where classes get generated")
 
+  val reactiveMongoVer = "0.12.1"
+
   lazy val reactiveMongo =
     Project(id = "reactive-mongo", base = file("reactive-mongo")).
       settings(formatSettings).settings(
@@ -34,10 +36,10 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
           },
         resolvers ++= reactiveResolvers,
         libraryDependencies ++= Seq(
-          "org.reactivemongo" %% "reactivemongo" % "0.12.0" % "provided",
-          "com.jsuereth" %% "scala-arm" % "1.4",
+          "org.reactivemongo" %% "reactivemongo" % reactiveMongoVer % "provided",
+          "com.jsuereth" %% "scala-arm" % "2.0",
           "org.slf4j" % "slf4j-simple" % "1.7.13" % Test,
-          "com.chuusai" % "shapeless" % "2.0.0" % Test cross CrossVersion.
+          "com.chuusai" % "shapeless" % "2.3.2" % Test cross CrossVersion.
             binaryMapped {
               case "2.10" => scalaVersion.value
               case x => x
@@ -51,7 +53,7 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
         name := "play-reactive-mongo",
         javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
         scalaVersion := "2.11.8",
-        crossScalaVersions := Seq(scalaVersion.value),
+        //crossScalaVersions := Seq(scalaVersion.value),
         scalacOptions <++= (version in ThisBuild).
           zip(scalaVersion in ThisBuild).
           zip(baseDirectory in (scalacPlugin, Compile)).
@@ -67,7 +69,7 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
         resolvers ++= reactiveResolvers,
         libraryDependencies ++= Seq(
           "com.typesafe.play" %% "play" % "2.5.8" % "provided",
-          "org.reactivemongo" %% "play2-reactivemongo" % "0.12.0" % "provided",
+          "org.reactivemongo" %% "play2-reactivemongo" % reactiveMongoVer % "provided",
           specs2Test)
       ).dependsOn(scalacPlugin, reactiveMongo)
 

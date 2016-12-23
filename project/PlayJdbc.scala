@@ -11,8 +11,6 @@ trait PlayJdbc { deps: Dependencies with Format ⇒
       settings(formatSettings).settings(
         name := "play-jdbc",
         javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
-        scalaVersion := "2.11.8",
-        crossScalaVersions := Seq(scalaVersion.value),
         scalacOptions in Compile ++= Seq("-unchecked", "-deprecation"),
         scalacOptions in Compile <++= (scalaVersion in ThisBuild).map { v =>
           if (v startsWith "2.11") Seq("-Ywarn-unused-import")
@@ -26,6 +24,7 @@ trait PlayJdbc { deps: Dependencies with Format ⇒
             val msv =
               if (sv startsWith "2.10") "2.10"
               else if (sv startsWith "2.11") "2.11"
+              else if (sv startsWith "2.12") "2.12"
               else sv
 
             val td = b / "target" / s"scala-$msv"
