@@ -32,7 +32,7 @@ EOF
 JAVA_MODULES="jdbc-driver"
 EXTRA_JAVA_MODULES="jdbc-java8"
 SCALA_MODULES="jdbc-scala scalac-plugin reactive-mongo play-jdbc play-reactive-mongo"
-SCALA_VERSIONS="2.10 2.11"
+SCALA_VERSIONS="2.10 2.11 2.12"
 BASES=""
 
 for M in $JAVA_MODULES; do
