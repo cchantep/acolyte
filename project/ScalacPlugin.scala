@@ -23,6 +23,7 @@ trait ScalacPlugin { deps: Dependencies with Format ⇒
           val msv =
             if (sv startsWith "2.10") "2.10"
             else if (sv startsWith "2.11") "2.11"
+            else if (sv startsWith "2.12") "2.12"
             else sv
 
           val td = b / "target" / s"scala-$msv"

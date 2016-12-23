@@ -10,7 +10,6 @@ trait JdbcJava8 { deps: Dependencies ⇒
       name := "jdbc-java8",
       //javacOptions in := Seq("-source", "1.8", "-target", "1.8"),
       javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
-      scalaVersion := "2.11.6",
       autoScalaLibrary := false,
       libraryDependencies += specs2Test,
       crossPaths := false,

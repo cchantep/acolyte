@@ -26,7 +26,8 @@ object Acolyte extends Build with Dependencies with Format
         "-source", javaVersion, "-target", javaVersion),
       scalaVersion in ThisBuild := "2.11.8",
       crossScalaVersions in ThisBuild := Seq(
-        "2.10.5", (scalaVersion in ThisBuild).value),
+        "2.10.5", (scalaVersion in ThisBuild).value
+      ),
       publishTo in ThisBuild := Some(Resolver.file("file", 
         new File(Path.userHome.absolutePath+"/.m2/repository"))),
       homepage := Some(url("http://acolyte.eu.org")),
@@ -64,7 +65,7 @@ object Acolyte extends Build with Dependencies with Format
 }
 
 trait Dependencies {
-  val specs2Test = "org.specs2" %% "specs2-core" % "3.8.3" % Test
+  val specs2Test = "org.specs2" %% "specs2-core" % "3.8.6" % Test
 }
 
 trait Format {
