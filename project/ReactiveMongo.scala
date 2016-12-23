@@ -39,11 +39,7 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
           "org.reactivemongo" %% "reactivemongo" % reactiveMongoVer % "provided",
           "com.jsuereth" %% "scala-arm" % "2.0",
           "org.slf4j" % "slf4j-simple" % "1.7.13" % Test,
-          "com.chuusai" % "shapeless" % "2.3.2" % Test cross CrossVersion.
-            binaryMapped {
-              case "2.10" => scalaVersion.value
-              case x => x
-            },
+          "com.chuusai" %% "shapeless" % "2.3.2" % Test,
           specs2Test)
       ).dependsOn(scalacPlugin)
 
