@@ -3,7 +3,13 @@ layout: page
 title: Changelog
 ---
 
-## 1.0.39 & 1.0.41
+## 1.0.43
+
+([ff3d73226efd3efb6f5091cdc5d6f6cc90361618](https://github.com/cchantep/acolyte/commit/ff3d73226efd3efb6f5091cdc5d6f6cc90361618) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Combinator `orElse` for the handlers
+
+([b6e630fab550af1e4174ff035c7aa63d9236131d](https://github.com/cchantep/acolyte/commit/b6e630fab550af1e4174ff035c7aa63d9236131d) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Utility for findAndModify
+
+## 1.0.39 - 1.0.42
 
 Fix the ReactiveMongo module
 
