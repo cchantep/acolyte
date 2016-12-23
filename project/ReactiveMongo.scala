@@ -48,8 +48,6 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
       settings(formatSettings).settings(
         name := "play-reactive-mongo",
         javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
-        scalaVersion := "2.11.8",
-        //crossScalaVersions := Seq(scalaVersion.value),
         scalacOptions <++= (version in ThisBuild).
           zip(scalaVersion in ThisBuild).
           zip(baseDirectory in (scalacPlugin, Compile)).
