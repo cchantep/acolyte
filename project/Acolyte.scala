@@ -19,16 +19,16 @@ object Acolyte extends Build with Dependencies with Format
   lazy val root = Project(id = "acolyte", base = file(".")).
     aggregate(scalacPlugin, reactiveMongo,
       jdbcDriver, jdbcScala, jdbcClojure, studio).
-    settings(
+    settings(Seq(
       organization in ThisBuild := "org.eu.acolyte",
-      version in ThisBuild := s"1.0.44${versionVariant}",
+      version in ThisBuild := s"1.0.45${versionVariant}-SNAPSHOT",
       javaOptions in ThisBuild ++= Seq(
         "-source", javaVersion, "-target", javaVersion),
-      scalaVersion in ThisBuild := "2.11.8",
+      scalaVersion in ThisBuild := "2.12.2",
       scalacOptions in ThisBuild ++= Seq(
         "-unchecked", "-deprecation", "-feature"),
       scalacOptions in ThisBuild ++= {
-        if (scalaVersion.value startsWith "2.11") Seq(
+        val baseOpts = if (!scalaVersion.value.startsWith("2.10")) Seq(
           "-Ywarn-unused-import",
           //"-Xfatal-warnings",
           "-Xlint",
@@ -38,15 +38,18 @@ object Acolyte extends Build with Dependencies with Format
           "-Ywarn-unused",
           "-Ywarn-unused-import",
           "-Ywarn-value-discard",
-          "-g:vars",
+          "-g:vars"
+        ) else Nil
+
+        if (scalaVersion.value startsWith "2.11") baseOpts ++ Seq(
           "-Yconst-opt",
           "-Yclosure-elim",
           "-Ydead-code",
           "-Yopt:_"
-        ) else Nil
+        ) else baseOpts
       },
       crossScalaVersions in ThisBuild := Seq(
-        "2.10.5", (scalaVersion in ThisBuild).value
+        "2.10.5", "2.11.11", (scalaVersion in ThisBuild).value
       ),
       publishTo in ThisBuild := Some(Resolver.file("file", 
         new File(Path.userHome.absolutePath+"/.m2/repository"))),
@@ -76,7 +79,7 @@ object Acolyte extends Build with Dependencies with Format
           <id>cchantep</id>
           <name>Cedric Chantepie</name>
         </developer>
-        </developers>) configure { p =>
+        </developers>) ++ Release.settings) configure { p =>
       if (isJavaAtLeast("1.8")) {
         p.aggregate(playJdbc, jdbcJava8/*, playReactiveMongo*/)
       }
@@ -85,5 +88,5 @@ object Acolyte extends Build with Dependencies with Format
 }
 
 trait Dependencies {
-  val specs2Test = "org.specs2" %% "specs2-core" % "3.8.6" % Test
+  val specs2Test = "org.specs2" %% "specs2-core" % "3.9.4" % Test
 }

@@ -144,6 +144,6 @@ trait WithCollection { withDB: WithDB ⇒
    * }
    * }}}
    */
-  def withFlatCollection[T](db: DB, name: String)(f: BSONCollection ⇒ Future[T])(implicit c: ExecutionContext): Future[T] = f(db(name))
+  def withFlatCollection[T](db: DB, name: String)(f: BSONCollection ⇒ Future[T]): Future[T] = f(db(name))
 
 }

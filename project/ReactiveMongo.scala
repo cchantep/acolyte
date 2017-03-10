@@ -27,6 +27,7 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
             val msv =
               if (sv startsWith "2.10") "2.10"
               else if (sv startsWith "2.11") "2.11"
+              else if (sv startsWith "2.12") "2.12"
               else sv
 
             val td = b / "target" / s"scala-$msv"
@@ -39,8 +40,9 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
           "org.reactivemongo" %% "reactivemongo" % reactiveMongoVer % "provided",
           "com.jsuereth" %% "scala-arm" % "2.0",
           "org.slf4j" % "slf4j-simple" % "1.7.13" % Test,
-          "com.chuusai" %% "shapeless" % "2.3.2" % Test,
-          specs2Test)
+          "com.chuusai" %% "shapeless" % "2.3.2",
+          specs2Test
+        )
       ).dependsOn(scalacPlugin)
 
   lazy val playReactiveMongo =
@@ -62,8 +64,8 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
           },
         resolvers ++= reactiveResolvers,
         libraryDependencies ++= Seq(
-          "com.typesafe.play" %% "play" % "2.5.8" % "provided",
-          "org.reactivemongo" %% "play2-reactivemongo" % s"${reactiveMongoVer}-play26" % "provided",
+          "com.typesafe.play" %% "play" % "2.5.8" % Provided,
+          "org.reactivemongo" %% "play2-reactivemongo" % s"${reactiveMongoVer}-play26" % Provided,
           specs2Test)
       ).dependsOn(scalacPlugin, reactiveMongo)
 

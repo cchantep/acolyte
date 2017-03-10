@@ -296,7 +296,7 @@ object NotInClause {
  * @see Property
  */
 object & {
-  def unapply[A](a: A) = Some(a, a)
+  def unapply[A](a: A) = Some(a → a)
 }
 
 /**

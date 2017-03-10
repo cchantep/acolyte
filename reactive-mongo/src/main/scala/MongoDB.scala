@@ -6,7 +6,7 @@ import shaded.netty.buffer.ChannelBuffers
 
 import scala.util.Try
 
-import reactivemongo.bson.{ BSONDocument, BSONInteger, BSONValue }
+import reactivemongo.bson.BSONDocument
 import reactivemongo.core.protocol.{
   Delete,
   Insert,

@@ -1,9 +1,6 @@
 package acolyte.reactivemongo
 
-import scala.util.Try
-
 import _root_.reactivemongo.bson.BSONDocument
-import _root_.reactivemongo.core.protocol.Response
 
 /** Query response factory. */
 object QueryResponse {

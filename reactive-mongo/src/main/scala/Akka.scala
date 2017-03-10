@@ -1,18 +1,12 @@
 package acolyte.reactivemongo
 
-import scala.concurrent.{
-  ExecutionContext,
-  Future
-}, ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success, Try }
-
-import com.typesafe.config.ConfigFactory
-import akka.actor.{ ActorRef, ActorSystem ⇒ AkkaSystem, Props }
 
 import reactivemongo.api.commands.GetLastError
 import reactivemongo.bson.{ BSONArray, BSONDocument, BSONString, BSONValue }
 import reactivemongo.core.actors.{
   Close,
+  ExpectingResponse,
   CheckedWriteRequestExpectingResponse ⇒ CheckedWriteRequestExResp,
   PrimaryAvailable,
   RequestMakerExpectingResponse,
@@ -62,102 +56,101 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
 
   override lazy val receive: Receive = {
     case msg @ CheckedWriteRequestExResp(
-      r @ CheckedWriteRequest(op, doc, GetLastError(_, _, _, _))) ⇒ {
+      r @ CheckedWriteRequest(op, doc, GetLastError(_, _, _, _))) ⇒
+      ExpectingResponse.unapply(msg).foreach { promise ⇒
+        val req = Request(op.fullCollectionName, doc.merged)
+        val cid = r()._1.channelIdHint getOrElse 1
+        val resp = MongoDB.WriteOp(op).fold({
+          MongoDB.WriteError(cid, s"No write operator: $msg") match {
+            case Success(err) ⇒ err
+            case _            ⇒ MongoDB.MkWriteError(cid)
+          }
+        })(handleWrite(cid, _, req).
+          getOrElse(NoWriteResponse(cid, msg.toString)))
 
-      val req = Request(op.fullCollectionName, doc.merged)
-      val exp = new ExpectingResponse(msg)
-      val cid = r()._1.channelIdHint getOrElse 1
-      val resp = MongoDB.WriteOp(op).fold({
-        MongoDB.WriteError(cid, s"No write operator: $msg") match {
-          case Success(err) ⇒ err
-          case _            ⇒ MongoDB.MkWriteError(cid)
-        }
-      })(handleWrite(cid, _, req).
-        getOrElse(NoWriteResponse(cid, msg.toString)))
-
-      exp.promise.success(resp)
-    }
+        promise.success(resp)
+      }
 
     case msg @ RequestMakerExpectingResponse(RequestMaker(
-      op @ RQuery(_ /*flags*/ , coln, off, len),
-      doc, _ /*pref*/ , chanId), _) ⇒ {
-      val exp = new ExpectingResponse(msg)
-      val cid = chanId getOrElse 1
-      val req = Request(coln, doc.merged)
+      RQuery(_ /*flags*/ , coln, _ /*off*/ , _ /* len */ ),
+      doc, _ /*pref*/ , chanId), _) ⇒
+      ExpectingResponse.unapply(msg).foreach { promise ⇒
+        val cid = chanId getOrElse 1
+        val req = Request(coln, doc.merged)
 
-      val resp = req match {
-        case Request(_, SimpleBody((k @ WriteQuery(op),
-          BSONString(cn)) :: es)) if (coln endsWith ".$cmd") ⇒ {
+        val resp = req match {
+          case Request(_, SimpleBody((k @ WriteQuery(op),
+            BSONString(cn)) :: es)) if (coln endsWith ".$cmd") ⇒ {
 
-          val opBody = if (k == "insert") {
-            es.collectFirst {
-              case ("documents", a @ BSONArray(_)) ⇒
-                a.values.toList.collect {
-                  case doc @ BSONDocument(_) ⇒ doc
+            val opBody = if (k == "insert") {
+              es.collectFirst {
+                case ("documents", a @ BSONArray(_)) ⇒
+                  a.values.toList.collect {
+                    case doc @ BSONDocument(_) ⇒ doc
+                  }
+
+                case _ ⇒ List.empty[BSONDocument]
+              }
+            } else {
+              val Key = k + "s"
+
+              es.collectFirst {
+                case (Key, a @ BSONArray(_)) ⇒
+                  a.values.headOption match {
+                    case Some(ValueDocument(("q", sel @ BSONDocument(_)) ::
+                      ("u", fil @ BSONDocument(_)) :: _)) ⇒ List(sel, fil)
+
+                    case Some(ValueDocument(
+                      ("q", sel @ BSONDocument(_)) :: _)) ⇒ List(sel)
+
+                    case _ ⇒ List.empty[BSONDocument]
+                  }
+              }
+            }
+
+            val wreq = new Request {
+              val collection = coln.dropRight(4) + cn
+              val body = opBody.getOrElse(List.empty)
+            }
+
+            handleWrite(cid, op, wreq).getOrElse(
+              NoWriteResponse(cid, msg.toString)
+            )
+          }
+
+          case Request(coln, SimpleBody(ps)) ⇒ {
+            val qreq = new Request {
+              val collection = coln
+
+              val body = ps.foldLeft(Option.empty[BSONDocument] → (
+                List.empty[(String, BSONValue)]
+              )) {
+                case ((_, opts), ("$query", q @ BSONDocument(_))) ⇒
+                  Some(q) → opts
+
+                case ((q, opts), opt) ⇒ q → (opts :+ opt)
+              } match {
+                case (q, opts) ⇒ q.toList :+ BSONDocument(opts)
+              }
+            }
+
+            Try(handler.queryHandler(cid, qreq)) match {
+              case Failure(cause) ⇒ InvalidQueryHandler(cid, cause.getMessage)
+
+              case Success(res) ⇒ res.fold(NoQueryResponse(cid, msg.toString)) {
+                case Success(r) ⇒ r
+                case Failure(e) ⇒ MongoDB.QueryError(cid, Option(e.getMessage).
+                  getOrElse(e.getClass.getName)) match {
+                  case Success(err) ⇒ err
+                  case _            ⇒ MongoDB.MkQueryError(cid)
                 }
-
-              case _ ⇒ List.empty[BSONDocument]
-            }
-          } else {
-            val Key = k + "s"
-
-            es.collectFirst {
-              case (Key, a @ BSONArray(_)) ⇒
-                a.values.headOption match {
-                  case Some(ValueDocument(("q", sel @ BSONDocument(_)) ::
-                    ("u", fil @ BSONDocument(_)) :: _)) ⇒ List(sel, fil)
-
-                  case Some(ValueDocument(("q", sel @ BSONDocument(_)) :: _)) ⇒
-                    List(sel)
-
-                  case _ ⇒ List.empty[BSONDocument]
-                }
-            }
-          }
-
-          val wreq = new Request {
-            val collection = coln.dropRight(4) + cn
-            val body = opBody.getOrElse(List.empty)
-          }
-
-          handleWrite(cid, op, wreq).getOrElse(
-            NoWriteResponse(cid, msg.toString)
-          )
-        }
-
-        case Request(coln, SimpleBody(ps)) ⇒ {
-          val qreq = new Request {
-            val collection = coln
-
-            val body = ps.foldLeft(Option.empty[BSONDocument] → (
-              List.empty[(String, BSONValue)]
-            )) {
-              case ((_, opts), ("$query", q @ BSONDocument(_))) ⇒
-                Some(q) → opts
-
-              case ((q, opts), opt) ⇒ q → (opts :+ opt)
-            } match {
-              case (q, opts) ⇒ q.toList :+ BSONDocument(opts)
-            }
-          }
-
-          Try(handler.queryHandler(cid, qreq)) match {
-            case Failure(cause) ⇒ InvalidQueryHandler(cid, cause.getMessage)
-
-            case Success(res) ⇒ res.fold(NoQueryResponse(cid, msg.toString)) {
-              case Success(r) ⇒ r
-              case Failure(e) ⇒ MongoDB.QueryError(cid, Option(e.getMessage).
-                getOrElse(e.getClass.getName)) match {
-                case Success(err) ⇒ err
-                case _            ⇒ MongoDB.MkQueryError(cid)
               }
             }
           }
         }
-      }
 
-      resp.error.fold(exp.promise.success(resp))(exp.promise.failure(_))
-    }
+        resp.error.fold(promise.success(resp))(promise.failure(_))
+      }
 
     case RegisterMonitor ⇒ {
       // TODO: configure protocol metadata
@@ -167,7 +160,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
 
     case Close ⇒ postStop()
 
-    case msg ⇒
+    case _ /*msg */ ⇒
       //println(s"message = $msg")
 
       //next forward msg
