@@ -12,7 +12,7 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
   lazy val generatedClassDirectory = settingKey[File](
     "Directory where classes get generated")
 
-  val reactiveMongoVer = "0.12.1"
+  val reactiveMongoVer = "0.12.2"
 
   lazy val reactiveMongo =
     Project(id = "reactive-mongo", base = file("reactive-mongo")).

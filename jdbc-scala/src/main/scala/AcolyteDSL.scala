@@ -144,6 +144,7 @@ object AcolyteDSL {
 
     try {
       f(con)
+      ()
     } catch {
       case e: SQLException ⇒ e.getCause match {
         case DebugException ⇒ ()

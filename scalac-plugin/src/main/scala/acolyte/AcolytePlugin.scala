@@ -48,7 +48,6 @@ class AcolytePlugin(val global: Global) extends Plugin {
         Bind,
         CaseDef,
         Constant,
-        DefDef,
         Ident,
         Literal,
         Match,
@@ -225,7 +224,7 @@ class AcolytePlugin(val global: Global) extends Plugin {
 
       @inline private def refactorPattern[T](xp: Position, ex: Tree, xa: List[Tree], ua: List[Tree]): (ValDef, Ident) = {
 
-        import global.{ atPos, show, newTermName, Ident, Modifiers }
+        import global.{ atPos, show, Ident, Modifiers }
 
         val of = xp.source.file
         val file = new VirtualFile(

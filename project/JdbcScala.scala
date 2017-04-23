@@ -11,11 +11,6 @@ trait JdbcScala { deps: Dependencies with Format ⇒
       settings(formatSettings).settings(
         name := "jdbc-scala",
         javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
-        scalacOptions in Compile ++= Seq("-unchecked", "-deprecation"),
-        scalacOptions in Compile <++= (scalaVersion in ThisBuild).map { v =>
-          if (v startsWith "2.11") Seq("-Ywarn-unused-import")
-          else Nil
-        },
         scalacOptions in Test <++= (version in ThisBuild).
           zip(scalaVersion in ThisBuild).
           zip(baseDirectory in (scalacPlugin, Compile)).
