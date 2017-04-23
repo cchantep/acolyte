@@ -25,6 +25,26 @@ object Acolyte extends Build with Dependencies with Format
       javaOptions in ThisBuild ++= Seq(
         "-source", javaVersion, "-target", javaVersion),
       scalaVersion in ThisBuild := "2.11.8",
+      scalacOptions in ThisBuild ++= Seq(
+        "-unchecked", "-deprecation", "-feature"),
+      scalacOptions in ThisBuild ++= {
+        if (scalaVersion.value startsWith "2.11") Seq(
+          "-Ywarn-unused-import",
+          //"-Xfatal-warnings",
+          "-Xlint",
+          "-Ywarn-numeric-widen",
+          "-Ywarn-infer-any",
+          "-Ywarn-dead-code",
+          "-Ywarn-unused",
+          "-Ywarn-unused-import",
+          "-Ywarn-value-discard",
+          "-g:vars",
+          "-Yconst-opt",
+          "-Yclosure-elim",
+          "-Ydead-code",
+          "-Yopt:_"
+        ) else Nil
+      },
       crossScalaVersions in ThisBuild := Seq(
         "2.10.5", (scalaVersion in ThisBuild).value
       ),
@@ -66,33 +86,4 @@ object Acolyte extends Build with Dependencies with Format
 
 trait Dependencies {
   val specs2Test = "org.specs2" %% "specs2-core" % "3.8.6" % Test
-}
-
-trait Format {
-  // Format settings
-  import scalariform.formatter.preferences._
-  import com.typesafe.sbt.SbtScalariform
-  import com.typesafe.sbt.SbtScalariform.ScalariformKeys
-
-  val formatSettings = SbtScalariform.scalariformSettings ++ Seq(
-    ScalariformKeys.preferences := ScalariformKeys.preferences.value.
-      setPreference(AlignParameters, false).
-      setPreference(AlignSingleLineCaseStatements, true).
-      setPreference(CompactControlReadability, false).
-      setPreference(CompactStringConcatenation, false).
-      setPreference(DoubleIndentClassDeclaration, true).
-      setPreference(FormatXml, true).
-      setPreference(IndentLocalDefs, false).
-      setPreference(IndentPackageBlocks, true).
-      setPreference(IndentSpaces, 2).
-      setPreference(MultilineScaladocCommentsStartOnFirstLine, false).
-      setPreference(PreserveSpaceBeforeArguments, false).
-      setPreference(PreserveDanglingCloseParenthesis, true).
-      setPreference(RewriteArrowSymbols, false).
-      setPreference(SpaceBeforeColon, false).
-      setPreference(SpaceInsideBrackets, false).
-      setPreference(SpacesAroundMultiImports, true).
-      setPreference(SpacesWithinPatternBinders, true).
-      setPreference(RewriteArrowSymbols, true)
-  )
 }

@@ -11,8 +11,8 @@ trait JdbcDriver { deps: Dependencies ⇒
       autoScalaLibrary := false,
       resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
       libraryDependencies ++= Seq(
-        "commons-io" % "commons-io" % "2.4",
-        "org.apache.commons" % "commons-lang3" % "3.3.2", specs2Test),
+        "commons-io" % "commons-io" % "2.5",
+        "org.apache.commons" % "commons-lang3" % "3.5", specs2Test),
       crossPaths := false,
       sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
         val (base, managed) = dirs
