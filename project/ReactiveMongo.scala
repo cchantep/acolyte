@@ -12,7 +12,7 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
   lazy val generatedClassDirectory = settingKey[File](
     "Directory where classes get generated")
 
-  val reactiveMongoVer = "0.12.2"
+  val reactiveMongoVer = "0.12.5"
 
   lazy val reactiveMongo =
     Project(id = "reactive-mongo", base = file("reactive-mongo")).
@@ -63,7 +63,7 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
         resolvers ++= reactiveResolvers,
         libraryDependencies ++= Seq(
           "com.typesafe.play" %% "play" % "2.5.8" % "provided",
-          "org.reactivemongo" %% "play2-reactivemongo" % reactiveMongoVer % "provided",
+          "org.reactivemongo" %% "play2-reactivemongo" % s"${reactiveMongoVer}-play26" % "provided",
           specs2Test)
       ).dependsOn(scalacPlugin, reactiveMongo)
 
