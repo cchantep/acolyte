@@ -114,13 +114,14 @@ class AcolytePlugin(val global: Global) extends Plugin {
       }
 
       @inline private def rewriteApply(top: Position, id: Tree, x: List[Tree], vds: ListBuffer[ValDef]): Apply = (id, x.headOption) match {
-        case (Ident(TildeTerm), Some(xt @ Apply(ex, xa))) ⇒ {
+        case (Ident(TildeTerm), Some(Apply(ex, xa))) ⇒ {
           val bs = x.tail
 
           val xpo: Option[List[Tree]] = bs.headOption match {
-            case Some(Apply(Select(Ident(scalaTerm), st), ua)) if (
+            case Some(Apply(Select(Ident(_), st), ua)) if (
               st.toString startsWith "Tuple"
             ) ⇒ Some(ua)
+
             case Some(ap @ Apply(_, _))          ⇒ Some(ap :: Nil)
             case Some(bn @ Bind(_, _))           ⇒ Some(bn :: Nil)
             case Some(id @ Ident(_))             ⇒ Some(id :: Nil)
@@ -134,17 +135,20 @@ class AcolytePlugin(val global: Global) extends Plugin {
             //abort("Invalid ~ pattern")
             Apply(id, x)
           }) { xp ⇒
-            val (vd, ai) = refactorPattern(top, ex, xa, xp)
+            val (vd, ai) = refactorPattern(top, ex, xa)
             vds += vd
             Apply(ai, xp)
           }
         }
-        case (Ident(TildeTerm), _) ⇒
+
+        case (Ident(TildeTerm), _) ⇒ {
           reporter.error(
             top,
             s"Invalid ~ pattern: application expected in bindings: $x"
           )
+
           Apply(id, x)
+        }
 
         case _ ⇒ Apply(id, x)
       }
@@ -176,10 +180,10 @@ class AcolytePlugin(val global: Global) extends Plugin {
         case (AState(id, ::(Bind(n, t), as), xs), _) ⇒
           refactorApply(top, BState(n, t), AState(id, as, xs) :: up, vds)
 
-        case (bn @ BState(id, Some(Apply(i, ts)), _), _) ⇒
+        case (bn @ BState(_, Some(Apply(i, ts)), _), _) ⇒
           refactorApply(top, AState(i, ts, Nil), bn :: up, vds)
 
-        case (bn @ BState(id, Some(Bind(n, t)), _), _) ⇒
+        case (bn @ BState(_, Some(Bind(n, t)), _), _) ⇒
           refactorApply(top, BState(n, t), bn :: up, vds)
 
         case (AState(id, a :: as, xs), _) ⇒
@@ -222,7 +226,7 @@ class AcolytePlugin(val global: Global) extends Plugin {
           }
         }
 
-      @inline private def refactorPattern[T](xp: Position, ex: Tree, xa: List[Tree], ua: List[Tree]): (ValDef, Ident) = {
+      @inline private def refactorPattern[T](xp: Position, ex: Tree, xa: List[Tree]): (ValDef, Ident) = {
 
         import global.{ atPos, show, Ident, Modifiers }
 

@@ -6,7 +6,7 @@ import java.util.regex.Pattern
 import java.sql.{ Connection ⇒ SqlConnection, SQLException }
 
 import scala.language.implicitConversions
-import scala.collection.JavaConversions
+import scala.collection.JavaConverters._
 
 import acolyte.jdbc.StatementHandler.Parameter
 import acolyte.jdbc.AbstractCompositeHandler.{ QueryHandler, UpdateHandler }
@@ -257,10 +257,9 @@ final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: Upda
     })
 
   private def scalaParameters(p: JList[Parameter]): List[ExecutedParameter] =
-    JavaConversions.collectionAsScalaIterable(p).
-      foldLeft(Nil: List[ExecutedParameter]) { (l, t) ⇒
-        l :+ DefinedParameter(t.right, t.left)
-      }
+    p.asScala.foldLeft(Nil: List[ExecutedParameter]) { (l, t) ⇒
+      l :+ DefinedParameter(t.right, t.left)
+    }
 
 }
 
@@ -351,9 +350,8 @@ object JavaConverters {
   final class ScalaRow(r: Row) extends Row {
     lazy val cells = r.cells
 
-    lazy val list: List[Any] =
-      JavaConversions.iterableAsScalaIterable(cells).foldLeft(List[Any]()) {
-        (l, v) ⇒ l :+ v
-      }
+    lazy val list: List[Any] = cells.asScala.foldLeft(List[Any]()) {
+      (l, v) ⇒ l :+ v
+    }
   }
 }

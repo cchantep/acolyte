@@ -1,6 +1,6 @@
 package acolyte.reactivemongo
 
-import reactivemongo.api.{ DB, MongoConnection, MongoDriver }
+import reactivemongo.api.{ MongoConnection, MongoDriver }
 
 /** Driver manager */
 trait DriverManager {

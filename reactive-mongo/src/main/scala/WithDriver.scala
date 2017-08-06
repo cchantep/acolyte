@@ -42,7 +42,10 @@ trait WithDriver {
   def withDriver[T](f: MongoDriver ⇒ T)(implicit m: DriverManager, c: ExecutionContext): Future[T] = asyncDriver.map { driver ⇒
     try f(driver) catch {
       case cause: Throwable ⇒ throw cause
-    } finally m.releaseIfNecessary(driver)
+    } finally {
+      m.releaseIfNecessary(driver)
+      ()
+    }
   }
 
   /**
