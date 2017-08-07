@@ -23,6 +23,7 @@ object PlayReactiveMongoDSL {
     def asyncGridFS: Future[GridFS[JSONSerializationPack.type]] =
       database.map(GridFS[JSONSerializationPack.type](_))
 
+    @deprecated("Use [[database]]", "1.0.45")
     def db: DefaultDB = connection.db("acolyte")
 
     def gridFS = GridFS[JSONSerializationPack.type](db)

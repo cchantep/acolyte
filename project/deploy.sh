@@ -17,7 +17,19 @@ function deploy {
   BASE="$1"
   POM="$BASE.pom"
 
-  expect << EOF
+  if [ ! -r "$POM" ]; then
+    echo "POM not found: $POM" > /dev/stderr
+
+    while [ "x$R" != "xy" -a "x$R" != "xn" ]; do
+      echo "Continue anyway [y/n] "
+      read R
+    done
+
+    if [ "x$R" = "xn" ]; then
+      exit 2
+    fi
+  else    
+    expect << EOF
 set timeout 300
 spawn mvn gpg:sign-and-deploy-file -DuniqueVersion=false -Dkeyname=$KEY -DpomFile=$POM -Dfile=$BASE.jar -Djavadoc=$BASE-javadoc.jar -Dsources=$BASE-sources.jar $ARG -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 log_user 0
@@ -27,6 +39,7 @@ log_user 1
 expect "BUILD SUCCESS"
 expect eof
 EOF
+  fi
 }
 
 JAVA_MODULES="jdbc-driver"
