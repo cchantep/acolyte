@@ -3,6 +3,10 @@ layout: page
 title: Changelog
 ---
 
+## 1.0.44 - 1.0.45
+
+Upgrade Scala compatibility to 2.12.2
+
 ## 1.0.43
 
 ([ff3d73226efd3efb6f5091cdc5d6f6cc90361618](https://github.com/cchantep/acolyte/commit/ff3d73226efd3efb6f5091cdc5d6f6cc90361618) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Combinator `orElse` for the handlers
