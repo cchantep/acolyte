@@ -1,6 +1,5 @@
 package acolyte.reactivemongo
 
-import scala.util.Try
 import reactivemongo.bson.{ BSONDocument, BSONString, BSONDouble, BSONLong }
 import reactivemongo.core.protocol.{ Response, ResponseInfo }
 

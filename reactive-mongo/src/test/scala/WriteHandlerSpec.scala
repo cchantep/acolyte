@@ -56,7 +56,7 @@ class WriteHandlerSpec extends org.specs2.mutable.Specification
 
     "return an error with code" in {
       implicitly[WriteHandler]({ (_: WriteOp, _: Request) ⇒
-        WriteResponse("Error message #2", 7)
+        WriteResponse("Error message #2" → 7)
       }) aka "write handler" must beLike {
         case h ⇒ h(2, write1._1, write1._2) must beSome.which(
           _ aka "response" must beWriteError("Error message #2", Some(7))
@@ -109,7 +109,7 @@ class WriteHandlerSpec extends org.specs2.mutable.Specification
       (op, req) match {
         case (DeleteOp, Request("test1", _)) ⇒ WriteResponse.undefined
         case (InsertOp, Request("test2", _)) ⇒ WriteResponse("Error #2")
-        case (UpdateOp, Request("test3", _)) ⇒ WriteResponse(2, true)
+        case (UpdateOp, Request("test3", _)) ⇒ WriteResponse(2 → true)
         case (_, Request("test4", _))        ⇒ WriteResponse.successful()
       }
     }

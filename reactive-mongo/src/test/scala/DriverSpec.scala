@@ -4,19 +4,15 @@ import scala.util.Try
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 
-import resource.{ ManagedResource, managed }
-
 import reactivemongo.api.{ MongoDriver, MongoConnection, DefaultDB }
-import reactivemongo.api.collections.bson.BSONCollection
 import reactivemongo.bson.{
-  BSONBoolean,
   BSONDocument,
   BSONDouble,
   BSONInteger,
   BSONString
 }
 import reactivemongo.core.errors.DetailedDatabaseException
-import reactivemongo.api.commands.{ LastError, WriteResult }
+import reactivemongo.api.commands.WriteResult
 
 import org.specs2.concurrent.{ ExecutionEnv ⇒ EE }
 

@@ -1,7 +1,5 @@
 package acolyte.reactivemongo
 
-import reactivemongo.bson.{ BSONBoolean, BSONInteger, BSONString }
-
 class WriteResponseSpec
     extends org.specs2.mutable.Specification with ResponseMatchers {
 
