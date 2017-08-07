@@ -9,11 +9,9 @@ import reactivemongo.bson.{
   BSONBoolean,
   BSONDocument,
   BSONInteger,
-  BSONString,
-  BSONValue
+  BSONString
 }
 import reactivemongo.core.protocol.Response
-import reactivemongo.core.errors.DatabaseException
 
 trait ResponseMatchers { specs: Specification ⇒
   def beResponse(f: List[BSONDocument] ⇒ MatchResult[_]) =

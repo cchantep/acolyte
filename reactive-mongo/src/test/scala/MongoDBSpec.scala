@@ -43,7 +43,7 @@ class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
       r.error aka "error" must beSome.which { err ⇒
         err.message aka "message" must_== msg and (
           err.originalDocument aka "document" must beSome(
-            BSONDocument("$err" → msg)
+            BSONDocument(f"$$err" → msg)
           )
         )
       }
@@ -117,13 +117,7 @@ class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
 }
 
 private[reactivemongo] trait MongoFixtures {
-  import reactivemongo.bson.{
-    BSONDateTime,
-    BSONDouble,
-    BSONInteger,
-    BSONString,
-    BSONValue
-  }
+  import reactivemongo.bson.BSONDateTime
 
   val doc1 = BSONDocument("email" → "test1@test.fr", "age" → 3)
 

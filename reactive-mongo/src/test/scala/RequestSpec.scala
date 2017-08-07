@@ -366,8 +366,8 @@ class RequestSpec extends org.specs2.mutable.Specification
   "Array" should {
     "be extracted as list values" in {
       BSONArray("a", 2, 3.45d) aka "array" must beLike {
-        case ValueList(BSONString(a) :: BSONInteger(b) ::
-          BSONDouble(c) :: Nil) ⇒ ok
+        case ValueList(BSONString(_) :: BSONInteger(_) ::
+          BSONDouble(_) :: Nil) ⇒ ok
       }
     }
 
