@@ -1,6 +1,6 @@
 # Acolyte/Anorm 10 minutes tutorial
 
-This tutorial is about how to use [Acolyte](http://cchantep.github.io/acolyte/) and [specs2](http://etorreborre.github.io/specs2/) to test project using [Anorm](http://www.playframework.com/documentation/2.2.x/ScalaAnorm).
+This tutorial is about how to use [Acolyte](http://cchantep.github.io/acolyte/) and [specs2](http://etorreborre.github.io/specs2/) to test project using [Anorm](http://www.playframework.com/documentation/latest/ScalaAnorm).
 
 [![Build Status](https://secure.travis-ci.org/cchantep/acolyte.png?branch=10m-anorm-tutorial)](http://travis-ci.org/cchantep/acolyte)
 
@@ -11,7 +11,7 @@ See it in action: [online tour](http://tour.acolyte.eu.org/)
 In order to test this tutorial, you will need:
 
 - [GIT client](http://git-scm.com/downloads), to get sources,
-- Java 1.6+,
+- Java 1.8+,
 - [SBT](http://www.scala-sbt.org/), to build it.
 
 ## For the impatient: go to sources
