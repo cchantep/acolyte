@@ -1,16 +1,16 @@
 name := "reactivemongo-tutorial"
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.2"
 
 organization := "org.eu.acolyte"
 
-version := "1.0.41"
+val ver = "1.0.45"
+
+version := ver
 
 autoCompilerPlugins := true
 
-addCompilerPlugin("org.eu.acolyte" %% "scalac-plugin" % "1.0.41-j7p")
-
-mainClass in (Compile, run) := Some("applidok.SbtRunner")
+addCompilerPlugin("org.eu.acolyte" %% "scalac-plugin" % ver)
 
 //scalacOptions += "-P:acolyte:debug"
 
@@ -21,7 +21,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.reactivemongo" %% "reactivemongo" % "0.12-RC6") ++ Seq(
-  "org.specs2" %% "specs2-core" % "3.8.3",
-    "org.eu.acolyte" %% "reactive-mongo" % s"${version.value}-j7p",
+  "org.reactivemongo" %% "reactivemongo" % "0.12.5") ++ Seq(
+  "org.specs2" %% "specs2-core" % "3.9.4",
+    "org.eu.acolyte" %% "reactive-mongo" % version.value,
     "org.slf4j" % "slf4j-simple" % "1.7.13").map(_ % Test)

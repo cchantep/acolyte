@@ -1,14 +1,13 @@
 import scala.util.{ Failure, Try }
 
 import scala.concurrent.{ Await, Future }
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 import reactivemongo.bson.{ BSONArray, BSONDocument, BSONString }
 import reactivemongo.api.commands.CommandError
 
 import org.specs2.mutable.Specification
-import org.specs2.concurrent.{ ExecutionEnv => EE }
+import org.specs2.concurrent.ExecutionEnv
 
 import acolyte.reactivemongo.{
   CountRequest,
@@ -40,7 +39,8 @@ sealed trait AcolyteDriver
 }
 
 /** Persitence executable specification (tests). */
-object PersistenceSpec extends Specification with AcolyteDriver {
+class PersistenceSpec(
+  implicit ee: ExecutionEnv) extends Specification with AcolyteDriver {
 
   "Persistence" title
 
@@ -63,7 +63,7 @@ object PersistenceSpec extends Specification with AcolyteDriver {
       BSONDocument("name" -> "user3", "password" -> "pass3",
         "description" -> "Third user"))
 
-    "be successfully found" in { implicit ee: EE =>
+    "be successfully found" in {
       val withFixtures = handleQuery { r: Request ⇒ userFixtures }
 
       withFlatCollection(withFixtures, "users") { implicit col ⇒
@@ -76,7 +76,7 @@ object PersistenceSpec extends Specification with AcolyteDriver {
       )).await(0, timeout)
     }
 
-    "fail on missing 'name' property" in { implicit ee: EE =>
+    "fail on missing 'name' property" in {
       // Check error case is handled properly by persistence code
       awaitRes(
         withFlatQueryResult(BSONDocument("description" -> "no name")) { drv ⇒
@@ -130,14 +130,14 @@ object PersistenceSpec extends Specification with AcolyteDriver {
       }
     }
 
-    "create 'administrator' (case A)" in { implicit ee: EE =>
+    "create 'administrator' (case A)" in {
       withFlatCollection(withFixtures, "users") { implicit col ⇒
         Persistence.save(User("administrator", "pass1", None, List("admin")))
       } aka "save administrator" must beEqualTo(UserInfo("administrator")).
         await(0, timeout)
     }
 
-    "update 'user2' (case B)" in { implicit ee: EE =>
+    "update 'user2' (case B)" in {
       withFlatCollection(withFixtures, "users") { implicit col ⇒
         Persistence.save(User("user2", "pass2", Some("User #2"),
           roles = List("editor", "reviewer")))
@@ -145,7 +145,7 @@ object PersistenceSpec extends Specification with AcolyteDriver {
         await(0, timeout)
     }
 
-    "update 'user3' (case C)" in { implicit ee: EE =>
+    "update 'user3' (case C)" in {
       awaitRes(withFlatCollection(withFixtures, "users") { implicit col ⇒
         Persistence.save(User("user3", "pass3", Some("Third user"), Nil))
       }) aka "save user3" must beLike {
@@ -174,19 +174,19 @@ object PersistenceSpec extends Specification with AcolyteDriver {
       }
     }
 
-    "find one administrator" in { implicit ee: EE =>
+    "find one administrator" in {
       withFlatCollection(withFixtures, "roles") { implicit db ⇒
         Persistence.countRole("administrator")
       } aka "count administrators" must beEqualTo(1).await(0, timeout)
     }
 
-    "find two users" in { implicit ee: EE =>
+    "find two users" in {
       withFlatCollection(withFixtures, "roles") { implicit db ⇒
         Persistence.countRole("user")
       } aka "count users" must beEqualTo(2).await(0, timeout)
     }
 
-    "not find not existing role" in { implicit ee: EE =>
+    "not find not existing role" in {
       withFlatCollection(withFixtures, "roles") { implicit db ⇒
         Persistence.countRole("test")
       } aka "count not existing role" must beEqualTo(0).await(0, timeout)
