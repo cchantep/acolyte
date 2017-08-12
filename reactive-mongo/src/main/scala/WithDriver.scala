@@ -20,7 +20,8 @@ trait WithDriver {
   // TODO: Pass the driver ClassLoader
   private def asyncDriver(implicit m: DriverManager): Future[MongoDriver] =
     try Future.successful(m.open()) catch {
-      case cause: Throwable ⇒ Future.failed[MongoDriver](cause)
+      case cause: Throwable ⇒
+        Future.failed[MongoDriver](cause)
     }
 
   /**
@@ -66,7 +67,9 @@ trait WithDriver {
    */
   def withFlatDriver[T](f: MongoDriver ⇒ Future[T])(implicit m: DriverManager, c: ExecutionContext): Future[T] = asyncDriver.flatMap { driver ⇒
     f(driver).andThen {
-      case _ ⇒ m.releaseIfNecessary(driver)
+      case _ ⇒
+        m.releaseIfNecessary(driver)
+        ()
     }
   }
 

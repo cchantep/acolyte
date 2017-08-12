@@ -38,6 +38,7 @@ object DriverManager {
 
   def identity(existing: MongoDriver): DriverManager = new DriverManager {
     def open() = existing
+
     def releaseIfNecessary(driver: MongoDriver): Boolean = false
   }
 }
