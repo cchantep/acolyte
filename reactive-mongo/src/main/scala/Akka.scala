@@ -82,14 +82,11 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
           case Request(_, SimpleBody((k @ WriteQuery(op),
             BSONString(cn)) :: es)) if (coln endsWith ".$cmd") ⇒ {
 
-            val opBody = if (k == "insert") {
+            val opBody: Option[List[BSONDocument]] = if (k == "insert") {
               es.collectFirst {
-                case ("documents", a @ BSONArray(_)) ⇒
-                  a.values.toList.collect {
-                    case doc @ BSONDocument(_) ⇒ doc
-                  }
-
-                case _ ⇒ List.empty[BSONDocument]
+                case ("documents", a @ BSONArray(_)) ⇒ a.values.toList.collect {
+                  case doc @ BSONDocument(_) ⇒ doc
+                }
               }
             } else {
               val Key = k + "s"
@@ -103,7 +100,6 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
                     case Some(ValueDocument(
                       ("q", sel @ BSONDocument(_)) :: _)) ⇒ List(sel)
 
-                    case _ ⇒ List.empty[BSONDocument]
                   }
               }
             }
