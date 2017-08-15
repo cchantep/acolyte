@@ -526,6 +526,27 @@ class DriverSpec(implicit ee: ExecutionEnv)
           }) aka "write result" must beSuccessfulTry[WriteResult]
         }
 
+        "for bulk-insert" in {
+          withFlatDriver { implicit drv: MongoDriver ⇒
+            AcolyteDSL.withFlatWriteHandler({
+              case (InsertOp, Request("foo.bar", RequestBody(List(
+                List(("foo", BSONInteger(1))),
+                List(("bar", BSONInteger(2))),
+                List(("lorem", BSONInteger(3)))
+                )))) ⇒ WriteResponse.successful(count = 3)
+            }) { con: MongoConnection ⇒
+              for {
+                db ← con.database("foo")
+                res ← db.collection("bar").bulkInsert(Stream(
+                  BSONDocument("foo" → 1),
+                  BSONDocument("bar" → 2),
+                  BSONDocument("lorem" → 3)
+                ), ordered = true)
+              } yield res.ok
+            }
+          } must beTrue.await(0, timeout)
+        }
+
         "for update" in {
           awaitRes(withFlatDriver { implicit drv: MongoDriver ⇒
             AcolyteDSL.withFlatWriteHandler({
