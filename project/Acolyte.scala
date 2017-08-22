@@ -49,36 +49,8 @@ object Acolyte extends Build with Dependencies with Format
       },
       crossScalaVersions in ThisBuild := Seq(
         "2.10.5", "2.11.11", (scalaVersion in ThisBuild).value
-      ),
-      publishTo in ThisBuild := Some(Resolver.file("file", 
-        new File(Path.userHome.absolutePath+"/.m2/repository"))),
-      homepage := Some(url("http://acolyte.eu.org")),
-      licenses in ThisBuild := Seq(
-        "GNU Lesser General Public License, Version 2.1" -> 
-          url("https://raw.github.com/cchantep/acolyte/master/LICENSE.txt")),
-      pomExtra in ThisBuild := 
-      <url>http://acolyte.eu.org</url>
-      <scm>
-        <connection>scm:git:git@github.com:cchantep/acolyte.git</connection>
-        <developerConnection>
-          scm:git:git@github.com:cchantep/acolyte.git
-        </developerConnection>
-        <url>git@github.com:cchantep/acolyte.git</url>
-      </scm>
-      <issueManagement>
-        <system>GitHub</system>
-        <url>https://github.com/cchantep/acolyte/issues</url>
-      </issueManagement>
-      <ciManagement>
-        <system>Travis CI</system>
-        <url>https://travis-ci.org/cchantep/acolyte</url>
-      </ciManagement>
-      <developers>
-        <developer>
-          <id>cchantep</id>
-          <name>Cedric Chantepie</name>
-        </developer>
-        </developers>) ++ Release.settings) configure { p =>
+      )
+    ) ++ Publish.settings ++ Release.settings) configure { p =>
       if (isJavaAtLeast("1.8")) {
         p.aggregate(playJdbc, jdbcJava8, playReactiveMongo)
       }
