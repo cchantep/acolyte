@@ -12,7 +12,7 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
   lazy val generatedClassDirectory = settingKey[File](
     "Directory where classes get generated")
 
-  val reactiveMongoVer = "0.12.5"
+  val reactiveMongoVer = "0.12.6"
 
   lazy val reactiveMongo =
     Project(id = "reactive-mongo", base = file("reactive-mongo")).
@@ -71,7 +71,7 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
         resolvers ++= reactiveResolvers,
         libraryDependencies ++= {
           val (playVer, playVar) = if (scalaVersion.value startsWith "2.12") {
-            "2.6.2" -> "play26"
+            "2.6.3" -> "play26"
           } else {
             "2.5.13" -> "play25"
           }

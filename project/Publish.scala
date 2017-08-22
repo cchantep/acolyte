@@ -23,7 +23,6 @@ object Publish {
     autoAPIMappings in ThisBuild:= true,
     //apiURL := Some(url(s"$siteUrl/release/${Release.major.value}/api/")),
     pomExtra in ThisBuild := (
-      <url>$siteUrl</url>
       <scm>
         <connection>scm:git:git@github.com:cchantep/acolyte.git</connection>
         <developerConnection>
