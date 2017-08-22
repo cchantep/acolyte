@@ -3,9 +3,13 @@ layout: page
 title: Changelog
 ---
 
+## 1.0.46
+
+Support `bulkInsert` for ReactiveMongo testing.
+
 ## 1.0.44 - 1.0.45
 
-Upgrade Scala compatibility to 2.12.2
+Upgrade Scala compatibility to 2.12.2.
 
 ## 1.0.43
 
