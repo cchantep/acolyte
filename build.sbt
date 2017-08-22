@@ -2,9 +2,9 @@ name := "10min-anorm-tutorial"
 
 organization := "org.eu.acolyte"
 
-version := "1.0.45"
+version := "1.0.46"
 
-scalaVersion := "2.12.2"
+scalaVersion := "2.12.3"
 
 resolvers ++= Seq(
   "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/",
