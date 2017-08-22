@@ -27,7 +27,7 @@ import acolyte.jdbc.{
   UpdateExecution
 }
 
-object Acolyte extends Controller {
+class Acolyte extends Controller {
 
   def welcome = Assets.at(path = "/public", "index.html")
 
@@ -201,18 +201,6 @@ object Acolyte extends Controller {
       } yield x
     }
 
-  @annotation.tailrec
-  private def jsonResultSet(rs: ResultSet, c: Int, js: Seq[Traversable[JsValue]]): Seq[Traversable[JsValue]] = rs.next match {
-    case true ⇒ jsonResultSet(rs, c, js :+ (for {
-      i ← 1 to c
-    } yield (rs.getObject(i) match {
-      case d: Date ⇒ Json.toJson(DateFormat format d)
-      case v       ⇒ Json.toJson(v.toString)
-    })))
-
-    case _ ⇒ js
-  }
-
   private implicit object SQLWarningWrites extends Writes[SQLWarning] {
     def writes(w: SQLWarning): JsValue = Json obj (
       "reason" -> w.getMessage,
@@ -224,6 +212,18 @@ object Acolyte extends Controller {
   @inline
   private def executeWithRoutes(stmt: String, ps: Seq[RouteParameter], routes: Seq[Route]): PlayResult = {
     var r: Int = -1
+
+    @annotation.tailrec
+    def jsonResultSet(rs: ResultSet, c: Int, js: Seq[Traversable[JsValue]]): Seq[Traversable[JsValue]] = rs.next match {
+      case true ⇒ jsonResultSet(rs, c, js :+ (for {
+        i ← 1 to c
+      } yield (rs.getObject(i) match {
+        case d: Date ⇒ Json.toJson(DateFormat format d)
+        case v       ⇒ Json.toJson(v.toString)
+      })))
+
+      case _ ⇒ js
+    }
 
     (for {
       exe ← execResult(stmt, ps, routes, { r = _ }).right
