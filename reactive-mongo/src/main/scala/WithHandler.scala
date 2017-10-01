@@ -33,31 +33,6 @@ trait WithHandler { up: WithDriver ⇒
     withConnection(AcolyteDSL handleQuery QueryHandler(handler))(f)
 
   /**
-   * Works with a MongoDB driver handling only queries,
-   * using given query `handler`.
-   * Driver and associated resources are released
-   * after the function `f` the result `Future` is completed.
-   *
-   * @param handler Query handler
-   *
-   * {{{
-   * import reactivemongo.api.MongoConnection
-   * import acolyte.reactivemongo.{ AcolyteDSL, Request }
-   *
-   * AcolyteDSL.withFlatQueryHandler({ req: Request ⇒ aResponse }) { d =>
-   *   val con: MongoConnection = d
-   *   Future(1+2)
-   * }
-   * }}}
-   *
-   * @see [[AcolyteDSL.withFlatDriver]]
-   * @see [[AcolyteDSL.handleQuery]]
-   * @see [[AcolyteDSL.withQueryResult]]
-   */
-  def withFlatQueryHandler[T](handler: Request ⇒ PreparedResponse)(f: MongoConnection ⇒ Future[T])(implicit d: MongoDriver, m: ConnectionManager[ConnectionHandler], c: ExecutionContext): Future[T] =
-    withFlatConnection(AcolyteDSL handleQuery QueryHandler(handler))(f)
-
-  /**
    * Works with a MongoDB driver handling only write operations,
    * using given write `handler`.
    * Driver and associated resources are released
@@ -81,30 +56,5 @@ trait WithHandler { up: WithDriver ⇒
    */
   def withWriteHandler[T](handler: (WriteOp, Request) ⇒ PreparedResponse)(f: MongoConnection ⇒ T)(implicit d: MongoDriver, m: ConnectionManager[ConnectionHandler], c: ExecutionContext): Future[T] =
     withConnection(AcolyteDSL handleWrite handler)(f)
-
-  /**
-   * Works with a MongoDB driver handling only write operations,
-   * using given write `handler`.
-   * Driver and associated resources are released
-   * after the function `f` the result `Future` is completed.
-   *
-   * @param handler Writer handler
-   *
-   * {{{
-   * import reactivemongo.api.MongoConnection
-   * import acolyte.reactivemongo.{ AcolyteDSL, Request, WriteOp }
-   *
-   * AcolyteDSL.withWriteHandler({ cmd: (WriteOp, Request) ⇒ aResp }) { d =>
-   *   val con: MongoConnection = d
-   *   Future(1+2)
-   * }
-   * }}}
-   *
-   * @see [[AcolyteDSL.withFlatDriver]]
-   * @see [[AcolyteDSL.handleWrite]]
-   * @see [[AcolyteDSL.withFlatWriteResult]]
-   */
-  def withFlatWriteHandler[T](handler: (WriteOp, Request) ⇒ PreparedResponse)(f: MongoConnection ⇒ Future[T])(implicit d: MongoDriver, m: ConnectionManager[ConnectionHandler], c: ExecutionContext): Future[T] =
-    withFlatConnection(AcolyteDSL handleWrite handler)(f)
 
 }

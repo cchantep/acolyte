@@ -17,13 +17,6 @@ trait WithDriver {
    */
   def driver(implicit m: DriverManager): MongoDriver = m.open
 
-  // TODO: Pass the driver ClassLoader
-  private def asyncDriver(implicit m: DriverManager): Future[MongoDriver] =
-    try Future.successful(m.open()) catch {
-      case cause: Throwable ⇒
-        Future.failed[MongoDriver](cause)
-    }
-
   /**
    * Works with MongoDB driver configured with Acolyte handlers.
    * Driver and associated resources are released
@@ -38,40 +31,8 @@ trait WithDriver {
    *   "Result"
    * }
    * }}}
-   * @see [[withFlatDriver]]
    */
-  def withDriver[T](f: MongoDriver ⇒ T)(implicit m: DriverManager, c: ExecutionContext): Future[T] = asyncDriver.map { driver ⇒
-    try f(driver) catch {
-      case cause: Throwable ⇒ throw cause
-    } finally {
-      m.releaseIfNecessary(driver)
-      ()
-    }
-  }
-
-  /**
-   * Works with MongoDB driver configured with Acolyte handlers.
-   * Driver and associated resources are released
-   * after the function `f` the result `Future` is completed.
-   *
-   * @param f $f (returning a future)
-   *
-   * {{{
-   * // handler: ConnectionHandler
-   * val s: Future[String] = withFlatDriver { d =>
-   *   val initedDriver: MongoDriver = d
-   *   Future.successful("Result")
-   * }
-   * }}}
-   * @see [[withDriver]]
-   */
-  def withFlatDriver[T](f: MongoDriver ⇒ Future[T])(implicit m: DriverManager, c: ExecutionContext): Future[T] = asyncDriver.flatMap { driver ⇒
-    f(driver).andThen {
-      case _ ⇒
-        m.releaseIfNecessary(driver)
-        ()
-    }
-  }
+  def withDriver[T](f: MongoDriver ⇒ T)(implicit m: DriverManager, c: ExecutionContext, sf: ScopeFactory[MongoDriver, T]): sf.OuterResult = sf(() ⇒ asyncDriver, m.releaseIfNecessary(_))(f)
 
   /**
    * Works with connection with options appropriate for a driver
@@ -92,38 +53,23 @@ trait WithDriver {
    *   "Result"
    * }
    * }}}
-   * @see [[withFlatDriver]]
-   * @see [[withFlatConnection]]
+   * @see [[withDriver]]
    */
-  def withConnection[A, B](conParam: ⇒ A)(f: MongoConnection ⇒ B)(implicit d: MongoDriver, m: ConnectionManager[A], c: ExecutionContext): Future[B] =
-    for {
-      con ← Future(m.open(d, conParam))
-      res ← Future(f(con)).andThen { case _ ⇒ m.releaseIfNecessary(con) }
-    } yield res
+  def withConnection[A, B](conParam: ⇒ A)(f: MongoConnection ⇒ B)(implicit d: MongoDriver, m: ConnectionManager[A], c: ExecutionContext, sf: ScopeFactory[MongoConnection, B]): sf.OuterResult = sf(() ⇒ asyncConnection(d, conParam), m.releaseIfNecessary(_))(f)
 
-  /**
-   * Works with connection with options appropriate for a driver
-   * initialized using Acolyte for ReactiveMongo
-   * (should not be used with other driver instances).
-   *
-   * @param conParam $conParam
-   * @param f $f
-   *
-   * {{{
-   * import reactivemongo.api.MongoConnection
-   * import acolyte.reactivemongo.AcolyteDSL
-   *
-   * // handler: ConnectionHandler
-   * val s: Future[String] = AcolyteDSL.withFlatConnection(handler) { con =>
-   *   val c: MongoConnection = con
-   *   Future.successful("Result")
-   * }
-   * }}}
-   * @see [[withFlatDriver]]
-   * @see [[withConnection]]
-   */
-  def withFlatConnection[A, B](conParam: ⇒ A)(f: MongoConnection ⇒ Future[B])(implicit d: MongoDriver, m: ConnectionManager[A], c: ExecutionContext): Future[B] = for {
-    con ← Future(m.open(d, conParam))
-    res ← f(con).andThen { case _ ⇒ m.releaseIfNecessary(con) }
-  } yield res
+  // ---
+
+  // TODO: Pass the driver ClassLoader
+  private def asyncDriver(implicit m: DriverManager): Future[MongoDriver] =
+    try Future.successful(m.open()) catch {
+      case cause: Throwable ⇒
+        Future.failed[MongoDriver](cause)
+    }
+
+  protected def asyncConnection[A](d: MongoDriver, conParam: ⇒ A)(implicit m: ConnectionManager[A]): Future[MongoConnection] = try {
+    Future.successful(m.open(d, conParam))
+  } catch {
+    case cause: Throwable ⇒
+      Future.failed[MongoConnection](cause)
+  }
 }
