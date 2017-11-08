@@ -144,6 +144,33 @@ object InsertRequest {
       Some(insert._2.collection → (body.elements.map {
         case BSONElement(name, value) ⇒ name → value
       }.toList))
+
+    case _ ⇒ None
+  }
+}
+
+/** Update request */
+object UpdateElement {
+  /**
+   * Extracts an update element: query (q), update operator (u),
+   * and option `upsert` and `multi`.
+   *
+   * Matches value of the following form:
+   *
+   * {{{
+   * { "q": { .. }, "u": { .. }, "upsert": true, "multi": false }
+   * }}}
+   *
+   * @return (q, u, upsert, multi)
+   */
+  def unapply(value: BSONValue): Option[(BSONDocument, BSONDocument, Boolean, Boolean)] = value match {
+    case el @ BSONDocument(_) ⇒ for {
+      q ← el.getAs[BSONDocument]("q")
+      u ← el.getAs[BSONDocument]("u")
+      upsert = el.getAs[Boolean]("upsert").getOrElse(false)
+      multi = el.getAs[Boolean]("multi").getOrElse(false)
+    } yield (q, u, upsert, multi)
+
     case _ ⇒ None
   }
 }
@@ -151,16 +178,21 @@ object InsertRequest {
 /** Update request */
 object UpdateRequest {
   /** @return Collection name, elements of selector/document to be updated. */
-  def unapply(update: (WriteOp, Request)): Option[(String, List[(String, BSONValue)], List[(String, BSONValue)])] = (update._1, update._2.body) match {
-    case (UpdateOp, selector :: body :: Nil) ⇒
-      Some((
-        update._2.collection,
-        selector.elements.map {
-          case BSONElement(name, value) ⇒ name → value
-        }.toList,
-        body.elements.map {
-          case BSONElement(name, value) ⇒ name → value
-        }.toList))
+  def unapply(update: (WriteOp, Request)): Option[(String, List[(String, BSONValue)], List[(String, BSONValue)], Boolean, Boolean)] = (update._1, update._2.body) match {
+    case (UpdateOp, first :: _) ⇒ UpdateElement.unapply(first).collect {
+      case (selector, body, upsert, multi) ⇒
+        (
+          update._2.collection,
+          selector.elements.map {
+            case BSONElement(name, value) ⇒ name → value
+          }.toList,
+          body.elements.map {
+            case BSONElement(name, value) ⇒ name → value
+          }.toList,
+          upsert,
+          multi)
+    }
+
     case _ ⇒ None
   }
 }
@@ -169,10 +201,19 @@ object UpdateRequest {
 object DeleteRequest {
   /** @return Collection name and elements of selector. */
   def unapply(delete: (WriteOp, Request)): Option[(String, List[(String, BSONValue)])] = (delete._1, delete._2.body) match {
-    case (DeleteOp, selector :: Nil) ⇒
+    case (DeleteOp, ValueDocument(
+      ("q", selector @ BSONDocument(_)) :: _) :: Nil) ⇒
       Some(delete._2.collection → (selector.elements.map {
         case BSONElement(name, value) ⇒ name → value
       }.toList))
+
+    case (DeleteOp, ValueDocument(
+      ("q", selector @ BSONDocument(_)) :: _) ::
+      ValueDocument(_ /*options*/ ) :: _) ⇒
+      Some(delete._2.collection → (selector.elements.map {
+        case BSONElement(name, value) ⇒ name → value
+      }.toList))
+
     case _ ⇒ None
   }
 }

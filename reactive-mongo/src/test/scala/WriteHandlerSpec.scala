@@ -150,16 +150,18 @@ class WriteHandlerSpec extends org.specs2.mutable.Specification
       WriteHandler { (op, req) ⇒
         (op, req) match {
           case UpdateRequest("col2", ("id", BSONString("id1")) :: Nil,
-            ("a", BSONInteger(1)) :: ("b", BSONBoolean(true)) :: Nil) ⇒
+            ("a", BSONInteger(1)) :: ("b", BSONBoolean(true)) :: Nil,
+            _ /*upsert*/ , _ /*multi*/ ) ⇒
             WriteResponse.successful(1, true)
 
-          case _ ⇒ WriteResponse.failed("Unexpected")
+          case _ ⇒ WriteResponse.failed(s"Unexpected: $req")
         }
       } apply (channelId(), UpdateOp, new Request {
         val collection = "col2"
         val body = List(
-          BSONDocument("id" → "id1"),
-          BSONDocument("a" → 1, "b" → true))
+          BSONDocument(
+            "q" → BSONDocument("id" → "id1"),
+            "u" → BSONDocument("a" → 1, "b" → true)))
       }) aka "prepared" must beSome.which(
         _ aka "result" must beResponse(
           _ aka "response" must beWriteSuccess(1, true)))
@@ -175,7 +177,7 @@ class WriteHandlerSpec extends org.specs2.mutable.Specification
         }
       } apply (channelId(), DeleteOp, new Request {
         val collection = "col3"
-        val body = List(BSONDocument("name" → "xyz"))
+        val body = List(BSONDocument("q" → BSONDocument("name" → "xyz")))
       }) aka "prepared" must beSome.which(
         _ aka "result" must beResponse(
           _ aka "response" must beWriteSuccess(2, true)))

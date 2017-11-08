@@ -38,38 +38,10 @@ trait WithDriver {
    *   "Result"
    * }
    * }}}
-   * @see [[withFlatDriver]]
    */
-  def withDriver[T](f: MongoDriver ⇒ T)(implicit m: DriverManager, c: ExecutionContext): Future[T] = asyncDriver.map { driver ⇒
-    try f(driver) catch {
-      case cause: Throwable ⇒ throw cause
-    } finally {
-      m.releaseIfNecessary(driver)
-      ()
-    }
-  }
-
-  /**
-   * Works with MongoDB driver configured with Acolyte handlers.
-   * Driver and associated resources are released
-   * after the function `f` the result `Future` is completed.
-   *
-   * @param f $f (returning a future)
-   *
-   * {{{
-   * // handler: ConnectionHandler
-   * val s: Future[String] = withFlatDriver { d =>
-   *   val initedDriver: MongoDriver = d
-   *   Future.successful("Result")
-   * }
-   * }}}
-   * @see [[withDriver]]
-   */
-  def withFlatDriver[T](f: MongoDriver ⇒ Future[T])(implicit m: DriverManager, c: ExecutionContext): Future[T] = asyncDriver.flatMap { driver ⇒
-    f(driver).andThen {
-      case _ ⇒
-        m.releaseIfNecessary(driver)
-        ()
+  def withDriver[T](f: MongoDriver ⇒ T)(implicit m: DriverManager, ec: ExecutionContext, compose: ComposeWithCompletion[T]): compose.Outer = {
+    compose(asyncDriver, f) { driver ⇒
+      m.releaseIfNecessary(driver); ()
     }
   }
 
@@ -100,6 +72,18 @@ trait WithDriver {
       con ← Future(m.open(d, conParam))
       res ← Future(f(con)).andThen { case _ ⇒ m.releaseIfNecessary(con) }
     } yield res
+
+  /* TODO:
+  def _withConnection[A, B](conParam: ⇒ A)(f: MongoConnection ⇒ B)(
+    implicit
+    d: MongoDriver,
+    m: ConnectionManager[A],
+    ec: ExecutionContext,
+    compose: ComposeWithCompletion[B]): compose.Outer =
+    compose(Future(m.open(d, conParam)), f) { con ⇒
+      m.releaseIfNecessary(con); ()
+    }
+   */
 
   /**
    * Works with connection with options appropriate for a driver
