@@ -95,13 +95,10 @@ object AbstractResultSetSpec extends Specification {
     "fail to be set when not scrollable" in {
       defaultSet.setFetchDirection(ResultSet.FETCH_REVERSE).
         aka("setting fetch direction") must throwA[SQLException](
-          "Type of result set is forward only"
-        ) and (
+          "Type of result set is forward only") and (
             defaultSet.setFetchDirection(ResultSet.FETCH_UNKNOWN).
             aka("setting fetch direction") must throwA[SQLException](
-              "Type of result set is forward only"
-            )
-          )
+              "Type of result set is forward only"))
     }
 
     "be property set on scrollable set" >> {
@@ -139,8 +136,7 @@ object AbstractResultSetSpec extends Specification {
 
       "with failure for negative count" in {
         defaultSet.relative(-2) aka "backward move" must throwA[SQLException](
-          message = "Backward move"
-        )
+          message = "Backward move")
       }
 
       "with failure when out-of bounds" in {
@@ -185,8 +181,7 @@ object AbstractResultSetSpec extends Specification {
 
         (rs.getRow aka "current row" mustEqual 1).
           and(rs.absolute(0) aka "backward move" must throwA[SQLException](
-            message = "Backward move"
-          ))
+            message = "Backward move"))
 
       }
 
@@ -235,8 +230,7 @@ object AbstractResultSetSpec extends Specification {
         lazy val rs = defaultSet
 
         rs.beforeFirst aka "moving before first" must throwA[SQLException](
-          message = "Type of result set is forward only"
-        )
+          message = "Type of result set is forward only")
       }
 
       "without change if scrollable" in {
@@ -244,8 +238,7 @@ object AbstractResultSetSpec extends Specification {
         rs.beforeFirst
 
         rs.getRow aka "row" must_== 0 and (
-          rs.isBeforeFirst aka "before first" must beTrue
-        )
+          rs.isBeforeFirst aka "before first" must beTrue)
       }
 
       "with failure when backward and not scrollable" in {
@@ -255,8 +248,7 @@ object AbstractResultSetSpec extends Specification {
         (rs.first aka "move first" must beTrue).
           and(rs.getRow aka "row" mustEqual 1).
           and(rs.beforeFirst aka "before first" must throwA[SQLException](
-            message = "Type of result set is forward only"
-          ))
+            message = "Type of result set is forward only"))
 
       }
     }
@@ -285,8 +277,7 @@ object AbstractResultSetSpec extends Specification {
         (rs.absolute(2) aka "forward move" must beTrue).
           and(rs.getRow aka "row" mustEqual 2).
           and(rs.first aka "backward first" must throwA[SQLException](
-            message = "Backward move"
-          ))
+            message = "Backward move"))
 
       }
     }
@@ -308,8 +299,7 @@ object AbstractResultSetSpec extends Specification {
     "be moved to after last" >> {
       "with failure when not scrollable" in {
         defaultSet.afterLast aka "moving after last" must throwA[SQLException](
-          "Type of result set is forward only"
-        )
+          "Type of result set is forward only")
       }
 
       "at 2" in {
@@ -524,13 +514,11 @@ object AbstractResultSetSpec extends Specification {
 
       (s.isClosed aka "closed" must beTrue).
         and(s.checkClosed aka "check" must throwA[SQLException](
-          message = "Result set is closed"
-        ))
+          message = "Result set is closed"))
     }
   }
 
   def defaultSet = new AbstractResultSet {}
   def scrollInsensitiveSet = new AbstractResultSet(
-    "si", ResultSet.TYPE_SCROLL_INSENSITIVE
-  ) {}
+    "si", ResultSet.TYPE_SCROLL_INSENSITIVE) {}
 }

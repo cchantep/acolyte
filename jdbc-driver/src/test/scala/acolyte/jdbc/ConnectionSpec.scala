@@ -30,15 +30,13 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
     "not accept null URL" in {
       connection(url = null, props = null, handler = defaultHandler).
         aka("connection") must throwA[IllegalArgumentException](
-          message = "Invalid JDBC URL"
-        )
+          message = "Invalid JDBC URL")
     }
 
     "not accept null handler" in {
       connection(url = jdbcUrl, props = null, handler = null).
         aka("connection") must throwA[IllegalArgumentException](
-          message = "Invalid Acolyte handler"
-        )
+          message = "Invalid Acolyte handler")
     }
 
     "return not-null instance for valid information" in {
@@ -58,8 +56,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
             and(conn.getHoldability.
               aka("holdability") mustEqual ResultSet.CLOSE_CURSORS_AT_COMMIT).
             and(Option(conn.getMetaData) aka "meta-data" must beSome.which(
-              _.getConnection aka "meta-data owner" mustEqual conn
-            ))
+              _.getConnection aka "meta-data owner" mustEqual conn))
 
         }
     }
@@ -82,8 +79,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
     "refuse null mapping" in {
       defaultCon.setTypeMap(null).
         aka("setter") must throwA[SQLException](
-          message = "Invalid type-map"
-        )
+          message = "Invalid type-map")
 
     }
   }
@@ -141,8 +137,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       c.close()
 
       c.close() aka "closing" must throwA[SQLException](
-        message = "Connection is already closed"
-      )
+        message = "Connection is already closed")
     }
 
     "not be valid" in {
@@ -158,49 +153,42 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
       "catalog" in {
         c.getCatalog aka "getter" must throwA[SQLException](
-          message = "Connection is closed"
-        )
+          message = "Connection is closed")
       }
 
       "auto-commit" in {
         c.getAutoCommit aka "getter" must throwA[SQLException](
-          message = "Connection is closed"
-        )
+          message = "Connection is closed")
 
       }
 
       "read-only" in {
         c.isReadOnly aka "getter" must throwA[SQLException](
-          message = "Connection is closed"
-        )
+          message = "Connection is closed")
 
       }
 
       "isolation level" in {
         c.getTransactionIsolation aka "getter" must throwA[SQLException](
-          message = "Connection is closed"
-        )
+          message = "Connection is closed")
 
       }
 
       "warnings" in {
         c.getWarnings aka "getter" must throwA[SQLException](
-          message = "Connection is closed"
-        )
+          message = "Connection is closed")
 
       }
 
       "type-map" in {
         c.getTypeMap aka "getter" must throwA[SQLException](
-          message = "Connection is closed"
-        )
+          message = "Connection is closed")
 
       }
 
       "holdability" in {
         c.getHoldability aka "getter" must throwA[SQLException](
-          message = "Connection is closed"
-        )
+          message = "Connection is closed")
 
       }
 
@@ -216,15 +204,13 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
       "schema" in {
         c.getSchema aka "getter" must throwA[SQLException](
-          message = "Connection is closed"
-        )
+          message = "Connection is closed")
 
       }
 
       "meta-data" in {
         c.getMetaData aka "getter" must throwA[SQLException](
-          message = "Connection is closed"
-        )
+          message = "Connection is closed")
 
       }
     }
@@ -235,35 +221,30 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
       "catalog" in {
         c.setCatalog("catalog") aka "setter" must throwA[SQLException](
-          message = "Connection is closed"
-        )
+          message = "Connection is closed")
       }
 
       "auto-commit" in {
         c.setAutoCommit(true) aka "setter" must throwA[SQLException](
-          message = "Connection is closed"
-        )
+          message = "Connection is closed")
 
       }
 
       "read-only" in {
         c.setReadOnly(true) aka "setter" must throwA[SQLException](
-          message = "Connection is closed"
-        )
+          message = "Connection is closed")
 
       }
 
       "isolation level" in {
         c.setTransactionIsolation(-1) aka "setter" must throwA[SQLException](
-          message = "Connection is closed"
-        )
+          message = "Connection is closed")
 
       }
 
       "warnings" in {
         c.clearWarnings() aka "setter" must throwA[SQLException](
-          message = "Connection is closed"
-        )
+          message = "Connection is closed")
 
       }
 
@@ -275,8 +256,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
       "holdability" in {
         c.setHoldability(-1) aka "setter" must throwA[SQLException](
-          message = "Connection is closed"
-        )
+          message = "Connection is closed")
 
       }
 
@@ -293,8 +273,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
       "schema" in {
         c.setSchema("schema") aka "setter" must throwA[SQLException](
-          message = "Connection is closed"
-        )
+          message = "Connection is closed")
 
       }
     }
@@ -307,8 +286,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
       (c.getAutoCommit aka "auto-commit" must beTrue).
         and(c.rollback() aka "rollback" must throwA[SQLException](
-          message = "Auto-commit is enabled"
-        ))
+          message = "Auto-commit is enabled"))
 
     }
 
@@ -317,8 +295,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       c.close()
 
       c.rollback() aka "rollback" must throwA[SQLException](
-        message = "Connection is closed"
-      )
+        message = "Connection is closed")
 
     }
   }
@@ -330,15 +307,13 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
       "as un-named one" in {
         c.setSavepoint() aka "setter" must throwA[SQLException](
-          message = "Connection is closed"
-        )
+          message = "Connection is closed")
 
       }
 
       "as named one" in {
         c.setSavepoint("name") aka "setter" must throwA[SQLException](
-          message = "Connection is closed"
-        )
+          message = "Connection is closed")
 
       }
     }
@@ -349,15 +324,13 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
       "as un-named one" in {
         c.setSavepoint() aka "setter" must throwA[SQLException](
-          message = "Auto-commit is enabled"
-        )
+          message = "Auto-commit is enabled")
 
       }
 
       "as named one" in {
         c.setSavepoint("name") aka "setter" must throwA[SQLException](
-          message = "Auto-commit is enabled"
-        )
+          message = "Auto-commit is enabled")
 
       }
     }
@@ -371,8 +344,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       c.setAutoCommit(true)
 
       c.rollback(s) aka "savepoint rollback" must throwA[SQLException](
-        message = "Auto-commit is enabled"
-      )
+        message = "Auto-commit is enabled")
 
     }
 
@@ -383,8 +355,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       c.close()
 
       c.rollback(s) aka "savepoint rollback" must throwA[SQLException](
-        message = "Connection is closed"
-      )
+        message = "Connection is closed")
 
     }
 
@@ -406,8 +377,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       c.setAutoCommit(true)
 
       c.releaseSavepoint(s) aka "savepoint release" must throwA[SQLException](
-        message = "Auto-commit is enabled"
-      )
+        message = "Auto-commit is enabled")
 
     }
 
@@ -418,8 +388,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       c.close()
 
       c.releaseSavepoint(s) aka "savepoint release" must throwA[SQLException](
-        message = "Connection is closed"
-      )
+        message = "Connection is closed")
 
     }
 
@@ -440,8 +409,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
       (c.getAutoCommit aka "auto-commit" must beTrue).
         and(c.commit() aka "commit" must throwA[SQLException](
-          message = "Auto-commit is enabled"
-        ))
+          message = "Auto-commit is enabled"))
 
     }
   }
@@ -452,8 +420,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       c.close()
 
       c.setAutoCommit(true) aka "setting" must throwA[SQLException](
-        message = "Connection is closed"
-      )
+        message = "Connection is closed")
 
     }
   }
@@ -464,8 +431,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       c.close()
 
       c.nativeSQL("test") aka "conversion" must throwA[SQLException](
-        message = "Connection is closed"
-      )
+        message = "Connection is closed")
 
     }
 
@@ -488,8 +454,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       c.setAutoCommit(true)
 
       c.setSavepoint() aka "set savepoint" must throwA[SQLException](
-        message = "Auto-commit is enabled"
-      )
+        message = "Auto-commit is enabled")
 
     }
 
@@ -499,8 +464,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
       c.setSavepoint("savepoint").
         aka("set savepoint") must throwA[SQLException](
-          message = "Auto-commit is enabled"
-        )
+          message = "Auto-commit is enabled")
 
     }
   }
@@ -524,8 +488,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
     "not be executed without executor" in {
       defaultCon.abort(null) aka "abortion" must throwA[SQLException](
-        message = "Missing executor"
-      )
+        message = "Missing executor")
 
     }
 
@@ -557,15 +520,11 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
       Option(defaultCon.createBlob) aka "create blob" must beSome.which { b ⇒
         b.length aka "initial size" must_== 0 and (
-          b.setBytes(0, data) aka "setting bytes #1" must_== data.length
-        ) and (
-            b.length aka "updated size" must_== data.length
-          ) and (
+          b.setBytes(0, data) aka "setting bytes #1" must_== data.length) and (
+            b.length aka "updated size" must_== data.length) and (
               b.setBytes(2, "test".getBytes("UTF-8"), 1, 3).
-              aka("setting bytes #2") must_== 3
-            ) and (
-                b.length aka "overriden size" must_== data.length
-              )
+              aka("setting bytes #2") must_== 3) and (
+                b.length aka "overriden size" must_== data.length)
 
       }
     }
@@ -616,8 +575,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
         and(c.createStatement(TYPE_FORWARD_ONLY, CONCUR_READ_ONLY).
           getConnection aka "statement connection" mustEqual c).
         and(c.createStatement(
-          TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT
-        ).
+          TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
           getConnection aka "statement connection" mustEqual c)
 
     }
@@ -627,13 +585,11 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       c.close()
 
       (c.createStatement aka "creation" must throwA[SQLException](
-        message = "Connection is closed"
-      )).
+        message = "Connection is closed")).
         and(c.createStatement(TYPE_FORWARD_ONLY, CONCUR_READ_ONLY).
           aka("creation") must throwA[SQLException]("Connection is closed")).
         and(c.createStatement(
-          TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT
-        ).
+          TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
           aka("creation") must throwA[SQLException]("Connection is closed"))
 
     }
@@ -641,38 +597,30 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
     "not be created with unsupported resultset type" in {
       (defaultCon.createStatement(TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY).
         aka("creation") must throwA[SQLFeatureNotSupportedException](
-          message = "Unsupported result set type"
-        )).
+          message = "Unsupported result set type")).
         and(defaultCon.createStatement(
-          TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT
-        ).
+          TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
           aka("creation") must throwA[SQLFeatureNotSupportedException](
-            message = "Unsupported result set type"
-          ))
+            message = "Unsupported result set type"))
 
     }
 
     "not be created with unsupported resultset concurrency" in {
       (defaultCon.createStatement(TYPE_FORWARD_ONLY, CONCUR_UPDATABLE).
         aka("creation") must throwA[SQLFeatureNotSupportedException](
-          message = "Unsupported result set concurrency"
-        )).
+          message = "Unsupported result set concurrency")).
         and(defaultCon.createStatement(
-          TYPE_FORWARD_ONLY, CONCUR_UPDATABLE, CLOSE_CURSORS_AT_COMMIT
-        ).
+          TYPE_FORWARD_ONLY, CONCUR_UPDATABLE, CLOSE_CURSORS_AT_COMMIT).
           aka("creation") must throwA[SQLFeatureNotSupportedException](
-            message = "Unsupported result set concurrency"
-          ))
+            message = "Unsupported result set concurrency"))
 
     }
 
     "not be created with unsupported resultset holdability" in {
       defaultCon.createStatement(
-        TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, HOLD_CURSORS_OVER_COMMIT
-      ).
+        TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, HOLD_CURSORS_OVER_COMMIT).
         aka("creation") must throwA[SQLFeatureNotSupportedException](
-          message = "Unsupported result set holdability"
-        )
+          message = "Unsupported result set holdability")
 
     }
   }
@@ -691,8 +639,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
           getConnection aka "statement connection" mustEqual c).
         and(c.prepareStatement(
           "TEST",
-          TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT
-        ).
+          TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
           getConnection aka "statement connection" mustEqual c)
 
     }
@@ -702,8 +649,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       c.close()
 
       (c.prepareStatement("TEST") aka "creation" must throwA[SQLException](
-        message = "Connection is closed"
-      )).
+        message = "Connection is closed")).
         and(c.prepareStatement("TEST", Statement.NO_GENERATED_KEYS).
           aka("creation") must throwA[SQLException]("Connection is closed")).
         and(c.prepareStatement("TEST", Statement.RETURN_GENERATED_KEYS).
@@ -712,8 +658,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
           aka("creation") must throwA[SQLException]("Connection is closed")).
         and(c.prepareStatement(
           "TEST",
-          TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT
-        ).
+          TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
           aka("creation") must throwA[SQLException]("Connection is closed"))
 
     }
@@ -721,44 +666,35 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
     "not be created with unsupported resultset type" in {
       (defaultCon.prepareStatement(
         "TEST",
-        TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY
-      ).
+        TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY).
         aka("creation") must throwA[SQLFeatureNotSupportedException](
-          message = "Unsupported result set type"
-        )).
+          message = "Unsupported result set type")).
         and(defaultCon.prepareStatement(
           "TEST",
-          TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT
-        ).
+          TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
           aka("creation") must throwA[SQLFeatureNotSupportedException](
-            message = "Unsupported result set type"
-          ))
+            message = "Unsupported result set type"))
 
     }
 
     "not be created with unsupported resultset concurrency" in {
       (defaultCon.prepareStatement("TEST", TYPE_FORWARD_ONLY, CONCUR_UPDATABLE).
         aka("creation") must throwA[SQLFeatureNotSupportedException](
-          message = "Unsupported result set concurrency"
-        )).
+          message = "Unsupported result set concurrency")).
         and(defaultCon.prepareStatement(
           "TEST",
-          TYPE_FORWARD_ONLY, CONCUR_UPDATABLE, CLOSE_CURSORS_AT_COMMIT
-        ).
+          TYPE_FORWARD_ONLY, CONCUR_UPDATABLE, CLOSE_CURSORS_AT_COMMIT).
           aka("creation") must throwA[SQLFeatureNotSupportedException](
-            message = "Unsupported result set concurrency"
-          ))
+            message = "Unsupported result set concurrency"))
 
     }
 
     "not be created with unsupported resultset holdability" in {
       defaultCon.prepareStatement(
         "TEST",
-        TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, HOLD_CURSORS_OVER_COMMIT
-      ).
+        TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, HOLD_CURSORS_OVER_COMMIT).
         aka("creation") must throwA[SQLFeatureNotSupportedException](
-          message = "Unsupported result set holdability"
-        )
+          message = "Unsupported result set holdability")
 
     }
 
@@ -780,8 +716,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
           getConnection aka "statement connection" mustEqual c).
         and(c.prepareCall(
           "TEST",
-          TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT
-        ).
+          TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
           getConnection aka "statement connection" mustEqual c)
 
     }
@@ -791,14 +726,12 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       c.close()
 
       (c.prepareCall("TEST") aka "creation" must throwA[SQLException](
-        message = "Connection is closed"
-      )).
+        message = "Connection is closed")).
         and(c.prepareCall("TEST", TYPE_FORWARD_ONLY, CONCUR_READ_ONLY).
           aka("creation") must throwA[SQLException]("Connection is closed")).
         and(c.prepareCall(
           "TEST",
-          TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT
-        ).
+          TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
           aka("creation") must throwA[SQLException]("Connection is closed"))
 
     }
@@ -806,44 +739,35 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
     "not be created with unsupported resultset type" in {
       (defaultCon.prepareCall(
         "TEST",
-        TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY
-      ).
+        TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY).
         aka("creation") must throwA[SQLFeatureNotSupportedException](
-          message = "Unsupported result set type"
-        )).
+          message = "Unsupported result set type")).
         and(defaultCon.prepareCall(
           "TEST",
-          TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT
-        ).
+          TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
           aka("creation") must throwA[SQLFeatureNotSupportedException](
-            message = "Unsupported result set type"
-          ))
+            message = "Unsupported result set type"))
 
     }
 
     "not be created with unsupported resultset concurrency" in {
       (defaultCon.prepareCall("TEST", TYPE_FORWARD_ONLY, CONCUR_UPDATABLE).
         aka("creation") must throwA[SQLFeatureNotSupportedException](
-          message = "Unsupported result set concurrency"
-        )).
+          message = "Unsupported result set concurrency")).
         and(defaultCon.prepareCall(
           "TEST",
-          TYPE_FORWARD_ONLY, CONCUR_UPDATABLE, CLOSE_CURSORS_AT_COMMIT
-        ).
+          TYPE_FORWARD_ONLY, CONCUR_UPDATABLE, CLOSE_CURSORS_AT_COMMIT).
           aka("creation") must throwA[SQLFeatureNotSupportedException](
-            message = "Unsupported result set concurrency"
-          ))
+            message = "Unsupported result set concurrency"))
 
     }
 
     "not be created with unsupported resultset holdability" in {
       defaultCon.prepareCall(
         "TEST",
-        TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, HOLD_CURSORS_OVER_COMMIT
-      ).
+        TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, HOLD_CURSORS_OVER_COMMIT).
         aka("creation") must throwA[SQLFeatureNotSupportedException](
-          message = "Unsupported result set holdability"
-        )
+          message = "Unsupported result set holdability")
 
     }
   }

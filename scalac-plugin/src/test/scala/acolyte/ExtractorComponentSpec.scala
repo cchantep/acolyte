@@ -1,7 +1,7 @@
 package acolyte
 
 object ExtractorComponentSpec extends org.specs2.mutable.Specification
-    with MatchTest with PartialFunctionTest {
+  with MatchTest with PartialFunctionTest {
 
   "Extractor component" title
 
@@ -28,14 +28,12 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
       "rich match with pattern in bindings: ~(IndexOf('/'), a :: b :: c :: _)".
         in({
           patternMatching("/path/to/file") aka "matching" mustEqual (
-            List("IndexOf: /path/to/file", "0", "5", "8")
-          )
+            List("IndexOf: /path/to/file", "0", "5", "8"))
         })
 
       "match recursively with bindings" in {
         patternMatching("cp /src/file /dest/dir") aka "matching" mustEqual (
-          List("_CP", "/src/file=[0,4]", "/dest/dir=[0,?]")
-        )
+          List("_CP", "/src/file=[0,4]", "/dest/dir=[0,?]"))
 
       }
     }
@@ -51,8 +49,7 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
 
       "rich match with several bindings: ~(Regex(re), (a, b))" in {
         patternMatching("123;xyz") aka "matching" mustEqual List(
-          "123;xyz", "xyz", "123"
-        )
+          "123;xyz", "xyz", "123")
       }
 
       """rich match with literal: ~(Regex(re), "literal")""" in {
@@ -89,8 +86,7 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
       "rich match with pattern in bindings: ~(IndexOf('/'), a :: b :: c :: _)".
         in({
           nestedPatternMatching("/path/to/file") aka "matching" mustEqual (
-            List("IndexOf: /path/to/file", "0", "5", "8")
-          )
+            List("IndexOf: /path/to/file", "0", "5", "8"))
         })
     }
 
@@ -106,8 +102,7 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
 
       "rich match with several bindings: ~(Regex(re), (a, b))" in {
         nestedPatternMatching("123;xyz") aka "matching" mustEqual List(
-          "123;xyz", "xyz", "123"
-        )
+          "123;xyz", "xyz", "123")
       }
 
       """rich match with literal: ~(Regex(re), "literal")""" in {
@@ -144,14 +139,12 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
       "rich match with pattern in bindings: ~(IndexOf('/'), a :: b :: c :: _)".
         in({
           partialFun1("/path/to/file") aka "matching" mustEqual (
-            List("IndexOf: /path/to/file", "0", "5", "8")
-          )
+            List("IndexOf: /path/to/file", "0", "5", "8"))
         })
 
       "match recursively with bindings" in {
         partialFun1("cp /src/file /dest/dir") aka "matching" mustEqual (
-          List("_CP", "/src/file=[0,4]", "/dest/dir=[0,?]")
-        )
+          List("_CP", "/src/file=[0,4]", "/dest/dir=[0,?]"))
 
       }
     }
@@ -167,8 +160,7 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
 
       "rich match with several bindings: ~(Regex(re), (a, b))" in {
         partialFun1("123;xyz") aka "matching" mustEqual List(
-          "123;xyz", "xyz", "123"
-        )
+          "123;xyz", "xyz", "123")
       }
 
       """rich match with literal: ~(Regex(re), "literal")""" in {
@@ -206,14 +198,12 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
       "rich match with pattern in bindings: ~(IndexOf('/'), a :: b :: c :: _)".
         in({
           partialFun2("/path/to/file") aka "matching" mustEqual (
-            List("IndexOf: /path/to/file", "0", "5", "8")
-          )
+            List("IndexOf: /path/to/file", "0", "5", "8"))
         })
 
       "match recursively with bindings" in {
         partialFun2("cp /src/file /dest/dir") aka "matching" mustEqual (
-          List("_CP", "/src/file=[0,4]", "/dest/dir=[0,?]")
-        )
+          List("_CP", "/src/file=[0,4]", "/dest/dir=[0,?]"))
 
       }
     }
@@ -229,8 +219,7 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
 
       "rich match with several bindings: ~(Regex(re), (a, b))" in {
         partialFun2("123;xyz") aka "matching" mustEqual List(
-          "123;xyz", "xyz", "123"
-        )
+          "123;xyz", "xyz", "123")
       }
 
       """rich match with literal: ~(Regex(re), "literal")""" in {
@@ -268,14 +257,12 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
       "rich match with pattern in bindings: ~(IndexOf('/'), a :: b :: c :: _)".
         in({
           partialFun3(Some("/path/to/file")) aka "matching" must_== Some(
-            List("IndexOf: /path/to/file", "0", "5", "8")
-          )
+            List("IndexOf: /path/to/file", "0", "5", "8"))
         })
 
       "match recursively with bindings" in {
         partialFun3(Some("cp /src/file /dest/dir")) aka "matching" must_== Some(
-          List("_CP", "/src/file=[0,4]", "/dest/dir=[0,?]")
-        )
+          List("_CP", "/src/file=[0,4]", "/dest/dir=[0,?]"))
 
       }
     }
@@ -292,8 +279,7 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
 
       "rich match with several bindings: ~(Regex(re), (a, b))" in {
         partialFun3(Some("123;xyz")) aka "matching" must_== Some(List(
-          "123;xyz", "xyz", "123"
-        ))
+          "123;xyz", "xyz", "123"))
       }
 
       """rich match with literal: ~(Regex(re), "literal")""" in {
@@ -320,12 +306,9 @@ object ExtractorComponentSpec extends org.specs2.mutable.Specification
         aka("matching") must beSuccessfulTry.like {
           case (src, a, b, dest, c) ⇒
             src aka "source" must_== "/src/file" and (
-              a aka "index #1" must_== 0
-            ) and (b aka "index #2" must_== 4) and (
-                dest aka "destination" must_== "/dest/dir"
-              ) and (
-                  c aka "index #3" must_== 0
-                )
+              a aka "index #1" must_== 0) and (b aka "index #2" must_== 4) and (
+                dest aka "destination" must_== "/dest/dir") and (
+                  c aka "index #3" must_== 0)
         }
     }
 

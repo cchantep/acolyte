@@ -18,12 +18,10 @@ sealed trait Execution {
  * @param parameter the parameters the query is executed with
  */
 case class QueryExecution(
-  sql: String, parameters: List[ExecutedParameter] = Nil
-) extends Execution
+    sql: String, parameters: List[ExecutedParameter] = Nil) extends Execution
 
 case class UpdateExecution(
-  sql: String, parameters: List[ExecutedParameter] = Nil
-) extends Execution
+    sql: String, parameters: List[ExecutedParameter] = Nil) extends Execution
 
 /**
  * Statement extractor
@@ -52,8 +50,7 @@ object ExecutedParameter {
 
 /** Parameter along with its definition. */
 case class DefinedParameter(
-    value: Any, definition: ParameterDef
-) extends ExecutedParameter {
+    value: Any, definition: ParameterDef) extends ExecutedParameter {
 
   override lazy val toString = s"Param($value, ${definition.sqlTypeName})"
 }
