@@ -23,7 +23,7 @@ object Acolyte extends Build with Dependencies with Format
       organization in ThisBuild := "org.eu.acolyte",
       javaOptions in ThisBuild ++= Seq(
         "-source", javaVersion, "-target", javaVersion),
-      scalaVersion in ThisBuild := "2.12.2",
+      scalaVersion in ThisBuild := "2.12.3",
       scalacOptions in ThisBuild ++= Seq(
         "-unchecked", "-deprecation", "-feature"),
       scalacOptions in ThisBuild ++= {

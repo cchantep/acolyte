@@ -4,7 +4,7 @@ import scala.util.Try
 import reactivemongo.bson.BSONDocument
 
 class ResponseMakerSpec
-    extends org.specs2.mutable.Specification with ResponseMakerFixtures {
+  extends org.specs2.mutable.Specification with ResponseMakerFixtures {
 
   "Response maker" title
 
@@ -103,6 +103,5 @@ class ResponseMakerSpec
 sealed trait ResponseMakerFixtures {
   val documents = Seq(
     BSONDocument("prop1" → "str", "propB" → 1),
-    BSONDocument("propB" → 3, "prop1" → "text")
-  )
+    BSONDocument("propB" → 3, "prop1" → "text"))
 }

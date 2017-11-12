@@ -20,7 +20,7 @@ trait WriteResponseMaker[T] extends ((Int, T) ⇒ Option[Try[Response]]) {
 object WriteResponseMaker {
   /** Identity maker for already prepared response. */
   implicit object IdentityWriteResponseMaker
-      extends WriteResponseMaker[PreparedResponse] {
+    extends WriteResponseMaker[PreparedResponse] {
 
     def apply(channelId: Int, already: PreparedResponse): Option[Try[Response]] = already(channelId)
   }

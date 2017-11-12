@@ -46,8 +46,7 @@ trait WithResult { withHandler: WithHandler ⇒
    * @see [[AcolyteDSL.withWriteHandler]]
    */
   def withWriteResult[A, B](result: ⇒ A)(f: MongoConnection ⇒ B)(implicit d: MongoDriver, m: ConnectionManager[ConnectionHandler], mk: WriteResponseMaker[A], c: ExecutionContext): Future[B] = withWriteHandler(
-    { (_: WriteOp, _: Request) ⇒ WriteResponse(result) }
-  )(f)
+    { (_: WriteOp, _: Request) ⇒ WriteResponse(result) })(f)
 
   /**
    * Works with a MongoDB driver handling only write operations,
@@ -59,6 +58,5 @@ trait WithResult { withHandler: WithHandler ⇒
    * @see [[AcolyteDSL.handleWrite]]
    */
   def withFlatWriteResult[A, B](result: ⇒ A)(f: MongoConnection ⇒ Future[B])(implicit d: MongoDriver, m: ConnectionManager[ConnectionHandler], mk: WriteResponseMaker[A], c: ExecutionContext): Future[B] = withFlatWriteHandler(
-    { (_: WriteOp, _: Request) ⇒ WriteResponse(result) }
-  )(f)
+    { (_: WriteOp, _: Request) ⇒ WriteResponse(result) })(f)
 }
