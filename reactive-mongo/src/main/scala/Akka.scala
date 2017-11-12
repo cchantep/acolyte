@@ -22,7 +22,7 @@ import reactivemongo.core.protocol.{
 import reactivemongo.core.nodeset.ProtocolMetadata
 
 private[reactivemongo] class Actor(handler: ConnectionHandler)
-    extends reactivemongo.core.actors.MongoDBSystem {
+  extends reactivemongo.core.actors.MongoDBSystem {
 
   import reactivemongo.core.nodeset.{ Authenticate, ChannelFactory, Connection }
 
@@ -110,8 +110,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
             }
 
             handleWrite(cid, op, wreq).getOrElse(
-              NoWriteResponse(cid, msg.toString)
-            )
+              NoWriteResponse(cid, msg.toString))
           }
 
           case Request(coln, SimpleBody(ps)) ⇒ {
@@ -119,8 +118,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
               val collection = coln
 
               val body = ps.foldLeft(Option.empty[BSONDocument] → (
-                List.empty[(String, BSONValue)]
-              )) {
+                List.empty[(String, BSONValue)])) {
                 case ((_, opts), ("$query", q @ BSONDocument(_))) ⇒
                   Some(q) → opts
 

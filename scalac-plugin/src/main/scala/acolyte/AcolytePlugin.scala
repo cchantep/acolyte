@@ -20,8 +20,7 @@ class AcolytePlugin(val global: Global) extends Plugin {
   }
 
   override val optionsHelp: Option[String] = Some(
-    "  -P:acolyte:debug             Enable debug"
-  )
+    "  -P:acolyte:debug             Enable debug")
 
   @inline private def withSource(pos: global.Position)(f: BatchSourceFile, shift: Int) = CompilerUtility.withSource(global)(pos, f, shift)
 
@@ -36,8 +35,7 @@ class AcolytePlugin(val global: Global) extends Plugin {
       new MatchTransformer(unit)
 
     class MatchTransformer(
-        unit: global.CompilationUnit
-    ) extends global.Transformer {
+        unit: global.CompilationUnit) extends global.Transformer {
 
       import scala.collection.mutable.ListBuffer
       import global.{
@@ -67,8 +65,7 @@ class AcolytePlugin(val global: Global) extends Plugin {
 
           if (debug) reporter.info(
             m.pos,
-            s"Rich Match refactored: ${global show richMatch}", true
-          )
+            s"Rich Match refactored: ${global show richMatch}", true)
 
           richMatch
         }
@@ -90,14 +87,12 @@ class AcolytePlugin(val global: Global) extends Plugin {
               val of = ocp.source.file
               val file = new VirtualFile(
                 of.name,
-                s"${of.path}#refactored-match-${ocp.line}"
-              )
+                s"${of.path}#refactored-match-${ocp.line}")
 
               val nc = CaseDef(tx.transform(pat), g, refactor(by))
               val cdc = s"${global show nc} // generated from ln ${ocp.line}, col ${ocp.column - 5}"
               val cdp = withSource(ocp.withPoint(0))(
-                new BatchSourceFile(file, cdc), 0
-              )
+                new BatchSourceFile(file, cdc), 0)
 
               global.atPos(cdp)(nc)
             }
@@ -119,8 +114,7 @@ class AcolytePlugin(val global: Global) extends Plugin {
 
           val xpo: Option[List[Tree]] = bs.headOption match {
             case Some(Apply(Select(Ident(_), st), ua)) if (
-              st.toString startsWith "Tuple"
-            ) ⇒ Some(ua)
+              st.toString startsWith "Tuple") ⇒ Some(ua)
 
             case Some(ap @ Apply(_, _))          ⇒ Some(ap :: Nil)
             case Some(bn @ Bind(_, _))           ⇒ Some(bn :: Nil)
@@ -144,8 +138,7 @@ class AcolytePlugin(val global: Global) extends Plugin {
         case (Ident(TildeTerm), _) ⇒ {
           reporter.error(
             top,
-            s"Invalid ~ pattern: application expected in bindings: $x"
-          )
+            s"Invalid ~ pattern: application expected in bindings: $x")
 
           Apply(id, x)
         }
@@ -157,13 +150,11 @@ class AcolytePlugin(val global: Global) extends Plugin {
       sealed trait TxState
 
       private case class AState(
-        id: Tree, orig: List[Tree], refact: List[Tree]
-      ) extends TxState
+          id: Tree, orig: List[Tree], refact: List[Tree]) extends TxState
 
       private case class BState(
-        name: Name /* binding name */ ,
-        orig: Option[Tree], dest: Option[Tree]
-      ) extends TxState
+          name: Name /* binding name */ ,
+          orig: Option[Tree], dest: Option[Tree]) extends TxState
 
       private object BState {
         def apply(name: Name, target: Tree): BState =
@@ -233,8 +224,7 @@ class AcolytePlugin(val global: Global) extends Plugin {
         val of = xp.source.file
         val file = new VirtualFile(
           of.name,
-          s"${of.path}#refactored-match-${xp.line}"
-        )
+          s"${of.path}#refactored-match-${xp.line}")
 
         // ValDef
         val xn = unit.freshTermName("Xtr")

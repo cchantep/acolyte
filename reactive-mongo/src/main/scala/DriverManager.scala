@@ -59,7 +59,7 @@ object ConnectionManager {
 
   /** Manager instance based on connection handler. */
   implicit object HandlerConnectionManager
-      extends ConnectionManager[ConnectionHandler] {
+    extends ConnectionManager[ConnectionHandler] {
 
     def open(driver: MongoDriver, handler: ConnectionHandler) = {
       val sys = driver.system

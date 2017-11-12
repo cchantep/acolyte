@@ -28,10 +28,8 @@ class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
           Response.parse(_).toList aka "results" must beLike {
             case a :: b :: c :: Nil ⇒
               bson(a) aka "first document" must_== bson(doc2) and (
-                bson(b) aka "second document" must_== bson(doc1)
-              ) and (
-                  bson(c) aka "third document" must_== bson(doc3)
-                )
+                bson(b) aka "second document" must_== bson(doc1)) and (
+                  bson(c) aka "third document" must_== bson(doc3))
           }
         }
       }
@@ -43,9 +41,7 @@ class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
       r.error aka "error" must beSome.which { err ⇒
         err.message aka "message" must_== msg and (
           err.originalDocument aka "document" must beSome(
-            BSONDocument(f"$$err" → msg)
-          )
-        )
+            BSONDocument(f"$$err" → msg)))
       }
 
     "be expected MkResponseError" in {
@@ -124,8 +120,7 @@ private[reactivemongo] trait MongoFixtures {
   val doc2 = BSONDocument("name" → "Document #2", "price" → 5.1D)
 
   val doc3 = BSONDocument(
-    "title" → "Title", "modified" → BSONDateTime(System.currentTimeMillis)
-  )
+    "title" → "Title", "modified" → BSONDateTime(System.currentTimeMillis))
 
   val doc4 = BSONDocument("ok" → 0, "err" → "Write Error #1",
     "errmsg" → "Write Error #1", "code" → -1,

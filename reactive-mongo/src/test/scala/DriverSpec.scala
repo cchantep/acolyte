@@ -16,10 +16,10 @@ import org.specs2.concurrent.ExecutionEnv
 import org.specs2.specification.Scope
 
 class DriverSpec(implicit ee: ExecutionEnv)
-    extends org.specs2.mutable.Specification
-    with org.specs2.specification.AfterAll
-    with QueryHandlerFixtures with WriteHandlerFixtures
-    with ConnectionHandlerFixtures with ResponseMatchers {
+  extends org.specs2.mutable.Specification
+  with org.specs2.specification.AfterAll
+  with QueryHandlerFixtures with WriteHandlerFixtures
+  with ConnectionHandlerFixtures with ResponseMatchers {
 
   "Acolyte Mongo driver" title
 
@@ -43,8 +43,7 @@ class DriverSpec(implicit ee: ExecutionEnv)
 
           withFlatDriver { implicit drv: MongoDriver ⇒
             AcolyteDSL.withQueryHandler(
-              { _: Request ⇒ QueryResponse.empty }
-            )(_ ⇒ true)
+              { _: Request ⇒ QueryResponse.empty })(_ ⇒ true)
           } aka "work with query handler" must beTrue.await(0, timeout)
         }
       }
@@ -54,8 +53,7 @@ class DriverSpec(implicit ee: ExecutionEnv)
 
           withFlatDriver { implicit drv: MongoDriver ⇒
             AcolyteDSL.withQueryResult(QueryResponse(
-              BSONDocument("res" → "ult")
-            ))(_ ⇒ true)
+              BSONDocument("res" → "ult")))(_ ⇒ true)
           } aka "work with query result" must beTrue.await(0, timeout)
         }
       }
@@ -65,8 +63,7 @@ class DriverSpec(implicit ee: ExecutionEnv)
 
           withFlatDriver { implicit drv: MongoDriver ⇒
             AcolyteDSL.withFlatQueryHandler(
-              { _: Request ⇒ QueryResponse.undefined }
-            )(_ ⇒ Future(2 + 6))
+              { _: Request ⇒ QueryResponse.undefined })(_ ⇒ Future(2 + 6))
           } aka "work with query handler" must beEqualTo(8).await(0, timeout)
         }
       }
@@ -76,8 +73,7 @@ class DriverSpec(implicit ee: ExecutionEnv)
 
           withFlatDriver { implicit drv: MongoDriver ⇒
             AcolyteDSL.withFlatQueryResult(QueryResponse(
-              BSONDocument("res" → "ult")
-            ))(_ ⇒ Future(1 + 2))
+              BSONDocument("res" → "ult")))(_ ⇒ Future(1 + 2))
           } aka "work with query result" must beEqualTo(3).await(0, timeout)
         }
       }
@@ -87,8 +83,7 @@ class DriverSpec(implicit ee: ExecutionEnv)
 
           withFlatDriver { implicit drv: MongoDriver ⇒
             AcolyteDSL.withWriteHandler(
-              { (_: WriteOp, _: Request) ⇒ WriteResponse(1) }
-            )(_ ⇒ true)
+              { (_: WriteOp, _: Request) ⇒ WriteResponse(1) })(_ ⇒ true)
           } aka "work with write result" must beTrue.await(0, timeout)
         }
       }
@@ -107,8 +102,7 @@ class DriverSpec(implicit ee: ExecutionEnv)
 
           withFlatDriver { implicit drv: MongoDriver ⇒
             AcolyteDSL.withFlatWriteHandler(
-              { (_: WriteOp, _: Request) ⇒ WriteResponse(1) }
-            )(_ ⇒ Future(1 + 6))
+              { (_: WriteOp, _: Request) ⇒ WriteResponse(1) })(_ ⇒ Future(1 + 6))
           } aka "work with write result" must beEqualTo(7).await(0, timeout)
         }
       }
@@ -116,8 +110,7 @@ class DriverSpec(implicit ee: ExecutionEnv)
       "from sync future result" in {
         withFlatDriver { implicit drv: MongoDriver ⇒
           AcolyteDSL.withFlatWriteResult(
-            WriteResponse("error")
-          )(_ ⇒ Future(1 + 2))
+            WriteResponse("error"))(_ ⇒ Future(1 + 2))
         } aka "work with write result" must beEqualTo(3).await(0, timeout)
       }
     }
@@ -210,8 +203,7 @@ class DriverSpec(implicit ee: ExecutionEnv)
       "from connection handler with future result" in {
         withFlatDriver { implicit drv: MongoDriver ⇒
           AcolyteDSL.withFlatCollection(chandler1, "colName")(
-            _ ⇒ Future.successful(true)
-          )
+            _ ⇒ Future.successful(true))
         } aka "work with collection" must beTrue.await(0, timeout)
       }
 
@@ -261,8 +253,7 @@ class DriverSpec(implicit ee: ExecutionEnv)
         "for a single document" in {
           withFlatDriver { implicit drv: MongoDriver ⇒
             AcolyteDSL.withFlatQueryResult(
-              BSONDocument("res" → "ult", "n" → 3)
-            ) { con: MongoConnection ⇒
+              BSONDocument("res" → "ult", "n" → 3)) { con: MongoConnection ⇒
                 con.database("anyDb").flatMap(_("anyCol").
                   find(query1.body.head).cursor[BSONDocument]().collect[List]())
               }
@@ -275,8 +266,7 @@ class DriverSpec(implicit ee: ExecutionEnv)
         "for a many documents" in {
           withFlatDriver { implicit drv: MongoDriver ⇒
             AcolyteDSL.withFlatQueryResult(
-              List(BSONDocument("doc" → 1), BSONDocument("doc" → 2.3d))
-            ) { d ⇒
+              List(BSONDocument("doc" → 1), BSONDocument("doc" → 2.3d))) { d ⇒
                 AcolyteDSL.withFlatCollection(d, "anyCol") {
                   _.find(query1.body.head).
                     cursor[BSONDocument]().collect[List]()
@@ -354,13 +344,11 @@ class DriverSpec(implicit ee: ExecutionEnv)
             AcolyteDSL.withFlatCollection(con, query3.collection) {
               _.findAndUpdate(
                 BSONDocument("id" → 1),
-                BSONDocument("title" → "foo")
-              ).map(_.value)
+                BSONDocument("title" → "foo")).map(_.value)
             }
           }
         } aka "query result" must beSome(BSONDocument(
-          "upsert" → false, "new" → false
-        )).await(0, timeout)
+          "upsert" → false, "new" → false)).await(0, timeout)
       }
 
       "as error when connection handler is empty" in {
@@ -376,15 +364,13 @@ class DriverSpec(implicit ee: ExecutionEnv)
 
       "as error when query handler is undefined" in {
         lazy val handler = AcolyteDSL.handleWrite(
-          { (_: WriteOp, _: Request) ⇒ WriteResponse(1 /* one doc */ ) }
-        )
+          { (_: WriteOp, _: Request) ⇒ WriteResponse(1 /* one doc */ ) })
 
         awaitRes(withFlatDriver { implicit drv: MongoDriver ⇒
           AcolyteDSL.withFlatConnection(handler) { con: MongoConnection ⇒
             con.database("anyDb").flatMap(
               _(query3.collection).find(query3.body.head).
-                cursor[BSONDocument]().collect[List]()
-            )
+                cursor[BSONDocument]().collect[List]())
           }
         }) aka "query result" must beFailedTry.like {
           case err ⇒
@@ -397,8 +383,7 @@ class DriverSpec(implicit ee: ExecutionEnv)
       "when error is raised without code" in {
         awaitRes(withFlatDriver { implicit drv: MongoDriver ⇒
           AcolyteDSL.withFlatCollection(
-            chandler1, write1._2.collection
-          ) { _.remove(write1._2.body.head) }
+            chandler1, write1._2.collection) { _.remove(write1._2.body.head) }
         }) aka "write result" must beFailedTry.like {
           case err ⇒ err.getMessage.indexOf("=Error #2").
             aka("errmsg") must not(beEqualTo(-1)) and {
@@ -415,8 +400,7 @@ class DriverSpec(implicit ee: ExecutionEnv)
           }
         } aka "result" must beLike[WriteResult] {
           case result ⇒ result.ok aka "ok" must beTrue and (
-            result.n aka "updated" must_== 0
-          )
+            result.n aka "updated" must_== 0)
         }.await(0, timeout)
       }
 
@@ -428,8 +412,7 @@ class DriverSpec(implicit ee: ExecutionEnv)
 
             col.flatMap(_.update(
               BSONDocument("name" → "x"),
-              write3._2.body.head
-            ))
+              write3._2.body.head))
           }
         }) aka "result" must beFailedTry.like {
           case err ⇒
@@ -477,8 +460,7 @@ class DriverSpec(implicit ee: ExecutionEnv)
             }
           } aka "write result" must beLike[WriteResult] {
             case lastError ⇒ lastError.ok aka "ok" must beTrue and (
-              lastError.n aka "updated" must_== 2
-            )
+              lastError.n aka "updated" must_== 2)
           }.await(0, timeout)
         }
 
@@ -537,11 +519,10 @@ class DriverSpec(implicit ee: ExecutionEnv)
             }) { con: MongoConnection ⇒
               for {
                 db ← con.database("foo")
-                res ← db.collection("bar").bulkInsert(Stream(
+                res ← db.collection("bar").insert(ordered = true).many(Stream(
                   BSONDocument("foo" → 1),
                   BSONDocument("bar" → 2),
-                  BSONDocument("lorem" → 3)
-                ), ordered = true)
+                  BSONDocument("lorem" → 3))) // TODO: test bulk update
               } yield res.ok
             }
           } must beTrue.await(0, timeout)
