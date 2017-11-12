@@ -20,8 +20,7 @@ object AcolyteSpec extends Specification {
 
     "return 1 for other update statement" in {
       lazy val s = con.prepareStatement(
-        "INSERT INTO table('id', 'name') VALUES (?, ?)"
-      )
+        "INSERT INTO table('id', 'name') VALUES (?, ?)")
 
       s.setString(1, "idVal");
       s.setString(2, "idName")

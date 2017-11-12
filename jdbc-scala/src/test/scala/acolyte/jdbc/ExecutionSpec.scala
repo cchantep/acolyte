@@ -8,8 +8,7 @@ object ExecutionSpec extends org.specs2.mutable.Specification {
   "Query execution" >> {
     val (q1, q2) = (
       QueryExecution("SELECT * FROM Test WHERE id = ?", XP("x") :: Nil),
-      QueryExecution("EXEC reindex")
-    )
+      QueryExecution("EXEC reindex"))
 
     "Query #1" should {
       "match case class pattern" in {

@@ -19,8 +19,7 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
 
     "return 1 for other update statement" in {
       lazy val s = con.prepareStatement(
-        "INSERT INTO table('id', 'name') VALUES (?, ?)"
-      )
+        "INSERT INTO table('id', 'name') VALUES (?, ?)")
 
       s.setString(1, "idVal");
       s.setString(2, "idName")
@@ -70,8 +69,7 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
     "throw exception for update statement" in {
       con.prepareStatement("DELETE * FROM table").
         executeUpdate aka "update" must throwA[SQLException](
-          message = "No update handler"
-        )
+          message = "No update handler")
 
     }
 
@@ -192,8 +190,7 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
           fun({ c: java.sql.Connection ⇒
             val rs = query("SELECT * FROM table", c)
             s"${rs.getString(1)} -> ${rs.getFloat(2) + 1f}"
-          })
-        )
+          }))
 
         str aka "from query result" mustEqual "test -> 4.45"
       }
@@ -206,8 +203,7 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
               (rs.getString(1) aka "col #1" mustEqual "test").
                 and(rs.getFloat(2) aka "col #2" mustEqual 3.45f)
           }
-        })
-      )
+        }))
 
     }
   }

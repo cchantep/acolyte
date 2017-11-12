@@ -7,7 +7,7 @@ import scala.collection.JavaConversions
 import org.specs2.mutable.Specification
 
 object CallableStatementSpec
-    extends Specification with StatementSpecification[CallableStatement] {
+  extends Specification with StatementSpecification[CallableStatement] {
 
   "Callable statement specification" title
 
@@ -198,13 +198,11 @@ object CallableStatementSpec
         aka("getter") must throwA[SQLException]("No result")).
         and(stmt.getObject(
           1,
-          JavaConversions mapAsJavaMap Map[String, Class[_]]()
-        ).
+          JavaConversions mapAsJavaMap Map[String, Class[_]]()).
           aka("getter") must throwA[SQLException]("No result")).
         and(stmt.getObject(
           "param",
-          JavaConversions mapAsJavaMap Map[String, Class[_]]()
-        ).
+          JavaConversions mapAsJavaMap Map[String, Class[_]]()).
           aka("getter") must throwA[SQLException]("No result")).
         /* Java 1.7
         and(stmt.getObject(1, classOf[String]).
@@ -308,8 +306,7 @@ object CallableStatementSpec
       stmt.close()
 
       stmt.wasNull aka "check" must throwA[SQLException](
-        message = "Statement is closed"
-      )
+        message = "Statement is closed")
 
     }
   }

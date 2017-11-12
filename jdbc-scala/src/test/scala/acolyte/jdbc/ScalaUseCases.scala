@@ -26,8 +26,7 @@ object ScalaUseCases {
     val handler: ScalaCompositeHandler = handleStatement.
       withQueryDetection(
         "^SELECT ", // regex test from beginning
-        "EXEC that_proc"
-      ). // second detection regex
+        "EXEC that_proc"). // second detection regex
         withUpdateHandler {
           _ match {
             case ~(ExecutedStatement("^DELETE "), (sql, ps)) ⇒
@@ -39,18 +38,16 @@ object ScalaUseCases {
           if (e.sql.startsWith("SELECT ")) {
             RowLists.rowList1(classOf[String]).asResult
           } else {
-            // ... EXEC that_proc 
+            // ... EXEC that_proc
             // (see previous withQueryDetection)
 
             // Prepare list of 2 rows
             // with 3 columns of types String, Float, Date
             val rows: ScalaRowList3[String, Float, Date] = rowList3(
-              classOf[String], classOf[Float], classOf[Date]
-            ).
+              classOf[String], classOf[Float], classOf[Date]).
               withLabels( // Optional: set labels
                 1 → "String",
-                3 → "Date"
-              ) :+
+                3 → "Date") :+
                 ("str", 1.2f, new Date(1l)) :+ ("val", 2.34f, null)
 
             rows.asResult
@@ -75,8 +72,7 @@ object ScalaUseCases {
         rowList3(
           classOf[String] → "str",
           classOf[Float] → "f",
-          classOf[Date] → "date"
-        ).
+          classOf[Date] → "date").
           append("text", 2.3f, new Date(3l)).
           append("label", 4.56f, new Date(4l))
 
@@ -103,8 +99,7 @@ object ScalaUseCases {
         case QueryExecution(s,
           DefinedParameter("id", _) :: DefinedParameter(3, _) :: Nil) ⇒
           (rowList3(classOf[String], classOf[Int], classOf[Long]) :+ (
-            "useCase_3str", 2, 3l
-          )).asResult
+            "useCase_3str", 2, 3l)).asResult
 
         case q ⇒ QueryResult.Nil withWarning "Now you're warned"
       }
