@@ -71,7 +71,7 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
         resolvers ++= reactiveResolvers,
         libraryDependencies ++= {
           val (playVer, playVar) = if (scalaVersion.value startsWith "2.12") {
-            "2.6.2" -> "play26"
+            "2.6.3" -> "play26"
           } else {
             "2.5.13" -> "play25"
           }
