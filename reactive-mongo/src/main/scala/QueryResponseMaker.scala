@@ -21,7 +21,7 @@ trait QueryResponseMaker[T] extends ((Int, T) ⇒ Option[Try[Response]]) {
 object QueryResponseMaker {
   /** Identity maker for already prepared response. */
   implicit object IdentityQueryResponseMaker
-      extends QueryResponseMaker[PreparedResponse] {
+    extends QueryResponseMaker[PreparedResponse] {
 
     def apply(channelId: Int, already: PreparedResponse): Option[Try[Response]] = already(channelId)
   }

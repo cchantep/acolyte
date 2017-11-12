@@ -9,7 +9,7 @@ import reactivemongo.bson.{
 }
 
 class RequestSpec extends org.specs2.mutable.Specification
-    with RequestFixtures {
+  with RequestFixtures {
 
   "Request" title
 
@@ -31,14 +31,12 @@ class RequestSpec extends org.specs2.mutable.Specification
     "not match" >> {
       "request #1" in {
         request1 aka "request" must not(
-          beLike { case Request("db1.col2", _) ⇒ ok }
-        )
+          beLike { case Request("db1.col2", _) ⇒ ok })
       }
 
       "request #2" in {
         request2 aka "request" must not(
-          beLike { case Request("db1.col1", _) ⇒ ok }
-        )
+          beLike { case Request("db1.col1", _) ⇒ ok })
       }
     }
 
@@ -62,8 +60,7 @@ class RequestSpec extends org.specs2.mutable.Specification
       request1 aka "request" must beLike {
         case Request("db1.col1", SimpleBody(props)) ⇒
           props aka "properties" must_== List(
-            "email" → BSONString("em@il.net"), "age" → BSONInteger(11)
-          )
+            "email" → BSONString("em@il.net"), "age" → BSONInteger(11))
       }
     }
 
@@ -73,10 +70,8 @@ class RequestSpec extends org.specs2.mutable.Specification
           props aka "properties" must_== List(
             "email" → BSONString("em@il.net"),
             "age" → BSONDocument(
-              "meta" → BSONString("y"), "$gt" → BSONInteger(10)
-            ),
-            "priority" → BSONDouble(0.25)
-          )
+              "meta" → BSONString("y"), "$gt" → BSONInteger(10)),
+            "priority" → BSONDouble(0.25))
       }
     }
   }
@@ -85,8 +80,7 @@ class RequestSpec extends org.specs2.mutable.Specification
     "be extracted from doc #1" in {
       doc1 aka "document" must beLike {
         case ValueDocument(props) ⇒ props aka "properties" must_== List(
-          "email" → BSONString("em@il.net"), "age" → BSONInteger(11)
-        )
+          "email" → BSONString("em@il.net"), "age" → BSONInteger(11))
       }
     }
 
@@ -95,10 +89,8 @@ class RequestSpec extends org.specs2.mutable.Specification
         case ValueDocument(props) ⇒ props aka "properties" must_== List(
           "email" → BSONString("em@il.net"),
           "age" → BSONDocument(
-            "meta" → BSONString("y"), "$gt" → BSONInteger(10)
-          ),
-          "priority" → BSONDouble(0.25)
-        )
+            "meta" → BSONString("y"), "$gt" → BSONInteger(10)),
+          "priority" → BSONDouble(0.25))
       }
     }
   }
@@ -116,14 +108,10 @@ class RequestSpec extends org.specs2.mutable.Specification
       request1 aka "request #1" must beLike {
         case Request(col, SimpleBody((k1, v1) :: (k2, v2) :: Nil)) ⇒
           col aka "collection" must_== "db1.col1" and (
-            k1 aka "key #1" must_== "email"
-          ) and (
-              v1 aka "value #1" must_== BSONString("em@il.net")
-            ) and (
-                k2 aka "key #2" must_== "age"
-              ) and (
-                  v2 aka "value #2" must_== BSONInteger(11)
-                )
+            k1 aka "key #1" must_== "email") and (
+              v1 aka "value #1" must_== BSONString("em@il.net")) and (
+                k2 aka "key #2" must_== "age") and (
+                  v2 aka "value #2" must_== BSONInteger(11))
       }
     }
 
@@ -132,14 +120,10 @@ class RequestSpec extends org.specs2.mutable.Specification
         case Request(col, SimpleBody(
           (k1, BSONString(v1)) :: (k2, BSONInteger(v2)) :: Nil)) ⇒
           col aka "collection" must_== "db1.col1" and (
-            k1 aka "key #1" must_== "email"
-          ) and (
-              v1 aka "value #1" must_== "em@il.net"
-            ) and (
-                k2 aka "key #2" must_== "age"
-              ) and (
-                  v2 aka "value #2" must_== 11
-                )
+            k1 aka "key #1" must_== "email") and (
+              v1 aka "value #1" must_== "em@il.net") and (
+                k2 aka "key #2" must_== "age") and (
+                  v2 aka "value #2" must_== 11)
       }
     }
 
@@ -159,12 +143,9 @@ class RequestSpec extends org.specs2.mutable.Specification
           ("age", ValueDocument(("meta", meta) :: ("$gt", gt) :: Nil)) ::
           ("priority", prio) :: Nil)) ⇒
           email aka "email" must_== BSONString("em@il.net") and (
-            meta aka "meta" must_== BSONString("y")
-          ) and (
-              gt aka "gt" must_== BSONInteger(10)
-            ) and (
-                prio aka "priority" must_== BSONDouble(0.25D)
-              )
+            meta aka "meta" must_== BSONString("y")) and (
+              gt aka "gt" must_== BSONInteger(10)) and (
+                prio aka "priority" must_== BSONDouble(0.25D))
       }
     }
 
@@ -175,10 +156,8 @@ class RequestSpec extends org.specs2.mutable.Specification
             ("$gt", BSONInteger(gt)) :: Nil)) ::
           ("priority", BSONDouble(prio)) :: Nil)) ⇒
           email aka "email" must_== "em@il.net" and (
-            meta aka "meta" must_== "y"
-          ) and (gt aka "gt" must_== 10) and (
-              prio aka "priority" must_== 0.25D
-            )
+            meta aka "meta" must_== "y") and (gt aka "gt" must_== 10) and (
+              prio aka "priority" must_== 0.25D)
       }
     }
   }
@@ -301,8 +280,7 @@ class RequestSpec extends org.specs2.mutable.Specification
             ~(Property("meta"), meta) & ~(Property("$gt"), gt))))) ⇒
 
             gt aka "gt" must_== BSONInteger(10) and (
-              meta aka "meta" must_== BSONString("y")
-            )
+              meta aka "meta" must_== BSONString("y"))
         }
       }
 
@@ -312,8 +290,7 @@ class RequestSpec extends org.specs2.mutable.Specification
             ~(Property("$gt"), gt) & ~(Property("meta"), meta))))) ⇒
 
             gt aka "gt" must_== BSONInteger(10) and (
-              meta aka "meta" must_== BSONString("y")
-            )
+              meta aka "meta" must_== BSONString("y"))
         }
       }
     }
@@ -399,11 +376,10 @@ class RequestSpec extends org.specs2.mutable.Specification
     "be pretty-printed" in {
       Request.pretty(update1) aka "representation" must beTypedEqualTo(
         s"""Request(db1.col4, [ {
-  sel: "hector"
+  "sel": "hector"
 }, {
-  updated: "property"
-} ])"""
-      )
+  "updated": "property"
+} ])""")
     }
   }
 }
@@ -418,8 +394,7 @@ sealed trait RequestFixtures {
   val doc2 = BSONDocument(
     "email" → "em@il.net",
     "age" → BSONDocument("meta" → "y", "$gt" → 10),
-    "priority" → 0.25D
-  )
+    "priority" → 0.25D)
 
   val request2 = new Request {
     val collection = "db1.col2"
@@ -430,8 +405,7 @@ sealed trait RequestFixtures {
     val collection = "db1.$cmd"
     val body = List(BSONDocument(
       "count" → "col3",
-      "query" → BSONDocument("fil" → "ter")
-    ))
+      "query" → BSONDocument("fil" → "ter")))
   }
 
   val findAndModify1 = new Request {
@@ -440,15 +414,13 @@ sealed trait RequestFixtures {
       "findAndModify" → "col3",
       "update" → BSONDocument("$set" → BSONDocument("foo" → "bar")),
       "query" → BSONDocument("_id" → 1),
-      "limit" → 2
-    ))
+      "limit" → 2))
   }
 
   val update1 = new Request {
     val collection = "db1.col4"
     val body = List(
       BSONDocument("sel" → "hector"),
-      BSONDocument("updated" → "property")
-    )
+      BSONDocument("updated" → "property"))
   }
 }

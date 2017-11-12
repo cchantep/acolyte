@@ -135,7 +135,7 @@ object QueryHandler {
 
 /** Write handler. */
 sealed trait WriteHandler
-    extends ((Int, WriteOp, Request) ⇒ Option[Try[Response]]) { self ⇒
+  extends ((Int, WriteOp, Request) ⇒ Option[Try[Response]]) { self ⇒
 
   /**
    * @param channelId ID of channel

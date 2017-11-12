@@ -13,8 +13,10 @@ object Release {
     val releaseBranch = f(version.value)
 
     ReleaseStep(action = { st =>
-      if ((vcs.cmd("checkout", "-b", releaseBranch) ! st.log) == 0) {
-        vcs.cmd("push", "-u", gitRemote, releaseBranch) !! st.log
+      val log = sysPLogger(st.log)
+
+      if ((vcs.cmd("checkout", "-b", releaseBranch) ! log) == 0) {
+        vcs.cmd("push", "-u", gitRemote, releaseBranch) !! log
         // Need to push for the plugin checks
       }
 
@@ -32,7 +34,7 @@ object Release {
     val vcs = releaseVcs.value.get
 
     ReleaseStep(action = { st =>
-      vcs.cmd("push", gitRemote, vcs.currentBranch) !! st.log
+      vcs.cmd("push", gitRemote, vcs.currentBranch) !! sysPLogger(st.log)
 
       st
     })
@@ -94,4 +96,13 @@ object Release {
       else bumpMaster.value
     }
   )
+
+  private def sysPLogger(log: sbt.Logger) =
+    new scala.sys.process.ProcessLogger {
+      val plog = sbt.Logger.log2PLog(log)
+
+      def buffer[T](f: => T): T = plog.buffer(f)
+      def err(s: => String) = plog.error(s)
+      def out(s: => String) = plog.info(s)
+    }
 }

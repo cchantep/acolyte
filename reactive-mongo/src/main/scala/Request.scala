@@ -160,8 +160,7 @@ object UpdateRequest {
         }.toList,
         body.elements.map {
           case BSONElement(name, value) ⇒ name → value
-        }.toList
-      ))
+        }.toList))
     case _ ⇒ None
   }
 }

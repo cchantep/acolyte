@@ -30,8 +30,7 @@ class ResponseSpec extends org.specs2.mutable.Specification {
     "be an successful one" in {
       val body = Seq(
         BSONDocument("prop1" → "str", "2prop" → 1.23D),
-        BSONDocument("2prop" → BSONDocument("property" → 2L))
-      )
+        BSONDocument("2prop" → BSONDocument("property" → 2L)))
 
       MongoDB.QuerySuccess(3, body) aka "response" must beSuccessfulTry.
         which { success ⇒
