@@ -1206,8 +1206,7 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
   "Cross reference" should {
     lazy val xref = metadata().getCrossReference(
       "pcat", "pschem", "ptable",
-      "fcat", "fschem", "ftable"
-    )
+      "fcat", "fschem", "ftable")
 
     "have expected export key columns" in {
       lazy val meta = xref.getMetaData
@@ -1354,8 +1353,7 @@ object DatabaseMetaDataSpec extends Specification with MetaDataFixtures {
     "support CONCUR_READ_ONLY" in {
       metadata().supportsResultSetConcurrency(
         ResultSet.TYPE_FORWARD_ONLY,
-        ResultSet.CONCUR_READ_ONLY
-      ) aka "concurrency" must beTrue
+        ResultSet.CONCUR_READ_ONLY) aka "concurrency" must beTrue
 
     }
 

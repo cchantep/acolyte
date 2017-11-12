@@ -33,8 +33,7 @@ object RowListSpec extends Specification with RowListTest {
         new java.util.HashMap[String, Integer](),
         new java.util.HashMap[Integer, java.lang.Boolean]()).
         aka("ctor") must throwA[IllegalArgumentException](
-          message = "Invalid rows"
-        )
+          message = "Invalid rows")
     }
 
     "not accept null map" in {
@@ -42,8 +41,7 @@ object RowListSpec extends Specification with RowListTest {
         new java.util.ArrayList[Row2[String, Float]](), null,
         new java.util.HashMap[Integer, java.lang.Boolean]()).
         aka("ctor") must throwA[IllegalArgumentException](
-          message = "Invalid names"
-        )
+          message = "Invalid names")
     }
 
     "not accept null nullables" in {
@@ -51,8 +49,7 @@ object RowListSpec extends Specification with RowListTest {
         new java.util.ArrayList[Row2[String, Float]](),
         new java.util.HashMap[String, Integer](), null).
         aka("ctor") must throwA[IllegalArgumentException](
-          message = "Invalid nullable flags"
-        )
+          message = "Invalid nullable flags")
     }
   }
 
@@ -100,8 +97,7 @@ object RowListSpec extends Specification with RowListTest {
 
   "Result set metadata" should {
     lazy val meta = RowLists.rowList3(
-      classOf[Float], classOf[String], classOf[Time]
-    ).
+      classOf[Float], classOf[String], classOf[Time]).
       withLabel(2, "title").
       withNullable(1, false).withNullable(3, true).
       append(Rows.row3(1.23f, "str", new Time(1, 2, 3))).
@@ -280,8 +276,7 @@ object RowListSpec extends Specification with RowListTest {
       RowLists.rowList3(
         classOf[String],
         classOf[Double],
-        classOf[java.util.Date]
-      ).getColumnClasses() aka "columns" mustEqual cs
+        classOf[java.util.Date]).getColumnClasses() aka "columns" mustEqual cs
 
     }
   }
@@ -335,16 +330,12 @@ object RowListSpec extends Specification with RowListTest {
       def stream = new ByteArrayInputStream(bytes)
 
       (rs.getFetchSize aka "size" must_== 1) and (
-        rs.next aka "has row" must beTrue
-      ) and (
-          rs.getBytes(1) aka "single byte array" must_== bytes
-        ) and (
+        rs.next aka "has row" must beTrue) and (
+          rs.getBytes(1) aka "single byte array" must_== bytes) and (
             contentEquals(rs.getBlob(1).getBinaryStream, stream).
-            aka("expected blob") must beTrue
-          ) and (
+            aka("expected blob") must beTrue) and (
               contentEquals(rs.getBinaryStream(1), stream).
-              aka("single stream") must beTrue
-            )
+              aka("single stream") must beTrue)
     }
 
     "be created with initial binary values" in {
@@ -366,15 +357,11 @@ object RowListSpec extends Specification with RowListTest {
       val rs = RowLists.blobList.append(blob).resultSet
 
       (rs.getFetchSize aka "size" must_== 1) and (
-        rs.next aka "has row" must beTrue
-      ) and (
-          rs.getBlob(1) aka "single blob" must_== blob
-        ) and (
-            rs.getBytes(1) aka "single byte array" must_== bytes
-          ) and (
+        rs.next aka "has row" must beTrue) and (
+          rs.getBlob(1) aka "single blob" must_== blob) and (
+            rs.getBytes(1) aka "single byte array" must_== bytes) and (
               contentEquals(stream, rs.getBinaryStream(1)).
-              aka("single stream") must beTrue
-            )
+              aka("single stream") must beTrue)
     }
 
     "be created with initial blob values" in {
@@ -481,16 +468,12 @@ object RowListSpec extends Specification with RowListTest {
       val rs = RowLists.streamList.append(stream).resultSet
 
       rs.getFetchSize aka "size" must_== 1 and (
-        rs.next aka "has row" must beTrue
-      ) and (
+        rs.next aka "has row" must beTrue) and (
           contentEquals(rs.getBinaryStream(1), stream).
-          aka("expected stream") must beTrue
-        ) and (
-            rs.getBytes(1) aka "single col bytes" must_== bytes
-          ) and (
+          aka("expected stream") must beTrue) and (
+            rs.getBytes(1) aka "single col bytes" must_== bytes) and (
               contentEquals(rs.getBlob(1).getBinaryStream, stream)
-              aka ("expected blob") must beTrue
-            )
+              aka ("expected blob") must beTrue)
     }
 
     "be created with initial stream values" in {
@@ -585,8 +568,7 @@ object RowListSpec extends Specification with RowListTest {
       val (a, b, c) = (
         new java.math.BigDecimal(1.2),
         new java.math.BigDecimal(23.4),
-        new java.math.BigDecimal(4.567)
-      )
+        new java.math.BigDecimal(4.567))
 
       val rs = RowLists.bigDecimalList(a, b, c).resultSet
 
@@ -613,8 +595,7 @@ object RowListSpec extends Specification with RowListTest {
       val (a, b, c) = (
         new java.sql.Date(1, 2, 3),
         new java.sql.Date(2, 3, 4),
-        new java.sql.Date(3, 4, 5)
-      )
+        new java.sql.Date(3, 4, 5))
 
       val rs = RowLists.dateList(a, b, c).resultSet
 
@@ -641,8 +622,7 @@ object RowListSpec extends Specification with RowListTest {
       val (a, b, c) = (
         new java.sql.Time(1, 2, 3),
         new java.sql.Time(2, 3, 4),
-        new java.sql.Time(3, 4, 5)
-      )
+        new java.sql.Time(3, 4, 5))
 
       val rs = RowLists.timeList(a, b, c).resultSet
 
@@ -669,8 +649,7 @@ object RowListSpec extends Specification with RowListTest {
       val (a, b, c) = (
         new java.sql.Timestamp(1, 2, 3, 4, 5, 6, 7),
         new java.sql.Timestamp(2, 3, 4, 5, 6, 7, 8),
-        new java.sql.Timestamp(3, 4, 5, 6, 7, 8, 9)
-      )
+        new java.sql.Timestamp(3, 4, 5, 6, 7, 8, 9))
 
       val rs = RowLists.timestampList(a, b, c).resultSet
 
@@ -728,22 +707,18 @@ object RowListSpec extends Specification with RowListTest {
 
     "drop 2 rows at end (max = 8)" in {
       rows.resultSet(8) aka "resultset" mustEqual (
-        RowLists.intList(10, 9, 8, 7, 6, 5, 4, 3).resultSet
-      )
+        RowLists.intList(10, 9, 8, 7, 6, 5, 4, 3).resultSet)
     }
 
     "extract only 3 rows" in {
       rows.resultSet(3) aka "resultset" mustEqual (
-        RowLists.intList(10, 9, 8).resultSet
-      )
+        RowLists.intList(10, 9, 8).resultSet)
     }
 
     "get all rows" in {
       rows.resultSet(11) aka "resultset" mustEqual rows.resultSet and (
-        rows.resultSet(0) mustEqual rows.resultSet
-      ) and (
-          rows.resultSet() mustEqual rows.resultSet
-        )
+        rows.resultSet(0) mustEqual rows.resultSet) and (
+          rows.resultSet() mustEqual rows.resultSet)
     }
   }
 
@@ -754,14 +729,11 @@ object RowListSpec extends Specification with RowListTest {
         withLabel(1, "n").append(row1("str")).resultSet
 
       (rs.getObject(1) aka "getObject" must throwA[SQLException](
-        message = "Not on a row"
-      )).
+        message = "Not on a row")).
         and(rs.getObject("n") aka "getObject" must throwA[SQLException](
-          message = "Not on a row"
-        )).
+          message = "Not on a row")).
         and(rs.getObject(1, typemap) aka "getObject" must throwA[SQLException](
-          message = "Not on a row"
-        )).
+          message = "Not on a row")).
         and(rs.getObject("n", typemap).
           aka("getObject") must throwA[SQLException]("Not on a row")).
         and(rs.getObject(1, classOf[String]).
@@ -792,14 +764,10 @@ object RowListSpec extends Specification with RowListTest {
       }
 
       rs.getFetchSize aka "fetch size" must_== 2 and (
-        rs.getObject(1) aka "first row" must_== "Foo"
-      ) and (
-          rs.next aka "has second row" must beTrue
-        ) and (
-            rs.getObject(1) aka "second row" must_== "Bar"
-          ) and (
-              rs.next aka "has third row" must beFalse
-            )
+        rs.getObject(1) aka "first row" must_== "Foo") and (
+          rs.next aka "has second row" must beTrue) and (
+            rs.getObject(1) aka "second row" must_== "Bar") and (
+              rs.next aka "has third row" must beFalse)
     }
 
     "be expected one" in {
@@ -829,8 +797,7 @@ object RowListSpec extends Specification with RowListTest {
       rs.next
 
       rs.getObject(2) aka "getObject" must throwA[SQLException](
-        message = "Invalid column index: 2"
-      )
+        message = "Invalid column index: 2")
 
     }
 
@@ -902,8 +869,7 @@ object RowListSpec extends Specification with RowListTest {
       new RowList1.Impl(classOf[String]).withLabel(1, "n").
         append(row1("str")).resultSet.
         getObject("n") aka "getObject" must throwA[SQLException](
-          message = "Not on a row"
-        )
+          message = "Not on a row")
 
     }
 
@@ -928,14 +894,10 @@ object RowListSpec extends Specification with RowListTest {
       }
 
       rs.getFetchSize aka "fetch size" must_== 2 and (
-        rs.getObject("colStr") aka "first row" must_== "Foo"
-      ) and (
-          rs.next aka "has second row" must beTrue
-        ) and (
-            rs.getObject("colStr") aka "second row" must_== "Bar"
-          ) and (
-              rs.next aka "has third row" must beFalse
-            )
+        rs.getObject("colStr") aka "first row" must_== "Foo") and (
+          rs.next aka "has second row" must beTrue) and (
+            rs.getObject("colStr") aka "second row" must_== "Bar") and (
+              rs.next aka "has third row" must beFalse)
     }
 
     "be expected one" in {
@@ -973,11 +935,9 @@ object RowListSpec extends Specification with RowListTest {
       rs.next
 
       (rs.getLong("before") aka "get" must throwA[SQLException](
-        message = "Invalid column index: 0"
-      )).
+        message = "Invalid column index: 0")).
         and(rs.getLong("after") aka "get" must throwA[SQLException](
-          message = "Invalid column index: 2"
-        ))
+          message = "Invalid column index: 2"))
     }
   }
 
@@ -985,8 +945,7 @@ object RowListSpec extends Specification with RowListTest {
     "not be read by index when not on a row" in {
       (new RowList1.Impl(classOf[String]).append(row1("str")).resultSet.
         getString(1) aka "getString" must throwA[SQLException](
-          message = "Not on a row"
-        )).
+          message = "Not on a row")).
         and(new RowList1.Impl(classOf[String]).withLabel(1, "n").
           append(row1("str")).resultSet.getString("n").
           aka("getString") must throwA[SQLException]("Not on a row"))
@@ -1017,8 +976,7 @@ object RowListSpec extends Specification with RowListTest {
     "not be read by index when not on a row" in {
       (new RowList1.Impl(classOf[Boolean]).append(row1(true)).resultSet.
         getBoolean(1) aka "getBoolean" must throwA[SQLException](
-          message = "Not on a row"
-        )).
+          message = "Not on a row")).
         and(new RowList1.Impl(classOf[Boolean]).withLabel(1, "n").
           append(row1(false)).resultSet.getBoolean("n").
           aka("getBoolean") must throwA[SQLException]("Not on a row"))
@@ -1051,8 +1009,7 @@ object RowListSpec extends Specification with RowListTest {
         "short" -> new RowList1.Impl(classOf[Short]).
           append(row1(0.toShort)).resultSet,
         "int" -> new RowList1.Impl(classOf[Int]).append(row1(0)).resultSet,
-        "long" -> new RowList1.Impl(classOf[Long]).append(row1(0.toLong)).resultSet
-      )
+        "long" -> new RowList1.Impl(classOf[Long]).append(row1(0.toLong)).resultSet)
 
       rs.foreach(_._2.next)
 
@@ -1067,8 +1024,7 @@ object RowListSpec extends Specification with RowListTest {
         "byte" -> (new RowList1.Impl(classOf[Byte]).append(row1(2.toByte))).resultSet,
         "short" -> (new RowList1.Impl(classOf[Short]).append(row1(3.toShort))).resultSet,
         "int" -> (new RowList1.Impl(classOf[Int]).append(row1(4))).resultSet,
-        "long" -> (new RowList1.Impl(classOf[Long]).append(row1(5.toLong))).resultSet
-      )
+        "long" -> (new RowList1.Impl(classOf[Long]).append(row1(5.toLong))).resultSet)
 
       rs.foreach(_._2.next)
 
@@ -1088,8 +1044,7 @@ object RowListSpec extends Specification with RowListTest {
         "int" -> (new RowList1.Impl(classOf[Int]).
           withLabel(1, "n").append(row1(0))).resultSet,
         "long" -> (new RowList1.Impl(classOf[Long]).
-          withLabel(1, "n").append(row1(0.toLong))).resultSet
-      )
+          withLabel(1, "n").append(row1(0.toLong))).resultSet)
 
       rs.foreach(_._2.next)
 
@@ -1109,8 +1064,7 @@ object RowListSpec extends Specification with RowListTest {
         "int" -> (new RowList1.Impl(classOf[Int]).
           withLabel(1, "n").append(row1(4))).resultSet,
         "long" -> (new RowList1.Impl(classOf[Long]).
-          withLabel(1, "n").append(row1(5.toLong))).resultSet
-      )
+          withLabel(1, "n").append(row1(5.toLong))).resultSet)
 
       rs.foreach(_._2.next)
 
@@ -1133,8 +1087,7 @@ object RowListSpec extends Specification with RowListTest {
     "not be read by index when not on a row" in {
       (new RowList1.Impl(classOf[JBigDec]).append(row1(v)).resultSet.
         getBigDecimal(1) aka "get" must throwA[SQLException](
-          message = "Not on a row"
-        )).
+          message = "Not on a row")).
         and(new RowList1.Impl(classOf[JBigDec]).withLabel(1, "n").
           append(row1(v)).resultSet.getBigDecimal("n").
           aka("get") must throwA[SQLException]("Not on a row"))
@@ -1179,8 +1132,7 @@ object RowListSpec extends Specification with RowListTest {
       rs.next
 
       (rs.getBigDecimal(1) aka "getBigDecimal" must throwA[SQLException](
-        message = "Not a BigDecimal: 1"
-      )).
+        message = "Not a BigDecimal: 1")).
         and(rs.getBigDecimal(1, 1) aka "getBigDecimal" must {
           throwA[SQLException]("Not a BigDecimal: 1")
         }).
@@ -1206,8 +1158,7 @@ object RowListSpec extends Specification with RowListTest {
         "float" -> (new RowList1.Impl(classOf[Float]).
           append(row1(v.floatValue))).resultSet,
         "double" -> (new RowList1.Impl(classOf[Double]).
-          append(row1(v.doubleValue))).resultSet
-      )
+          append(row1(v.doubleValue))).resultSet)
 
       rs.foreach(_._2.next)
 
@@ -1232,8 +1183,7 @@ object RowListSpec extends Specification with RowListTest {
         "float" -> (new RowList1.Impl(classOf[Float]).withLabel(1, "n").
           append(row1(v.floatValue))).resultSet,
         "double" -> (new RowList1.Impl(classOf[Double]).withLabel(1, "n").
-          append(row1(v.doubleValue))).resultSet
-      )
+          append(row1(v.doubleValue))).resultSet)
 
       rs.foreach(_._2.next)
 
@@ -1252,8 +1202,7 @@ object RowListSpec extends Specification with RowListTest {
     "not be read by index when not on a row" in {
       (new RowList1.Impl(classOf[ImmutableArray[String]]).
         append(row1(v)).resultSet.getArray(1) aka "get" must (
-          throwA[SQLException](message = "Not on a row")
-        )).
+          throwA[SQLException](message = "Not on a row"))).
           and(new RowList1.Impl(classOf[ImmutableArray[String]]).
             withLabel(1, "n").append(row1(v)).resultSet.getArray("n").
             aka("get") must throwA[SQLException]("Not on a row"))
@@ -1272,8 +1221,7 @@ object RowListSpec extends Specification with RowListTest {
     "be null" in {
       val rs = new RowList1.Impl(classOf[ImmutableArray[String]]).
         withLabel(1, "n").append(row1(
-          null.asInstanceOf[ImmutableArray[String]]
-        )).resultSet
+          null.asInstanceOf[ImmutableArray[String]])).resultSet
       rs.next
 
       (rs.getArray(1) aka "array" must beNull) and
@@ -1286,8 +1234,7 @@ object RowListSpec extends Specification with RowListTest {
       rs.next
 
       (rs.getArray(1) aka "get array by index" must throwA[SQLException](
-        message = "Not an Array: 1"
-      )).
+        message = "Not an Array: 1")).
         and(rs.getArray("n").aka("get array by name").must {
           throwA[SQLException]("Not an Array: n")
         })
@@ -1296,8 +1243,7 @@ object RowListSpec extends Specification with RowListTest {
     "converted by index" >> {
       val rs = Seq[(String, ResultSet)](
         "raw array" -> (new RowList1.Impl(classOf[Array[String]])).
-          append(row1(Array("a", "b", "c"))).resultSet
-      )
+          append(row1(Array("a", "b", "c"))).resultSet)
 
       rs.foreach(_._2.next)
 
@@ -1311,8 +1257,7 @@ object RowListSpec extends Specification with RowListTest {
     "converted by label" >> {
       val rs = Seq[(String, ResultSet)](
         "raw array" -> (new RowList1.Impl(classOf[Array[String]])).
-          withLabel(1, "n").append(row1(Array("a", "b", "c"))).resultSet
-      )
+          withLabel(1, "n").append(row1(Array("a", "b", "c"))).resultSet)
 
       rs.foreach(_._2.next)
 
@@ -1376,8 +1321,7 @@ sealed trait RowListTest { specs: Specification ⇒
         (byIndex(new RowList1.Impl(mf.runtimeClass.asInstanceOf[Class[D]]).
           append(row1(v)).resultSet, 1).
           aka("get") must throwA[SQLException](
-            message = "Not on a row"
-          )).
+            message = "Not on a row")).
           and(byLabel(new RowList1.Impl(mf.runtimeClass.asInstanceOf[Class[D]]).
             withLabel(1, "n").append(row1(v)).resultSet, "n").
             aka("get") must throwA[SQLException]("Not on a row"))
@@ -1416,11 +1360,9 @@ sealed trait RowListTest { specs: Specification ⇒
         rs.next
 
         (byIndex(rs, 1) aka "get" must throwA[SQLException](
-          message = s"Not a $name: 1"
-        )).
+          message = s"Not a $name: 1")).
           and(byIndexWithCal(rs, 1, c) aka "get" must throwA[SQLException](
-            message = s"Not a $name: 1"
-          )).
+            message = s"Not a $name: 1")).
           and(byLabel(rs, "n").
             aka("get") must throwA[SQLException](s"Not a $name: n")).
           and(byLabelWithCal(rs, "n", c).
@@ -1435,8 +1377,7 @@ sealed trait RowListTest { specs: Specification ⇒
           "time" -> new RowList1.Impl(classOf[Time]).
             append(row1(new Time(v.getTime))).resultSet,
           "ts" -> new RowList1.Impl(classOf[Timestamp]).
-            append(row1(new Timestamp(v.getTime))).resultSet
-        )
+            append(row1(new Timestamp(v.getTime))).resultSet)
 
         rs.foreach(_._2.next)
 
@@ -1454,8 +1395,7 @@ sealed trait RowListTest { specs: Specification ⇒
           "time" -> new RowList1.Impl(classOf[Time]).withLabel(1, "n").
             append(row1(new Time(v.getTime))).resultSet,
           "ts" -> new RowList1.Impl(classOf[Timestamp]).withLabel(1, "n").
-            append(row1(new Timestamp(v.getTime))).resultSet
-        )
+            append(row1(new Timestamp(v.getTime))).resultSet)
 
         rs.foreach(_._2.next)
 
@@ -1488,8 +1428,7 @@ sealed trait RowListTest { specs: Specification ⇒
         (byIndex(new RowList1.Impl(mf.runtimeClass.asInstanceOf[Class[N]]).
           append(row1(v)).resultSet, 1).
           aka("get") must throwA[SQLException](
-            message = "Not on a row"
-          )).
+            message = "Not on a row")).
           and(byLabel(new RowList1.Impl(mf.runtimeClass.asInstanceOf[Class[N]]).
             withLabel(1, "n").append(row1(v)).resultSet, "n").
             aka("get") must throwA[SQLException]("Not on a row"))
@@ -1536,8 +1475,7 @@ sealed trait RowListTest { specs: Specification ⇒
           "float" -> new RowList1.Impl(classOf[Float]).
             append(row1(num.toFloat(v))).resultSet,
           "double" -> new RowList1.Impl(classOf[Double]).
-            append(row1(num.toDouble(v))).resultSet
-        )
+            append(row1(num.toDouble(v))).resultSet)
 
         rs.foreach(_._2.next)
 
@@ -1559,8 +1497,7 @@ sealed trait RowListTest { specs: Specification ⇒
           "float" -> new RowList1.Impl(classOf[Float]).withLabel(1, "n").
             append(row1(num.toFloat(v))).resultSet,
           "double" -> new RowList1.Impl(classOf[Double]).withLabel(1, "n").
-            append(row1(num.toDouble(v))).resultSet
-        )
+            append(row1(num.toDouble(v))).resultSet)
 
         rs.foreach(_._2.next)
 

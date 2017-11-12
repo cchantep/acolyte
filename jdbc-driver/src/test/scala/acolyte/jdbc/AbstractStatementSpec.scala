@@ -21,15 +21,13 @@ object AbstractStatementSpec extends Specification {
   "Constructor" should {
     "refuse null connection" in {
       statement(c = null) aka "ctor" must throwA[IllegalArgumentException](
-        message = "Invalid connection"
-      )
+        message = "Invalid connection")
     }
 
     "refuse null handler" in {
       statement(h = null).
         aka("ctor") must throwA[IllegalArgumentException](
-          message = "Invalid handler"
-        )
+          message = "Invalid handler")
     }
   }
 
@@ -75,8 +73,7 @@ object AbstractStatementSpec extends Specification {
       s.close()
 
       s.executeQuery("QUERY") aka "query" must throwA[SQLException](
-        message = "Statement is closed"
-      )
+        message = "Statement is closed")
 
     }
 
@@ -178,8 +175,7 @@ object AbstractStatementSpec extends Specification {
       s.close()
 
       s.executeUpdate("UPDATE") aka "update" must throwA[SQLException](
-        message = "Statement is closed"
-      )
+        message = "Statement is closed")
 
     }
 
@@ -202,8 +198,7 @@ object AbstractStatementSpec extends Specification {
         and(s.getUpdateCount aka "update count" mustEqual 5).
         and(s.getResultSet aka "resultset" must beNull).
         and(s.getGeneratedKeys aka "generated keys" mustEqual (
-          RowLists.stringList.resultSet
-        )).
+          RowLists.stringList.resultSet)).
         and(sql aka "executed SQL" mustEqual "UPDATE")
 
     }
@@ -278,18 +273,15 @@ object AbstractStatementSpec extends Specification {
       s.close()
 
       (s.getFetchSize aka "getter" must throwA[SQLException](
-        message = "Statement is closed"
-      )).
+        message = "Statement is closed")).
         and(s.setFetchSize(1) aka "setter" must throwA[SQLException](
-          message = "Statement is closed"
-        ))
+          message = "Statement is closed"))
 
     }
 
     "not be set negative" in {
       statement().setFetchSize(-1) aka "setter" must throwA[SQLException](
-        message = "Negative fetch size"
-      )
+        message = "Negative fetch size")
 
     }
   }
@@ -312,18 +304,15 @@ object AbstractStatementSpec extends Specification {
       s.close()
 
       (s.getMaxRows aka "getter" must throwA[SQLException](
-        message = "Statement is closed"
-      )).
+        message = "Statement is closed")).
         and(s.setMaxRows(1) aka "setter" must throwA[SQLException](
-          message = "Statement is closed"
-        ))
+          message = "Statement is closed"))
 
     }
 
     "not be set negative" in {
       statement().setMaxRows(-1) aka "setter" must throwA[SQLException](
-        message = "Negative max rows"
-      )
+        message = "Negative max rows")
 
     }
 
@@ -335,8 +324,7 @@ object AbstractStatementSpec extends Specification {
       (s.execute("QUERY") aka "flag" must beTrue).
         and(rs.getFetchSize must_== 2).
         and(rs aka "resultset" mustEqual (
-          RowLists.stringList("A", "B").resultSet
-        ))
+          RowLists.stringList("A", "B").resultSet))
     }
   }
 
@@ -355,8 +343,7 @@ object AbstractStatementSpec extends Specification {
       s.close()
 
       s.addBatch("UPDATE") aka "add batch" must throwA[SQLException](
-        message = "Statement is closed"
-      )
+        message = "Statement is closed")
     }
 
     "be executed with 2 elements" in {
@@ -365,8 +352,7 @@ object AbstractStatementSpec extends Specification {
       s.addBatch("BATCH1"); s.addBatch("2_BATCH")
 
       s.executeBatch() aka "batch execution" mustEqual Array[Int](1, 2) and (
-        h.exed aka "executed" must contain(allOf("BATCH1", "2_BATCH").inOrder)
-      )
+        h.exed aka "executed" must contain(allOf("BATCH1", "2_BATCH").inOrder))
     }
 
     "throw exception as error is raised while executing first element" in {
@@ -381,8 +367,7 @@ object AbstractStatementSpec extends Specification {
         like {
           case ex: BatchUpdateException ⇒
             (ex.getUpdateCounts aka "update count" must_== Array[Int](
-              EXECUTE_FAILED, EXECUTE_FAILED
-            )).
+              EXECUTE_FAILED, EXECUTE_FAILED)).
               and(ex.getCause.getMessage aka "cause" mustEqual "Batch error")
         }
     }
@@ -407,8 +392,7 @@ object AbstractStatementSpec extends Specification {
         like {
           case ex: BatchUpdateException ⇒
             (ex.getUpdateCounts aka "update count" must_== Array[Int](
-              EXECUTE_FAILED, 2
-            )).
+              EXECUTE_FAILED, 2)).
               and(ex.getCause.getMessage aka "cause" mustEqual "Batch error: 1")
         }
     }
@@ -429,8 +413,7 @@ object AbstractStatementSpec extends Specification {
         like {
           case ex: BatchUpdateException ⇒
             (ex.getUpdateCounts aka "update count" must_== Array[Int](
-              1, EXECUTE_FAILED
-            )).
+              1, EXECUTE_FAILED)).
               and(ex.getCause.getMessage aka "cause" mustEqual "Batch error: 2")
         }
     }
@@ -455,8 +438,7 @@ object AbstractStatementSpec extends Specification {
         like {
           case ex: BatchUpdateException ⇒
             (ex.getUpdateCounts aka "update count" must_== Array[Int](
-              1, EXECUTE_FAILED
-            )).
+              1, EXECUTE_FAILED)).
               and(ex.getCause.getMessage aka "cause" mustEqual "Batch error: 2")
         }
     }
@@ -467,8 +449,7 @@ object AbstractStatementSpec extends Specification {
       s.addBatch("BATCH1"); s.addBatch("2_BATCH")
 
       s.clearBatch() aka "clear batch" must not(throwA[SQLException]) and (
-        h.exed.size aka "executed" must_== 0
-      )
+        h.exed.size aka "executed" must_== 0)
     }
   }
 

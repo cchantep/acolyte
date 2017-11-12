@@ -197,8 +197,7 @@ final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: Upda
    * }}}
    */
   def withQueryDetection(pattern: Array[Pattern]) = new ScalaCompositeHandler(
-    queryDetectionPattern(pattern: _*), queryHandler, updateHandler
-  )
+    queryDetectionPattern(pattern: _*), queryHandler, updateHandler)
 
   /**
    * Returns handler that delegates query execution to `h` function.

@@ -89,8 +89,7 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
     "not open connection without handler" in {
       (directConnect("jdbc:acolyte:test").
         aka("connection") must throwA[IllegalArgumentException](
-          message = "Invalid handler ID: null"
-        )).
+          message = "Invalid handler ID: null")).
         and(acolyte.jdbc.Driver.connection(null.asInstanceOf[ConnectionHandler]).
           aka("direct connection 1") must throwA[IllegalArgumentException]).
         and(acolyte.jdbc.Driver.connection(null.asInstanceOf[StatementHandler]).
@@ -98,23 +97,20 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
         and(acolyte.jdbc.Driver.
           connection(
             null.asInstanceOf[ConnectionHandler],
-            null.asInstanceOf[java.util.Properties]
-          ).
-          aka("direct connection 3") must throwA[IllegalArgumentException]).
+            null.asInstanceOf[java.util.Properties]).
+            aka("direct connection 3") must throwA[IllegalArgumentException]).
         and(acolyte.jdbc.Driver.
           connection(
             null.asInstanceOf[StatementHandler],
-            null.asInstanceOf[java.util.Properties]
-          ).
-          aka("direct connection 4") must throwA[IllegalArgumentException])
+            null.asInstanceOf[java.util.Properties]).
+            aka("direct connection 4") must throwA[IllegalArgumentException])
 
     }
 
     "not open connection with invalid handler" in {
       directConnect("jdbc:acolyte:test?handler=test").
         aka("connection") must throwA[IllegalArgumentException](
-          message = "No matching handler: test"
-        )
+          message = "No matching handler: test")
 
     }
 
@@ -124,8 +120,7 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
       directConnect(
         url = jdbcUrl,
         props = null,
-        handler = defaultHandler
-      ) aka "connection" must not beNull
+        handler = defaultHandler) aka "connection" must not beNull
     }
   }
 
