@@ -22,8 +22,7 @@ EOF
         false
     )
 
-    #sbt ++$TRAVIS_SCALA_VERSION ";error ;mimaReportBinaryIssues" || exit 2
+    sbt ++$TRAVIS_SCALA_VERSION ";error ;mimaReportBinaryIssues" || exit 2
 fi
 
-sbt ++$TRAVIS_SCALA_VERSION ';test-only reactivemongo.jdbc.* ;test-only reactivemongo.Extractor*'
-sbt ++$TRAVIS_SCALA_VERSION 'test-only reactivemongo.*'
+sbt ++$TRAVIS_SCALA_VERSION 'testOnly'

@@ -8,5 +8,5 @@ cache:
   - $HOME/.sbt
 scala:
 #   - 2.11.11 (on Circle)
-   - 2.12.3
+   - 2.12.4
 script: ./.ci_scripts/validate.sh

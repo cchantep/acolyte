@@ -27,4 +27,26 @@ public interface Row {
          */
         public List<Object> cells() { return null; }
     } // end of class Nothing
+
+    /**
+     *
+     */
+    static final class Untyped implements Row {
+        protected final List<Object> cells;
+
+        /**
+         */
+        protected Untyped(final List<Object> cells) {
+            if (cells == null) {
+                throw new IllegalArgumentException();
+            }
+            
+            this.cells = cells;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public List<Object> cells() { return this.cells; }
+    }
 } // end of interface Row

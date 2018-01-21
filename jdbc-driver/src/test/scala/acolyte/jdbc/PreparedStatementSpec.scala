@@ -16,7 +16,7 @@ import org.specs2.mutable.Specification
 
 import org.apache.commons.io.IOUtils.contentEquals
 
-import scala.collection.JavaConversions
+import scala.collection.JavaConverters
 
 import acolyte.jdbc.StatementHandler.Parameter
 import acolyte.jdbc.test.{ EmptyConnectionHandler, Params }
@@ -26,7 +26,7 @@ object PreparedStatementSpec
 
   "Prepared statement specification" title
 
-  def statement(c: Connection = defaultCon, s: String = "TEST", h: StatementHandler = defaultHandler.getStatementHandler) = new PreparedStatement(c, s, java.sql.Statement.RETURN_GENERATED_KEYS, h)
+  def statement(c: Connection = defaultCon, s: String = "TEST", h: StatementHandler = defaultHandler.getStatementHandler) = new PreparedStatement(c, s, java.sql.Statement.RETURN_GENERATED_KEYS, null, null, h)
 
 }
 
@@ -35,15 +35,13 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
   "Test time zone" should {
     "be UTC" in {
-      TimeZone.getDefault aka "default TZ" mustEqual TimeZone.getTimeZone("UTC")
+      TimeZone.getDefault aka "default TZ" must_=== TimeZone.getTimeZone("UTC")
     }
   }
 
   "Statement" should {
     "not support resultset metadata" in {
-      statement().getMetaData.
-        aka("metadata") must throwA[SQLFeatureNotSupportedException]
-
+      statement().getMetaData must throwA[SQLFeatureNotSupportedException]
     }
 
     "have SQL" in {
@@ -137,10 +135,10 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
         Parameter.of(ParameterMetaData.Str, "B"),
         Parameter.of(ParameterMetaData.Int, 4))
 
-      s.executeBatch() aka "batch execution" mustEqual Array[Int](1, 2) and (
+      s.executeBatch() aka "batch execution" must_=== Array[Int](1, 2) and (
         h.exed aka "executed" must beLike {
           case ("TEST", x) :: ("TEST", y) :: Nil ⇒
-            (x aka "x" must_== a) and (y aka "y" must_== b)
+            (x aka "x" must_=== a) and (y aka "y" must_=== b)
         })
     }
 
@@ -158,7 +156,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
           case ex: BatchUpdateException ⇒
             (ex.getUpdateCounts aka "update count" must_== Array[Int](
               EXECUTE_FAILED, EXECUTE_FAILED)).
-              and(ex.getCause.getMessage aka "cause" mustEqual "Batch error")
+              and(ex.getCause.getMessage aka "cause" must_=== "Batch error")
         }
     }
 
@@ -184,7 +182,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
           case ex: BatchUpdateException ⇒
             (ex.getUpdateCounts aka "update count" must_== Array[Int](
               EXECUTE_FAILED, 2)).
-              and(ex.getCause.getMessage aka "cause" mustEqual "Batch error: 1")
+              and(ex.getCause.getMessage aka "cause" must_=== "Batch error: 1")
         }
     }
 
@@ -206,7 +204,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
           case ex: BatchUpdateException ⇒
             (ex.getUpdateCounts aka "update count" must_== Array[Int](
               1, EXECUTE_FAILED)).
-              and(ex.getCause.getMessage aka "cause" mustEqual "Batch error: 2")
+              and(ex.getCause.getMessage aka "cause" must_=== "Batch error: 2")
         }
     }
 
@@ -232,7 +230,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
           case ex: BatchUpdateException ⇒
             (ex.getUpdateCounts aka "update count" must_== Array[Int](
               1, EXECUTE_FAILED)).
-              and(ex.getCause.getMessage aka "cause" mustEqual "Batch error: 2")
+              and(ex.getCause.getMessage aka "cause" must_=== "Batch error: 2")
         }
     }
 
@@ -254,8 +252,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.VARCHAR)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.VARCHAR)
 
     }
 
@@ -265,8 +263,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.VARCHAR)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.VARCHAR)
 
     }
 
@@ -276,8 +274,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.FLOAT)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.FLOAT)
 
     }
 
@@ -287,8 +285,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.FLOAT)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.FLOAT)
 
     }
 
@@ -308,23 +306,23 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.VARCHAR)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.VARCHAR)
 
     }
 
     "be NULL as SQL" in {
       (executeUpdate("TEST ?, y", Types.VARCHAR, null).
-        aka("SQL update") mustEqual ("TEST ?, y" -> null)).
+        aka("SQL update") must_=== ("TEST ?, y" -> null)).
         and(executeQuery("SELECT ? WHERE true", Types.FLOAT, null).
-          aka("SQL query") mustEqual ("SELECT ? WHERE true" -> null))
+          aka("SQL query") must_=== ("SELECT ? WHERE true" -> null))
     }
   }
 
   "Array" should {
     val stringArray = ImmutableArray.getInstance(
       classOf[String],
-      JavaConversions.seqAsJavaList(List("A", "B")))
+      JavaConverters.seqAsJavaListConverter(List("A", "B")).asJava)
 
     "be set as first parameter" in {
       lazy val s = statement()
@@ -332,8 +330,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.ARRAY)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.ARRAY)
 
     }
 
@@ -343,8 +341,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.ARRAY)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.ARRAY)
 
     }
 
@@ -354,8 +352,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.ARRAY)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.ARRAY)
 
     }
 
@@ -365,16 +363,16 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.ARRAY)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.ARRAY)
 
     }
 
     "be properly prepared" in {
       (executeUpdate("TEST ?, y", Types.ARRAY, stringArray).
-        aka("SQL update") mustEqual ("TEST ?, y" -> stringArray)).
+        aka("SQL update") must_=== ("TEST ?, y" -> stringArray)).
         and(executeQuery("SELECT ? WHERE true", Types.ARRAY, stringArray).
-          aka("SQL query") mustEqual ("SELECT ? WHERE true" -> stringArray))
+          aka("SQL query") must_=== ("SELECT ? WHERE true" -> stringArray))
 
     }
   }
@@ -386,8 +384,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BLOB)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BLOB)
 
     }
 
@@ -397,8 +395,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BLOB)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BLOB)
 
     }
 
@@ -408,8 +406,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BLOB)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BLOB)
 
     }
 
@@ -419,8 +417,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BLOB)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BLOB)
 
     }
 
@@ -430,16 +428,16 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BLOB)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BLOB)
 
     }
 
     "be properly prepared" in {
       (executeUpdate("TEST ?, y", Types.BLOB, Blob.Nil).
-        aka("SQL update") mustEqual ("TEST ?, y" -> Blob.Nil)).
+        aka("SQL update") must_=== ("TEST ?, y" -> Blob.Nil)).
         and(executeQuery("SELECT ? WHERE true", Types.BLOB, Blob.Nil).
-          aka("SQL query") mustEqual ("SELECT ? WHERE true" -> Blob.Nil))
+          aka("SQL query") must_=== ("SELECT ? WHERE true" -> Blob.Nil))
 
     }
   }
@@ -451,8 +449,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BOOLEAN)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BOOLEAN)
 
     }
 
@@ -462,8 +460,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BOOLEAN)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BOOLEAN)
 
     }
 
@@ -473,8 +471,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BOOLEAN)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BOOLEAN)
 
     }
 
@@ -484,25 +482,25 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BOOLEAN)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BOOLEAN)
 
     }
 
     "be properly prepared" >> {
       "when true" in {
         (executeUpdate("TEST ?, y", Types.BOOLEAN, true).
-          aka("SQL update") mustEqual ("TEST ?, y" -> true)).
+          aka("SQL update") must_=== ("TEST ?, y" -> true)).
           and(executeQuery("SELECT ? WHERE true", Types.BOOLEAN, true).
-            aka("SQL query") mustEqual ("SELECT ? WHERE true" -> true))
+            aka("SQL query") must_=== ("SELECT ? WHERE true" -> true))
 
       }
 
       "when false" in {
         (executeUpdate("TEST ?, y", Types.BOOLEAN, false).
-          aka("SQL update") mustEqual ("TEST ?, y" -> false)).
+          aka("SQL update") must_=== ("TEST ?, y" -> false)).
           and(executeQuery("SELECT ? WHERE false", Types.BOOLEAN, false).
-            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> false))
+            aka("SQL query") must_=== ("SELECT ? WHERE false" -> false))
 
       }
     }
@@ -515,8 +513,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TINYINT)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.TINYINT)
 
     }
 
@@ -526,8 +524,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TINYINT)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.TINYINT)
 
     }
 
@@ -537,8 +535,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TINYINT)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.TINYINT)
 
     }
 
@@ -548,16 +546,16 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TINYINT)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.TINYINT)
 
     }
 
     "be properly prepared" in {
       (executeUpdate("TEST ?, y", Types.TINYINT, 2.toByte).
-        aka("SQL update") mustEqual ("TEST ?, y" -> 2.toByte)).
+        aka("SQL update") must_=== ("TEST ?, y" -> 2.toByte)).
         and(executeQuery("SELECT ? WHERE false", Types.TINYINT, 100.toByte).
-          aka("SQL query") mustEqual ("SELECT ? WHERE false" -> 100.toByte))
+          aka("SQL query") must_=== ("SELECT ? WHERE false" -> 100.toByte))
 
     }
   }
@@ -569,8 +567,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.SMALLINT)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.SMALLINT)
 
     }
 
@@ -580,8 +578,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.SMALLINT)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.SMALLINT)
 
     }
 
@@ -591,8 +589,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.SMALLINT)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.SMALLINT)
 
     }
 
@@ -602,16 +600,16 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.SMALLINT)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.SMALLINT)
 
     }
 
     "be property prepared" in {
       (executeUpdate("TEST ?, y", Types.SMALLINT, 5.toShort).
-        aka("SQL update") mustEqual ("TEST ?, y" -> 5.toShort)).
+        aka("SQL update") must_=== ("TEST ?, y" -> 5.toShort)).
         and(executeQuery("SELECT ? WHERE false", Types.SMALLINT, 256.toShort).
-          aka("SQL query") mustEqual ("SELECT ? WHERE false" -> 256.toShort))
+          aka("SQL query") must_=== ("SELECT ? WHERE false" -> 256.toShort))
 
     }
   }
@@ -623,8 +621,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.INTEGER)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.INTEGER)
 
     }
 
@@ -634,8 +632,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.INTEGER)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.INTEGER)
 
     }
 
@@ -645,8 +643,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.INTEGER)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.INTEGER)
 
     }
 
@@ -656,16 +654,16 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.INTEGER)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.INTEGER)
 
     }
 
     "be property prepared" in {
       (executeUpdate("TEST ?, y", Types.INTEGER, 7).
-        aka("SQL update") mustEqual ("TEST ?, y" -> 7)).
+        aka("SQL update") must_=== ("TEST ?, y" -> 7)).
         and(executeQuery("SELECT ? WHERE false", Types.INTEGER, 1001).
-          aka("SQL query") mustEqual ("SELECT ? WHERE false" -> 1001))
+          aka("SQL query") must_=== ("SELECT ? WHERE false" -> 1001))
 
     }
   }
@@ -677,8 +675,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BIGINT)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BIGINT)
 
     }
 
@@ -688,8 +686,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BIGINT)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BIGINT)
 
     }
 
@@ -699,8 +697,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BIGINT)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BIGINT)
 
     }
 
@@ -710,16 +708,16 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BIGINT)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BIGINT)
 
     }
 
     "be property prepared" in {
       (executeUpdate("TEST ?, y", Types.BIGINT, 9.toLong).
-        aka("SQL update") mustEqual ("TEST ?, y" -> 9.toLong)).
+        aka("SQL update") must_=== ("TEST ?, y" -> 9.toLong)).
         and(executeQuery("SELECT ? WHERE false", Types.BIGINT, 67598.toLong).
-          aka("SQL query") mustEqual ("SELECT ? WHERE false" -> 67598.toLong))
+          aka("SQL query") must_=== ("SELECT ? WHERE false" -> 67598.toLong))
 
     }
   }
@@ -731,9 +729,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.FLOAT).
-        and(m.getScale(1) aka "scale" mustEqual 1)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.FLOAT).
+        and(m.getScale(1) aka "scale" must_=== 1)
 
     }
 
@@ -743,9 +741,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.FLOAT).
-        and(m.getScale(1) aka "scale" mustEqual 1)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.FLOAT).
+        and(m.getScale(1) aka "scale" must_=== 1)
 
     }
 
@@ -755,9 +753,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.FLOAT).
-        and(m.getScale(1) aka "scale" mustEqual 3)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.FLOAT).
+        and(m.getScale(1) aka "scale" must_=== 3)
 
     }
 
@@ -767,9 +765,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.FLOAT).
-        and(m.getScale(1) aka "scale" mustEqual 1)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.FLOAT).
+        and(m.getScale(1) aka "scale" must_=== 1)
 
     }
 
@@ -779,8 +777,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.REAL)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.REAL)
 
     }
 
@@ -790,9 +788,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.REAL).
-        and(m.getScale(1) aka "scale" mustEqual 2)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.REAL).
+        and(m.getScale(1) aka "scale" must_=== 2)
 
     }
 
@@ -802,28 +800,28 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.REAL).
-        and(m.getScale(1) aka "scale" mustEqual 1)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.REAL).
+        and(m.getScale(1) aka "scale" must_=== 1)
 
     }
 
     "be property prepared" >> {
       "when FLOAT" in {
         (executeUpdate("TEST ?, y", Types.FLOAT, 1.23.toFloat).
-          aka("SQL update") mustEqual ("TEST ?, y" -> 1.23.toFloat)).
+          aka("SQL update") must_=== ("TEST ?, y" -> 1.23.toFloat)).
           and(executeQuery("SELECT ? WHERE false", Types.FLOAT, 34.561.toFloat).
             aka("SQL query").
-            mustEqual(("SELECT ? WHERE false" -> 34.561.toFloat)))
+            mustEqual("SELECT ? WHERE false" -> 34.561.toFloat))
 
       }
 
       "when REAL" in {
         (executeUpdate("TEST ?, y", Types.REAL, 1.23.toFloat).
-          aka("SQL update") mustEqual ("TEST ?, y" -> 1.23.toFloat)).
+          aka("SQL update") must_=== ("TEST ?, y" -> 1.23.toFloat)).
           and(executeQuery("SELECT ? WHERE false", Types.REAL, 34.561.toFloat).
             aka("SQL query").
-            mustEqual(("SELECT ? WHERE false" -> 34.561.toFloat)))
+            mustEqual("SELECT ? WHERE false" -> 34.561.toFloat))
 
       }
     }
@@ -836,9 +834,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.DOUBLE).
-        and(m.getScale(1) aka "scale" mustEqual 3)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.DOUBLE).
+        and(m.getScale(1) aka "scale" must_=== 3)
 
     }
 
@@ -848,9 +846,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.DOUBLE).
-        and(m.getScale(1) aka "scale" mustEqual 3)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.DOUBLE).
+        and(m.getScale(1) aka "scale" must_=== 3)
 
     }
 
@@ -860,9 +858,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.DOUBLE).
-        and(m.getScale(1) aka "scale" mustEqual 5)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.DOUBLE).
+        and(m.getScale(1) aka "scale" must_=== 5)
 
     }
 
@@ -872,17 +870,17 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.DOUBLE).
-        and(m.getScale(1) aka "scale" mustEqual 3)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.DOUBLE).
+        and(m.getScale(1) aka "scale" must_=== 3)
 
     }
 
     "be prepared" in {
       (executeUpdate("TEST ?, y", Types.DOUBLE, 1.23.toDouble).
-        aka("SQL update") mustEqual ("TEST ?, y", 1.23.toDouble)).
+        aka("SQL update") must_=== ("TEST ?, y" -> 1.23.toDouble)).
         and(executeQuery("SELECT ? WHERE false", Types.DOUBLE, 34.561.toDouble).
-          aka("SQL query") mustEqual ("SELECT ? WHERE false", 34.561.toDouble))
+          aka("SQL query") must_=== ("SELECT ? WHERE false" -> 34.561.toDouble))
 
     }
   }
@@ -894,9 +892,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.NUMERIC).
-        and(m.getScale(1) aka "scale" mustEqual 7)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.NUMERIC).
+        and(m.getScale(1) aka "scale" must_=== 7)
 
     }
 
@@ -906,9 +904,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.NUMERIC).
-        and(m.getScale(1) aka "scale" mustEqual 7)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.NUMERIC).
+        and(m.getScale(1) aka "scale" must_=== 7)
 
     }
 
@@ -918,9 +916,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.NUMERIC).
-        and(m.getScale(1) aka "scale" mustEqual 2)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.NUMERIC).
+        and(m.getScale(1) aka "scale" must_=== 2)
 
     }
 
@@ -930,9 +928,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.NUMERIC).
-        and(m.getScale(1) aka "scale" mustEqual 7)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.NUMERIC).
+        and(m.getScale(1) aka "scale" must_=== 7)
 
     }
 
@@ -942,9 +940,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.DECIMAL).
-        and(m.getScale(1) aka "scale" mustEqual 7)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.DECIMAL).
+        and(m.getScale(1) aka "scale" must_=== 7)
 
     }
 
@@ -953,9 +951,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       val d2 = new java.math.BigDecimal("9007.2")
 
       (executeUpdate("TEST ?, y", Types.DECIMAL, d1).
-        aka("SQL update") mustEqual ("TEST ?, y" -> d1)).
+        aka("SQL update") must_=== ("TEST ?, y" -> d1)).
         and(executeQuery("SELECT ? WHERE false", Types.DECIMAL, d2).
-          aka("SQL query") mustEqual ("SELECT ? WHERE false" -> d2))
+          aka("SQL query") must_=== ("SELECT ? WHERE false" -> d2))
 
     }
 
@@ -965,8 +963,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.NUMERIC)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.NUMERIC)
     }
 
     "be null DECIMAL" in {
@@ -975,8 +973,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.DECIMAL)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.DECIMAL)
     }
   }
 
@@ -987,8 +985,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.VARCHAR)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.VARCHAR)
 
     }
 
@@ -998,8 +996,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.VARCHAR)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.VARCHAR)
 
     }
 
@@ -1009,8 +1007,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.VARCHAR)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.VARCHAR)
 
     }
 
@@ -1020,25 +1018,25 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.VARCHAR)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.VARCHAR)
 
     }
 
     "be prepared" >> {
       "when VARCHAR" in {
         (executeUpdate("TEST ?, y", Types.VARCHAR, "l'étoile").
-          aka("SQL update") mustEqual ("TEST ?, y" -> "l'étoile")).
+          aka("SQL update") must_=== ("TEST ?, y" -> "l'étoile")).
           and(executeQuery("SELECT ? WHERE false", Types.VARCHAR, "val").
-            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> "val"))
+            aka("SQL query") must_=== ("SELECT ? WHERE false" -> "val"))
 
       }
 
       "when LONGVARCHAR" in {
         (executeUpdate("TEST ?, y", Types.LONGVARCHAR, "l'étoile").
-          aka("SQL update") mustEqual ("TEST ?, y" -> "l'étoile")).
+          aka("SQL update") must_=== ("TEST ?, y" -> "l'étoile")).
           and(executeQuery("SELECT ? WHERE false", Types.LONGVARCHAR, "val").
-            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> "val"))
+            aka("SQL query") must_=== ("SELECT ? WHERE false" -> "val"))
 
       }
     }
@@ -1054,8 +1052,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BINARY)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BINARY)
 
     }
 
@@ -1065,8 +1063,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BINARY)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BINARY)
 
     }
 
@@ -1076,8 +1074,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BINARY)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BINARY)
 
     }
 
@@ -1087,8 +1085,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BINARY)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BINARY)
 
     }
 
@@ -1098,8 +1096,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BINARY)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BINARY)
 
     }
 
@@ -1109,8 +1107,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BINARY)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BINARY)
 
     }
 
@@ -1120,34 +1118,34 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.BINARY)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.BINARY)
 
     }
 
     "be prepared" >> {
       "when BINARY" in {
         (executeUpdate("TEST ?, y", Types.BINARY, bindata).
-          aka("SQL update") mustEqual ("TEST ?, y" -> bindata)).
+          aka("SQL update") must_=== ("TEST ?, y" -> bindata)).
           and(executeQuery("SELECT ? WHERE false", Types.BINARY, bindata).
-            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> bindata))
+            aka("SQL query") must_=== ("SELECT ? WHERE false" -> bindata))
 
       }
 
       "when VARBINARY" in {
         (executeUpdate("TEST ?, y", Types.VARBINARY, bindata).
-          aka("SQL update") mustEqual ("TEST ?, y" -> bindata)).
+          aka("SQL update") must_=== ("TEST ?, y" -> bindata)).
           and(executeQuery("SELECT ? WHERE false", Types.VARBINARY, bindata).
-            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> bindata))
+            aka("SQL query") must_=== ("SELECT ? WHERE false" -> bindata))
 
       }
 
       "when LONGVARBINARY" in {
         (executeUpdate("TEST ?, y", Types.LONGVARBINARY, bindata).
-          aka("SQL update") mustEqual ("TEST ?, y" -> bindata)).
+          aka("SQL update") must_=== ("TEST ?, y" -> bindata)).
           and(executeQuery(
             "SELECT ? WHERE false",
-            Types.LONGVARBINARY, bindata) aka "SQL query" mustEqual (
+            Types.LONGVARBINARY, bindata) aka "SQL query" must_=== (
               "SELECT ? WHERE false" -> bindata))
 
       }
@@ -1198,80 +1196,81 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
   "Date" should {
     "be set as first parameter" in {
       lazy val s = statement()
-      s.setDate(1, new java.sql.Date(1, 1, 1))
+      s.setDate(1, new java.sql.Date(System.currentTimeMillis()))
 
       lazy val m = s.getParameterMetaData
 
       m.getParameterCount aka "count" must_== 1 and (
-        m.getParameterType(1) aka "SQL type" mustEqual Types.DATE)
+        m.getParameterType(1) aka "SQL type" must_=== Types.DATE)
 
     }
 
     "be set as first parameter with calendar" in {
       lazy val s = statement()
-      s.setDate(1, new java.sql.Date(1, 1, 1), java.util.Calendar.getInstance)
+      s.setDate(1, new java.sql.Date(System.currentTimeMillis()), java.util.Calendar.getInstance)
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.DATE)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.DATE)
 
     }
 
     "be set as first object with type" in {
       lazy val s = statement()
-      s.setObject(1, new java.sql.Date(1, 1, 1), Types.DATE)
+      s.setObject(1, new java.sql.Date(System.currentTimeMillis()), Types.DATE)
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.DATE)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.DATE)
 
     }
 
     "be set as first object with type and scale" in {
       lazy val s = statement()
-      s.setObject(1, new java.sql.Date(1, 1, 1), Types.DATE, 1)
+      s.setObject(1, new java.sql.Date(System.currentTimeMillis()), Types.DATE, 1)
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.DATE)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.DATE)
 
     }
 
     "be set as first object without type" in {
       lazy val s = statement()
-      s.setObject(1, new java.sql.Date(1, 1, 1))
+      s.setObject(1, new java.sql.Date(System.currentTimeMillis()))
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.DATE)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.DATE)
 
     }
 
     "be prepared" >> {
       "with default TZ" in {
-        val d1 = new java.sql.Date(1, 2, 3)
-        val d2 = new java.sql.Date(13, 10, 5)
+        val d1 = new java.sql.Date(System.currentTimeMillis())
+        val d2 = new java.sql.Date(System.currentTimeMillis() + 100L)
 
         (executeUpdate("TEST ?, y", Types.DATE, d1).
-          aka("SQL update") mustEqual ("TEST ?, y" -> d1)).
+          aka("SQL update") must_=== ("TEST ?, y" -> d1)).
           and(executeQuery("SELECT ? WHERE false", Types.DATE, d2).
-            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> d2))
+            aka("SQL query") must_=== ("SELECT ? WHERE false" -> d2))
 
       }
 
       "with 'Europe/Paris' TZ" in {
         val tz = TimeZone.getTimeZone("Europe/Paris")
-        val d1 = new java.sql.Date(1, 2, 3)
-        val d2 = new java.sql.Date(13, 10, 5)
+        val d1 = new java.sql.Date(System.currentTimeMillis())
+        val d2 = new java.sql.Date(System.currentTimeMillis() + 100L)
 
         (executeUpdate("TEST ?, y", Types.DATE, (d1 -> tz)).
-          aka("SQL update") mustEqual ("TEST ?, y" -> (d1, tz))).
+          aka("SQL update") must beTypedEqualTo("TEST ?, y" -> (d1 -> tz))).
           and(executeQuery("SELECT ? WHERE false", Types.DATE, (d2 -> tz)).
-            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> (d2, tz)))
+            aka("SQL query") must beTypedEqualTo(
+              "SELECT ? WHERE false" -> (d2 -> tz)))
 
       }
     }
@@ -1280,80 +1279,81 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
   "Time" should {
     "be set as first parameter" in {
       lazy val s = statement()
-      s.setTime(1, new java.sql.Time(1, 1, 1))
+      s.setTime(1, new java.sql.Time(System.currentTimeMillis()))
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TIME)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.TIME)
 
     }
 
     "be set as first parameter with calendar" in {
       lazy val s = statement()
-      s.setTime(1, new java.sql.Time(1, 1, 1), java.util.Calendar.getInstance)
+      s.setTime(1, new java.sql.Time(System.currentTimeMillis()), java.util.Calendar.getInstance)
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TIME)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.TIME)
 
     }
 
     "be set as first object with type" in {
       lazy val s = statement()
-      s.setObject(1, new java.sql.Time(1, 1, 1), Types.TIME)
+      s.setObject(1, new java.sql.Time(System.currentTimeMillis()), Types.TIME)
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TIME)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.TIME)
 
     }
 
     "be set as first object with type and scale" in {
       lazy val s = statement()
-      s.setObject(1, new java.sql.Time(1, 1, 1), Types.TIME, 1)
+      s.setObject(1, new java.sql.Time(System.currentTimeMillis()), Types.TIME, 1)
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TIME)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.TIME)
 
     }
 
     "be set as first object without type" in {
       lazy val s = statement()
-      s.setObject(1, new java.sql.Time(1, 1, 1))
+      s.setObject(1, new java.sql.Time(System.currentTimeMillis()))
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TIME)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.TIME)
 
     }
 
     "be prepared" >> {
       "with default TZ" in {
-        val t1 = new java.sql.Time(1, 2, 3)
-        val t2 = new java.sql.Time(13, 10, 5)
+        val t1 = new java.sql.Time(System.currentTimeMillis())
+        val t2 = new java.sql.Time(System.currentTimeMillis() + 100L)
 
         (executeUpdate("TEST ?, y", Types.TIME, t1).
-          aka("SQL update") mustEqual ("TEST ?, y" -> t1)).
+          aka("SQL update") must_=== ("TEST ?, y" -> t1)).
           and(executeQuery("SELECT ? WHERE false", Types.TIME, t2).
-            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> t2))
+            aka("SQL query") must_=== ("SELECT ? WHERE false" -> t2))
 
       }
 
       "with 'Europe/Paris' TZ" in {
         val tz = TimeZone.getTimeZone("Europe/Paris")
-        val t1 = new java.sql.Time(1, 2, 3)
-        val t2 = new java.sql.Time(13, 10, 5)
+        val t1 = new java.sql.Time(System.currentTimeMillis())
+        val t2 = new java.sql.Time(System.currentTimeMillis() + 100L)
 
         (executeUpdate("TEST ?, y", Types.TIME, (t1 -> tz)).
-          aka("SQL update") mustEqual ("TEST ?, y" -> (t1, tz))).
+          aka("SQL update") must beTypedEqualTo("TEST ?, y" -> (t1 -> tz))).
           and(executeQuery("SELECT ? WHERE false", Types.TIME, (t2 -> tz)).
-            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> (t2, tz)))
+            aka("SQL query") must beTypedEqualTo(
+              "SELECT ? WHERE false" -> (t2 -> tz)))
 
       }
     }
@@ -1362,81 +1362,83 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
   "Timestamp" should {
     "be set as first parameter" in {
       lazy val s = statement()
-      s.setTimestamp(1, new java.sql.Timestamp(1l))
+      s.setTimestamp(1, new java.sql.Timestamp(1L))
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TIMESTAMP)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.TIMESTAMP)
 
     }
 
     "be set as first parameter with calendar" in {
       lazy val s = statement()
-      s.setTimestamp(1, new java.sql.Timestamp(1l),
+      s.setTimestamp(1, new java.sql.Timestamp(1L),
         java.util.Calendar.getInstance)
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TIMESTAMP)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.TIMESTAMP)
 
     }
 
     "be set as first object with type" in {
       lazy val s = statement()
-      s.setObject(1, new java.sql.Timestamp(1l), Types.TIMESTAMP)
+      s.setObject(1, new java.sql.Timestamp(1L), Types.TIMESTAMP)
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TIMESTAMP)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.TIMESTAMP)
 
     }
 
     "be set as first object with type and scale" in {
       lazy val s = statement()
-      s.setObject(1, new java.sql.Timestamp(1l), Types.TIMESTAMP, 1)
+      s.setObject(1, new java.sql.Timestamp(1L), Types.TIMESTAMP, 1)
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TIMESTAMP)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.TIMESTAMP)
 
     }
 
     "be set as first object without type" in {
       lazy val s = statement()
-      s.setObject(1, new java.sql.Timestamp(1l))
+      s.setObject(1, new java.sql.Timestamp(1L))
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "SQL type" mustEqual Types.TIMESTAMP)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "SQL type" must_=== Types.TIMESTAMP)
 
     }
 
     "be prepared" >> {
       "with default TZ" in {
-        val ts1 = new java.sql.Timestamp(1, 2, 3, 4, 5, 6, 7)
-        val ts2 = new java.sql.Timestamp(13, 10, 5, 1, 1, 45, 0)
+        val ts1 = new java.sql.Timestamp(2L)
+        val ts2 = new java.sql.Timestamp(4L)
 
         (executeUpdate("TEST ?, y", Types.TIMESTAMP, ts1).
-          aka("SQL update") mustEqual ("TEST ?, y" -> ts1)).
+          aka("SQL update") must beTypedEqualTo("TEST ?, y" -> ts1)).
           and(executeQuery("SELECT ? WHERE false", Types.TIMESTAMP, ts2).
-            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> ts2))
+            aka("SQL query") must beTypedEqualTo("SELECT ? WHERE false" -> ts2))
 
       }
 
       "with 'Europe/Paris' TZ" in {
         val tz = TimeZone.getTimeZone("Europe/Paris")
-        val ts1 = new java.sql.Timestamp(1, 2, 3, 4, 5, 6, 7)
-        val ts2 = new java.sql.Timestamp(13, 10, 5, 1, 1, 45, 0)
+        val ts1 = new java.sql.Timestamp(2L)
+        val ts2 = new java.sql.Timestamp(4L)
 
         (executeUpdate("TEST ?, y", Types.TIMESTAMP, (ts1 -> tz)).
-          aka("SQL update") mustEqual ("TEST ?, y" -> (ts1, tz))).
-          and(executeQuery("SELECT ? WHERE false", Types.TIMESTAMP, (ts2 -> tz)).
-            aka("SQL query") mustEqual ("SELECT ? WHERE false" -> (ts2, tz)))
+          aka("SQL update") must beTypedEqualTo("TEST ?, y" -> (ts1 -> tz))).
+          and(executeQuery(
+            "SELECT ? WHERE false", Types.TIMESTAMP, (ts2 -> tz)).
+            aka("SQL query") must beTypedEqualTo(
+              "SELECT ? WHERE false" -> (ts2 -> tz)))
 
       }
     }
@@ -1451,8 +1453,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 1).
-        and(m.getParameterType(1) aka "first type" mustEqual Types.OTHER)
+      (m.getParameterCount aka "count" must_=== 1).
+        and(m.getParameterType(1) aka "first type" must_=== Types.OTHER)
 
     }
   }
@@ -1465,9 +1467,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 2).
-        and(m.getParameterType(1) aka "first type" mustEqual Types.INTEGER).
-        and(m.getParameterType(2) aka "second type" mustEqual Types.BOOLEAN)
+      (m.getParameterCount aka "count" must_=== 2).
+        and(m.getParameterType(1) aka "first type" must_=== Types.INTEGER).
+        and(m.getParameterType(2) aka "second type" must_=== Types.BOOLEAN)
 
     }
 
@@ -1477,8 +1479,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 2).
-        and(m.getParameterType(2) aka "SQL type" mustEqual Types.DOUBLE).
+      (m.getParameterCount aka "count" must_=== 2).
+        and(m.getParameterType(2) aka "SQL type" must_=== Types.DOUBLE).
         and(m.getParameterType(1) aka "missing" must throwA[SQLException](
           message = "Parameter is not set: 1"))
 
@@ -1491,9 +1493,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      (m.getParameterCount aka "count" mustEqual 3).
-        and(m.getParameterType(3) aka "third type" mustEqual Types.DOUBLE).
-        and(m.getParameterType(1) aka "first type" mustEqual Types.INTEGER).
+      (m.getParameterCount aka "count" must_=== 3).
+        and(m.getParameterType(3) aka "third type" must_=== Types.DOUBLE).
+        and(m.getParameterType(1) aka "first type" must_=== Types.INTEGER).
         and(m.getParameterType(2) aka "missing" must throwA[SQLException](
           message = "Parameter is not set: 2"))
 
@@ -1505,7 +1507,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       s.setNull(1, Types.INTEGER)
       s.clearParameters()
 
-      s.getParameterMetaData.getParameterCount aka "count" mustEqual 0
+      s.getParameterMetaData.getParameterCount aka "count" must_=== 0
     }
   }
 
@@ -1530,7 +1532,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
         and(query aka "resultset" must not beNull).
         and(s.getGeneratedKeys aka "generated keys" must beLike {
           case genKeys ⇒
-            (genKeys.getStatement aka "keys statement" mustEqual s).
+            (genKeys.getStatement aka "keys statement" must_=== s).
               and(genKeys.next aka "has keys" must beFalse)
         })
     }
@@ -1574,7 +1576,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       (s.executeUpdate aka "update count" must_== 1).
         and(s.getGeneratedKeys aka "generated keys" must beLike {
-          case ks ⇒ (ks.getStatement aka "keys statement" mustEqual s).
+          case ks ⇒ (ks.getStatement aka "keys statement" must_=== s).
             and(ks.next aka "has first key" must beTrue).
             and(ks.getInt(1) aka "first key" must_== 200).
             and(ks.next aka "has second key" must beFalse)
@@ -1669,9 +1671,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       lazy val s = statement(h = h)
       s.executeQuery("TEST")
 
-      (s.getWarnings aka "warning" mustEqual warning).
+      (s.getWarnings aka "warning" must_=== warning).
         and(Option(s.getResultSet) aka "resultset" must beSome.which {
-          _.getWarnings aka "result warning" mustEqual warning
+          _.getWarnings aka "result warning" must_=== warning
         })
 
     }
@@ -1688,7 +1690,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       lazy val s = statement(h = h)
       s.executeUpdate()
 
-      s.getWarnings aka "warning" mustEqual warning
+      s.getWarnings aka "warning" must_=== warning
     }
   }
 

@@ -18,6 +18,7 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
     Project(id = "reactive-mongo", base = file("reactive-mongo")).
       settings(formatSettings).settings(
         name := "reactive-mongo",
+        fork in Test := true,
         javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
         scalacOptions <++= (version in ThisBuild).
           zip(scalaVersion in ThisBuild).

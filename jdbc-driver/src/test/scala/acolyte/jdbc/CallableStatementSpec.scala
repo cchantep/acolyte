@@ -2,7 +2,7 @@ package acolyte.jdbc
 
 import java.sql.{ SQLException, SQLFeatureNotSupportedException }
 
-import scala.collection.JavaConversions
+import scala.collection.JavaConverters
 
 import org.specs2.mutable.Specification
 
@@ -150,14 +150,22 @@ object CallableStatementSpec
         and(stmt.setTimestamp("param", null.asInstanceOf[java.sql.Timestamp],
           java.util.Calendar.getInstance).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
-        and(stmt.setTime("param", new java.sql.Time(1, 2, 3)).
+        and(stmt.setTime(
+          "param",
+          new java.sql.Time(System.currentTimeMillis())).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
-        and(stmt.setTime("param", new java.sql.Time(1, 2, 3),
+        and(stmt.setTime(
+          "param",
+          new java.sql.Time(System.currentTimeMillis()),
           java.util.Calendar.getInstance).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
-        and(stmt.setDate("param", new java.sql.Date(1, 2, 3)).
+        and(stmt.setDate(
+          "param",
+          new java.sql.Date(System.currentTimeMillis())).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
-        and(stmt.setDate("param", new java.sql.Date(1, 2, 3),
+        and(stmt.setDate(
+          "param",
+          new java.sql.Date(System.currentTimeMillis()),
           java.util.Calendar.getInstance).
           aka("setter") must throwA[SQLFeatureNotSupportedException])
 
@@ -198,11 +206,13 @@ object CallableStatementSpec
         aka("getter") must throwA[SQLException]("No result")).
         and(stmt.getObject(
           1,
-          JavaConversions mapAsJavaMap Map[String, Class[_]]()).
+          JavaConverters.mapAsJavaMapConverter(
+            Map.empty[String, Class[_]]).asJava).
           aka("getter") must throwA[SQLException]("No result")).
         and(stmt.getObject(
           "param",
-          JavaConversions mapAsJavaMap Map[String, Class[_]]()).
+          JavaConverters.mapAsJavaMapConverter(
+            Map.empty[String, Class[_]]).asJava).
           aka("getter") must throwA[SQLException]("No result")).
         /* Java 1.7
         and(stmt.getObject(1, classOf[String]).

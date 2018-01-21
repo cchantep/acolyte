@@ -124,6 +124,17 @@ public class PreparedStatement
      */
     private final ArrayList<ImmutablePair<String,TreeMap<Integer,Parameter>>> batch;
 
+    /**
+     * Names of the column to be considered within the generated keys
+     * (or null)
+     */
+    private final String[] generatedKeysColumnNames;
+
+    /**
+     * Indexes of the column to be considered within the generated keys
+     */
+    private final int[] generatedKeysColumnIndexes;
+
     // --- Constructors ---
 
     /**
@@ -133,10 +144,32 @@ public class PreparedStatement
      * @param sql SQL statement
      * @param generatedKeys Generated keys flag
      * @param handler Statement handler (not null)
+     * @deprecated Use the constructor with generatedKeysColumn{Names,Indexes}
+     */
+    @Deprecated
+    protected PreparedStatement(final acolyte.jdbc.Connection connection,
+                                final String sql,
+                                final int generatedKeys,
+                                final StatementHandler handler) {
+
+        this(connection, sql, generatedKeys, null, null, handler);
+    } // end of <init>
+
+    /**
+     * Acolyte constructor.
+     *
+     * @param connection Owner connection
+     * @param sql SQL statement
+     * @param generatedKeys Generated keys flag
+     * @param generatedKeysColumnNames Column names for the generated keys
+     * @param generatedKeysColumnIndexes Column indexes for the generated keys
+     * @param handler Statement handler (not null)
      */
     protected PreparedStatement(final acolyte.jdbc.Connection connection,
                                 final String sql,
                                 final int generatedKeys,
+                                final String[] generatedKeysColumnNames,
+                                final int[] generatedKeysColumnIndexes,
                                 final StatementHandler handler) {
 
         super(connection, handler);
@@ -148,6 +181,9 @@ public class PreparedStatement
         this.sql = sql;
         this.query = handler.isQuery(sql);
         this.generatedKeysFlag = generatedKeys;
+        this.generatedKeysColumnNames = generatedKeysColumnNames;
+        this.generatedKeysColumnIndexes = generatedKeysColumnIndexes;
+
         this.batch = new ArrayList<ImmutablePair<String,TreeMap<Integer,Parameter>>>();
     } // end of <init>
 
@@ -178,10 +214,12 @@ public class PreparedStatement
 
         try {
             final QueryResult res = this.handler.whenSQLQuery(sql, params);
-            
+
+            // Not an update, so no update count or generated keys
             this.updateCount = -1;
-            this.warning = res.getWarning();
             this.generatedKeys = EMPTY_GENERATED_KEYS.withStatement(this);
+
+            this.warning = res.getWarning();
             
             return (this.result = res.getRowList().resultSet().
                 withStatement(this).withWarning(this.warning));
@@ -207,6 +245,24 @@ public class PreparedStatement
 
         return (this.updateCount = res.left);
     } // end of executeUpdate
+
+    /**
+     * Returns the resultset corresponding to the keys generated on update.
+     */
+    private ResultSet generateKeysResultSet(final UpdateResult res) {
+        if (this.generatedKeysColumnIndexes == null &&
+            this.generatedKeysColumnNames == null) {
+
+            return res.generatedKeys.resultSet().withStatement(this);
+        } else if (this.generatedKeysColumnIndexes != null) {
+            return res.generatedKeys.resultSet().withStatement(this).
+                withProjection(this.generatedKeysColumnIndexes);
+
+        } else {
+            return res.generatedKeys.resultSet().withStatement(this).
+                withProjection(this.generatedKeysColumnNames);
+        }
+    } // end of generateKeysResultSet
 
     /**
      * Executes update.
@@ -239,7 +295,7 @@ public class PreparedStatement
             final SQLWarning w = res.getWarning();
             final ResultSet k = (res.generatedKeys == null) 
                 ? EMPTY_GENERATED_KEYS.withStatement(this)
-                : res.generatedKeys.resultSet().withStatement(this);
+                : generateKeysResultSet(res);
             
             return ImmutableTriple.of(res.getUpdateCount(), k, w);
         } catch (SQLException se) {

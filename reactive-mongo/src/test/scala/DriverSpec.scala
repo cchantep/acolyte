@@ -13,8 +13,6 @@ import reactivemongo.api.commands.WriteResult
 
 import org.specs2.concurrent.ExecutionEnv
 
-import org.specs2.specification.Scope
-
 class DriverSpec(implicit ee: ExecutionEnv)
   extends org.specs2.mutable.Specification
   with org.specs2.specification.AfterAll
@@ -22,6 +20,8 @@ class DriverSpec(implicit ee: ExecutionEnv)
   with ConnectionHandlerFixtures with ResponseMatchers {
 
   "Acolyte Mongo driver" title
+
+  sequential // TODO: Remove
 
   import AcolyteDSL.withFlatDriver
 
@@ -31,80 +31,56 @@ class DriverSpec(implicit ee: ExecutionEnv)
 
   "Resource management" should {
     "successfully initialize driver from connection handler" in {
-      new Scope {
-        AcolyteDSL.withDriver(_ ⇒ true).
-          aka("work with driver") must beTrue.await(0, timeout)
-      }
+      AcolyteDSL.withDriver(_ ⇒ true) must beTrue.await(0, timeout)
     }
 
     "successfully work with initialized driver" >> {
       "from sync query handler" in {
-        new Scope {
-
-          withFlatDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withQueryHandler(
-              { _: Request ⇒ QueryResponse.empty })(_ ⇒ true)
-          } aka "work with query handler" must beTrue.await(0, timeout)
-        }
+        withFlatDriver { implicit drv: MongoDriver ⇒
+          AcolyteDSL.withQueryHandler(
+            { _: Request ⇒ QueryResponse.empty })(_ ⇒ true)
+        } aka "work with query handler" must beTrue.await(0, timeout)
       }
 
       "from sync query result" in {
-        new Scope {
-
-          withFlatDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withQueryResult(QueryResponse(
-              BSONDocument("res" → "ult")))(_ ⇒ true)
-          } aka "work with query result" must beTrue.await(0, timeout)
-        }
+        withFlatDriver { implicit drv: MongoDriver ⇒
+          AcolyteDSL.withQueryResult(QueryResponse(
+            BSONDocument("res" → "ult")))(_ ⇒ true)
+        } aka "work with query result" must beTrue.await(0, timeout)
       }
 
       "from query handler with future result" in {
-        new Scope {
-
-          withFlatDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withFlatQueryHandler(
-              { _: Request ⇒ QueryResponse.undefined })(_ ⇒ Future(2 + 6))
-          } aka "work with query handler" must beEqualTo(8).await(0, timeout)
-        }
+        withFlatDriver { implicit drv: MongoDriver ⇒
+          AcolyteDSL.withFlatQueryHandler(
+            { _: Request ⇒ QueryResponse.undefined })(_ ⇒ Future(2 + 6))
+        } aka "work with query handler" must beEqualTo(8).await(0, timeout)
       }
 
       "from future query result" in {
-        new Scope {
-
-          withFlatDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withFlatQueryResult(QueryResponse(
-              BSONDocument("res" → "ult")))(_ ⇒ Future(1 + 2))
-          } aka "work with query result" must beEqualTo(3).await(0, timeout)
-        }
+        withFlatDriver { implicit drv: MongoDriver ⇒
+          AcolyteDSL.withFlatQueryResult(QueryResponse(
+            BSONDocument("res" → "ult")))(_ ⇒ Future(1 + 2))
+        } aka "work with query result" must beEqualTo(3).await(0, timeout)
       }
 
       "from sync write handler" in {
-        new Scope {
-
-          withFlatDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withWriteHandler(
-              { (_: WriteOp, _: Request) ⇒ WriteResponse(1) })(_ ⇒ true)
-          } aka "work with write result" must beTrue.await(0, timeout)
-        }
+        withFlatDriver { implicit drv: MongoDriver ⇒
+          AcolyteDSL.withWriteHandler(
+            { (_: WriteOp, _: Request) ⇒ WriteResponse(1) })(_ ⇒ true)
+        } aka "work with write result" must beTrue.await(0, timeout)
       }
 
       "from sync write result" in {
-        new Scope {
-
-          withFlatDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withWriteResult(WriteResponse("error"))(_ ⇒ true)
-          } aka "work with write result" must beTrue.await(0, timeout)
-        }
+        withFlatDriver { implicit drv: MongoDriver ⇒
+          AcolyteDSL.withWriteResult(WriteResponse("error"))(_ ⇒ true)
+        } aka "work with write result" must beTrue.await(0, timeout)
       }
 
       "from write handler with future result" in {
-        new Scope {
-
-          withFlatDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withFlatWriteHandler(
-              { (_: WriteOp, _: Request) ⇒ WriteResponse(1) })(_ ⇒ Future(1 + 6))
-          } aka "work with write result" must beEqualTo(7).await(0, timeout)
-        }
+        withFlatDriver { implicit drv: MongoDriver ⇒
+          AcolyteDSL.withFlatWriteHandler(
+            { (_: WriteOp, _: Request) ⇒ WriteResponse(1) })(_ ⇒ Future(1 + 6))
+        } aka "work with write result" must beEqualTo(7).await(0, timeout)
       }
 
       "from sync future result" in {

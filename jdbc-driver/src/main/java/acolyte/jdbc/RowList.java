@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.TreeSet;
 import java.util.List;
 import java.util.Map;
 
@@ -48,6 +49,7 @@ public abstract class RowList<R extends Row> {
      * @return Updated row list
      * @deprecated Append operation with multiple column values provided by sub-classes.
      */
+    @Deprecated
     protected abstract RowList<R> append(R row);
 
     /**
@@ -246,6 +248,7 @@ public abstract class RowList<R extends Row> {
     public final class RowResultSet<R extends Row> extends AbstractResultSet {
         final List<Class<?>> columnClasses;
         final Map<String,Integer> columnLabels;
+        final Map<Integer,Boolean> columnNullables;
         List<R> rows;
         final AbstractStatement statement;
         final SQLWarning warning;
@@ -259,18 +262,7 @@ public abstract class RowList<R extends Row> {
          * @param rows the list of rows
          */
         protected RowResultSet(final List<R> rows) {
-            if (rows == null) {
-                // Impossible
-                throw new IllegalArgumentException();
-            } // end of if
-
-            this.columnClasses = getColumnClasses();
-            this.columnLabels = getColumnLabels();
-            this.rows = Collections.unmodifiableList(rows);
-            this.statement = null; // detached
-            this.warning = null;
-            this.last = null;
-            super.fetchSize = rows.size();
+            this(rows, null, null, null);
         } // end of <init>
 
         /**
@@ -286,13 +278,38 @@ public abstract class RowList<R extends Row> {
                              final AbstractStatement statement,
                              final SQLWarning warning) {
 
-            if (rows == null) {
+            this(getColumnClasses(), getColumnLabels(), getColumnNullables(),
+                 rows, last, statement, warning);
+        } // end of <init>
+
+        /**
+         * Copy constructor.
+         * 
+         * @param columnClasses the column classes
+         * @param columnLabels the column labels
+         * @param columnNullables the nullable flags for the columns
+         * @param rows the list of rows
+         * @param last the cursor to last result
+         * @param statement the associated statement
+         * @param warning the SQL warning
+         */
+        private RowResultSet(final List<Class<?>> columnClasses,
+                             final Map<String, Integer> columnLabels,
+                             final Map<Integer, Boolean> columnNullables,
+                             final List<R> rows,
+                             final Object last,
+                             final AbstractStatement statement,
+                             final SQLWarning warning) {
+
+            if (columnClasses == null || columnLabels == null ||
+                columnNullables == null || rows == null) {
                 // Impossible
                 throw new IllegalArgumentException();
             } // end of if
 
-            this.columnClasses = getColumnClasses();
-            this.columnLabels = getColumnLabels();
+            this.columnClasses = columnClasses;
+            this.columnLabels = columnLabels;
+            this.columnNullables = columnNullables;
             this.rows = Collections.unmodifiableList(rows);
 
             this.statement = statement;
@@ -303,6 +320,7 @@ public abstract class RowList<R extends Row> {
             if (this.statement != null && super.fetchSize > 0 &&
                 "true".equals(this.statement.connection.getProperties().
                               get("acolyte.resultSet.initOnFirstRow"))) {
+
                 // Initially move to first row, contrary to JDBC specs
                 this.row = 1;
             }
@@ -335,6 +353,102 @@ public abstract class RowList<R extends Row> {
         } // end of withWarning
 
         /**
+         * Returns update resultset, with rows only including values 
+         * for the specified column.
+         *
+         * @param columNames the names of the columns
+         * @return Result set with the projected rows
+         */
+        public RowResultSet<Row> withProjection(final String[] columnNames) {
+            final ArrayList<Integer> indexes = new ArrayList<Integer>();
+
+            final HashMap<String, Integer> labels =
+                new HashMap<String, Integer>();
+
+            final HashMap<Integer,Boolean> nullables =
+                new HashMap<Integer,Boolean>();
+
+            int i = 1;
+            for (String name : columnNames) {
+                Integer index = this.columnLabels.get(name);
+                Boolean nable = this.columnNullables.get(index);
+
+                if (index != null) {
+                    final Integer updIdx = new Integer(i++);
+
+                    indexes.add(index);
+                    labels.put(name, updIdx);
+                    nullables.put(updIdx, nable);
+                }
+            }
+
+            return withProjection(indexes, labels, nullables);
+        } // end of withProjection
+
+        public RowResultSet<Row> withProjection(final int[] columnIndexes) {
+            final ArrayList<Integer> indexes = new ArrayList<Integer>();
+
+            final HashMap<String, Integer> labels =
+                new HashMap<String, Integer>();
+
+            final HashMap<Integer,Boolean> nullables =
+                new HashMap<Integer,Boolean>();
+
+            int upd = 1;
+
+            for (int index : columnIndexes) {
+                for (String columnName : this.columnLabels.keySet()) {
+                    final Integer i = this.columnLabels.get(columnName);
+
+                    if (i.intValue() == index) {
+                        final Boolean nable = this.columnNullables.get(i);
+                        final Integer updIdx = new Integer(upd++);
+
+                        indexes.add(i);
+                        labels.put(columnName, updIdx);
+                        nullables.put(updIdx, nable);
+                    }
+                }
+            }
+
+            return withProjection(indexes, labels, nullables);
+        }
+
+        private RowResultSet<Row> withProjection(final List<Integer> columnIndexes, final Map<String, Integer> labels, final Map<Integer, Boolean> nullables) {
+            final ArrayList<Class<?>> classes =
+                new ArrayList<Class<?>>(labels.size());
+
+            for (String name : labels.keySet()) {
+                Integer index = labels.get(name);
+                Class<?> cls = this.columnClasses.get(index.intValue()-1);
+
+                classes.add(cls);
+            }
+
+            // ---
+                
+            final ArrayList<Row> projected =
+                new ArrayList<Row>(this.rows.size());
+
+            for (R row : this.rows) {
+                final List<Object> orig = row.cells();
+
+                final ArrayList<Object> cells =
+                    new ArrayList<Object>(columnIndexes.size());
+
+                for (Integer index : columnIndexes) {
+                    cells.add(orig.get(index.intValue()-1));
+                }
+
+                projected.add(new Row.Untyped(cells));
+            }
+
+            return new RowResultSet(classes, labels, nullables, projected,
+                                    this.last, this.statement, this.warning);
+            
+        } // end of withProjection
+
+        /**
          * {@inheritDoc}
          */
         public SQLWarning getWarnings() throws SQLException {
@@ -359,6 +473,7 @@ public abstract class RowList<R extends Row> {
                 append(this.last, other.last).
                 append(this.columnClasses, other.columnClasses).
                 append(this.columnLabels, other.columnLabels).
+                append(this.columnNullables, other.columnNullables).
                 isEquals();
 
         } // end of equals
@@ -372,6 +487,7 @@ public abstract class RowList<R extends Row> {
                 append(this.last).
                 append(this.columnClasses).
                 append(this.columnLabels).
+                append(this.columnNullables).
                 toHashCode();
 
         } // end of hashCode
@@ -1356,16 +1472,10 @@ public abstract class RowList<R extends Row> {
          * {@inheritDoc}
          */
         public ResultSetMetaData getMetaData() throws SQLException {
-            final Map<String,Integer> colNames = this.columnLabels;
-            final HashMap<Integer,String> labels =
-                new HashMap<Integer,String>(colNames.size());
+            return new RowListMetaData(this.columnClasses,
+                                       this.columnLabels,
+                                       this.columnNullables);
 
-            for (final Map.Entry<String,Integer> kv : colNames.entrySet()) {
-                labels.put(kv.getValue(), kv.getKey());
-            } // end of for
-            // TODO: Review
-                
-            return new RowListMetaData();
         } // end of getMetaData
 
         /**
@@ -1460,10 +1570,13 @@ public abstract class RowList<R extends Row> {
         /**
          * No-arg constructor.
          */
-        private RowListMetaData() {
-            this.columnClasses = getColumnClasses();
-            this.columnLabels = getColumnLabels();
-            this.columnNullables = getColumnNullables();
+        private RowListMetaData(final List<Class<?>> columnClasses,
+                                final Map<String,Integer> columnLabels,
+                                final Map<Integer,Boolean> columnNullables) {
+
+            this.columnClasses = columnClasses;
+            this.columnLabels = columnLabels;
+            this.columnNullables = columnNullables;
         } // end of <init>
 
         // ---
