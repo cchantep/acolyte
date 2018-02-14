@@ -77,10 +77,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
   "Type-map setter" should {
     "refuse null mapping" in {
-      defaultCon.setTypeMap(null).
-        aka("setter") must throwA[SQLException](
-          message = "Invalid type-map")
-
+      defaultCon.setTypeMap(null) must throwA[SQLException]("Invalid type-map")
     }
   }
 
@@ -626,6 +623,43 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
   }
 
   "Prepared statement" should {
+    "support generated keys" >> {
+      import acolyte.jdbc.RowList.Column
+      import acolyte.jdbc.test.Params
+
+      lazy val meta = (Column(classOf[String], "a"), Column(classOf[Int], "b"))
+      lazy val generatedKeys = RowLists.rowList2(
+        meta._1, meta._2.withNullable(true)).append("Foo", 200)
+
+      lazy val h = new StatementHandler {
+        def isQuery(s: String) = false
+        def whenSQLQuery(s: String, p: Params) = sys.error("Not")
+        def whenSQLUpdate(s: String, p: Params) =
+          UpdateResult.One.withGeneratedKeys(generatedKeys)
+
+      }
+      lazy val c = connection(jdbcUrl, null,
+        new acolyte.jdbc.ConnectionHandler.Default(h))
+
+      def spec(s: java.sql.PreparedStatement) = {
+        (s.executeUpdate aka "update count" must_== 1).
+          and(s.getGeneratedKeys aka "generated keys" must beLike {
+            case ks ⇒ (ks.getStatement aka "keys statement" must_=== s).
+              and(ks.next aka "has first key" must beTrue).
+              and(ks.getInt(1) aka "first key" must_== 200).
+              and(ks.next aka "has second key" must beFalse)
+          })
+      }
+
+      "specified by column names" in {
+        spec(c.prepareStatement("TEST", Array("b")))
+      }
+
+      "specified by column indexes" in {
+        spec(c.prepareStatement("TEST", Array(2)))
+      }
+    }
+
     "be owned by connection" in {
       lazy val c = defaultCon
 
@@ -696,13 +730,6 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
         aka("creation") must throwA[SQLFeatureNotSupportedException](
           message = "Unsupported result set holdability")
 
-    }
-
-    "not support auto-generated keys" in {
-      (defaultCon.prepareStatement("TEST", Array[Int]()).
-        aka("creation") must throwA[SQLFeatureNotSupportedException]).
-        and(defaultCon.prepareStatement("TEST", Array[String]()).
-          aka("creation") must throwA[SQLFeatureNotSupportedException])
     }
   }
 

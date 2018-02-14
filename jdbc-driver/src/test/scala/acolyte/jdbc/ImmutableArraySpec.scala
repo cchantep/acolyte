@@ -3,7 +3,7 @@ package acolyte.jdbc
 import java.lang.{ Float ⇒ JFloat }
 import java.sql.Types
 
-import org.specs2.matcher.{ Expectable, Matcher, MatchersImplicits }
+import org.specs2.matcher.MatchersImplicits
 
 object ImmutableArraySpec
   extends org.specs2.mutable.Specification with MatchersImplicits {

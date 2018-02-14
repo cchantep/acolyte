@@ -2,8 +2,6 @@ package acolyte.jdbc
 
 import java.util.{ List ⇒ JList }
 
-import java.sql.ResultSet
-
 import acolyte.jdbc.StatementHandler.Parameter
 
 package object test {

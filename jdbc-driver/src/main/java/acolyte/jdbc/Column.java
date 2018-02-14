@@ -68,8 +68,8 @@ public final class Column<T> {
      * @param nullable Whether new metadata is nullable
      * @return an updated column definition with given nullable flag
      */
-    public Column withNullable(final boolean nullable) {
-        return new Column(this.columnClass, this.name, nullable);
+    public Column<T> withNullable(final boolean nullable) {
+        return new Column<T>(this.columnClass, this.name, nullable);
     } // end of withNullable
 
     // --- Object support ---

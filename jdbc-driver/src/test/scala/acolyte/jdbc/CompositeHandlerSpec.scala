@@ -130,7 +130,7 @@ object CompositeHandlerSpec extends Specification {
 
     "be successful for not-empty resultset" in {
       lazy val rows = RowLists.rowList2(classOf[String], classOf[Float]).
-        append(Rows.row2("str", 1.23.toFloat))
+        append("str", 1.23.toFloat)
 
       lazy val res =
         new CompositeHandler().withQueryHandler(new QueryHandler {

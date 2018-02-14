@@ -10,8 +10,6 @@ import org.specs2.mutable.Specification
 
 import acolyte.jdbc.test.EmptyConnectionHandler
 
-import org.apache.commons.lang3.reflect.TypeUtils
-
 object DriverSpec extends Specification with DriverUtils with DriverFixtures {
   "Acolyte driver" title
 
@@ -152,9 +150,8 @@ sealed trait DriverFixtures {
 
 sealed trait DriverUtils {
   import java.util.{ Properties ⇒ JProps }
-  import scala.collection.JavaConversions
 
-  private val driversLoaded = {
+  private val _ = {
     // Workaround for SBT-like classloaders
     val en = DriverManager.getDrivers
     while (en.hasMoreElements) en.nextElement
@@ -192,9 +189,14 @@ sealed trait DriverUtils {
     }
 
     d.connect(url, Option(props) match {
-      case Some(map) ⇒
-        properties.putAll(JavaConversions mapAsJavaMap props)
+      case Some(map) ⇒ {
+        map.foreach {
+          case (k, v) => properties.put(k, v)
+        }
+
         properties
+      }
+
       case _ ⇒ properties
     })
   }

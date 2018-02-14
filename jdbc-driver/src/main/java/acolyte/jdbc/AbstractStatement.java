@@ -10,6 +10,7 @@ import java.sql.BatchUpdateException;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.ResultSet;
+import java.sql.Statement;
 
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
@@ -154,6 +155,7 @@ abstract class AbstractStatement implements java.sql.Statement {
     public ResultSet executeQuery(final String sql) throws SQLException {
         checkClosed();
 
+        // Not an update, so no update count or generated keys
         this.updateCount = -1;
         this.generatedKeys = EMPTY_GENERATED_KEYS.withStatement(this);
 
@@ -176,7 +178,7 @@ abstract class AbstractStatement implements java.sql.Statement {
      * {@inheritDoc}
      */
     public int executeUpdate(final String sql) throws SQLException {
-        return executeUpdate(sql, RETURN_GENERATED_KEYS);
+        return executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
     } // end of executeUpdate
 
     /**

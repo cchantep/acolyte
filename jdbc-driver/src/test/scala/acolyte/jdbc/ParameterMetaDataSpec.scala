@@ -388,11 +388,11 @@ object ParameterMetaDataSpec
 }
 
 sealed trait ParameterMetaDataFixtures {
-  import scala.collection.JavaConversions
+  import scala.collection.JavaConverters
   import acolyte.jdbc.ParameterMetaData.ParameterDef
 
-  lazy val jdbcTypeMap = JavaConversions.mapAsScalaMap[Integer, String](
-    Defaults.jdbcTypeMappings).foldLeft(Map[Int, String]()) { (m, p) ⇒
+  lazy val jdbcTypeMap = JavaConverters.mapAsScalaMapConverter[Integer, String](
+    Defaults.jdbcTypeMappings).asScala.foldLeft(Map[Int, String]()) { (m, p) ⇒
       m + (p._1.toInt -> p._2)
     }
 
@@ -403,7 +403,8 @@ sealed trait ParameterMetaDataFixtures {
 
   def param(cn: String, m: Int = IN, st: Int = -1, stn: String, p: Int = -1, s: Int = -1, n: Int = UNKNOWN_NULL, sg: Boolean = false) = new ParameterDef(cn, m, st, stn, p, s, n, sg)
 
-  def metadata(p: Seq[ParameterDef] = Nil) = new ParameterMetaData(JavaConversions seqAsJavaList p)
+  def metadata(p: Seq[ParameterDef] = Nil) = new ParameterMetaData(
+    JavaConverters.seqAsJavaListConverter(p).asJava)
 
   lazy val twoParams = metadata(Seq(
     param(

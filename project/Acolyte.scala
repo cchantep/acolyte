@@ -21,9 +21,7 @@ object Acolyte extends Build with Dependencies with Format
       jdbcDriver, jdbcScala, jdbcClojure, studio).
     settings(Seq(
       organization in ThisBuild := "org.eu.acolyte",
-      javaOptions in ThisBuild ++= Seq(
-        "-source", javaVersion, "-target", javaVersion),
-      scalaVersion in ThisBuild := "2.12.3",
+      scalaVersion in ThisBuild := "2.12.4",
       scalacOptions in ThisBuild ++= Seq(
         "-unchecked", "-deprecation", "-feature"),
       scalacOptions in ThisBuild ++= {
@@ -48,7 +46,7 @@ object Acolyte extends Build with Dependencies with Format
         ) else baseOpts
       },
       crossScalaVersions in ThisBuild := Seq(
-        "2.10.5", "2.11.11", (scalaVersion in ThisBuild).value
+        "2.10.7", "2.11.12", (scalaVersion in ThisBuild).value
       )
     ) ++ Publish.settings ++ Release.settings) configure { p =>
       if (isJavaAtLeast("1.8")) {
@@ -59,5 +57,5 @@ object Acolyte extends Build with Dependencies with Format
 }
 
 trait Dependencies {
-  val specs2Test = "org.specs2" %% "specs2-core" % "3.9.4" % Test
+  val specs2Test = "org.specs2" %% "specs2-core" % "4.0.0" % Test
 }

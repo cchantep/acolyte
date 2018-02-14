@@ -1,6 +1,6 @@
 package acolyte.jdbc
 
-import java.sql.{ Date, SQLException }
+import java.sql.Date
 
 import org.specs2.mutable.Specification
 

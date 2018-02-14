@@ -67,6 +67,7 @@ trait JdbcDriver { deps: Dependencies ⇒
 
         }
       }
+
       f
     }
   }
@@ -143,9 +144,8 @@ trait JdbcDriver { deps: Dependencies ⇒
  * Rows utility/factory.
  * @deprecated Rows are created by append operation on row lists.
  */
-%s
-public final class Rows {""".format(pkg,
-          { if (deprecated) "@Deprecated" else "" }))
+@Deprecated
+public final class Rows {""".format(pkg))
 
         for (n ← 1 to lim) yield {
           val g = for (i ← 0 until n) yield letter(i)
