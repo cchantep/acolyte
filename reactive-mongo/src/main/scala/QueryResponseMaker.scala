@@ -2,6 +2,7 @@ package acolyte.reactivemongo
 
 import scala.util.Try
 
+import reactivemongo.io.netty.channel.ChannelId
 import reactivemongo.bson.BSONDocument
 import reactivemongo.core.protocol.Response
 
@@ -9,12 +10,12 @@ import reactivemongo.core.protocol.Response
  * Creates a query response for given channel ID and result.
  * @tparam T Result type
  */
-trait QueryResponseMaker[T] extends ((Int, T) ⇒ Option[Try[Response]]) {
+trait QueryResponseMaker[T] extends ((ChannelId, T) ⇒ Option[Try[Response]]) {
   /**
-   * @param channelId ID of Mongo channel
+   * @param chanId ID of Mongo channel
    * @param result Optional result to be wrapped into response
    */
-  def apply(channelId: Int, result: T): Option[Try[Response]]
+  def apply(chanId: ChannelId, result: T): Option[Try[Response]]
 }
 
 /** Response maker companion. */
@@ -23,7 +24,7 @@ object QueryResponseMaker {
   implicit object IdentityQueryResponseMaker
     extends QueryResponseMaker[PreparedResponse] {
 
-    def apply(channelId: Int, already: PreparedResponse): Option[Try[Response]] = already(channelId)
+    def apply(chanId: ChannelId, already: PreparedResponse): Option[Try[Response]] = already(chanId)
   }
 
   /**
@@ -36,8 +37,8 @@ object QueryResponseMaker {
    */
   implicit def TraversableQueryResponseMaker[T <: Traversable[BSONDocument]] =
     new QueryResponseMaker[T] {
-      def apply(channelId: Int, result: T): Option[Try[Response]] =
-        Some(MongoDB.QuerySuccess(channelId, result))
+      def apply(chanId: ChannelId, result: T): Option[Try[Response]] =
+        Some(MongoDB.QuerySuccess(chanId, result))
     }
 
   /**
@@ -49,7 +50,7 @@ object QueryResponseMaker {
    * }}}
    */
   implicit def SingleQueryResponseMaker = new QueryResponseMaker[BSONDocument] {
-    def apply(channelId: Int, result: BSONDocument): Option[Try[Response]] = Some(MongoDB.QuerySuccess(channelId, Seq(result)))
+    def apply(chanId: ChannelId, result: BSONDocument): Option[Try[Response]] = Some(MongoDB.QuerySuccess(chanId, Seq(result)))
   }
 
   /**
@@ -62,22 +63,23 @@ object QueryResponseMaker {
    * }}}
    */
   implicit def ErrorQueryResponseMaker = new QueryResponseMaker[String] {
-    def apply(channelId: Int, error: String): Option[Try[Response]] =
-      Some(MongoDB.QueryError(channelId, error))
+    def apply(chanId: ChannelId, error: String): Option[Try[Response]] =
+      Some(MongoDB.QueryError(chanId, error))
   }
 
   /**
    * Provides response maker for an error.
    *
    * {{{
+   * import reactivemongo.io.netty.channel.ChannelId
    * import acolyte.reactivemongo.QueryResponseMaker
    *
-   * val maker = implicitly[QueryResponseMaker[(String, Int)]]
+   * val maker = implicitly[QueryResponseMaker[(String, ChannelId)]]
    * }}}
    */
   implicit def ErrorCodeQueryResponseMaker = new QueryResponseMaker[(String, Int)] {
-    def apply(channelId: Int, error: (String, Int)): Option[Try[Response]] =
-      Some(MongoDB.QueryError(channelId, error._1, Some(error._2)))
+    def apply(chanId: ChannelId, error: (String, Int)): Option[Try[Response]] =
+      Some(MongoDB.QueryError(chanId, error._1, Some(error._2)))
   }
 
   /**
@@ -92,6 +94,6 @@ object QueryResponseMaker {
    */
   implicit def UndefinedQueryResponseMaker = new QueryResponseMaker[None.type] {
     /** @return None */
-    def apply(channelId: Int, undefined: None.type): Option[Try[Response]] = None
+    def apply(chanId: ChannelId, undefined: None.type): Option[Try[Response]] = None
   }
 }

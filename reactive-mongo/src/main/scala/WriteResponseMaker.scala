@@ -2,18 +2,19 @@ package acolyte.reactivemongo
 
 import scala.util.Try
 
+import reactivemongo.io.netty.channel.ChannelId
 import reactivemongo.core.protocol.Response
 
 /**
  * Creates a write response for given channel ID and result.
  * @tparam T Result type
  */
-trait WriteResponseMaker[T] extends ((Int, T) ⇒ Option[Try[Response]]) {
+trait WriteResponseMaker[T] extends ((ChannelId, T) ⇒ Option[Try[Response]]) {
   /**
-   * @param channelId ID of Mongo channel
+   * @param chanId ID of Mongo channel
    * @param result Optional result to be wrapped into response
    */
-  def apply(channelId: Int, result: T): Option[Try[Response]]
+  def apply(chanId: ChannelId, result: T): Option[Try[Response]]
 }
 
 /** Response maker companion. */
@@ -22,7 +23,7 @@ object WriteResponseMaker {
   implicit object IdentityWriteResponseMaker
     extends WriteResponseMaker[PreparedResponse] {
 
-    def apply(channelId: Int, already: PreparedResponse): Option[Try[Response]] = already(channelId)
+    def apply(chanId: ChannelId, already: PreparedResponse): Option[Try[Response]] = already(chanId)
   }
 
   /**
@@ -33,7 +34,7 @@ object WriteResponseMaker {
    * }}}
    */
   implicit def SuccessWriteResponseMaker = new WriteResponseMaker[(Int, Boolean)] {
-    def apply(channelId: Int, up: (Int, Boolean)): Option[Try[Response]] = Some(MongoDB.WriteSuccess(channelId, up._1, up._2))
+    def apply(chanId: ChannelId, up: (Int, Boolean)): Option[Try[Response]] = Some(MongoDB.WriteSuccess(chanId, up._1, up._2))
   }
 
   /**
@@ -45,8 +46,8 @@ object WriteResponseMaker {
    */
   implicit def SuccessNotUpdatedWriteResponseMaker =
     new WriteResponseMaker[Int] {
-      def apply(channelId: Int, count: Int): Option[Try[Response]] =
-        Some(MongoDB.WriteSuccess(channelId, count))
+      def apply(chanId: ChannelId, count: Int): Option[Try[Response]] =
+        Some(MongoDB.WriteSuccess(chanId, count))
     }
 
   /**
@@ -57,7 +58,7 @@ object WriteResponseMaker {
    * }}}
    */
   implicit def UnitWriteResponseMaker = new WriteResponseMaker[Unit] {
-    def apply(channelId: Int, effect: Unit): Option[Try[Response]] = Some(MongoDB.WriteSuccess(channelId, 0, false))
+    def apply(chanId: ChannelId, effect: Unit): Option[Try[Response]] = Some(MongoDB.WriteSuccess(chanId, 0, false))
   }
 
   /**
@@ -70,8 +71,8 @@ object WriteResponseMaker {
    * }}}
    */
   implicit def ErrorWriteResponseMaker = new WriteResponseMaker[String] {
-    def apply(channelId: Int, error: String): Option[Try[Response]] =
-      Some(MongoDB.WriteError(channelId, error, None))
+    def apply(chanId: ChannelId, error: String): Option[Try[Response]] =
+      Some(MongoDB.WriteError(chanId, error, None))
   }
 
   /**
@@ -85,7 +86,7 @@ object WriteResponseMaker {
    */
   implicit def ErrorCodeWriteResponseMaker =
     new WriteResponseMaker[(String, Int)] {
-      def apply(channelId: Int, error: (String, Int)): Option[Try[Response]] = Some(MongoDB.WriteError(channelId, error._1, Some(error._2)))
+      def apply(chanId: ChannelId, error: (String, Int)): Option[Try[Response]] = Some(MongoDB.WriteError(chanId, error._1, Some(error._2)))
     }
 
   /**
@@ -101,6 +102,6 @@ object WriteResponseMaker {
    */
   implicit def UndefinedWriteResponseMaker = new WriteResponseMaker[None.type] {
     /** @return None */
-    def apply(channelId: Int, undefined: None.type): Option[Try[Response]] = None
+    def apply(chanId: ChannelId, undefined: None.type): Option[Try[Response]] = None
   }
 }

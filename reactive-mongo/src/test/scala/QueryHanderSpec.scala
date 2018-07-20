@@ -1,5 +1,6 @@
 package acolyte.reactivemongo
 
+import reactivemongo.io.netty.channel.DefaultChannelId
 import reactivemongo.bson.{ BSONDocument, BSONInteger, BSONString }
 
 class QueryHandlerSpec extends org.specs2.mutable.Specification
@@ -7,12 +8,14 @@ class QueryHandlerSpec extends org.specs2.mutable.Specification
 
   "Query handler" title
 
+  @inline def channelId() = DefaultChannelId.newInstance()
+
   "Handler" should {
     "return a response with Traversable[BSONDocument]" in {
       implicitly[QueryHandler]({
         _: Request ⇒ QueryResponse(Seq(BSONDocument("prop" → "A")))
       }) aka "query handler" must beLike {
-        case h ⇒ h(1, query1) must beSome.which(
+        case h ⇒ h(channelId(), query1) must beSome.which(
           _ aka "response" must beResponse {
             case ValueDocument(("prop", BSONString("A")) :: Nil) :: Nil ⇒ ok
           })
@@ -23,7 +26,7 @@ class QueryHandlerSpec extends org.specs2.mutable.Specification
       implicitly[QueryHandler]({
         _: Request ⇒ QueryResponse.successful(BSONDocument("prop" → "A"))
       }) aka "query handler" must beLike {
-        case h ⇒ h(1, query1) must beSome.which(
+        case h ⇒ h(channelId(), query1) must beSome.which(
           _ aka "response" must beResponse {
             case ValueDocument(("prop", BSONString("A")) :: Nil) :: Nil ⇒ ok
           })
@@ -33,7 +36,7 @@ class QueryHandlerSpec extends org.specs2.mutable.Specification
     "return an empty successful response" in {
       implicitly[QueryHandler]({ _: Request ⇒ QueryResponse.empty }).
         aka("query handler") must beLike {
-          case h ⇒ h(1, query1) must beSome.which(
+          case h ⇒ h(channelId(), query1) must beSome.which(
             _ aka "response" must beResponse { case res if res.isEmpty ⇒ ok })
         }
     }
@@ -42,7 +45,7 @@ class QueryHandlerSpec extends org.specs2.mutable.Specification
       implicitly[QueryHandler]({ _: Request ⇒
         QueryResponse("Error message")
       }) aka "query handler" must beLike {
-        case h ⇒ h(1, query1) must beSome.which(
+        case h ⇒ h(channelId(), query1) must beSome.which(
           _ aka "response" must beQueryError("Error message"))
       }
     }
@@ -50,14 +53,14 @@ class QueryHandlerSpec extends org.specs2.mutable.Specification
     "return no response" in {
       implicitly[QueryHandler]({ _: Request ⇒ QueryResponse(None) }).
         aka("query handler") must beLike {
-          case h ⇒ h(1, query1) must beNone
+          case h ⇒ h(channelId(), query1) must beNone
         }
     }
 
     "be combined using orElse" in {
       QueryHandler { _ ⇒ QueryResponse.successful(BSONDocument("foo" → 1)) }.
         orElse(QueryHandler.empty) must beLike {
-          case h ⇒ h(1, query1) must beSome.which(
+          case h ⇒ h(channelId(), query1) must beSome.which(
             _ aka "response" must beResponse {
               case ValueDocument(("foo", BSONInteger(1)) :: Nil) :: Nil ⇒ ok
             })
@@ -68,7 +71,7 @@ class QueryHandlerSpec extends org.specs2.mutable.Specification
   "Empty handler" should {
     "return no response" in {
       QueryHandler.empty aka "query handler" must beLike {
-        case h ⇒ h(1, query1) must beNone
+        case h ⇒ h(channelId(), query1) must beNone
       }
     }
 
@@ -76,7 +79,7 @@ class QueryHandlerSpec extends org.specs2.mutable.Specification
       QueryHandler.empty.orElse(QueryHandler { _ ⇒
         QueryResponse.successful(BSONDocument("foo" → 1))
       }) aka "query handler" must beLike {
-        case h ⇒ h(1, query1) must beSome.which(
+        case h ⇒ h(channelId(), query1) must beSome.which(
           _ aka "response" must beResponse {
             case ValueDocument(("foo", BSONInteger(1)) :: Nil) :: Nil ⇒ ok
           })
@@ -100,20 +103,20 @@ class QueryHandlerSpec extends org.specs2.mutable.Specification
 
     "return no response" in {
       handler aka "mixed handler" must beLike {
-        case h ⇒ h(1, query1) aka "prepared" must beNone
+        case h ⇒ h(channelId(), query1) aka "prepared" must beNone
       }
     }
 
     "return an error response" in {
       handler aka "mixed handler" must beLike {
-        case h ⇒ h(2, query2) aka "prepared" must beSome.which(
+        case h ⇒ h(channelId(), query2) aka "prepared" must beSome.which(
           _ aka "query response" must beQueryError("Error #2"))
       }
     }
 
     "return an success response with many documents" in {
       handler aka "mixed handler" must beLike {
-        case h ⇒ h(3, query3) aka "prepared" must beSome.which(
+        case h ⇒ h(channelId(), query3) aka "prepared" must beSome.which(
           _ aka "query response" must beResponse {
             case ValueDocument(("prop", BSONString("A")) :: Nil) ::
               ValueDocument(("a", BSONInteger(1)) :: Nil) :: Nil ⇒ ok

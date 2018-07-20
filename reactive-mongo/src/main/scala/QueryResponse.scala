@@ -1,12 +1,13 @@
 package acolyte.reactivemongo
 
+import reactivemongo.io.netty.channel.ChannelId
 import _root_.reactivemongo.bson.BSONDocument
 
 /** Query response factory. */
 object QueryResponse {
   /** Creates a response for given `body`. */
   def apply[T](body: ⇒ T)(implicit mkResponse: QueryResponseMaker[T]): PreparedResponse = new PreparedResponse {
-    def apply(chanId: Int) = mkResponse(chanId, body)
+    def apply(chanId: ChannelId) = mkResponse(chanId, body)
   }
 
   /** Named factory for error response. */

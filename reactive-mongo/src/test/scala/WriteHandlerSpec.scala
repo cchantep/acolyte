@@ -1,5 +1,6 @@
 package acolyte.reactivemongo
 
+import reactivemongo.io.netty.channel.DefaultChannelId
 import reactivemongo.bson.{ BSONDocument, BSONBoolean, BSONInteger, BSONString }
 
 class WriteHandlerSpec extends org.specs2.mutable.Specification
@@ -7,12 +8,14 @@ class WriteHandlerSpec extends org.specs2.mutable.Specification
 
   "Write handler" title
 
+  @inline def channelId() = DefaultChannelId.newInstance()
+
   "Handler" should {
     "return a success response with existing document updated" in {
       implicitly[WriteHandler]({
         (_: WriteOp, _: Request) ⇒ WriteResponse(1 → true)
       }) aka "write handler" must beLike {
-        case h ⇒ h(1, write1._1, write1._2) must beSome.which(
+        case h ⇒ h(channelId(), write1._1, write1._2) must beSome.which(
           _ aka "result" must beResponse {
             _ aka "response" must beWriteSuccess(1, true)
           })
@@ -23,7 +26,7 @@ class WriteHandlerSpec extends org.specs2.mutable.Specification
       implicitly[WriteHandler]({
         (_: WriteOp, _: Request) ⇒ WriteResponse(0 → false)
       }) aka "write handler" must beLike {
-        case h ⇒ h(1, write1._1, write1._2) must beSome.which(
+        case h ⇒ h(channelId(), write1._1, write1._2) must beSome.which(
           _ aka "result" must beResponse {
             _ aka "response" must beWriteSuccess(0, false)
           })
@@ -34,7 +37,7 @@ class WriteHandlerSpec extends org.specs2.mutable.Specification
       implicitly[WriteHandler]({
         (_: WriteOp, _: Request) ⇒ WriteResponse({})
       }) aka "write handler" must beLike {
-        case h ⇒ h(1, write1._1, write1._2) must beSome.which(
+        case h ⇒ h(channelId(), write1._1, write1._2) must beSome.which(
           _ aka "result" must beResponse {
             _ aka "response" must beWriteSuccess(0, false)
           })
@@ -45,7 +48,7 @@ class WriteHandlerSpec extends org.specs2.mutable.Specification
       implicitly[WriteHandler]({ (_: WriteOp, _: Request) ⇒
         WriteResponse("Error message #1")
       }) aka "write handler" must beLike {
-        case h ⇒ h(2, write1._1, write1._2) must beSome.which(
+        case h ⇒ h(channelId(), write1._1, write1._2) must beSome.which(
           _ aka "response" must beWriteError("Error message #1"))
       }
     }
@@ -54,7 +57,7 @@ class WriteHandlerSpec extends org.specs2.mutable.Specification
       implicitly[WriteHandler]({ (_: WriteOp, _: Request) ⇒
         WriteResponse("Error message #2" → 7)
       }) aka "write handler" must beLike {
-        case h ⇒ h(2, write1._1, write1._2) must beSome.which(
+        case h ⇒ h(channelId(), write1._1, write1._2) must beSome.which(
           _ aka "response" must beWriteError("Error message #2", Some(7)))
       }
     }
@@ -63,14 +66,14 @@ class WriteHandlerSpec extends org.specs2.mutable.Specification
       implicitly[WriteHandler]({ (_: WriteOp, _: Request) ⇒
         WriteResponse(None)
       }) aka "write handler" must beLike {
-        case h ⇒ h(1, write1._1, write1._2) must beNone
+        case h ⇒ h(channelId(), write1._1, write1._2) must beNone
       }
     }
 
     "be combined using orElse" in {
       WriteHandler { (_, _) ⇒ WriteResponse(1 → true) }.
         orElse(WriteHandler.empty) must beLike {
-          case h ⇒ h(1, write1._1, write1._2) must beSome.which(
+          case h ⇒ h(channelId(), write1._1, write1._2) must beSome.which(
             _ aka "response" must beResponse {
               _ aka "response" must beWriteSuccess(1, true)
             })
@@ -81,14 +84,14 @@ class WriteHandlerSpec extends org.specs2.mutable.Specification
   "Empty handler" should {
     "return no response" in {
       WriteHandler.empty aka "write handler" must beLike {
-        case h ⇒ h(1, write1._1, write1._2) must beNone
+        case h ⇒ h(channelId(), write1._1, write1._2) must beNone
       }
     }
 
     "be combined using orElse" in {
       WriteHandler.empty.orElse(
         WriteHandler { (_, _) ⇒ WriteResponse(1 → true) }) must beLike {
-          case h ⇒ h(1, write1._1, write1._2) must beSome.which(
+          case h ⇒ h(channelId(), write1._1, write1._2) must beSome.which(
             _ aka "response" must beResponse {
               _ aka "response" must beWriteSuccess(1, true)
             })
@@ -107,16 +110,16 @@ class WriteHandlerSpec extends org.specs2.mutable.Specification
     }
 
     "return no response" in {
-      handler(1, write1._1, write1._2) aka "prepared" must beNone
+      handler(channelId(), write1._1, write1._2) aka "prepared" must beNone
     }
 
     "return an error response" in {
-      handler(2, write2._1, write2._2) aka "prepared" must beSome.which(
+      handler(channelId(), write2._1, write2._2) aka "prepared" must beSome.which(
         _ aka "write response" must beWriteError("Error #2"))
     }
 
     "return an success response" in {
-      handler(3, write3._1, write3._2) aka "prepared" must beSome.which(
+      handler(channelId(), write3._1, write3._2) aka "prepared" must beSome.which(
         _ aka "write response" must beResponse {
           case ValueDocument(("ok", BSONInteger(1)) ::
             ("updatedExisting", BSONBoolean(true)) ::
@@ -135,7 +138,7 @@ class WriteHandlerSpec extends org.specs2.mutable.Specification
             WriteResponse.successful(1, false)
           case _ ⇒ WriteResponse.failed("Unexpected")
         }
-      } apply (2, InsertOp, new Request {
+      } apply (channelId(), InsertOp, new Request {
         val collection = "col1"
         val body = List(BSONDocument("a" → 1, "b" → true))
       }) aka "prepared" must beSome.which(
@@ -152,7 +155,7 @@ class WriteHandlerSpec extends org.specs2.mutable.Specification
 
           case _ ⇒ WriteResponse.failed("Unexpected")
         }
-      } apply (3, UpdateOp, new Request {
+      } apply (channelId(), UpdateOp, new Request {
         val collection = "col2"
         val body = List(
           BSONDocument("id" → "id1"),
@@ -170,7 +173,7 @@ class WriteHandlerSpec extends org.specs2.mutable.Specification
 
           case _ ⇒ WriteResponse.failed("Unexpected")
         }
-      } apply (4, DeleteOp, new Request {
+      } apply (channelId(), DeleteOp, new Request {
         val collection = "col3"
         val body = List(BSONDocument("name" → "xyz"))
       }) aka "prepared" must beSome.which(

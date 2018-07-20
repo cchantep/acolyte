@@ -64,7 +64,11 @@ object ConnectionManager {
     def open(driver: MongoDriver, handler: ConnectionHandler) = {
       val sys = driver.system
       val actorRef = sys.actorOf(Props(classOf[Actor], handler))
-      new MongoConnection(sys, actorRef, MongoConnectionOptions())
+
+      new MongoConnection(
+        s"supervisor-${System identityHashCode actorRef}",
+        s"connection-${System identityHashCode actorRef}",
+        sys, actorRef, MongoConnectionOptions())
     }
 
     /** Releases connection if necessary. */

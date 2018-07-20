@@ -1,6 +1,7 @@
 package acolyte.reactivemongo
 
 import reactivemongo.bson.BSONDocument
+import reactivemongo.io.netty.channel.DefaultChannelId
 import reactivemongo.core.protocol.{
   Delete,
   Insert,
@@ -11,9 +12,11 @@ import reactivemongo.core.protocol.{
 class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
   "MongoDB" title
 
+  @inline def channelId() = DefaultChannelId.newInstance()
+
   "Response to successful query" should {
     s"contains one expected document BSONDocument(${doc1.elements.toList})" in {
-      MongoDB.QuerySuccess(1, Seq(doc1)).
+      MongoDB.QuerySuccess(channelId(), Seq(doc1)).
         aka("response") must beSuccessfulTry.which {
           Response.parse(_).toList aka "results" must beLike {
             case first :: Nil ⇒
@@ -23,7 +26,7 @@ class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
     }
 
     s"contains expected collection of 3 documents" in {
-      MongoDB.QuerySuccess(2, Seq(doc2, doc1, doc3)) aka "response" must {
+      MongoDB.QuerySuccess(channelId(), Seq(doc2, doc1, doc3)) aka "response" must {
         beSuccessfulTry.which {
           Response.parse(_).toList aka "results" must beLike {
             case a :: b :: c :: Nil ⇒
@@ -49,7 +52,8 @@ class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
     }
 
     "be expected error #1" in {
-      MongoDB.QueryError(2, "Error #1") aka "response" must beSuccessfulTry.
+      MongoDB.QueryError(channelId(), "Error #1").
+        aka("response") must beSuccessfulTry.
         which(shouldMatch(_, "Error #1"))
     }
   }
@@ -79,7 +83,7 @@ class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
 
   "Response to write failure" should {
     "contain expected BSON without code" in {
-      MongoDB.WriteError(3, "Write Error #1").
+      MongoDB.WriteError(channelId(), "Write Error #1").
         aka("response") must beSuccessfulTry.
         which(Response.parse(_).toList aka "error" must beLike {
           case doc :: Nil ⇒ doc aka "error document" must_== doc4
@@ -87,7 +91,7 @@ class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
     }
 
     "contain expected BSON with code" in {
-      MongoDB.WriteError(4, "Write Error #2", Some(3)).
+      MongoDB.WriteError(channelId(), "Write Error #2", Some(3)).
         aka("response") must beSuccessfulTry.
         which(Response.parse(_).toList aka "error" must beLike {
           case doc :: Nil ⇒ doc aka "error document" must_== doc5
@@ -97,17 +101,18 @@ class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
 
   "Response to write success" should {
     "contain expected BSON when no existing document was updated" in {
-      MongoDB.WriteSuccess(5, 1) aka "response" must beSuccessfulTry.
+      MongoDB.WriteSuccess(channelId(), 1) aka "response" must beSuccessfulTry.
         which(Response.parse(_).toList aka "response" must beLike {
           case doc :: Nil ⇒ doc aka "success" must_== doc6
         })
     }
 
     "contain expected BSON when existing document was updated" in {
-      MongoDB.WriteSuccess(5, 2, true) aka "response" must beSuccessfulTry.
-        which(Response.parse(_).toList aka "response" must beLike {
-          case doc :: Nil ⇒ doc aka "success" must_== doc7
-        })
+      MongoDB.WriteSuccess(channelId(), 2, true).
+        aka("response") must beSuccessfulTry.which(
+          Response.parse(_).toList aka "response" must beLike {
+            case doc :: Nil ⇒ doc aka "success" must_== doc7
+          })
     }
   }
 }
