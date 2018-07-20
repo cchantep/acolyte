@@ -1,8 +1,9 @@
 import sbt._
 import Keys._
 
-trait ReactiveMongo { deps: Dependencies with Format ⇒
-  def scalacPlugin: Project
+class ReactiveMongo(scalacPlugin: Project) { self =>
+  import Dependencies._
+  import Format._
 
   val reactiveResolvers = Seq(
     "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/releases/",
@@ -14,28 +15,30 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
 
   val reactiveMongoVer = "0.15.0"
 
-  lazy val reactiveMongo =
+  lazy val project =
     Project(id = "reactive-mongo", base = file("reactive-mongo")).
       settings(formatSettings).settings(
         name := "reactive-mongo",
         fork in Test := true,
         javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
-        scalacOptions <++= (version in ThisBuild).
-          zip(scalaVersion in ThisBuild).
-          zip(baseDirectory in (scalacPlugin, Compile)).
-          zip(name in (scalacPlugin, Compile)) map { d =>
-            val (((v, sv), b), n) = d
-            val msv =
-              if (sv startsWith "2.10") "2.10"
-              else if (sv startsWith "2.11") "2.11"
-              else if (sv startsWith "2.12") "2.12"
-              else sv
+        scalacOptions ++= {
+          val v = (version in ThisBuild).value
+          val sv = (scalaVersion in ThisBuild).value
+          val b = (baseDirectory in (scalacPlugin, Compile)).value
+          val n = (name in (scalacPlugin, Compile)).value
 
-            val td = b / "target" / s"scala-$msv"
-            val j = td / s"${n}_${msv}-$v.jar"
+          val msv = {
+            if (sv startsWith "2.10") "2.10"
+            else if (sv startsWith "2.11") "2.11"
+            else if (sv startsWith "2.12") "2.12"
+            else sv
+          }
 
-            Seq("-feature", "-deprecation", s"-Xplugin:${j.getAbsolutePath}")
-          },
+          val td = b / "target" / s"scala-$msv"
+          val j = td / s"${n}_${msv}-$v.jar"
+
+          Seq("-feature", "-deprecation", s"-Xplugin:${j.getAbsolutePath}")
+        },
         resolvers ++= reactiveResolvers,
         libraryDependencies ++= Seq(
           "org.reactivemongo" %% "reactivemongo" % reactiveMongoVer % "provided",
@@ -46,7 +49,7 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
         )
       ).dependsOn(scalacPlugin)
 
-  lazy val playReactiveMongo =
+  lazy val playProject =
     Project(id = "play-reactive-mongo", base = file("play-reactive-mongo")).
       settings(formatSettings).settings(
         name := "play-reactive-mongo",
@@ -83,6 +86,6 @@ trait ReactiveMongo { deps: Dependencies with Format ⇒
             specs2Test
           )
         }
-      ).dependsOn(scalacPlugin, reactiveMongo)
+      ).dependsOn(scalacPlugin, self.project)
 
 }

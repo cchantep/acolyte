@@ -3,8 +3,10 @@ import scala.util.Properties.isJavaAtLeast
 import sbt._
 import Keys._
 
-trait JdbcDriver { deps: Dependencies ⇒
-  lazy val jdbcDriver =
+object JdbcDriver {
+  import Dependencies._
+
+  lazy val project =
     Project(id = "jdbc-driver", base = file("jdbc-driver")).settings(
       name := "jdbc-driver",
       javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
@@ -14,12 +16,14 @@ trait JdbcDriver { deps: Dependencies ⇒
         "commons-io" % "commons-io" % "2.5",
         "org.apache.commons" % "commons-lang3" % "3.6", specs2Test),
       crossPaths := false,
-      sourceGenerators in Compile <+= (baseDirectory in Compile) zip (sourceManaged in Compile) map (dirs ⇒ {
-        val (base, managed) = dirs
+      sourceGenerators in Compile += Def.task[Seq[File]] {
+        val base = (baseDirectory in Compile).value
+        val managed = (sourceManaged in Compile).value
+
         generateCallableStatement(base, managed / "acolyte" / "jdbc") +:
         generateRowClasses(base, managed / "acolyte" / "jdbc",
           "acolyte.jdbc", false)
-      }))
+      })
 
   // Source generators
   private def generateCallableStatement(basedir: File, outdir: File): File = {

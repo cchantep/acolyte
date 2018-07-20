@@ -1,39 +1,45 @@
 import sbt._
 import Keys._
 
-trait PlayJdbc { deps: Dependencies with Format ⇒
-  // Dependencies
-  def scalacPlugin: Project
-  def jdbcScala: Project
+class PlayJdbc(
+  scalacPlugin: Project,
+  jdbcScala: Project) {
 
-  lazy val playJdbc = 
+  import Dependencies._
+  import Format._
+
+  lazy val project = 
     Project(id = "play-jdbc", base = file("play-jdbc")).
       settings(formatSettings).settings(
         name := "play-jdbc",
         javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
         scalacOptions in Compile ++= Seq("-unchecked", "-deprecation"),
-        scalacOptions in Compile <++= (scalaVersion in ThisBuild).map { v =>
+        scalacOptions in Compile ++= {
+          val v = (scalaVersion in ThisBuild).value
+
           if (v startsWith "2.11") Seq("-Ywarn-unused-import")
           else Nil
         },
-        scalacOptions in Test <++= (version in ThisBuild).
-          zip(scalaVersion in ThisBuild).
-          zip(baseDirectory in (scalacPlugin, Compile)).
-          zip(name in (scalacPlugin, Compile)) map { d =>
-            val (((v, sv), b), n) = d
-            val msv =
-              if (sv startsWith "2.10") "2.10"
-              else if (sv startsWith "2.11") "2.11"
-              else if (sv startsWith "2.12") "2.12"
-              else sv
+        scalacOptions in Test ++= {
+          val v = (version in ThisBuild).value
+          val sv = (scalaVersion in ThisBuild).value
+          val b = (baseDirectory in (scalacPlugin, Compile)).value
+          val n = (name in (scalacPlugin, Compile)).value
 
-            val td = b / "target" / s"scala-$msv"
-            val j = td / s"${n}_${msv}-$v.jar"
+          val msv = {
+            if (sv startsWith "2.10") "2.10"
+            else if (sv startsWith "2.11") "2.11"
+            else if (sv startsWith "2.12") "2.12"
+            else sv
+          }
 
-            Seq("-feature", "-deprecation", s"-Xplugin:${j.getAbsolutePath}")
-          },
-        compile in Test <<= (compile in Test).
-          dependsOn(compile in (scalacPlugin, Test)),
+          val td = b / "target" / s"scala-$msv"
+          val j = td / s"${n}_${msv}-$v.jar"
+
+          Seq("-feature", "-deprecation", s"-Xplugin:${j.getAbsolutePath}")
+        },
+        compile in Test := (compile in Test).
+          dependsOn(compile in (scalacPlugin, Test)).value,
         // make sure plugin is there
         libraryDependencies ++= {
           val (playVer, anormVer) = {

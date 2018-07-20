@@ -1,44 +1,49 @@
 import sbt._
 import Keys._
 
-trait JdbcScala { deps: Dependencies with Format ⇒
-  // Dependencies
-  def jdbcDriver: Project
-  def scalacPlugin: Project
+class JdbcScala(
+  jdbcDriver: Project,
+  scalacPlugin: Project) {
 
-  lazy val jdbcScala = 
+  import Dependencies._
+  import Format._
+
+  lazy val project = 
     Project(id = "jdbc-scala", base = file("jdbc-scala")).
       settings(formatSettings).settings(
         name := "jdbc-scala",
         javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
-        scalacOptions in Test <++= (version in ThisBuild).
-          zip(scalaVersion in ThisBuild).
-          zip(baseDirectory in (scalacPlugin, Compile)).
-          zip(name in (scalacPlugin, Compile)) map { d =>
-            val (((v, sv), b), n) = d
-            val msv =
-              if (sv startsWith "2.10") "2.10"
-              else if (sv startsWith "2.11") "2.11"
-              else if (sv startsWith "2.12") "2.12"
-              else sv
+        scalacOptions in Test ++= {
+          val v = (version in ThisBuild).value
+          val sv = (scalaVersion in ThisBuild).value
+          val b = (baseDirectory in (scalacPlugin, Compile)).value
+          val n = (name in (scalacPlugin, Compile)).value
 
-            val td = b / "target" / s"scala-$msv"
-            val j = td / s"${n}_${msv}-$v.jar"
+          val msv = {
+            if (sv startsWith "2.10") "2.10"
+            else if (sv startsWith "2.11") "2.11"
+            else if (sv startsWith "2.12") "2.12"
+            else sv
+          }
 
-            Seq("-feature", "-deprecation", s"-Xplugin:${j.getAbsolutePath}")
-          },
-        compile in Test <<= (compile in Test).
-          dependsOn(compile in (scalacPlugin, Test)), 
+          val td = b / "target" / s"scala-$msv"
+          val j = td / s"${n}_${msv}-$v.jar"
+
+          Seq("-feature", "-deprecation", s"-Xplugin:${j.getAbsolutePath}")
+        },
+        compile in Test := (compile in Test).
+          dependsOn(compile in (scalacPlugin, Test)).value,
         // make sure plugin is there
         libraryDependencies ++= Seq(
           "org.eu.acolyte" % "jdbc-driver" % (version in ThisBuild).value,
           specs2Test),
-        sourceGenerators in Compile <+= (baseDirectory in Compile).
-          zip(sourceManaged in Compile) map (dirs ⇒ {
-            val (base, managed) = dirs
-            generateRowClasses(base, managed / "acolyte" / "jdbc",
-              "acolyte.jdbc", false)
-          })).dependsOn(scalacPlugin, jdbcDriver)
+        sourceGenerators in Compile += Def.task[Seq[File]] {
+          val base = (baseDirectory in Compile).value
+          val managed = (sourceManaged in Compile).value
+
+          generateRowClasses(base, managed / "acolyte" / "jdbc",
+            "acolyte.jdbc", false)
+        }).dependsOn(scalacPlugin, jdbcDriver)
 
   // Source generator
   private def generateRowClasses(base: File, outdir: File, pkg: String, deprecated: Boolean): Seq[File] = {

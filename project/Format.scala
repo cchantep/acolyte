@@ -4,7 +4,7 @@ import sbt._
 import com.typesafe.sbt.SbtScalariform.autoImport.scalariformPreferences
 import scalariform.formatter.preferences._
 
-trait Format {
+object Format {
   lazy val formatSettings = Seq(
     scalariformPreferences := scalariformPreferences.value.
       setPreference(AlignParameters, false).

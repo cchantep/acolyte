@@ -101,7 +101,7 @@ object ScalaUseCases {
           (rowList3(classOf[String], classOf[Int], classOf[Long]) :+ (
             "useCase_3str", 2, 3l)).asResult
 
-        case q ⇒ QueryResult.Nil withWarning "Now you're warned"
+        case _ ⇒ QueryResult.Nil withWarning "Now you're warned"
       }
 
     // Register prepared handler with expected ID 'handler3'
