@@ -3,6 +3,14 @@ layout: page
 title: Changelog
 ---
 
+## 1.0.48
+
+Support ReactiveMongo 0.15
+
+## 1.0.47
+
+Support ReactiveMongo 0.13
+
 ## 1.0.46
 
 Support `bulkInsert` for ReactiveMongo testing.

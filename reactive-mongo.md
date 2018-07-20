@@ -286,7 +286,7 @@ import scala.util.{ Failure, Success }
 import reactivemongo.api.collections.bson.BSONCollection
 
 def bar(col: BSONCollection) = col.find(BSONDocument("anyQuery" -> 1)).
-  cursor[BSONDocument].collect[List]().onComplete {
+  cursor[BSONDocument]().collect[List]().onComplete {
     case Success(res) => ??? // In case of response given by provided handler
     case Failure(err) => ??? // "No response: " if case not handled
   }
@@ -590,13 +590,15 @@ It can be used with [specs2](http://etorreborre.github.io/specs2/) to write exec
 import reactivemongo.bson.BSONDocument
 import acolyte.reactivemongo.{ AcolyteDSL, QueryResponse }
 
-import org.specs2.concurrent.{ ExecutionEnv => EE }
+import org.specs2.concurrent.ExecutionEnv
 
-class MySpec1 extends org.specs2.mutable.Specification {
+class MySpec1(implicit ee: ExecutionEnv)
+  extends org.specs2.mutable.Specification {
+
   implicit def driverProvider: reactivemongo.api.MongoDriver = ???
 
   "Mongo persistence" should {
-    "properly work with query result" in { implicit ee: EE =>
+    "properly work with query result" in {
       def res = QueryResponse(BSONDocument("foo" -> 1))
 
       AcolyteDSL.withQueryResult(res) { driver =>
