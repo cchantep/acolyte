@@ -163,18 +163,23 @@ class RequestSpec extends org.specs2.mutable.Specification
   }
 
   "Unordered property list" should {
+    val Age = Property("age")
+    val Email = Property("email")
+    val Meta = Property("meta")
+    val Greater = Property("$gt")
+
     "match 'email' property" >> {
       "on request #1" in {
         request1 aka "request" must beLike {
           case Request("db1.col1", SimpleBody(
-            ~(Property("email"), BSONString("em@il.net")))) ⇒ ok
+            Email(BSONString("em@il.net")))) ⇒ ok
         }
       }
 
       "on request #2" in {
         request2 aka "request" must beLike {
           case Request("db1.col2", SimpleBody(
-            ~(Property("email"), BSONString("em@il.net")))) ⇒ ok
+            Email(BSONString("em@il.net")))) ⇒ ok
         }
       }
     }
@@ -183,14 +188,14 @@ class RequestSpec extends org.specs2.mutable.Specification
       "on request #1" in {
         request1 aka "request" must beLike {
           case Request("db1.col1", SimpleBody(
-            ~(Property("email"), email))) ⇒
+            Email(email))) ⇒
             email aka "email" must_== BSONString("em@il.net")
         }
       }
 
       "on request #2" in {
         request2 aka "request" must beLike {
-          case Request("db1.col2", SimpleBody(~(Property("email"), email))) ⇒
+          case Request("db1.col2", SimpleBody(Email(email))) ⇒
             email aka "email" must_== BSONString("em@il.net")
         }
       }
@@ -200,7 +205,7 @@ class RequestSpec extends org.specs2.mutable.Specification
       "on request #1" in {
         request1 aka "request" must beLike {
           case Request("db1.col1", SimpleBody(
-            ~(Property("email"), BSONString(email)))) ⇒
+            Email(BSONString(email)))) ⇒
             email aka "email" must_== "em@il.net"
         }
       }
@@ -208,7 +213,7 @@ class RequestSpec extends org.specs2.mutable.Specification
       "on request #2" in {
         request2 aka "request" must beLike {
           case Request("db1.col2", SimpleBody(
-            ~(Property("email"), BSONString(email)))) ⇒
+            Email(BSONString(email)))) ⇒
             email aka "email" must_== "em@il.net"
         }
       }
@@ -218,8 +223,8 @@ class RequestSpec extends org.specs2.mutable.Specification
       "on request #1 in same order" in {
         request1 aka "request #1" must beLike {
           case Request("db1.col1", SimpleBody(
-            ~(Property("email"), BSONString("em@il.net")) &
-              ~(Property("age"), BSONInteger(11)))) ⇒ ok
+            Email(BSONString("em@il.net")) &
+              Age(BSONInteger(11)))) ⇒ ok
 
         }
       }
@@ -227,8 +232,8 @@ class RequestSpec extends org.specs2.mutable.Specification
       "on request #1 in reverse order" in {
         request1 aka "request #1" must beLike {
           case Request("db1.col1", SimpleBody(
-            ~(Property("age"), BSONInteger(11)) &
-              ~(Property("email"), BSONString("em@il.net")))) ⇒ ok
+            Age(BSONInteger(11)) &
+              Email(BSONString("em@il.net")))) ⇒ ok
 
         }
       }
@@ -236,9 +241,9 @@ class RequestSpec extends org.specs2.mutable.Specification
       "on request #2 in same order" in {
         request2 aka "request #2" must beLike {
           case Request("db1.col2", SimpleBody(
-            ~(Property("email"), BSONString("em@il.net")) &
-              ~(Property("age"), ValueDocument(
-                ~(Property("$gt"), BSONInteger(10)))))) ⇒ ok
+            Email(BSONString("em@il.net")) &
+              Age(ValueDocument(
+                Greater(BSONInteger(10)))))) ⇒ ok
 
         }
       }
@@ -246,9 +251,9 @@ class RequestSpec extends org.specs2.mutable.Specification
       "on request #2 in reverse order" in {
         request2 aka "request #2" must beLike {
           case Request("db1.col2", SimpleBody(
-            ~(Property("age"), ValueDocument(
-              ~(Property("$gt"), BSONInteger(10)))) &
-              ~(Property("email"), BSONString("em@il.net")))) ⇒ ok
+            Age(ValueDocument(
+              Greater(BSONInteger(10)))) &
+              Email(BSONString("em@il.net")))) ⇒ ok
 
         }
       }
@@ -258,16 +263,16 @@ class RequestSpec extends org.specs2.mutable.Specification
       "on request #2 in same order with different 'age' type" in {
         request2 aka "request #2" must not(beLike {
           case Request("db1.col2", SimpleBody(
-            ~(Property("email"), BSONString("em@il.net")) &
-              ~(Property("age"), BSONInteger(11)))) ⇒ ok
+            Email(BSONString("em@il.net")) &
+              Age(BSONInteger(11)))) ⇒ ok
 
         })
       }
 
       "on request #2 in reverse order with different 'email' type" in {
         request2 aka "request #2" must not(beLike {
-          case Request("db1.col2", SimpleBody(~(Property("age"), _) &
-            ~(Property("email"), BSONInteger(_)))) ⇒ ok
+          case Request("db1.col2", SimpleBody(Age(_) &
+            Email(BSONInteger(_)))) ⇒ ok
 
         })
       }
@@ -276,8 +281,8 @@ class RequestSpec extends org.specs2.mutable.Specification
     "extract 'age' properties as BSON values" >> {
       "on request #2 in same order" in {
         request2 aka "request" must beLike {
-          case Request("db1.col2", SimpleBody(~(Property("age"), ValueDocument(
-            ~(Property("meta"), meta) & ~(Property("$gt"), gt))))) ⇒
+          case Request("db1.col2", SimpleBody(Age(ValueDocument(
+            Meta(meta) & Greater(gt))))) ⇒
 
             gt aka "gt" must_== BSONInteger(10) and (
               meta aka "meta" must_== BSONString("y"))
@@ -286,8 +291,8 @@ class RequestSpec extends org.specs2.mutable.Specification
 
       "on request #2 in reverse order" in {
         request2 aka "request" must beLike {
-          case Request("db1.col2", SimpleBody(~(Property("age"), ValueDocument(
-            ~(Property("$gt"), gt) & ~(Property("meta"), meta))))) ⇒
+          case Request("db1.col2", SimpleBody(Age(ValueDocument(
+            Greater(gt) & Meta(meta))))) ⇒
 
             gt aka "gt" must_== BSONInteger(10) and (
               meta aka "meta" must_== BSONString("y"))
@@ -300,9 +305,9 @@ class RequestSpec extends org.specs2.mutable.Specification
     "extract 'age' properties as Scala values" >> {
       "on request #2 in same order" in {
         request2 aka "request" must beLike {
-          case Request("db1.col2", SimpleBody(~(Property("age"), ValueDocument(
-            ~(Property("meta"), BSONString(meta)) &
-              ~(Property("$gt"), BSONInteger(gt)))))) ⇒
+          case Request("db1.col2", SimpleBody(Age(ValueDocument(
+            Meta(BSONString(meta)) &
+              Greater(BSONInteger(gt)))))) ⇒
 
             gt aka "gt" must_== 10 and (meta aka "meta" must_== "y")
         }
@@ -310,9 +315,9 @@ class RequestSpec extends org.specs2.mutable.Specification
 
       "on request #2 in reverse order" in {
         request2 aka "request" must beLike {
-          case Request("db1.col2", SimpleBody(~(Property("age"), ValueDocument(
-            ~(Property("$gt"), BSONInteger(gt)) &
-              ~(Property("meta"), BSONString(meta)))))) ⇒
+          case Request("db1.col2", SimpleBody(Age(ValueDocument(
+            Greater(BSONInteger(gt)) &
+              Meta(BSONString(meta)))))) ⇒
 
             gt aka "gt" must_== 10 and (meta aka "meta" must_== "y")
         }

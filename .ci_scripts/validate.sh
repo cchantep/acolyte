@@ -1,16 +1,10 @@
-#! /bin/bash
+#! /usr/bin/env bash
+
+set -e
 
 SCRIPT_DIR=`dirname $0`
 
-source "$SCRIPT_DIR/jvmopts.sh"
-
-cat > /dev/stdout <<EOF
-- JVM options: $JVM_OPTS
-EOF
-
-export JVM_OPTS
-
-if [ "$TRAVIS_SCALA_VERSION" = "2.10.5" -a `javac -version 2>&1 | grep 1.7 | wc -l` -eq 1 ]; then
+if [ "$TRAVIS_SCALA_VERSION" = "2.10.7" -a `javac -version 2>&1 | grep 1.7 | wc -l` -eq 1 ]; then
     echo "[INFO] Check the source format and backward compatibility"
 
     sbt ++$TRAVIS_SCALA_VERSION scalariformFormat test:scalariformFormat > /dev/null
@@ -25,4 +19,14 @@ EOF
     sbt ++$TRAVIS_SCALA_VERSION ";error ;mimaReportBinaryIssues" || exit 2
 fi
 
-sbt ++$TRAVIS_SCALA_VERSION 'testOnly'
+sbt ++$TRAVIS_SCALA_VERSION ';clean ;package'
+
+PROJECTS="scalac-plugin jdbc-driver jdbc-java8 jdbc-scala"
+PROJECTS="$PROJECTS reactive-mongo play-jdbc play-reactive-mongo studio"
+
+# Memory workaround; TODO: fix
+for P in $PROJECTS; do
+  echo "# $P"
+  find "$SCRIPT_DIR/../scalac-plugin/target" -type f -name '*.jar' -print  
+  sbt ++$TRAVIS_SCALA_VERSION "$P/testQuick"
+done

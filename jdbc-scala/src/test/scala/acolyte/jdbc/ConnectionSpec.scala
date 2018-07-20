@@ -21,14 +21,14 @@ object ConnectionSpec extends org.specs2.mutable.Specification {
     "be successful" in {
       val output = Seq.newBuilder[String]
 
-      AcolyteDSL.debuging(output += _.toString) { con ⇒
+      AcolyteDSL.debuging(x ⇒ { output += x.toString; () }) { con ⇒
         val stmt = con.prepareStatement("SELECT * FROM Test WHERE id = ?")
 
         try {
           stmt.setString(1, "foo")
           stmt.executeQuery()
         } catch {
-          case e: java.sql.SQLException ⇒ ()
+          case _: java.sql.SQLException ⇒ ()
         } finally {
           stmt.close()
         }

@@ -13,7 +13,7 @@ class JdbcScala(
       settings(formatSettings).settings(
         name := "jdbc-scala",
         javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
-        scalacOptions in Test ++= {
+        /*scalacOptions in Test ++= {
           val v = (version in ThisBuild).value
           val sv = (scalaVersion in ThisBuild).value
           val b = (baseDirectory in (scalacPlugin, Compile)).value
@@ -32,7 +32,7 @@ class JdbcScala(
           Seq("-feature", "-deprecation", s"-Xplugin:${j.getAbsolutePath}")
         },
         compile in Test := (compile in Test).
-          dependsOn(compile in (scalacPlugin, Test)).value,
+          dependsOn(compile in (scalacPlugin, Test)).value,*/
         // make sure plugin is there
         libraryDependencies ++= Seq(
           "org.eu.acolyte" % "jdbc-driver" % (version in ThisBuild).value,
@@ -43,7 +43,7 @@ class JdbcScala(
 
           generateRowClasses(base, managed / "acolyte" / "jdbc",
             "acolyte.jdbc", false)
-        }).dependsOn(scalacPlugin, jdbcDriver)
+        }).dependsOn(/*scalacPlugin, */jdbcDriver)
 
   // Source generator
   private def generateRowClasses(base: File, outdir: File, pkg: String, deprecated: Boolean): Seq[File] = {

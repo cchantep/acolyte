@@ -4,6 +4,42 @@ import Dependencies._
 import Format._
 import ScalacPlugin._
 
+// Settings
+organization in ThisBuild := "org.eu.acolyte"
+
+scalaVersion in ThisBuild := "2.12.6"
+
+scalacOptions in ThisBuild ++= Seq(
+  "-unchecked", "-deprecation", "-feature",
+  "-Xmax-classfile-name", "242")
+
+scalacOptions in ThisBuild ++= {
+  val baseOpts = if (!scalaVersion.value.startsWith("2.10")) Seq(
+    "-Ywarn-unused-import",
+    //"-Xfatal-warnings",
+    "-Xlint",
+    "-Ywarn-numeric-widen",
+    "-Ywarn-infer-any",
+    "-Ywarn-dead-code",
+    "-Ywarn-unused",
+    "-Ywarn-unused-import",
+    "-Ywarn-value-discard",
+    "-g:vars"
+  ) else Nil
+
+  if (scalaVersion.value startsWith "2.11") baseOpts ++ Seq(
+    "-Yconst-opt",
+    "-Yclosure-elim",
+    "-Ydead-code",
+    "-Yopt:_"
+  ) else baseOpts
+}
+
+crossScalaVersions in ThisBuild := Seq(
+  "2.10.7", "2.11.12", (scalaVersion in ThisBuild).value
+)
+
+//
 val scalacPlugin = ScalacPlugin.project
 
 // JDBC
@@ -34,36 +70,7 @@ val javaVersion =
 lazy val root = Project(id = "acolyte", base = file(".")).
   aggregate(scalacPlugin, reactiveMongo,
     jdbcDriver, jdbcScala, studio).
-  settings(Seq(
-    organization in ThisBuild := "org.eu.acolyte",
-    scalaVersion in ThisBuild := "2.12.6",
-    scalacOptions in ThisBuild ++= Seq(
-      "-unchecked", "-deprecation", "-feature"),
-    scalacOptions in ThisBuild ++= {
-      val baseOpts = if (!scalaVersion.value.startsWith("2.10")) Seq(
-        "-Ywarn-unused-import",
-        //"-Xfatal-warnings",
-        "-Xlint",
-        "-Ywarn-numeric-widen",
-        "-Ywarn-infer-any",
-        "-Ywarn-dead-code",
-        "-Ywarn-unused",
-        "-Ywarn-unused-import",
-        "-Ywarn-value-discard",
-        "-g:vars"
-      ) else Nil
-
-      if (scalaVersion.value startsWith "2.11") baseOpts ++ Seq(
-        "-Yconst-opt",
-        "-Yclosure-elim",
-        "-Ydead-code",
-        "-Yopt:_"
-      ) else baseOpts
-    },
-    crossScalaVersions in ThisBuild := Seq(
-      "2.10.7", "2.11.12", (scalaVersion in ThisBuild).value
-    )
-  ) ++ Publish.settings ++ Release.settings) configure { p =>
+  settings(Publish.settings ++ Release.settings) configure { p =>
     if (isJavaAtLeast("1.8")) {
       p.aggregate(playJdbc, jdbcJava8, playReactiveMongo)
     }

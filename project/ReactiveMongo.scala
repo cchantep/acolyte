@@ -21,7 +21,7 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
         name := "reactive-mongo",
         fork in Test := true,
         javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
-        scalacOptions ++= {
+        /*scalacOptions ++= {
           val v = (version in ThisBuild).value
           val sv = (scalaVersion in ThisBuild).value
           val b = (baseDirectory in (scalacPlugin, Compile)).value
@@ -38,7 +38,7 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
           val j = td / s"${n}_${msv}-$v.jar"
 
           Seq("-feature", "-deprecation", s"-Xplugin:${j.getAbsolutePath}")
-        },
+        },*/
         resolvers ++= reactiveResolvers,
         libraryDependencies ++= Seq(
           "org.reactivemongo" %% "reactivemongo" % reactiveMongoVer % "provided",
@@ -47,7 +47,7 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
           "com.chuusai" %% "shapeless" % "2.3.2",
           specs2Test
         )
-      ).dependsOn(scalacPlugin)
+      )//.dependsOn(scalacPlugin)
 
   lazy val playProject =
     Project(id = "play-reactive-mongo", base = file("play-reactive-mongo")).
