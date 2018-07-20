@@ -19,5 +19,4 @@ EOF
     sbt ++$TRAVIS_SCALA_VERSION ";error ;mimaReportBinaryIssues" || exit 2
 fi
 
-sbt ++$TRAVIS_SCALA_VERSION test:compile
 sbt ++$TRAVIS_SCALA_VERSION testQuick

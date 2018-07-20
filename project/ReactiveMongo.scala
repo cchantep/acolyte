@@ -43,10 +43,9 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
         libraryDependencies ++= Seq(
           "org.reactivemongo" %% "reactivemongo" % reactiveMongoVer % "provided",
           "com.jsuereth" %% "scala-arm" % "2.0",
-          "org.slf4j" % "slf4j-simple" % "1.7.13" % Test,
+          "org.slf4j" % "slf4j-simple" % "1.7.13" % Provided,
           "com.chuusai" %% "shapeless" % "2.3.2",
-          specs2Test
-        )
+          "org.specs2" %% "specs2-core" % specsVer.value % Test)
       )//.dependsOn(scalacPlugin)
 
   lazy val playProject =
@@ -83,7 +82,7 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
           Seq(
             "com.typesafe.play" %% "play" % playVer % Provided,
             "org.reactivemongo" %% "play2-reactivemongo" % s"${reactiveMongoVer}-${playVar}" % Provided,
-            specs2Test
+            "org.specs2" %% "specs2-core" % specsVer.value % Test
           )
         }
       ).dependsOn(scalacPlugin, self.project)

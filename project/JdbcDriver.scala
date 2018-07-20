@@ -14,7 +14,8 @@ object JdbcDriver {
       resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
       libraryDependencies ++= Seq(
         "commons-io" % "commons-io" % "2.5",
-        "org.apache.commons" % "commons-lang3" % "3.6", specs2Test),
+        "org.apache.commons" % "commons-lang3" % "3.6",
+        "org.specs2" %% "specs2-core" % specsVer.value % Test),
       crossPaths := false,
       sourceGenerators in Compile += Def.task[Seq[File]] {
         val base = (baseDirectory in Compile).value

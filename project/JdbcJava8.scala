@@ -10,7 +10,8 @@ class JdbcJava8(jdbcDriver: Project) {
       //javacOptions in := Seq("-source", "1.8", "-target", "1.8"),
       javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
       autoScalaLibrary := false,
-      libraryDependencies += specs2Test,
+      libraryDependencies += (
+        "org.specs2" %% "specs2-core" % specsVer.value % Test),
       crossPaths := false,
       scalacOptions += "-feature").
       dependsOn(jdbcDriver)

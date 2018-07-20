@@ -2,5 +2,8 @@ import sbt._
 import Keys._
 
 object Dependencies {
-  val specs2Test = "org.specs2" %% "specs2-core" % "4.0.0" % Test
+  val specsVer = Def.setting[String] {
+    if (scalaVersion.value startsWith "2.10") "3.9.5" // 4.0.1 not avail
+    else "4.2.0"
+  }
 }

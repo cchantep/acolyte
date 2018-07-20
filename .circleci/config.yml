@@ -9,6 +9,7 @@ jobs:
     working_directory: ~/repo
 
     environment:
+      JAVA_OPTS: "-Xms512m -Xmx1024m"
       TRAVIS_SCALA_VERSION: 2.11.12
     
     steps:

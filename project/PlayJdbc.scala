@@ -52,7 +52,7 @@ class PlayJdbc(
             "org.eu.acolyte" % "jdbc-driver" % (version in ThisBuild).value,
             "com.typesafe.play" %% "play-jdbc-api" % playVer % "provided",
             "com.typesafe.play" %% "anorm" % anormVer % Test,
-            specs2Test)
+            "org.specs2" %% "specs2-core" % specsVer.value % Test)
         }
       ).dependsOn(scalacPlugin, jdbcScala)
 

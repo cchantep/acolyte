@@ -36,7 +36,7 @@ class JdbcScala(
         // make sure plugin is there
         libraryDependencies ++= Seq(
           "org.eu.acolyte" % "jdbc-driver" % (version in ThisBuild).value,
-          specs2Test),
+          "org.specs2" %% "specs2-core" % specsVer.value % Test),
         sourceGenerators in Compile += Def.task[Seq[File]] {
           val base = (baseDirectory in Compile).value
           val managed = (sourceManaged in Compile).value

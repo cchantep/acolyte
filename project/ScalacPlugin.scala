@@ -11,7 +11,8 @@ object ScalacPlugin {
         name := "scalac-plugin",
         javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
         libraryDependencies ++= Seq(
-          "org.scala-lang" % "scala-compiler" % scalaVersion.value, specs2Test),
+          "org.scala-lang" % "scala-compiler" % scalaVersion.value % Provided,
+          "org.specs2" %% "specs2-core" % specsVer.value % Test),
         compile in Test := (compile in Test).dependsOn(
           packageBin in Compile/* make sure plugin.jar is available */).value,
         scalacOptions in Compile ++= Seq("-feature", "-deprecation"),
