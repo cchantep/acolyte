@@ -324,6 +324,8 @@ class DriverSpec(implicit ee: ExecutionEnv)
             }
           }
         } aka "query result" must beSome(BSONDocument(
+          "bypassDocumentValidation" -> false,
+          "writeConcern" -> BSONDocument("w" -> 1),
           "upsert" → false, "new" → false)).await(0, timeout)
       }
 
@@ -544,5 +546,5 @@ class DriverSpec(implicit ee: ExecutionEnv)
 
   def awaitRes[T](f: Future[T], tmout: Duration = Duration(5, "seconds")): Try[T] = Try[T](Await.result(f, tmout))
 
-  def afterAll() = driver.close()
+  def afterAll() = driver.close(Duration(10, "seconds"))
 }

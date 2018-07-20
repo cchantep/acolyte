@@ -1,5 +1,6 @@
 package acolyte.reactivemongo
 
+import reactivemongo.io.netty.channel.DefaultChannelId
 import reactivemongo.bson.{
   BSONBoolean,
   BSONDocument,
@@ -14,13 +15,16 @@ class ConnectionHandlerSpec extends org.specs2.mutable.Specification
 
   "Connection handler" title
 
+  @inline def channelId() = DefaultChannelId.newInstance()
+
   "Empty handler" should {
     "not respond to any query" in {
       ConnectionHandler.empty aka "connection handler" must beLike {
         case h ⇒
-          h.queryHandler(1, query1) aka "query result" must beNone and (
-            h.writeHandler(2, write1._1, write1._2).
-            aka("write result") must beNone)
+          h.queryHandler(channelId(), query1).
+            aka("query result") must beNone and (
+              h.writeHandler(channelId(), write1._1, write1._2).
+              aka("write result") must beNone)
       }
     }
   }
@@ -32,23 +36,23 @@ class ConnectionHandlerSpec extends org.specs2.mutable.Specification
       }
       val handler = ConnectionHandler.empty
 
-      ConnectionHandler(h).queryHandler(1, query1).
+      ConnectionHandler(h).queryHandler(channelId(), query1).
         aka("query result #1") must beSome and (
-          handler.queryHandler(1, query1) aka "query result #2" must beNone).and(handler.withQueryHandler(h).queryHandler(1, query1).
+          handler.queryHandler(channelId(), query1) aka "query result #2" must beNone).and(handler.withQueryHandler(h).queryHandler(channelId(), query1).
             aka("query result #3") must beSome)
     }
 
     "return no query result" in {
       ConnectionHandler({
         _: Request ⇒ QueryResponse(None)
-      }).queryHandler(1, query1) aka "query result" must beNone
+      }).queryHandler(channelId(), query1) aka "query result" must beNone
     }
 
     "be combined with orElse #1" in {
       ConnectionHandler({
         _: Request ⇒ QueryResponse(BSONDocument("a" → "b"))
       }).orElse(ConnectionHandler { _: Request ⇒ QueryResponse.empty }).
-        queryHandler(1, query1) aka "query result" must beSome.which(
+        queryHandler(channelId(), query1) aka "query result" must beSome.which(
           _ aka "response" must beResponse {
             case ValueDocument(("a", BSONString("b")) :: Nil) :: Nil ⇒ ok
           })
@@ -58,7 +62,7 @@ class ConnectionHandlerSpec extends org.specs2.mutable.Specification
       ConnectionHandler({ _: Request ⇒ QueryResponse.empty }).
         orElse(ConnectionHandler { _: Request ⇒
           QueryResponse(BSONDocument("a" → "b"))
-        }).queryHandler(1, query1) aka "query result" must beSome.which(
+        }).queryHandler(channelId(), query1) aka "query result" must beSome.which(
           _ aka "response" must beResponse { case res if res.isEmpty ⇒ ok })
     }
   }
@@ -71,17 +75,20 @@ class ConnectionHandlerSpec extends org.specs2.mutable.Specification
       val handler = ConnectionHandler()
 
       ConnectionHandler(writeHandler = h).writeHandler(
-        1, write1._1, write1._2) aka "write result #1" must beSome and (
-          handler.writeHandler(1, write1._1, write1._2).
+        channelId(), write1._1, write1._2).
+        aka("write result #1") must beSome and (
+          handler.writeHandler(channelId(), write1._1, write1._2).
           aka("write result #2") must beNone) and (
-            handler.withWriteHandler(h).writeHandler(1, write1._1, write1._2).
+            handler.withWriteHandler(h).
+            writeHandler(channelId(), write1._1, write1._2).
             aka("write result #3") must beSome)
     }
 
     "return no write result" in {
       ConnectionHandler(writeHandler = implicitly[WriteHandler] {
         (_: WriteOp, _: Request) ⇒ WriteResponse(None)
-      }).writeHandler(1, write1._1, write1._2) aka "write result" must beNone
+      }).writeHandler(channelId(), write1._1, write1._2).
+        aka("write result") must beNone
     }
 
     "be combined using orElse" in {
@@ -93,7 +100,7 @@ class ConnectionHandlerSpec extends org.specs2.mutable.Specification
         (_: WriteOp, _: Request) ⇒ WriteResponse.successful(1, false)
       })
 
-      handler.queryHandler(1, query1) aka "query result" must beSome.which(
+      handler.queryHandler(channelId(), query1) aka "query result" must beSome.which(
         _ aka "response" must beResponse {
           case ValueDocument(("a", BSONString("b")) :: Nil) :: Nil ⇒ ok
         })
@@ -102,14 +109,14 @@ class ConnectionHandlerSpec extends org.specs2.mutable.Specification
 
   "Complete handler" should {
     "return expected query result #1" in {
-      chandler1.queryHandler(1, query1) aka "query result" must beSome.which(
+      chandler1.queryHandler(channelId(), query1) aka "query result" must beSome.which(
         _ aka "response" must beResponse {
           case ValueDocument(("b", BSONInteger(3)) :: Nil) :: Nil ⇒ ok
         })
     }
 
     "return expected query result #2" in {
-      chandler1.queryHandler(2, query2) aka "query result" must beSome.which(
+      chandler1.queryHandler(channelId(), query2) aka "query result" must beSome.which(
         _ aka "response" must beResponse {
           case ValueDocument(("d", BSONDouble(4.56d)) :: Nil) ::
             ValueDocument(("ef", BSONString("ghi")) :: Nil) :: Nil ⇒ ok
@@ -117,17 +124,18 @@ class ConnectionHandlerSpec extends org.specs2.mutable.Specification
     }
 
     "return no query result" in {
-      chandler1.queryHandler(3, query3) aka "query handler" must beNone
+      chandler1.queryHandler(channelId(), query3).
+        aka("query handler") must beNone
     }
 
     "return expected write result #1" in {
-      chandler1.writeHandler(1, write1._1, write1._2).
+      chandler1.writeHandler(channelId(), write1._1, write1._2).
         aka("write result") must beSome.which(
           _ aka "response" must beWriteError("Error #2"))
     }
 
     "return expected write result #2" in {
-      chandler1.writeHandler(2, write2._1, write2._2).
+      chandler1.writeHandler(channelId(), write2._1, write2._2).
         aka("write result") must beSome.which(_ aka "response" must beResponse {
           case ValueDocument(("ok", BSONInteger(1)) ::
             ("updatedExisting", BSONBoolean(false)) ::
@@ -136,7 +144,7 @@ class ConnectionHandlerSpec extends org.specs2.mutable.Specification
     }
 
     "return no write result" in {
-      chandler1.writeHandler(3, write3._1, write3._2).
+      chandler1.writeHandler(channelId(), write3._1, write3._2).
         aka("write result") must beNone
     }
   }

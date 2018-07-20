@@ -1,6 +1,6 @@
 language: scala
 jdk:
-   - oraclejdk8
+   - openjdk8
 sudo: false
 cache:
   directories:
@@ -8,5 +8,5 @@ cache:
   - $HOME/.sbt
 scala:
 #   - 2.11.11 (on Circle)
-   - 2.12.4
+   - 2.12.6
 script: ./.ci_scripts/validate.sh

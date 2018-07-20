@@ -2,6 +2,7 @@ package acolyte.reactivemongo
 
 import scala.util.Try
 
+import reactivemongo.io.netty.channel.ChannelId
 import reactivemongo.core.protocol.Response
 
 /** Connection handler. */
@@ -21,8 +22,8 @@ sealed trait ConnectionHandler { self ⇒
    */
   final def withQueryHandler[T](handler: T)(implicit f: T ⇒ QueryHandler) =
     ConnectionHandler(new QueryHandler {
-      def apply(cid: Int, q: Request) =
-        self.queryHandler(cid, q).orElse(f(handler)(cid, q))
+      def apply(chanId: ChannelId, q: Request) =
+        self.queryHandler(chanId, q).orElse(f(handler)(chanId, q))
     }, writeHandler)
 
   /**
@@ -33,8 +34,8 @@ sealed trait ConnectionHandler { self ⇒
    */
   final def withWriteHandler[T](handler: T)(implicit f: T ⇒ WriteHandler) =
     ConnectionHandler(queryHandler, new WriteHandler {
-      def apply(cid: Int, op: WriteOp, w: Request) =
-        self.writeHandler(cid, op, w).orElse(f(handler)(cid, op, w))
+      def apply(chanId: ChannelId, op: WriteOp, w: Request) =
+        self.writeHandler(chanId, op, w).orElse(f(handler)(chanId, op, w))
     })
 
   /**
@@ -81,14 +82,14 @@ object ConnectionHandler {
 }
 
 /** Query handler. */
-sealed trait QueryHandler extends ((Int, Request) ⇒ Option[Try[Response]]) {
+sealed trait QueryHandler extends ((ChannelId, Request) ⇒ Option[Try[Response]]) {
   self ⇒
 
   /**
-   * @param channelId ID of channel
+   * @param chanId ID of channel
    * @param query Query to respond to
    */
-  override def apply(channelId: Int, query: Request): Option[Try[Response]]
+  override def apply(chanId: ChannelId, query: Request): Option[Try[Response]]
 
   /**
    * Returns a new query handler that first try this one,
@@ -99,8 +100,8 @@ sealed trait QueryHandler extends ((Int, Request) ⇒ Option[Try[Response]]) {
    * }}}
    */
   final def orElse(other: QueryHandler): QueryHandler = new QueryHandler {
-    def apply(channelId: Int, query: Request): Option[Try[Response]] =
-      self(channelId, query).orElse(other(channelId, query))
+    def apply(chanId: ChannelId, query: Request): Option[Try[Response]] =
+      self(chanId, query).orElse(other(chanId, query))
   }
 }
 
@@ -124,7 +125,7 @@ object QueryHandler {
    */
   implicit def apply(f: Request ⇒ PreparedResponse): QueryHandler =
     new QueryHandler {
-      def apply(chanId: Int, q: Request): Option[Try[Response]] = f(q)(chanId)
+      def apply(chanId: ChannelId, q: Request): Option[Try[Response]] = f(q)(chanId)
     }
 
   /**
@@ -135,14 +136,14 @@ object QueryHandler {
 
 /** Write handler. */
 sealed trait WriteHandler
-  extends ((Int, WriteOp, Request) ⇒ Option[Try[Response]]) { self ⇒
+  extends ((ChannelId, WriteOp, Request) ⇒ Option[Try[Response]]) { self ⇒
 
   /**
-   * @param channelId ID of channel
+   * @param chanId ID of channel
    * @param op Write operator
    * @param req Write request
    */
-  override def apply(channelId: Int, op: WriteOp, req: Request): Option[Try[Response]]
+  override def apply(chanId: ChannelId, op: WriteOp, req: Request): Option[Try[Response]]
 
   /**
    * Returns a new write handler that first try this one,
@@ -153,7 +154,7 @@ sealed trait WriteHandler
    * }}}
    */
   final def orElse(other: WriteHandler): WriteHandler = new WriteHandler {
-    def apply(channelId: Int, op: WriteOp, req: Request): Option[Try[Response]] = self(channelId, op, req).orElse(other(channelId, op, req))
+    def apply(chanId: ChannelId, op: WriteOp, req: Request): Option[Try[Response]] = self(chanId, op, req).orElse(other(chanId, op, req))
   }
 }
 
@@ -174,7 +175,7 @@ object WriteHandler {
    * }}}
    */
   implicit def apply(f: (WriteOp, Request) ⇒ PreparedResponse): WriteHandler = new WriteHandler {
-    def apply(chanId: Int, op: WriteOp, w: Request): Option[Try[Response]] = f(op, w)(chanId)
+    def apply(chanId: ChannelId, op: WriteOp, w: Request): Option[Try[Response]] = f(op, w)(chanId)
   }
 
   /**

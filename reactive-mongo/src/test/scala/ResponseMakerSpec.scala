@@ -1,6 +1,8 @@
 package acolyte.reactivemongo
 
 import scala.util.Try
+
+import reactivemongo.io.netty.channel.DefaultChannelId
 import reactivemongo.bson.BSONDocument
 
 class ResponseMakerSpec
@@ -8,14 +10,17 @@ class ResponseMakerSpec
 
   "Response maker" title
 
+  @inline def channelId() = DefaultChannelId.newInstance()
+
   "Query response maker" should {
     shapeless.test.illTyped("implicitly[QueryResponseMaker[Any]]")
 
     "be working for Traversable[BSONDocument]" in {
       val makr = implicitly[QueryResponseMaker[Traversable[BSONDocument]]]
+      val cid = channelId()
 
-      makr(2, documents) aka "response" must beSome.which { prepared ⇒
-        zip(prepared, MongoDB.QuerySuccess(2, documents)).
+      makr(cid, documents) aka "response" must beSome.which { prepared ⇒
+        zip(prepared, MongoDB.QuerySuccess(cid, documents)).
           aka("maker") must beSuccessfulTry.like {
             case (a, b) ⇒ a.documents aka "response" must_== b.documents
           }
@@ -24,9 +29,10 @@ class ResponseMakerSpec
 
     "be working for an error message (String)" in {
       val makr = implicitly[QueryResponseMaker[String]]
+      val cid = channelId()
 
-      makr(3, "Custom error") aka "response" must beSome.which { prepared ⇒
-        zip(prepared, MongoDB.QueryError(3, "Custom error")).
+      makr(cid, "Custom error") aka "response" must beSome.which { prepared ⇒
+        zip(prepared, MongoDB.QueryError(cid, "Custom error")).
           aka("maker") must beSuccessfulTry.like {
             case (a, b) ⇒ a.documents aka "response" must_== b.documents
           }
@@ -35,10 +41,11 @@ class ResponseMakerSpec
 
     "be working for an error with code (String, Int)" in {
       val makr = implicitly[QueryResponseMaker[(String, Int)]]
+      val cid = channelId()
 
-      makr(3, "Custom error" → 5) aka "response" must beSome.
+      makr(cid, "Custom error" → 5) aka "response" must beSome.
         which { prepared ⇒
-          zip(prepared, MongoDB.QueryError(3, "Custom error", Some(5))).
+          zip(prepared, MongoDB.QueryError(cid, "Custom error", Some(5))).
             aka("maker") must beSuccessfulTry.like {
               case (a, b) ⇒ a.documents aka "response" must_== b.documents
             }
@@ -51,9 +58,10 @@ class ResponseMakerSpec
 
     "be a successful one for boolean (updatedExisting)" in {
       val makr = implicitly[WriteResponseMaker[(Int, Boolean)]]
+      val cid = channelId()
 
-      makr(4, 1 → true) aka "response" must beSome.which { prepared ⇒
-        zip(prepared, MongoDB.WriteSuccess(4, 1, true)).
+      makr(cid, 1 → true) aka "response" must beSome.which { prepared ⇒
+        zip(prepared, MongoDB.WriteSuccess(cid, 1, true)).
           aka("maker") must beSuccessfulTry.like {
             case (a, b) ⇒ a.documents aka "response" must_== b.documents
           }
@@ -62,9 +70,10 @@ class ResponseMakerSpec
 
     "be a successful one for Unit (updatedExisting = false)" in {
       val makr = implicitly[WriteResponseMaker[Unit]]
+      val cid = channelId()
 
-      makr(4, ()) aka "response" must beSome.which { prepared ⇒
-        zip(prepared, MongoDB.WriteSuccess(4, 0, false)).
+      makr(cid, ()) aka "response" must beSome.which { prepared ⇒
+        zip(prepared, MongoDB.WriteSuccess(cid, 0, false)).
           aka("maker") must beSuccessfulTry.like {
             case (a, b) ⇒ a.documents aka "response" must_== b.documents
           }
@@ -73,10 +82,11 @@ class ResponseMakerSpec
 
     "be working for an error message (String)" in {
       val makr = implicitly[WriteResponseMaker[String]]
+      val cid = channelId()
 
-      makr(5, "Custom error #1") aka "response" must beSome.
+      makr(cid, "Custom error #1") aka "response" must beSome.
         which { prepared ⇒
-          zip(prepared, MongoDB.WriteError(5, "Custom error #1", None)).
+          zip(prepared, MongoDB.WriteError(cid, "Custom error #1", None)).
             aka("maker") must beSuccessfulTry.like {
               case (a, b) ⇒ a.documents aka "response" must_== b.documents
             }
@@ -85,10 +95,11 @@ class ResponseMakerSpec
 
     "be working for an error with code (String, Int)" in {
       val makr = implicitly[WriteResponseMaker[(String, Int)]]
+      val cid = channelId()
 
-      makr(5, "Custom error #2" → 7) aka "response" must beSome.
+      makr(cid, "Custom error #2" → 7) aka "response" must beSome.
         which { prepared ⇒
-          zip(prepared, MongoDB.WriteError(5, "Custom error #2", Some(7))).
+          zip(prepared, MongoDB.WriteError(cid, "Custom error #2", Some(7))).
             aka("maker") must beSuccessfulTry.like {
               case (a, b) ⇒ a.documents aka "response" must_== b.documents
             }

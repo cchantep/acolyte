@@ -1,20 +1,27 @@
 import sbt._
 import Keys._
 
-trait ScalacPlugin { deps: Dependencies with Format ⇒
-  lazy val scalacPlugin = 
+object ScalacPlugin {
+  import Dependencies._
+  import Format._
+
+  lazy val project = 
     Project(id = "scalac-plugin", base = file("scalac-plugin")).
       settings(formatSettings).settings(
         name := "scalac-plugin",
         javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
         libraryDependencies ++= Seq(
-          "org.scala-lang" % "scala-compiler" % scalaVersion.value, specs2Test),
-        compile in Test <<= (compile in Test).dependsOn(
-          packageBin in Compile/* make sure plugin.jar is available */),
+          "org.scala-lang" % "scala-compiler" % scalaVersion.value % Provided,
+          "org.specs2" %% "specs2-core" % specsVer.value % Test),
+        compile in Test := (compile in Test).dependsOn(
+          packageBin in Compile/* make sure plugin.jar is available */).value,
         scalacOptions in Compile ++= Seq("-feature", "-deprecation"),
-        sourceGenerators in Compile <+=
-          scalaVersion zip (sourceManaged in Compile) map (d ⇒
-            { val (ver, dir) = d; generateUtility(ver, dir) }),
+        sourceGenerators in Compile += Def.task[Seq[File]] {
+          val ver = scalaVersion.value
+          val dir = (sourceManaged in Compile).value
+
+          generateUtility(ver, dir)
+        },
         scalacOptions in Test ++= {
           val v = version.value
           val sv = scalaVersion.value

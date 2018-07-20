@@ -1,6 +1,6 @@
 package acolyte.reactivemongo
 
-import shaded.netty.buffer.ChannelBuffer
+import reactivemongo.io.netty.buffer.ByteBuf
 
 import reactivemongo.bson.{
   BSONArray,
@@ -38,7 +38,7 @@ object Request {
    * @param name Fully qualified name of collection
    * @param buffer Bytes to be parsed as BSON body
    */
-  def apply(name: String, buffer: ChannelBuffer): Request = new Request {
+  def apply(name: String, buffer: ByteBuf): Request = new Request {
     val collection = name
     val body = parse(go(buffer), Nil)
   }
@@ -57,7 +57,7 @@ object Request {
   }
 
   @annotation.tailrec
-  private def go(chan: ChannelBuffer, body: WritableBuffer = new ArrayBSONBuffer()): ReadableBuffer = {
+  private def go(chan: ByteBuf, body: WritableBuffer = new ArrayBSONBuffer()): ReadableBuffer = {
     val len = chan.readableBytes()
 
     if (len == 0) body.toReadableBuffer

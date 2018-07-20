@@ -1,10 +1,13 @@
-package acolyte.reactivemongo
+package acolyte
+package reactivemongo
+
+import _root_.reactivemongo.io.netty.channel.ChannelId
 
 /** Write response factory. */
 object WriteResponse {
   /** Creates a response for given `body`. */
   def apply[T](body: ⇒ T)(implicit mkResponse: WriteResponseMaker[T]): PreparedResponse = new PreparedResponse {
-    def apply(chanId: Int) = mkResponse(chanId, body)
+    def apply(chanId: ChannelId) = mkResponse(chanId, body)
   }
 
   /**

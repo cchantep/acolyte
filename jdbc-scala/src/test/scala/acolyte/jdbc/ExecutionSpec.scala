@@ -25,21 +25,27 @@ object ExecutionSpec extends org.specs2.mutable.Specification {
       }
 
       "match statement extractor #1" in {
+        val Executed = ExecutedStatement("FROM Test")
+
         q1 aka "q1" must beLike {
-          case ~(ExecutedStatement("FROM Test"), (sql, XP("x") :: Nil)) ⇒
+          case Executed((sql, XP("x") :: Nil)) ⇒
             sql aka "matching SQL" must_== "SELECT * FROM Test WHERE id = ?"
         }
       }
 
       "match statement extractor #2" in {
+        val Executed = ExecutedStatement("^SELECT")
+
         q1 aka "q1" must beLike {
-          case ~(ExecutedStatement("^SELECT"), (sql, _)) ⇒ ok
+          case Executed((_ /*sql*/ , _)) ⇒ ok
         }
       }
 
       "not match statement extractor" in {
+        val Executed = ExecutedStatement(" reindex$")
+
         q1 aka "q1" must not(beLike {
-          case ~(ExecutedStatement(" reindex$"), (_, XP("x") :: Nil)) ⇒ ok
+          case Executed((_, XP("x") :: Nil)) ⇒ ok
         })
       }
     }
@@ -59,21 +65,27 @@ object ExecutionSpec extends org.specs2.mutable.Specification {
       }
 
       "match statement extractor #1" in {
+        val Executed = ExecutedStatement("EXEC")
+
         q2 aka "q2" must beLike {
-          case ~(ExecutedStatement("EXEC"), (sql, Nil)) ⇒
+          case Executed((sql, Nil)) ⇒
             sql aka "matching SQL" must_== "EXEC reindex"
         }
       }
 
       "match statement extractor #2" in {
+        val Executed = ExecutedStatement(" reindex$")
+
         q2 aka "q2" must beLike {
-          case ~(ExecutedStatement(" reindex$"), (sql, _)) ⇒ ok
+          case Executed((_ /*sql*/ , _)) ⇒ ok
         }
       }
 
       "not match statement extractor" in {
+        val Executed = ExecutedStatement("^SELECT")
+
         q2 aka "q2" must not(beLike {
-          case ~(ExecutedStatement("^SELECT"), (_, Nil)) ⇒ ok
+          case Executed((_, Nil)) ⇒ ok
         })
       }
     }

@@ -1,0 +1,34 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      - image: circleci/openjdk:8-jdk-node-browsers
+
+    working_directory: ~/repo
+
+    environment:
+      JAVA_OPTS: "-Xms512m -Xmx1024m"
+      TRAVIS_SCALA_VERSION: 2.11.12
+    
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "build.sbt" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run: ./.ci_scripts/validate.sh
+
+      - save_cache:
+          paths:
+            - ~/.ivy2
+            - ~/.sbt
+          key: v1-dependencies-{{ checksum "build.sbt" }}
+
+      - store_test_results:
+          path: .
