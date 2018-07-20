@@ -19,14 +19,4 @@ EOF
     sbt ++$TRAVIS_SCALA_VERSION ";error ;mimaReportBinaryIssues" || exit 2
 fi
 
-sbt ++$TRAVIS_SCALA_VERSION ';clean ;package'
-
-PROJECTS="scalac-plugin jdbc-driver jdbc-java8 jdbc-scala"
-PROJECTS="$PROJECTS reactive-mongo play-jdbc play-reactive-mongo studio"
-
-# Memory workaround; TODO: fix
-for P in $PROJECTS; do
-  echo "# $P"
-  find "$SCRIPT_DIR/../scalac-plugin/target" -type f -name '*.jar' -print  
-  sbt ++$TRAVIS_SCALA_VERSION "$P/testQuick"
-done
+sbt ++$TRAVIS_SCALA_VERSION testQuick
