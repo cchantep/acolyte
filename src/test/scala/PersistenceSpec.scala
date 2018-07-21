@@ -35,7 +35,7 @@ sealed trait AcolyteDriver
 
   implicit val driver = AcolyteDSL.driver
 
-  def afterAll() = driver.close()
+  def afterAll() = driver.close(Duration(10, "seconds"))
 }
 
 /** Persitence executable specification (tests). */

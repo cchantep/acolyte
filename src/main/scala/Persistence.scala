@@ -35,7 +35,7 @@ object Persistence {
   /** Returns names and descriptions for all users. */
   def all(implicit c: BSONCollection, ec: ExecutionContext): Future[List[UserInfo]] = c.find(BSONDocument.empty,
     BSONDocument("name" -> true, "description" -> true)).
-    cursor[UserInfo].collect[List]()
+    cursor[UserInfo]().collect[List]()
 
   /**
    * Saves given `user`: creates it if doesn't already exist, or update it.
@@ -44,7 +44,7 @@ object Persistence {
   def save(user: User)(implicit c: BSONCollection, ec: ExecutionContext): Future[UserInfo] = {
     val selector = BSONDocument("name" -> user.name)
     for {
-      exists ← c.find(selector).cursor[BSONDocument].collect[List]()
+      exists ← c.find(selector).cursor[BSONDocument]().collect[List]()
       _ ← exists.headOption.fold[Future[WriteResult]](
         c.insert(user))(_ ⇒ c.update(selector, user))
     } yield UserInfo(user.name, user.description)
