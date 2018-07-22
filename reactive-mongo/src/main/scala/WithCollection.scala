@@ -1,10 +1,15 @@
 package acolyte.reactivemongo
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.ExecutionContext
 import reactivemongo.api.collections.bson.BSONCollection
 import reactivemongo.api.{ DB, MongoConnection, MongoDriver }
 
-/** Functions to work with a Mongo collection (provided DB functions). */
+/**
+ * Functions to work with a Mongo collection (provided DB functions).
+ *
+ * @define conParam Connection manager parameter (see [[ConnectionManager]])
+ * @define nameParam the name of the collection
+ */
 trait WithCollection { self: WithDB ⇒
   /**
    * Works with specified collection from MongoDB "acolyte"
@@ -13,8 +18,8 @@ trait WithCollection { self: WithDB ⇒
    * Driver and associated resources are released
    * after the function `f` the result `Future` is completed.
    *
-   * @param conParam Connection manager parameter (see [[ConnectionManager]])
-   * @param name Collection name
+   * @param conParam $conParam
+   * @param name $nameParam
    * @param f Function applied to resolved Mongo collection
    *
    * {{{
@@ -42,7 +47,7 @@ trait WithCollection { self: WithDB ⇒
    * resolved using given connection.
    *
    * @param con Previously initialized connection
-   * @param name Collection name
+   * @param name $nameParam
    * @param f Function applied to resolved Mongo collection
    *
    * {{{
@@ -70,7 +75,7 @@ trait WithCollection { self: WithDB ⇒
    * resolved using given Mongo DB.
    *
    * @param db Previously resolved Mongo DB
-   * @param name Collection name
+   * @param name $nameParam
    * @param f Function applied to resolved Mongo collection
    *
    * {{{
@@ -88,8 +93,6 @@ trait WithCollection { self: WithDB ⇒
   def withCollection[T](
     db: DB,
     name: String)(
-    f: BSONCollection ⇒ T)(
-    implicit
-    ec: ExecutionContext): T = f(db.collection(name))
+    f: BSONCollection ⇒ T): T = f(db.collection(name))
 
 }
