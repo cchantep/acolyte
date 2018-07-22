@@ -64,17 +64,8 @@ trait WithDriver {
    *   "Result"
    * }
    * }}}
-   * @see [[withFlatDriver]]
-   * @see [[withFlatConnection]]
    */
-  def withConnection[A, B](conParam: ⇒ A)(f: MongoConnection ⇒ B)(implicit d: MongoDriver, m: ConnectionManager[A], c: ExecutionContext): Future[B] =
-    for {
-      con ← Future(m.open(d, conParam))
-      res ← Future(f(con)).andThen { case _ ⇒ m.releaseIfNecessary(con) }
-    } yield res
-
-  /* TODO:
-  def _withConnection[A, B](conParam: ⇒ A)(f: MongoConnection ⇒ B)(
+  def withConnection[A, B](conParam: ⇒ A)(f: MongoConnection ⇒ B)(
     implicit
     d: MongoDriver,
     m: ConnectionManager[A],
@@ -83,31 +74,4 @@ trait WithDriver {
     compose(Future(m.open(d, conParam)), f) { con ⇒
       m.releaseIfNecessary(con); ()
     }
-   */
-
-  /**
-   * Works with connection with options appropriate for a driver
-   * initialized using Acolyte for ReactiveMongo
-   * (should not be used with other driver instances).
-   *
-   * @param conParam $conParam
-   * @param f $f
-   *
-   * {{{
-   * import reactivemongo.api.MongoConnection
-   * import acolyte.reactivemongo.AcolyteDSL
-   *
-   * // handler: ConnectionHandler
-   * val s: Future[String] = AcolyteDSL.withFlatConnection(handler) { con =>
-   *   val c: MongoConnection = con
-   *   Future.successful("Result")
-   * }
-   * }}}
-   * @see [[withFlatDriver]]
-   * @see [[withConnection]]
-   */
-  def withFlatConnection[A, B](conParam: ⇒ A)(f: MongoConnection ⇒ Future[B])(implicit d: MongoDriver, m: ConnectionManager[A], c: ExecutionContext): Future[B] = for {
-    con ← Future(m.open(d, conParam))
-    res ← f(con).andThen { case _ ⇒ m.releaseIfNecessary(con) }
-  } yield res
 }

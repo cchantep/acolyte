@@ -35,7 +35,7 @@ trait WithDB { withDriver: WithDriver ⇒
    * @see withFlatDB[A,B]
    */
   def withDB[A, B](conParam: ⇒ A)(f: DefaultDB ⇒ B)(implicit d: MongoDriver, m: ConnectionManager[A], c: ExecutionContext): Future[B] =
-    withFlatConnection(conParam) { _.database("acolyte").map(f) }
+    withConnection(conParam) { _.database("acolyte").map(f) }
 
   /**
    * Works with Mongo database (named "acolyte") resolved using given driver
@@ -80,11 +80,10 @@ trait WithDB { withDriver: WithDriver ⇒
    *   Future.successful("Result")
    * }
    * }}}
-   * @see AcolyteDSL.withFlatConnection
    * @see withDB[A,B]
    */
   def withFlatDB[A, B](conParam: ⇒ A)(f: DefaultDB ⇒ Future[B])(implicit d: MongoDriver, m: ConnectionManager[A], c: ExecutionContext): Future[B] =
-    withFlatConnection(conParam) { _.database("acolyte").flatMap(f) }
+    withConnection(conParam) { _.database("acolyte").flatMap(f) }
 
   /**
    * Works with Mongo database (named "acolyte") resolved using given driver

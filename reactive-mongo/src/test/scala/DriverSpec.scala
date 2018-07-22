@@ -105,7 +105,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "from initialized driver" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatConnection(chandler1)(_ ⇒ Future.successful(true))
+          AcolyteDSL.withConnection(chandler1)(_ ⇒ Future.successful(true))
         } aka "work with driver" must beTrue.await(0, timeout)
       }
     }
@@ -119,7 +119,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "from initialized driver and connection" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatConnection(chandler1) {
+          AcolyteDSL.withConnection(chandler1) {
             AcolyteDSL.withDB(_)(_ ⇒ true)
           }
         } aka "work with DB" must beTrue.await(0, timeout)
@@ -127,7 +127,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "from initialized connection handler and connection with sync result" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatConnection(chandler1) { con ⇒
+          AcolyteDSL.withConnection(chandler1) { con ⇒
             AcolyteDSL.withDB(con)(_ ⇒ true)
           }
         } aka "work with DB" must beTrue.await(0, timeout)
@@ -135,7 +135,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "from initialized connection handler and connection with future" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatConnection(chandler1) { con ⇒
+          AcolyteDSL.withConnection(chandler1) { con ⇒
             AcolyteDSL.withFlatDB(con)(_ ⇒ Future(1 + 2))
           }
         } aka "work with DB" must beEqualTo(3).await(0, timeout)
@@ -143,7 +143,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "from initialized driver and connection with sync sync result" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatConnection(chandler1) {
+          AcolyteDSL.withConnection(chandler1) {
             AcolyteDSL.withDB(_)(_ ⇒ true)
           }
         } aka "work with DB" must beTrue.await(0, timeout)
@@ -151,7 +151,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "from initialized driver and connection with sync sync result" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatConnection(chandler1) {
+          AcolyteDSL.withConnection(chandler1) {
             AcolyteDSL.withFlatDB(_)(_ ⇒ Future(2 + 5))
           }
         } aka "work with DB" must beEqualTo(7).await(0, timeout)
@@ -167,7 +167,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "from initialized connection with sync result" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatConnection(chandler1) { con ⇒
+          AcolyteDSL.withConnection(chandler1) { con ⇒
             AcolyteDSL.withCollection(con, "colName")(_ ⇒ true)
           }
         } aka "work with collection" must beTrue.await(0, timeout)
@@ -190,7 +190,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "from initialized connection with future result" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatConnection(chandler1) { con ⇒
+          AcolyteDSL.withConnection(chandler1) { con ⇒
             AcolyteDSL.withFlatCollection(con, "colName")(_ ⇒ Future(1 + 3))
           }
         } aka "work with collection" must beEqualTo(4).await(0, timeout)
@@ -350,7 +350,7 @@ class DriverSpec extends org.specs2.mutable.Specification
           { (_: WriteOp, _: Request) ⇒ WriteResponse(1 /* one doc */ ) })
 
         awaitRes(withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatConnection(handler) { con: MongoConnection ⇒
+          AcolyteDSL.withConnection(handler) { con: MongoConnection ⇒
             con.database("anyDb").flatMap(
               _(query3.collection).find(query3.body.head).
                 cursor[BSONDocument]().collect[List]())
@@ -389,7 +389,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "as error when write handler returns no write result" in {
         awaitRes(withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatConnection(chandler1) { con ⇒
+          AcolyteDSL.withConnection(chandler1) { con ⇒
             val db = con.database("anyDb")
             val col = db.map(_(write3._2.collection))
 
@@ -435,7 +435,7 @@ class DriverSpec extends org.specs2.mutable.Specification
         "for success count" in {
           withDriver { implicit drv: MongoDriver ⇒
             AcolyteDSL.withFlatWriteResult(2 → true) {
-              AcolyteDSL.withFlatConnection(_) { con: MongoConnection ⇒
+              AcolyteDSL.withConnection(_) { con: MongoConnection ⇒
                 val db = con.database("anyDb")
                 val col = db.map(_(write1._2.collection))
                 col.flatMap(_.remove(write1._2.body.head))
