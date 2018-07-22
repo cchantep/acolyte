@@ -35,13 +35,8 @@ trait WithHandler { up: WithDriver ⇒
     d: MongoDriver,
     m: ConnectionManager[ConnectionHandler],
     ec: ExecutionContext,
-    compose: ComposeWithCompletion[T]): compose.Outer = {
-    def conHandler = AcolyteDSL handleQuery QueryHandler(handler)
-
-    compose(Future(m.open(d, conHandler)), f) { con ⇒
-      m.releaseIfNecessary(con); ()
-    }
-  }
+    compose: ComposeWithCompletion[T]): compose.Outer =
+    withConnection(AcolyteDSL handleQuery QueryHandler(handler))(f)
 
   /**
    * Works with a MongoDB driver handling only write operations,
@@ -71,11 +66,6 @@ trait WithHandler { up: WithDriver ⇒
     d: MongoDriver,
     m: ConnectionManager[ConnectionHandler],
     ec: ExecutionContext,
-    compose: ComposeWithCompletion[T]): compose.Outer = {
-    def conHandler = AcolyteDSL handleWrite WriteHandler(handler)
-
-    compose(Future(m.open(d, conHandler)), f) { con ⇒
-      m.releaseIfNecessary(con); ()
-    }
-  }
+    compose: ComposeWithCompletion[T]): compose.Outer =
+    withConnection(AcolyteDSL handleWrite WriteHandler(handler))(f)
 }
