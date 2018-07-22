@@ -183,7 +183,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "from connection handler with future result" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatCollection(chandler1, "colName")(
+          AcolyteDSL.withCollection(chandler1, "colName")(
             _ ⇒ Future.successful(true))
         } aka "work with collection" must beTrue.await(0, timeout)
       }
@@ -191,7 +191,7 @@ class DriverSpec extends org.specs2.mutable.Specification
       "from initialized connection with future result" in {
         withDriver { implicit drv: MongoDriver ⇒
           AcolyteDSL.withConnection(chandler1) { con ⇒
-            AcolyteDSL.withFlatCollection(con, "colName")(_ ⇒ Future(1 + 3))
+            AcolyteDSL.withCollection(con, "colName")(_ ⇒ Future(1 + 3))
           }
         } aka "work with collection" must beEqualTo(4).await(0, timeout)
       }
@@ -199,7 +199,7 @@ class DriverSpec extends org.specs2.mutable.Specification
       "from resolved DB with future result" in {
         withDriver { implicit drv: MongoDriver ⇒
           AcolyteDSL.withDB(chandler1) { db ⇒
-            AcolyteDSL.withFlatCollection(db, "colName")(_ ⇒ Future(2 + 5))
+            AcolyteDSL.withCollection(db, "colName")(_ ⇒ Future(2 + 5))
           }
         } aka "work with collection" must beEqualTo(7).await(0, timeout)
       }
@@ -210,7 +210,7 @@ class DriverSpec extends org.specs2.mutable.Specification
     "return expected query result" >> {
       "when is successful #1" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatCollection(chandler1, query1.collection) {
+          AcolyteDSL.withCollection(chandler1, query1.collection) {
             _.find(query1.body.head).cursor[BSONDocument]().collect[List]()
           }
         } aka "query result" must beLike[List[BSONDocument]] {
@@ -248,7 +248,7 @@ class DriverSpec extends org.specs2.mutable.Specification
           withDriver { implicit drv: MongoDriver ⇒
             AcolyteDSL.withFlatQueryResult(
               List(BSONDocument("doc" → 1), BSONDocument("doc" → 2.3d))) { d ⇒
-                AcolyteDSL.withFlatCollection(d, "anyCol") {
+                AcolyteDSL.withCollection(d, "anyCol") {
                   _.find(query1.body.head).
                     cursor[BSONDocument]().collect[List]()
                 }
@@ -262,7 +262,7 @@ class DriverSpec extends org.specs2.mutable.Specification
         "for an explicit error" in {
           awaitRes(withDriver { implicit drv: MongoDriver ⇒
             AcolyteDSL.withFlatQueryResult("Error" → 7) { con: MongoConnection ⇒
-              AcolyteDSL.withFlatCollection(con, query1.collection) {
+              AcolyteDSL.withCollection(con, query1.collection) {
                 _.find(query1.body.head).cursor[BSONDocument]().collect[List]()
               }
             }
@@ -273,7 +273,7 @@ class DriverSpec extends org.specs2.mutable.Specification
         "when undefined" in {
           awaitRes(withDriver { implicit drv: MongoDriver ⇒
             AcolyteDSL.withFlatQueryResult(None) { con: MongoConnection ⇒
-              AcolyteDSL.withFlatCollection(con, query1.collection) {
+              AcolyteDSL.withCollection(con, query1.collection) {
                 _.find(query1.body.head).cursor[BSONDocument]().collect[List]()
               }
             }
@@ -288,7 +288,7 @@ class DriverSpec extends org.specs2.mutable.Specification
             case Request("acolyte.test3", SimpleBody(
               ("filter", BSONString("valC")) :: Nil)) ⇒ QueryResponse.empty
           }) { con: MongoConnection ⇒
-            AcolyteDSL.withFlatCollection(con, query3.collection) {
+            AcolyteDSL.withCollection(con, query3.collection) {
               _.find(query3.body.head).
                 cursor[BSONDocument]().collect[List]()
             }
@@ -307,7 +307,7 @@ class DriverSpec extends org.specs2.mutable.Specification
                 ) :: Nil)) ⇒
               QueryResponse(BSONDocument("lorem" → 1.2D))
           }) { con: MongoConnection ⇒
-            AcolyteDSL.withFlatCollection(con, query3.collection) {
+            AcolyteDSL.withCollection(con, query3.collection) {
               _.find(query3.body.head).sort(BSONDocument("foo" → 1)).
                 cursor[BSONDocument]().collect[List]()
             }
@@ -322,7 +322,7 @@ class DriverSpec extends org.specs2.mutable.Specification
               List(("title", BSONString("foo"))), opts) ⇒
               QueryResponse.findAndModify(BSONDocument(opts))
           }) { con: MongoConnection ⇒
-            AcolyteDSL.withFlatCollection(con, query3.collection) {
+            AcolyteDSL.withCollection(con, query3.collection) {
               _.findAndUpdate(
                 BSONDocument("id" → 1),
                 BSONDocument("title" → "foo")).map(_.value)
@@ -336,7 +336,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "as error when connection handler is empty" in {
         awaitRes(withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatCollection(AcolyteDSL.handle, query3.collection) {
+          AcolyteDSL.withCollection(AcolyteDSL.handle, query3.collection) {
             _.find(query3.body.head).cursor[BSONDocument]().collect[List]()
           }
         }) aka "query result" must beFailedTry.like {
@@ -365,7 +365,7 @@ class DriverSpec extends org.specs2.mutable.Specification
     "return expected write result" >> {
       "when error is raised without code" in {
         awaitRes(withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatCollection(
+          AcolyteDSL.withCollection(
             chandler1, write1._2.collection) { _.remove(write1._2.body.head) }
         }) aka "write result" must beFailedTry.like {
           case err ⇒ err.getMessage.indexOf("=Error #2").
@@ -408,7 +408,7 @@ class DriverSpec extends org.specs2.mutable.Specification
           AcolyteDSL.withFlatWriteHandler({ (_: WriteOp, _: Request) ⇒
             WriteResponse.undefined
           }) { d ⇒
-            AcolyteDSL.withFlatCollection(d, query3.collection) {
+            AcolyteDSL.withCollection(d, query3.collection) {
               _.update(BSONDocument("name" → "x"), write3._2.body.head)
             }
           }
@@ -421,7 +421,7 @@ class DriverSpec extends org.specs2.mutable.Specification
       "as error when write handler is undefined" in {
         awaitRes(withDriver { implicit drv: MongoDriver ⇒
           AcolyteDSL.withFlatQueryResult(BSONDocument("prop" → "A")) { con ⇒
-            AcolyteDSL.withFlatCollection(con, write3._2.collection) {
+            AcolyteDSL.withCollection(con, write3._2.collection) {
               _.update(BSONDocument("name" → "x"), write3._2.body.head)
             }
           }
@@ -450,7 +450,7 @@ class DriverSpec extends org.specs2.mutable.Specification
         "for explicit error" in {
           awaitRes(withDriver { implicit drv: MongoDriver ⇒
             AcolyteDSL.withFlatWriteResult("Write err" → 9) { con ⇒
-              AcolyteDSL.withFlatCollection(con, write2._2.collection) {
+              AcolyteDSL.withCollection(con, write2._2.collection) {
                 _.insert(write2._2.body.head)
               }
             }
@@ -465,7 +465,7 @@ class DriverSpec extends org.specs2.mutable.Specification
         "when undefined" in {
           awaitRes(withDriver { implicit drv: MongoDriver ⇒
             AcolyteDSL.withFlatWriteResult(None) { driver ⇒
-              AcolyteDSL.withFlatCollection(driver, write3._2.collection) {
+              AcolyteDSL.withCollection(driver, write3._2.collection) {
                 _.update(BSONDocument(), write3._2.body.head)
               }
             }
@@ -484,7 +484,7 @@ class DriverSpec extends org.specs2.mutable.Specification
                 ("b", BSONInteger(2)) :: _) ⇒
                 WriteResponse.successful(1, false)
             }) { con: MongoConnection ⇒
-              AcolyteDSL.withFlatCollection(con, "col1") {
+              AcolyteDSL.withCollection(con, "col1") {
                 _.insert(BSONDocument("a" → "val", "b" → 2))
               }
             }
@@ -524,7 +524,7 @@ class DriverSpec extends org.specs2.mutable.Specification
                 sys.error(s"Unexpected: $q, $u, $upsert, $multi")
 
             }) { con: MongoConnection ⇒
-              AcolyteDSL.withFlatCollection(con, "col2") {
+              AcolyteDSL.withCollection(con, "col2") {
                 _.update(BSONDocument("sel" → "hector"), write3._2.body.head)
               }
             }
@@ -578,7 +578,7 @@ class DriverSpec extends org.specs2.mutable.Specification
                 WriteResponse.successful(2, true)
 
             }) { con: MongoConnection ⇒
-              AcolyteDSL.withFlatCollection(con, "col3") {
+              AcolyteDSL.withCollection(con, "col3") {
                 _.remove(BSONDocument("a" → "val")).map(_ ⇒ {})
               }
             }
