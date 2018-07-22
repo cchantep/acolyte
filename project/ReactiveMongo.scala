@@ -13,7 +13,7 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
   lazy val generatedClassDirectory = settingKey[File](
     "Directory where classes get generated")
 
-  val reactiveMongoVer = "0.15.0"
+  val reactiveMongoVer = "0.16.0"
 
   lazy val project =
     Project(id = "reactive-mongo", base = file("reactive-mongo")).
@@ -21,24 +21,6 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
         name := "reactive-mongo",
         fork in Test := true,
         javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
-        /*scalacOptions ++= {
-          val v = (version in ThisBuild).value
-          val sv = (scalaVersion in ThisBuild).value
-          val b = (baseDirectory in (scalacPlugin, Compile)).value
-          val n = (name in (scalacPlugin, Compile)).value
-
-          val msv = {
-            if (sv startsWith "2.10") "2.10"
-            else if (sv startsWith "2.11") "2.11"
-            else if (sv startsWith "2.12") "2.12"
-            else sv
-          }
-
-          val td = b / "target" / s"scala-$msv"
-          val j = td / s"${n}_${msv}-$v.jar"
-
-          Seq("-feature", "-deprecation", s"-Xplugin:${j.getAbsolutePath}")
-        },*/
         resolvers ++= reactiveResolvers,
         libraryDependencies ++= Seq(
           "org.reactivemongo" %% "reactivemongo" % reactiveMongoVer % "provided",
@@ -79,9 +61,13 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
             "2.5.13" -> "play25"
           }
 
+          val playRmVer = reactiveMongoVer.span(_ != '-') match {
+            case (v, m) => s"${v}-${playVar}${m}"
+          }
+
           Seq(
             "com.typesafe.play" %% "play" % playVer % Provided,
-            "org.reactivemongo" %% "play2-reactivemongo" % s"${reactiveMongoVer}-${playVar}" % Provided,
+            "org.reactivemongo" %% "play2-reactivemongo" % playRmVer % Provided,
             "org.specs2" %% "specs2-core" % specsVer.value % Test
           )
         }

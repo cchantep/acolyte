@@ -1,6 +1,6 @@
 package acolyte.reactivemongo
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ Await, ExecutionContext, Future }
 
 import reactivemongo.api.{ MongoConnection, MongoDriver }
 import play.modules.reactivemongo.ReactiveMongoApi
@@ -11,6 +11,7 @@ object PlayReactiveMongoDSL {
    * @param con the MongoDB connection
    */
   def mongoApi(drv: MongoDriver, con: MongoConnection)(implicit ec: ExecutionContext): ReactiveMongoApi = new ReactiveMongoApi {
+    import scala.concurrent.duration._
     import reactivemongo.api._, gridfs._
     import reactivemongo.play.json._
     import reactivemongo.play.json.collection._
@@ -23,9 +24,7 @@ object PlayReactiveMongoDSL {
     def asyncGridFS: Future[GridFS[JSONSerializationPack.type]] =
       database.map(GridFS[JSONSerializationPack.type](_))
 
-    @deprecated("Use [[database]]", "1.0.45")
-    def db: DefaultDB = connection.db("acolyte")
-
-    def gridFS = GridFS[JSONSerializationPack.type](db)
+    def gridFS = Await.result(
+      database.map(GridFS[JSONSerializationPack.type](_)), 10.seconds)
   }
 }

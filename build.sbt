@@ -39,6 +39,8 @@ crossScalaVersions in ThisBuild := Seq(
   "2.10.7", "2.11.12", (scalaVersion in ThisBuild).value
 )
 
+resolvers in ThisBuild += Resolver.sonatypeRepo("snapshots")
+
 //
 val scalacPlugin = ScalacPlugin.project
 

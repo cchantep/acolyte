@@ -7,6 +7,7 @@ import reactivemongo.bson.{ BSONArray, BSONDocument, BSONString, BSONValue }
 import reactivemongo.io.netty.channel.{ ChannelId, DefaultChannelId }
 import reactivemongo.core.actors.{
   Close,
+  Closed,
   ExpectingResponse,
   CheckedWriteRequestExpectingResponse ⇒ CheckedWriteRequestExResp,
   PrimaryAvailable,
@@ -25,7 +26,7 @@ import reactivemongo.core.nodeset.ProtocolMetadata
 private[reactivemongo] class Actor(handler: ConnectionHandler)
   extends reactivemongo.core.actors.MongoDBSystem {
 
-  import reactivemongo.core.nodeset.{ Authenticate, ChannelFactory, Connection }
+  import reactivemongo.core.nodeset.{ Authenticate, Connection }
 
   lazy val initialAuthenticates = Seq.empty[Authenticate]
 
@@ -39,7 +40,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
 
   protected def sendAuthenticate(connection: Connection, authentication: Authenticate): Connection = connection
 
-  protected def newChannelFactory(effect: Unit): ChannelFactory =
+  protected def newChannelFactory(effect: Unit) =
     reactivemongo.acolyte.channelFactory(supervisor, name, options)
 
   private def handleWrite(chanId: ChannelId, op: WriteOp, req: Request): Option[Response] = Try(handler.writeHandler(chanId, op, req)) match {
@@ -147,10 +148,13 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
       sender ! SetAvailable(ProtocolMetadata.Default)
     }
 
-    case Close ⇒ postStop()
+    case Close | Close(_) ⇒ {
+      sender ! Closed
+      postStop()
+    }
 
-    case _ /*msg */ ⇒
-      //println(s"message = $msg")
+    case msg ⇒
+      println(s"message = $msg")
 
       //next forward msg
       ()
