@@ -35,12 +35,7 @@ trait WithCollection { self: WithDB ⇒
     m: ConnectionManager[A],
     ec: ExecutionContext,
     compose: ComposeWithCompletion[B]): compose.Outer =
-    compose((for {
-      con ← Future(m.open(d, conParam))
-      db ← con.database("acolyte")
-    } yield db.collection(name)), f) { coll ⇒
-      m.releaseIfNecessary(coll.db.connection); ()
-    }
+    withDB(conParam) { db ⇒ f(db.collection(name)) }
 
   /**
    * Works with specified collection from MongoDB "acolyte"
@@ -68,7 +63,7 @@ trait WithCollection { self: WithDB ⇒
     implicit
     ec: ExecutionContext,
     compose: ComposeWithCompletion[T]): compose.Outer =
-    compose(con.database("acolyte").map(_.collection(name)), f)(_ ⇒ {})
+    withDB(con) { db ⇒ f(db.collection(name)) }
 
   /**
    * Works with specified collection from MongoDB "acolyte"
@@ -90,11 +85,11 @@ trait WithCollection { self: WithDB ⇒
    * }
    * }}}
    */
-  def withCollection[T](db: DB, name: String)(
+  def withCollection[T](
+    db: DB,
+    name: String)(
     f: BSONCollection ⇒ T)(
     implicit
-    ec: ExecutionContext,
-    compose: ComposeWithCompletion[T]): compose.Outer =
-    compose(Future(db.collection(name)), f)(_ ⇒ {})
+    ec: ExecutionContext): T = f(db.collection(name))
 
 }
