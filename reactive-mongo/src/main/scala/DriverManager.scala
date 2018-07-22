@@ -40,6 +40,8 @@ object DriverManager {
     def open() = existing
 
     def releaseIfNecessary(driver: MongoDriver): Boolean = false
+
+    override lazy val toString = "NoOpDriverManager"
   }
 }
 

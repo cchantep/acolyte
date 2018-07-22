@@ -93,15 +93,9 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
               val Key = k + "s"
 
               es.collectFirst {
-                case (Key, a @ BSONArray(_)) ⇒
-                  a.values.headOption match {
-                    case Some(ValueDocument(("q", sel @ BSONDocument(_)) ::
-                      ("u", fil @ BSONDocument(_)) :: _)) ⇒ List(sel, fil)
-
-                    case Some(ValueDocument(
-                      ("q", sel @ BSONDocument(_)) :: _)) ⇒ List(sel)
-
-                  }
+                case (Key, a @ BSONArray(_)) ⇒ a.values.toList.collect {
+                  case doc @ BSONDocument(_) ⇒ doc
+                }
               }
             }
 
