@@ -56,14 +56,14 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "from query handler with future result" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatQueryHandler(
+          AcolyteDSL.withQueryHandler(
             { _: Request ⇒ QueryResponse.undefined })(_ ⇒ Future(2 + 6))
         } aka "work with query handler" must beEqualTo(8).await(0, timeout)
       }
 
       "from future query result" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatQueryResult(QueryResponse(
+          AcolyteDSL.withQueryResult(QueryResponse(
             BSONDocument("res" → "ult")))(_ ⇒ Future(1 + 2))
         } aka "work with query result" must beEqualTo(3).await(0, timeout)
       }
@@ -83,14 +83,14 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "from write handler with future result" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatWriteHandler(
+          AcolyteDSL.withWriteHandler(
             { (_: WriteOp, _: Request) ⇒ WriteResponse(1) })(_ ⇒ Future(1 + 6))
         } aka "work with write result" must beEqualTo(7).await(0, timeout)
       }
 
       "from sync future result" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatWriteResult(
+          AcolyteDSL.withWriteResult(
             WriteResponse("error"))(_ ⇒ Future(1 + 2))
         } aka "work with write result" must beEqualTo(3).await(0, timeout)
       }
@@ -233,7 +233,7 @@ class DriverSpec extends org.specs2.mutable.Specification
       "using withQueryResult" >> {
         "for a single document" in {
           withDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withFlatQueryResult(
+            AcolyteDSL.withQueryResult(
               BSONDocument("res" → "ult", "n" → 3)) { con: MongoConnection ⇒
                 con.database("anyDb").flatMap(_("anyCol").
                   find(query1.body.head).cursor[BSONDocument]().collect[List]())
@@ -246,7 +246,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
         "for a many documents" in {
           withDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withFlatQueryResult(
+            AcolyteDSL.withQueryResult(
               List(BSONDocument("doc" → 1), BSONDocument("doc" → 2.3d))) { d ⇒
                 AcolyteDSL.withCollection(d, "anyCol") {
                   _.find(query1.body.head).
@@ -261,7 +261,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
         "for an explicit error" in {
           awaitRes(withDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withFlatQueryResult("Error" → 7) { con: MongoConnection ⇒
+            AcolyteDSL.withQueryResult("Error" → 7) { con: MongoConnection ⇒
               AcolyteDSL.withCollection(con, query1.collection) {
                 _.find(query1.body.head).cursor[BSONDocument]().collect[List]()
               }
@@ -272,7 +272,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
         "when undefined" in {
           awaitRes(withDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withFlatQueryResult(None) { con: MongoConnection ⇒
+            AcolyteDSL.withQueryResult(None) { con: MongoConnection ⇒
               AcolyteDSL.withCollection(con, query1.collection) {
                 _.find(query1.body.head).cursor[BSONDocument]().collect[List]()
               }
@@ -284,7 +284,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "as error when query handler returns no query result" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatQueryHandler({
+          AcolyteDSL.withQueryHandler({
             case Request("acolyte.test3", SimpleBody(
               ("filter", BSONString("valC")) :: Nil)) ⇒ QueryResponse.empty
           }) { con: MongoConnection ⇒
@@ -298,7 +298,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "support query options" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatQueryHandler({
+          AcolyteDSL.withQueryHandler({
             case Request("acolyte.test3", RequestBody(
               List(("filter", BSONString("valC"))) :: List(
                 ("$orderby", ValueDocument(List(("foo", BSONInteger(1))))),
@@ -317,7 +317,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "support findAndModify" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatQueryHandler({
+          AcolyteDSL.withQueryHandler({
             case FindAndModifyRequest("test3", List(("id", BSONInteger(1))),
               List(("title", BSONString("foo"))), opts) ⇒
               QueryResponse.findAndModify(BSONDocument(opts))
@@ -405,7 +405,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "as error when connection handler is empty" in {
         awaitRes(withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatWriteHandler({ (_: WriteOp, _: Request) ⇒
+          AcolyteDSL.withWriteHandler({ (_: WriteOp, _: Request) ⇒
             WriteResponse.undefined
           }) { d ⇒
             AcolyteDSL.withCollection(d, query3.collection) {
@@ -420,7 +420,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "as error when write handler is undefined" in {
         awaitRes(withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatQueryResult(BSONDocument("prop" → "A")) { con ⇒
+          AcolyteDSL.withQueryResult(BSONDocument("prop" → "A")) { con ⇒
             AcolyteDSL.withCollection(con, write3._2.collection) {
               _.update(BSONDocument("name" → "x"), write3._2.body.head)
             }
@@ -434,7 +434,7 @@ class DriverSpec extends org.specs2.mutable.Specification
       "using withWriteResult" >> {
         "for success count" in {
           withDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withFlatWriteResult(2 → true) {
+            AcolyteDSL.withWriteResult(2 → true) {
               AcolyteDSL.withConnection(_) { con: MongoConnection ⇒
                 val db = con.database("anyDb")
                 val col = db.map(_(write1._2.collection))
@@ -449,7 +449,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
         "for explicit error" in {
           awaitRes(withDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withFlatWriteResult("Write err" → 9) { con ⇒
+            AcolyteDSL.withWriteResult("Write err" → 9) { con ⇒
               AcolyteDSL.withCollection(con, write2._2.collection) {
                 _.insert(write2._2.body.head)
               }
@@ -464,7 +464,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
         "when undefined" in {
           awaitRes(withDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withFlatWriteResult(None) { driver ⇒
+            AcolyteDSL.withWriteResult(None) { driver ⇒
               AcolyteDSL.withCollection(driver, write3._2.collection) {
                 _.update(BSONDocument(), write3._2.body.head)
               }
@@ -479,7 +479,7 @@ class DriverSpec extends org.specs2.mutable.Specification
       "using withWriteHandler" >> {
         "for insert" in {
           awaitRes(withDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withFlatWriteHandler({
+            AcolyteDSL.withWriteHandler({
               case InsertRequest("acolyte.col1", ("a", BSONString("val")) ::
                 ("b", BSONInteger(2)) :: _) ⇒
                 WriteResponse.successful(1, false)
@@ -493,7 +493,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
         "for bulk-insert" in {
           withDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withFlatWriteHandler({
+            AcolyteDSL.withWriteHandler({
               case (InsertOp, Request("foo.bar", RequestBody(List(
                 List(("foo", BSONInteger(1))),
                 List(("bar", BSONInteger(2))),
@@ -513,7 +513,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
         "for update" in {
           awaitRes(withDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withFlatWriteHandler({
+            AcolyteDSL.withWriteHandler({
               case UpdateRequest("acolyte.col2",
                 ("sel", BSONString("hector")) :: Nil,
                 ("filter", BSONString("valC")) :: Nil,
@@ -533,7 +533,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
         "for bulk-update" in {
           withDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withFlatWriteHandler({
+            AcolyteDSL.withWriteHandler({
               case (UpdateOp, Request("foo.bar", RequestBody(List(
                 List(
                   ("q", ValueDocument(("foo", BSONInteger(1)) :: _)),
@@ -572,7 +572,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
         "for delete" in {
           withDriver { implicit drv: MongoDriver ⇒
-            AcolyteDSL.withFlatWriteHandler({
+            AcolyteDSL.withWriteHandler({
               case DeleteRequest("acolyte.col3",
                 ("a", BSONString("val")) :: Nil) ⇒
                 WriteResponse.successful(2, true)

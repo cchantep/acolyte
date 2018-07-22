@@ -29,22 +29,19 @@ trait WithHandler { up: WithDriver ⇒
    * @see [[AcolyteDSL.handleQuery]]
    * @see [[AcolyteDSL.withQueryResult]]
    */
-  def withQueryHandler[T](handler: Request ⇒ PreparedResponse)(f: MongoConnection ⇒ T)(implicit d: MongoDriver, m: ConnectionManager[ConnectionHandler], c: ExecutionContext): Future[T] =
-    withConnection(AcolyteDSL handleQuery QueryHandler(handler))(f)
+  def withQueryHandler[T](handler: Request ⇒ PreparedResponse)(
+    f: MongoConnection ⇒ T)(
+    implicit
+    d: MongoDriver,
+    m: ConnectionManager[ConnectionHandler],
+    ec: ExecutionContext,
+    compose: ComposeWithCompletion[T]): compose.Outer = {
+    def conHandler = AcolyteDSL handleQuery QueryHandler(handler)
 
-  /**
-   * Works with a MongoDB driver handling only queries,
-   * using given query `handler`.
-   * Driver and associated resources are released
-   * after the function `f` the result `Future` is completed.
-   *
-   * @param handler Query handler
-   *
-   * @see [[AcolyteDSL.handleQuery]]
-   * @see [[AcolyteDSL.withQueryResult]]
-   */
-  def withFlatQueryHandler[T](handler: Request ⇒ PreparedResponse)(f: MongoConnection ⇒ Future[T])(implicit d: MongoDriver, m: ConnectionManager[ConnectionHandler], c: ExecutionContext): Future[T] =
-    withConnection(AcolyteDSL handleQuery QueryHandler(handler))(f)
+    compose(Future(m.open(d, conHandler)), f) { con ⇒
+      m.releaseIfNecessary(con); ()
+    }
+  }
 
   /**
    * Works with a MongoDB driver handling only write operations,
@@ -68,30 +65,17 @@ trait WithHandler { up: WithDriver ⇒
    * @see [[AcolyteDSL.handleWrite]]
    * @see [[AcolyteDSL.withWriteResult]]
    */
-  def withWriteHandler[T](handler: (WriteOp, Request) ⇒ PreparedResponse)(f: MongoConnection ⇒ T)(implicit d: MongoDriver, m: ConnectionManager[ConnectionHandler], c: ExecutionContext): Future[T] =
-    withConnection(AcolyteDSL handleWrite handler)(f)
+  def withWriteHandler[T](handler: (WriteOp, Request) ⇒ PreparedResponse)(
+    f: MongoConnection ⇒ T)(
+    implicit
+    d: MongoDriver,
+    m: ConnectionManager[ConnectionHandler],
+    ec: ExecutionContext,
+    compose: ComposeWithCompletion[T]): compose.Outer = {
+    def conHandler = AcolyteDSL handleWrite WriteHandler(handler)
 
-  /**
-   * Works with a MongoDB driver handling only write operations,
-   * using given write `handler`.
-   * Driver and associated resources are released
-   * after the function `f` the result `Future` is completed.
-   *
-   * @param handler Writer handler
-   *
-   * {{{
-   * import reactivemongo.api.MongoConnection
-   * import acolyte.reactivemongo.{ AcolyteDSL, Request, WriteOp }
-   *
-   * AcolyteDSL.withWriteHandler({ cmd: (WriteOp, Request) ⇒ aResp }) { d =>
-   *   val con: MongoConnection = d
-   *   Future(1+2)
-   * }
-   * }}}
-   *
-   * @see [[AcolyteDSL.handleWrite]]
-   */
-  def withFlatWriteHandler[T](handler: (WriteOp, Request) ⇒ PreparedResponse)(f: MongoConnection ⇒ Future[T])(implicit d: MongoDriver, m: ConnectionManager[ConnectionHandler], c: ExecutionContext): Future[T] =
-    withConnection(AcolyteDSL handleWrite handler)(f)
-
+    compose(Future(m.open(d, conHandler)), f) { con ⇒
+      m.releaseIfNecessary(con); ()
+    }
+  }
 }
