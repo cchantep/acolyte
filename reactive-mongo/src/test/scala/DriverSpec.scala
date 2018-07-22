@@ -136,7 +136,7 @@ class DriverSpec extends org.specs2.mutable.Specification
       "from initialized connection handler and connection with future" in {
         withDriver { implicit drv: MongoDriver ⇒
           AcolyteDSL.withConnection(chandler1) { con ⇒
-            AcolyteDSL.withFlatDB(con)(_ ⇒ Future(1 + 2))
+            AcolyteDSL.withDB(con)(_ ⇒ Future(1 + 2))
           }
         } aka "work with DB" must beEqualTo(3).await(0, timeout)
       }
@@ -152,7 +152,7 @@ class DriverSpec extends org.specs2.mutable.Specification
       "from initialized driver and connection with sync sync result" in {
         withDriver { implicit drv: MongoDriver ⇒
           AcolyteDSL.withConnection(chandler1) {
-            AcolyteDSL.withFlatDB(_)(_ ⇒ Future(2 + 5))
+            AcolyteDSL.withDB(_)(_ ⇒ Future(2 + 5))
           }
         } aka "work with DB" must beEqualTo(7).await(0, timeout)
       }
@@ -175,7 +175,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "from resolved DB with sync result" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatDB(chandler1) { db ⇒
+          AcolyteDSL.withDB(chandler1) { db ⇒
             AcolyteDSL.withCollection(db, "colName")(_ ⇒ true)
           }
         } aka "work with collection" must beTrue.await(0, timeout)
@@ -198,7 +198,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "from resolved DB with future result" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatDB(chandler1) { db ⇒
+          AcolyteDSL.withDB(chandler1) { db ⇒
             AcolyteDSL.withFlatCollection(db, "colName")(_ ⇒ Future(2 + 5))
           }
         } aka "work with collection" must beEqualTo(7).await(0, timeout)
@@ -220,7 +220,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "when is successful #2" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatDB(chandler1) { db: DefaultDB ⇒
+          AcolyteDSL.withDB(chandler1) { db: DefaultDB ⇒
             db(query2.collection).find(query2.body.head).
               cursor[BSONDocument]().collect[List]()
           }
@@ -378,7 +378,7 @@ class DriverSpec extends org.specs2.mutable.Specification
 
       "when successful" in {
         withDriver { implicit drv: MongoDriver ⇒
-          AcolyteDSL.withFlatDB(chandler1) {
+          AcolyteDSL.withDB(chandler1) {
             _(write2._2.collection).insert(write2._2.body.head)
           }
         } aka "result" must beLike[WriteResult] {
