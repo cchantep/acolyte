@@ -31,7 +31,7 @@ object DriverManager {
     override lazy val toString = s"DriverManager(timeout = $timeout)"
   }
 
-  implicit val Default: DriverManager = new Default(2.seconds)
+  implicit val Default: DriverManager = new Default(5.seconds)
 
   def withTimeout(timeout: FiniteDuration): DriverManager =
     new Default(timeout)
@@ -63,6 +63,9 @@ object ConnectionManager {
   implicit object HandlerConnectionManager
     extends ConnectionManager[ConnectionHandler] {
 
+    import scala.concurrent.Await
+    import scala.concurrent.duration._
+
     def open(driver: MongoDriver, handler: ConnectionHandler) = {
       val sys = driver.system
       val actorRef = sys.actorOf(Props(classOf[Actor], handler))
@@ -75,10 +78,11 @@ object ConnectionManager {
 
     /** Releases connection if necessary. */
     def releaseIfNecessary(connection: MongoConnection): Boolean = try {
-      connection.close()
+      Await.result(connection.askClose()(10.seconds), 10.seconds)
       true
     } catch {
       case e: Throwable ⇒
+        println("_here")
         e.printStackTrace()
         false
     }
