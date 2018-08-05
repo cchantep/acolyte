@@ -2,7 +2,7 @@ organization := "org.eu.acolyte"
 
 name := "acolyte-site"
 
-val ver = "1.0.48"
+val ver = "1.0.49"
 val PlayVer = "2.5.13"
 
 version := ver
@@ -11,10 +11,10 @@ lazy val `acolyte-site` = (project in file(".")).settings(
   scalaVersion := "2.11.12",
   scalacOptions in ThisBuild ++= Seq("-Ywarn-unused-import", "-unchecked"),
   libraryDependencies ++= Seq(
-    "org.reactivemongo" %% "play2-reactivemongo" % "0.15.0-play25",
+    "org.reactivemongo" %% "play2-reactivemongo" % "0.16.0-play25",
     "org.eu.acolyte" %% "play-jdbc" % ver,
     "org.eu.acolyte" %% "play-reactive-mongo" % ver,
-    "org.specs2" %% "specs2-core" % "4.2.0",
+    "org.specs2" %% "specs2-core" % "4.3.2",
     "com.typesafe.play" %% "play-test" % PlayVer,
     "com.typesafe.play" %% "play-jdbc" % PlayVer
   ),

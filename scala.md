@@ -62,7 +62,7 @@ You can see detailed [use cases](https://github.com/cchantep/acolyte/blob/master
 
 - *[Interactive demo](http://tour.acolyte.eu.org/)*
 - *How to use [Acolyte connection](#connection)*
-- *See online [API documentation](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/jdbc-scala_2.11/{{site.latest_release}}-j7p/jdbc-scala_2.11-{{site.latest_release}}-j7p-javadoc.jar/!/index.html)*.
+- *See online [API documentation](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/jdbc-scala_2.12/{{site.latest_release}}/jdbc-scala_2.12-{{site.latest_release}}-javadoc.jar/!/index.html)*.
 
 ## Setup in your project
 
@@ -70,11 +70,11 @@ Using SBT, Acolyte JDBC dependency can resolved as following.
 
 ```ocaml
 libraryDependencies ++= Seq(
-  "org.eu.acolyte" %% "jdbc-scala" % "{{site.latest_release}}-j7p" % "test"
+  "org.eu.acolyte" %% "jdbc-scala" % "{{site.latest_release}}" % "test"
 )
 ```
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.eu.acolyte/jdbc-scala_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.eu.acolyte/jdbc-scala_2.11/)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.eu.acolyte/jdbc-scala_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.eu.acolyte/jdbc-scala_2.12/)
 
 ## Connection 
 

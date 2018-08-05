@@ -333,8 +333,8 @@ This module can be configured in your Play project as bellow.
 
 ```ocaml
 libraryDependencies ++= Seq(
-  "org.eu.acolyte" %% "play-jdbc" % "{{site.latest_release}}-j7p" % "test"
+  "org.eu.acolyte" %% "play-jdbc" % "{{site.latest_release}}" % "test"
 )
 ```
 
-*See online [API documentation](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/play-jdbc_2.11/{{site.latest_release}}-j7p/play-jdbc_2.11-{{site.latest_release}}-j7p-javadoc.jar/!/index.html)*
+*See online [API documentation](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/play-jdbc_2.12/{{site.latest_release}}/play-jdbc_2.12-{{site.latest_release}}-javadoc.jar/!/index.html)*

@@ -69,7 +69,7 @@ Connection con = DriverManager.getConnection(jdbcUrl);
 You can see more [use cases](https://github.com/cchantep/acolyte/blob/master/jdbc-driver/src/test/java/usecase/JavaUseCases.java) whose expectations are visible in [specifications](https://github.com/cchantep/acolyte/blob/master/jdbc-driver/src/test/jdbc-scala/acolyte/AcolyteSpec.scala).
 
 - *How to use [Acolyte connection](#connection)*
-- *See online [API documentation](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/jdbc-driver/{{site.latest_release}}-j7p/jdbc-driver-{{site.latest_release}}-j7p-javadoc.jar/!/index.html)*.
+- *See online [API documentation](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/jdbc-driver/{{site.latest_release}}/jdbc-driver-{{site.latest_release}}-javadoc.jar/!/index.html)*.
 
 ## Setup in your project
 
@@ -82,7 +82,7 @@ With Maven 2/3+, the dependency can be configured as bellow.
     <dependency>
       <groupId>org.eu.acolyte</groupId>
       <artifactId>jdbc-driver</artifactId>
-      <version>{{site.latest_release}}-j7p</version>
+      <version>{{site.latest_release}}</version>
     </dependency>
   </dependencies>
 ```
@@ -95,7 +95,7 @@ It can be done similarly using SBT:
 
 ```ocaml
 libraryDependencies ++= Seq(
-  "org.eu.acolyte" % "jdbc-driver" % "{{site.latest_release}}-j7p" % Test
+  "org.eu.acolyte" % "jdbc-driver" % "{{site.latest_release}}" % Test
 )
 ```
 
@@ -355,12 +355,10 @@ It can be added to your project with the following dependency.
 <dependency>
   <groupId>org.eu.acolyte</groupId>
   <artifactId>jdbc-java8</artifactId>
-  <version>{{site.latest_release}}-j7p</version>
+  <version>{{site.latest_release}}</version>
 </dependency>
 ```
 
-> Note the suffix `-j7p` added at end of the version to get the Acolyte artefacts built as Java 1.7+ bytecode.
-
-*See online [API documentation](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/jdbc-java8/{{site.latest_release}}-j7p/jdbc-java8-{{site.latest_release}}-j7p-javadoc.jar/!/index.html)*.
+*See online [API documentation](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/jdbc-java8/{{site.latest_release}}/jdbc-java8-{{site.latest_release}}-javadoc.jar/!/index.html)*.
 
 [Next: Acolyte for Scala](../scala/)
