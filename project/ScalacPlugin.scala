@@ -7,15 +7,13 @@ object ScalacPlugin {
 
   lazy val project = 
     Project(id = "scalac-plugin", base = file("scalac-plugin")).
-      settings(formatSettings).settings(
+      settings(Compiler.settings ++ formatSettings ++ Seq(
         name := "scalac-plugin",
-        javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
         libraryDependencies ++= Seq(
           "org.scala-lang" % "scala-compiler" % scalaVersion.value % Provided,
           "org.specs2" %% "specs2-core" % specsVer.value % Test),
         compile in Test := (compile in Test).dependsOn(
           packageBin in Compile/* make sure plugin.jar is available */).value,
-        scalacOptions in Compile ++= Seq("-feature", "-deprecation"),
         sourceGenerators in Compile += Def.task[Seq[File]] {
           val ver = scalaVersion.value
           val dir = (sourceManaged in Compile).value
@@ -38,7 +36,7 @@ object ScalacPlugin {
 
           Seq("-feature", "-deprecation", "-P:acolyte:debug",
             s"-Xplugin:${j.getAbsolutePath}")
-        })
+        }))
 
   private def generateUtility(ver: String, managed: File): Seq[File] = {
     val f = managed / "acolyte" / "CompilerUtility.scala"

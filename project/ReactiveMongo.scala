@@ -17,7 +17,7 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
 
   lazy val project =
     Project(id = "reactive-mongo", base = file("reactive-mongo")).
-      settings(formatSettings).settings(
+      settings(Compiler.settings ++ formatSettings ++ Set(
         name := "reactive-mongo",
         fork in Test := true,
         javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
@@ -28,11 +28,11 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
           "org.slf4j" % "slf4j-simple" % "1.7.13" % Provided,
           "com.chuusai" %% "shapeless" % "2.3.2",
           "org.specs2" %% "specs2-core" % specsVer.value % Test)
-      )//.dependsOn(scalacPlugin)
+      ))//.dependsOn(scalacPlugin)
 
   lazy val playProject =
     Project(id = "play-reactive-mongo", base = file("play-reactive-mongo")).
-      settings(formatSettings).settings(
+      settings(Compiler.settings ++ formatSettings ++ Set(
         name := "play-reactive-mongo",
         crossScalaVersions ~= { _.filterNot(_ startsWith "2.10") },
         javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
@@ -71,6 +71,6 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
             "org.specs2" %% "specs2-core" % specsVer.value % Test
           )
         }
-      ).dependsOn(scalacPlugin, self.project)
+      )).dependsOn(scalacPlugin, self.project)
 
 }
