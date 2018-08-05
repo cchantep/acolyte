@@ -82,7 +82,6 @@ object ConnectionManager {
       true
     } catch {
       case e: Throwable ⇒
-        println("_here")
         e.printStackTrace()
         false
     }

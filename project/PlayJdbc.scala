@@ -10,16 +10,8 @@ class PlayJdbc(
 
   lazy val project = 
     Project(id = "play-jdbc", base = file("play-jdbc")).
-      settings(formatSettings).settings(
+      settings(Compiler.settings ++ formatSettings ++ Seq(
         name := "play-jdbc",
-        javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
-        scalacOptions in Compile ++= Seq("-unchecked", "-deprecation"),
-        scalacOptions in Compile ++= {
-          val v = (scalaVersion in ThisBuild).value
-
-          if (v startsWith "2.11") Seq("-Ywarn-unused-import")
-          else Nil
-        },
         scalacOptions in Test ++= {
           val v = (version in ThisBuild).value
           val sv = (scalaVersion in ThisBuild).value
@@ -54,6 +46,6 @@ class PlayJdbc(
             "com.typesafe.play" %% "anorm" % anormVer % Test,
             "org.specs2" %% "specs2-core" % specsVer.value % Test)
         }
-      ).dependsOn(scalacPlugin, jdbcScala)
+      )).dependsOn(scalacPlugin, jdbcScala)
 
 }
