@@ -3,6 +3,13 @@ layout: page
 title: Changelog
 ---
 
+## 1.0.49
+
+ReactiveMongo: 
+
+- Natural conversions (synchronous & async) for the loan patterns utilities.
+- Support 0.16.0
+
 ## 1.0.48
 
 Support ReactiveMongo 0.15

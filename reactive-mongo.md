@@ -33,12 +33,14 @@ val connectionHandler1: ConnectionHandler = AcolyteDSL.handleQuery {
 
 // 2. In Mongo persistence code, allowing (e.g. cake pattern) 
 // to provide driver according environment.
+import scala.concurrent.Future
 import reactivemongo.api.MongoDriver
 
 trait MongoPersistence {
   def driver: MongoDriver
 
-  def foo = ??? /* Function using driver, whatever is the way it's provided */
+  def foo: Future[Boolean] =
+    ??? /* Function using driver, whatever is the way it's provided */
 }
 
 object ProdPersistence extends MongoPersistence {
@@ -47,12 +49,11 @@ object ProdPersistence extends MongoPersistence {
 }
 
 // 3. Finally in unit tests
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import acolyte.reactivemongo.AcolyteDSL
 
-def isOk: Future[Boolean] = AcolyteDSL.withFlatDriver { d =>
+def isOk: Future[Boolean] = AcolyteDSL.withDriver { d =>
   val persistenceWithTestingDriver = new MongoPersistence {
     val driver: MongoDriver = d // provide testing driver
   }
@@ -72,7 +73,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import reactivemongo.api.{ MongoConnection, MongoDriver }
 
 import acolyte.reactivemongo.AcolyteDSL,
-  AcolyteDSL.{ withConnection, withFlatDriver }
+  AcolyteDSL.{ withConnection, withDriver }
 import acolyte.reactivemongo.Request
 
 def yourFunctionUsingMongo(drv: MongoDriver) = "foo"
@@ -83,7 +84,7 @@ def yourConnectionHandler = AcolyteDSL.handleQuery { req: Request =>
   )
 }
 
-val res: Future[String] = withFlatDriver { implicit driver: MongoDriver =>
+val res: Future[String] = withDriver { implicit driver: MongoDriver =>
   withConnection(yourConnectionHandler) { c =>
     val con: MongoConnection = c // configured with `yourConnectionHandler`
 
@@ -95,23 +96,23 @@ val res: Future[String] = withFlatDriver { implicit driver: MongoDriver =>
 }
 ```
 
-As in previous example, main API object is [Acolyte DSL](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/reactive-mongo_2.11/{{site.latest_release}}-j7p/reactive-mongo_2.11-{{site.latest_release}}-j7p-javadoc.jar/!/index.html#acolyte.reactivemongo.AcolyteDSL$).
+As in previous example, main API object is [Acolyte DSL](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/reactive-mongo_2.12/{{site.latest_release}}/reactive-mongo_2.12-{{site.latest_release}}-javadoc.jar/!/index.html#acolyte.reactivemongo.AcolyteDSL$).
 
 Dependency can be added to SBT project with `"org.eu.acolyte" %% "reactive-mongo" % "{{site.latest_release}}"`, or in a Maven one as following:
 
 ```xml
 <dependency>
   <groupId>org.eu.acolyte</groupId>
-  <artifactId>reactive-mongo_2.11</artifactId>
-  <version>{{site.latest_release}}-j7p</version>
+  <artifactId>reactive-mongo_2.12</artifactId>
+  <version>{{site.latest_release}}</version>
 </dependency>
 ```
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.eu.acolyte/reactive-mongo_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.eu.acolyte/reactive-mongo_2.11/)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.eu.acolyte/reactive-mongo_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.eu.acolyte/reactive-mongo_2.12/)
 
 ### Get started
 
-- [API documentation](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/reactive-mongo_2.11/{{site.latest_release}}-j7p/reactive-mongo_2.11-{{site.latest_release}}-j7p-javadoc.jar/!/index.html)
+- [API documentation](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/reactive-mongo_2.12/{{site.latest_release}}/reactive-mongo_2.12-{{site.latest_release}}-javadoc.jar/!/index.html)
 - [Tutorial](https://github.com/cchantep/acolyte/tree/reactivemongo-tutorial)
 
 ### Setup in your project
@@ -133,18 +134,18 @@ AcolyteDSL.withDriver { implicit drv: reactivemongo.api.MongoDriver =>
 }
 ```
 
-Acolyte provides several ways to initialize MongoDB resources (driver, connection, DB and collection) your code could expect.
+[Acolyte DSL](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/reactive-mongo_2.12/{{site.latest_release}}/reactive-mongo_2.12-{{site.latest_release}}-javadoc.jar/!/index.html#acolyte.reactivemongo.AcolyteDSL$) provides several ways to initialize MongoDB resources (driver, connection, DB and collection) your code could expect.
 
-- `withDriver` and `withFlatDriver`,
-- `withConnection` and `withFlatConnection`,
-- `withDB` and `withFlatDB`,
-- `withCollection` and `withFlatCollection`,
-- `withQueryHandler` and `withFlatQueryHandler`,
-- `withQueryResult` and `withFlatQueryResult`,
-- `withWriteHandler` and `withFlatWriteHandler`,
-- `withWriteResult` and `withFlatWriteResult`.
+- `withDriver`
+- `withConnection`
+- `withDB`
+- `withCollection`
+- `withQueryHandler`
+- `withQueryResult`
+- `withWriteHandler`
+- `withWriteResult`
 
-> Naming convention is `withX(...) { a => b }` to use with your MongoDB function which doesn't return `Future` result, and `withFlatX(...) { a => b }` when your MongoDB function does return `Future` (so that result as `Future[T]` is flatten when returned, not having `Future[Future[YourReturnType]]` finally).
+The `withX` naming denotes these are loan patterns, responsible to releases appropriate the resources.
 
 ```scala
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -223,7 +224,7 @@ def queryResultForAll: PreparedResponse = QueryResponse.empty
 }
 
 // More complexe case
-AcolyteDSL.withFlatDriver { implicit d: MongoDriver => // expect a Future
+AcolyteDSL.withDriver { implicit d: MongoDriver => // expect a Future
   val handler = AcolyteDSL.handleQuery { req: Request =>
     QueryResponse.empty // any query result
   }
@@ -238,15 +239,15 @@ AcolyteDSL.withFlatDriver { implicit d: MongoDriver => // expect a Future
 
   def yourFunction3WorkingWithConnection(con: MongoConnection) = ???
 
-  AcolyteDSL.withFlatConnection(handler) { c2 => // expect a Future
+  AcolyteDSL.withConnection(handler) { c2 => // expect a Future
     yourFunction3WorkingWithConnection(c2) // return a Future
   }
 
   def yourFunctionWorkingWithColl(coll: BSONCollection) = ???
 
-  AcolyteDSL.withFlatConnection(handler) { c3 => // expect a Future
-    AcolyteDSL.withFlatDB(c3) { db => // expect a Future
-      AcolyteDSL.withFlatCollection(db, "colName") { // expect Future
+  AcolyteDSL.withConnection(handler) { c3 => // expect a Future
+    AcolyteDSL.withDB(c3) { db => // expect a Future
+      AcolyteDSL.withCollection(db, "colName") { // expect Future
         yourFunctionWorkingWithColl(_) // return a Future
       }
     }
@@ -283,10 +284,12 @@ AcolyteDSL.withDriver { implicit driver: MongoDriver =>
 // Then when Mongo code is given this driver instead of production one ...
 // (see DI or cake pattern) and resolve a BSON collection `col` by this way:
 import scala.util.{ Failure, Success }
+import reactivemongo.api.Cursor
 import reactivemongo.api.collections.bson.BSONCollection
 
 def bar(col: BSONCollection) = col.find(BSONDocument("anyQuery" -> 1)).
-  cursor[BSONDocument]().collect[List]().onComplete {
+  cursor[BSONDocument]().collect[List](
+    -1, Cursor.FailOnError[List[BSONDocument]]()).onComplete {
     case Success(res) => ??? // In case of response given by provided handler
     case Failure(err) => ??? // "No response: " if case not handled
   }
@@ -665,7 +668,7 @@ import acolyte.reactivemongo.{ AcolyteDSL, PlayReactiveMongoDSL }
 
 def codeBasedOnPlayReactiveMongo(api: ReactiveMongoApi) = ???
 
-AcolyteDSL.withFlatDriver { implicit drv: MongoDriver =>
+AcolyteDSL.withDriver { implicit drv: MongoDriver =>
   AcolyteDSL.withConnection(connectionHandler1) { con: MongoConnection =>
     val mongo: ReactiveMongoApi = PlayReactiveMongoDSL.mongoApi(drv, con)
 
@@ -674,7 +677,7 @@ AcolyteDSL.withFlatDriver { implicit drv: MongoDriver =>
 }
 ```
 
-*See online [API documentation](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/play-reactive-mongo_2.11/{{site.latest_release}}-j7p/play-reactive-mongo_2.11-{{site.latest_release}}-j7p-javadoc.jar/!/index.html#package)*
+*See online [API documentation](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/play-reactive-mongo_2.12/{{site.latest_release}}/play-reactive-mongo_2.12-{{site.latest_release}}-javadoc.jar/!/index.html#package)*
 
 ### SBT
 
