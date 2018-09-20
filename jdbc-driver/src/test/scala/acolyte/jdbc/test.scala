@@ -9,6 +9,7 @@ package object test {
 
   object EmptyConnectionHandler extends ConnectionHandler {
     def getStatementHandler = EmptyStatementHandler
+    def getResourceHandler = new ResourceHandler.Default()
   }
 
   object EmptyStatementHandler extends StatementHandler {

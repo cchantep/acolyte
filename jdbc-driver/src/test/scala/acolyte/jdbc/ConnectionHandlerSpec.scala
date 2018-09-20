@@ -8,6 +8,12 @@ object ConnectionHandlerSpec extends Specification {
   "Default handler" should {
     "refuse null statement handler" in {
       new ConnectionHandler.Default(null).
+        aka("ctor") must throwA[IllegalArgumentException]("Statement handler")
+
+    }
+
+    "refuse null resource handler" in {
+      new ConnectionHandler.Default(null, null).
         aka("ctor") must throwA[IllegalArgumentException]
 
     }
