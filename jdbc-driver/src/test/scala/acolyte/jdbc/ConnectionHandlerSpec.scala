@@ -17,5 +17,18 @@ object ConnectionHandlerSpec extends Specification {
         aka("ctor") must throwA[IllegalArgumentException]
 
     }
+
+    "update the resource handler" in {
+      val conHandler1 = new ConnectionHandler.Default(
+        test.EmptyStatementHandler)
+
+      val resHandler2 = new ResourceHandler.Default()
+      val conHandler2 = conHandler1.withResourceHandler(resHandler2)
+
+      conHandler1.hashCode must not(beEqualTo(conHandler2.hashCode)) and {
+        conHandler2.getResourceHandler.hashCode must not(beEqualTo(
+          conHandler1.getResourceHandler.hashCode))
+      }
+    }
   }
 }

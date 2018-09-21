@@ -287,25 +287,49 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
     }
 
-    "be intercepted" in {
-      @volatile var rollback = 0
+    "be intercepted" >> {
+      "successfully" in {
+        @volatile var rollback = 0
 
-      val conHandler = new ConnectionHandler {
-        def getStatementHandler = test.EmptyStatementHandler
+        val conHandler = new ConnectionHandler {
+          def getStatementHandler = test.EmptyStatementHandler
 
-        def getResourceHandler = new ResourceHandler {
-          def whenCommitTransaction(c: Connection): Unit = ()
+          def getResourceHandler = new ResourceHandler {
+            def whenCommitTransaction(c: Connection): Unit = ()
 
-          def whenRollbackTransaction(c: Connection): Unit = {
-            rollback += 1
+            def whenRollbackTransaction(c: Connection): Unit = {
+              rollback += 1
+            }
           }
+
+          def withResourceHandler(h: ResourceHandler): ConnectionHandler =
+            new ConnectionHandler.Default(test.EmptyStatementHandler, h)
         }
+
+        connection(jdbcUrl, emptyClientInfo, conHandler).
+          rollback() must not(throwA[SQLException]) and {
+            rollback must_=== 1
+          }
       }
 
-      connection(jdbcUrl, emptyClientInfo, conHandler).
-        rollback() must not(throwA[SQLException]) and {
-          rollback must_=== 1
+      "with exception" in {
+        val conHandler = new ConnectionHandler {
+          def getStatementHandler = test.EmptyStatementHandler
+
+          def getResourceHandler = new ResourceHandler {
+            def whenCommitTransaction(c: Connection): Unit = ()
+
+            def whenRollbackTransaction(c: Connection): Unit =
+              throw new SQLException("Foo")
+          }
+
+          def withResourceHandler(h: ResourceHandler): ConnectionHandler =
+            new ConnectionHandler.Default(test.EmptyStatementHandler, h)
         }
+
+        connection(jdbcUrl, emptyClientInfo, conHandler).
+          rollback() must throwA[SQLException]("Foo")
+      }
     }
 
     "not be applied on closed connection" in {
@@ -431,25 +455,49 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
     }
 
-    "be intercepted" in {
-      @volatile var commit = 0
+    "be intercepted" >> {
+      "successfully" in {
+        @volatile var commit = 0
 
-      val conHandler = new ConnectionHandler {
-        def getStatementHandler = test.EmptyStatementHandler
+        val conHandler = new ConnectionHandler {
+          def getStatementHandler = test.EmptyStatementHandler
 
-        def getResourceHandler = new ResourceHandler {
-          def whenCommitTransaction(c: Connection): Unit = {
-            commit += 1
+          def getResourceHandler = new ResourceHandler {
+            def whenCommitTransaction(c: Connection): Unit = {
+              commit += 1
+            }
+
+            def whenRollbackTransaction(c: Connection): Unit = ()
           }
 
-          def whenRollbackTransaction(c: Connection): Unit = ()
+          def withResourceHandler(h: ResourceHandler): ConnectionHandler =
+            new ConnectionHandler.Default(test.EmptyStatementHandler, h)
         }
+
+        connection(jdbcUrl, emptyClientInfo, conHandler).
+          commit() must not(throwA[SQLException]) and {
+            commit must_=== 1
+          }
       }
 
-      connection(jdbcUrl, emptyClientInfo, conHandler).
-        commit() must not(throwA[SQLException]) and {
-          commit must_=== 1
+      "with exception" in {
+        val conHandler = new ConnectionHandler {
+          def getStatementHandler = test.EmptyStatementHandler
+
+          def getResourceHandler = new ResourceHandler {
+            def whenCommitTransaction(c: Connection): Unit =
+              throw new SQLException("Bar")
+
+            def whenRollbackTransaction(c: Connection): Unit = ()
+          }
+
+          def withResourceHandler(h: ResourceHandler): ConnectionHandler =
+            new ConnectionHandler.Default(test.EmptyStatementHandler, h)
         }
+
+        connection(jdbcUrl, emptyClientInfo, conHandler).
+          commit() must throwA[SQLException]("Bar")
+      }
     }
   }
 

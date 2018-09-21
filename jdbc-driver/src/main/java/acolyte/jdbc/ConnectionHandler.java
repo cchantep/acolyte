@@ -20,6 +20,13 @@ public interface ConnectionHandler {
      */
     public ResourceHandler getResourceHandler();
 
+    /**
+     * Returns this connection handler with its resource |handler| updated.
+     *
+     * @param handler the new resource handler
+     */
+    public ConnectionHandler withResourceHandler(ResourceHandler handler);
+
     // --- Inner classes ---
 
     /**
@@ -72,5 +79,12 @@ public interface ConnectionHandler {
         public ResourceHandler getResourceHandler() {
             return this.resHandler;
         } // end of getResourceHandler
+        
+        /**
+         * {@inheritDoc}
+         */
+        public ConnectionHandler withResourceHandler(ResourceHandler handler) {
+            return new Default(this.stmtHandler, handler);
+        } // end of withResourceHandler
     } // end of class DefaultHandler
 } // end of interface ConnectionHandler
