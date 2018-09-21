@@ -180,7 +180,6 @@ public final class Driver implements java.sql.Driver {
      * @see #connection(acolyte.jdbc.ConnectionHandler)
      */
     public static acolyte.jdbc.Connection connection(final ConnectionHandler handler, final Properties info) {
-
         if (handler == null) {
             throw new IllegalArgumentException();
         } // end of if
@@ -211,12 +210,31 @@ public final class Driver implements java.sql.Driver {
      * @throws IllegalArgumentException if handler is null
      */
     public static acolyte.jdbc.Connection connection(final StatementHandler handler, final Properties info) {
+        return connection(handler, new ResourceHandler.Default(), info);
+    } // end of connection
 
-        if (handler == null) {
-            throw new IllegalArgumentException();
+    /**
+     * Direct connection, with given |handler| and random URL.
+     *
+     * @param stmtHandler the statement handler
+     * @param resHandler the resource handler
+     * @param info Connection properties (optional)
+     * @return the configured connection
+     * @throws IllegalArgumentException if handler is null
+     */
+    public static acolyte.jdbc.Connection connection(final StatementHandler stmtHandler, final ResourceHandler resHandler, final Properties info) {
+
+        if (stmtHandler == null) {
+            throw new IllegalArgumentException("Statement handler");
         } // end of if
 
-        return connection(new ConnectionHandler.Default(handler), info);
+        if (resHandler == null) {
+            throw new IllegalArgumentException("Resource handler");
+        } // end of if
+
+        return connection(new ConnectionHandler.
+                          Default(stmtHandler, resHandler), info);
+
     } // end of connection
 
     /**

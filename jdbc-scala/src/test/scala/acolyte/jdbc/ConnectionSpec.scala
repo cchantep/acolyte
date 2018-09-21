@@ -17,6 +17,31 @@ object ConnectionSpec extends org.specs2.mutable.Specification {
     }
   }
 
+  "Transaction" should {
+    "handle commit" in {
+      @volatile var commit = 0
+      val con = AcolyteDSL.connection(
+        EmptyHandler,
+        AcolyteDSL.handleTransaction(whenCommit = { _ ⇒ commit += 1 }))
+
+      con.commit() must not(throwA[Exception]) and {
+        commit must_== 1
+      }
+    }
+
+    "handle rollback" in {
+      val rollbacked = scala.concurrent.Promise[Connection]()
+
+      val con = AcolyteDSL.connection(
+        EmptyHandler,
+        AcolyteDSL.handleTransaction(whenRollback = rollbacked.success))
+
+      con.rollback() must not(throwA[Exception]) and {
+        rollbacked.isCompleted must beTrue
+      }
+    }
+  }
+
   "Debug" should {
     "be successful" in {
       val output = Seq.newBuilder[String]

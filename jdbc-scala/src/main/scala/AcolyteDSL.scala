@@ -8,8 +8,8 @@ import java.sql.{ Connection ⇒ SqlConnection, SQLException }
 import scala.language.implicitConversions
 import scala.collection.JavaConverters._
 
-import acolyte.jdbc.StatementHandler.Parameter
 import acolyte.jdbc.AbstractCompositeHandler.{ QueryHandler, UpdateHandler }
+import acolyte.jdbc.StatementHandler.Parameter
 import acolyte.jdbc.RowList.{ Column ⇒ Col }
 
 /**
@@ -31,8 +31,8 @@ object AcolyteDSL {
   /**
    * Creates a connection, whose statement will be passed to given handler.
    *
-   * @param h statement handler
-   * @param p connection properties
+   * @param sh the statement handler
+   * @param p the connection properties
    * @return a new Acolyte connection
    *
    * {{{
@@ -42,8 +42,30 @@ object AcolyteDSL {
    * connection(handler, "acolyte.parameter.untypedNull" -> "true")
    * }}}
    */
-  def connection(h: AbstractCompositeHandler[_], p: (String, String)*) =
-    Driver.connection(h, p.foldLeft(new java.util.Properties()) { (ps, t) ⇒
+  def connection(sh: AbstractCompositeHandler[_], p: (String, String)*): Connection = Driver.connection(sh, p.foldLeft(new java.util.Properties()) { (ps, t) ⇒
+    ps.put(t._1, t._2); ps
+  })
+
+  /**
+   * Creates a connection, whose statement will be passed to given handler.
+   *
+   * @param sh the statement handler
+   * @param rh the resource handler
+   * @param p the connection properties
+   * @return a new Acolyte connection
+   *
+   * {{{
+   * connection(handler) // without connection properties
+   *
+   * // With connection property to fallback untyped null
+   * connection(handler, "acolyte.parameter.untypedNull" -> "true")
+   * }}}
+   */
+  def connection(
+    sh: AbstractCompositeHandler[_],
+    rh: ResourceHandler,
+    p: (String, String)*): Connection = Driver.connection(sh, rh,
+    p.foldLeft(new java.util.Properties()) { (ps, t) ⇒
       ps.put(t._1, t._2); ps
     })
 
@@ -75,7 +97,8 @@ object AcolyteDSL {
    * connection { handleStatement }
    * }}}
    */
-  def handleStatement = ScalaCompositeHandler.empty
+  @inline def handleStatement: ScalaCompositeHandler =
+    ScalaCompositeHandler.empty
 
   /**
    * Creates a new handler detecting all statements as queries
@@ -117,6 +140,23 @@ object AcolyteDSL {
    */
   def updateResult(count: Int, keys: RowList[_]): UpdateResult =
     new UpdateResult(count) withGeneratedKeys keys
+
+  /**
+   * Returns a resource handler intercepting transaction commit or rollback.
+   *
+   * @param whenCommit the function handling commit
+   * @param whenRollback the function handling rollback
+   *
+   * @see [[java.sql.Connection.commit]]
+   * @see [[java.sql.Connection.rollback]]
+   */
+  def handleTransaction(
+    whenCommit: Connection ⇒ Unit = { _ ⇒ () },
+    whenRollback: Connection ⇒ Unit = { _ ⇒ () }): ResourceHandler =
+    new ResourceHandler {
+      def whenCommitTransaction(con: Connection) = whenCommit(con)
+      def whenRollbackTransaction(con: Connection) = whenRollback(con)
+    }
 
   /**
    * Manages a scope to debug any JDBC execution
