@@ -204,6 +204,10 @@ public class Connection implements java.sql.Connection {
         if (this.autoCommit) {
             throw new SQLException("Auto-commit is enabled");
         } // end of if
+
+        // ---
+
+        handler.getResourceHandler().whenCommitTransaction(this);
     } // end of 
 
     /**
@@ -215,6 +219,10 @@ public class Connection implements java.sql.Connection {
         if (this.autoCommit) {
             throw new SQLException("Auto-commit is enabled");
         } // end of if
+
+        // ---
+
+        handler.getResourceHandler().whenRollbackTransaction(this);
     } // end of rollback
 
     /**

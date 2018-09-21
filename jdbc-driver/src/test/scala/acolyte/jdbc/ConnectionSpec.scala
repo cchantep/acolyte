@@ -287,6 +287,27 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
     }
 
+    "be intercepted" in {
+      @volatile var rollback = 0
+
+      val conHandler = new ConnectionHandler {
+        def getStatementHandler = test.EmptyStatementHandler
+
+        def getResourceHandler = new ResourceHandler {
+          def whenCommitTransaction(c: Connection): Unit = ()
+
+          def whenRollbackTransaction(c: Connection): Unit = {
+            rollback += 1
+          }
+        }
+      }
+
+      connection(jdbcUrl, emptyClientInfo, conHandler).
+        rollback() must not(throwA[SQLException]) and {
+          rollback must_=== 1
+        }
+    }
+
     "not be applied on closed connection" in {
       lazy val c = defaultCon
       c.close()
@@ -408,6 +429,27 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
         and(c.commit() aka "commit" must throwA[SQLException](
           message = "Auto-commit is enabled"))
 
+    }
+
+    "be intercepted" in {
+      @volatile var commit = 0
+
+      val conHandler = new ConnectionHandler {
+        def getStatementHandler = test.EmptyStatementHandler
+
+        def getResourceHandler = new ResourceHandler {
+          def whenCommitTransaction(c: Connection): Unit = {
+            commit += 1
+          }
+
+          def whenRollbackTransaction(c: Connection): Unit = ()
+        }
+      }
+
+      connection(jdbcUrl, emptyClientInfo, conHandler).
+        commit() must not(throwA[SQLException]) and {
+          commit must_=== 1
+        }
     }
   }
 
@@ -808,5 +850,5 @@ sealed trait ConnectionFixtures {
 
   def defaultCon = connection(jdbcUrl, null, defaultHandler)
 
-  def connection(url: String, props: java.util.Properties, handler: ConnectionHandler) = new acolyte.jdbc.Connection(url, props, handler)
+  def connection(url: String, props: java.util.Properties, handler: ConnectionHandler) = new Connection(url, props, handler)
 }
