@@ -1,5 +1,7 @@
 package acolyte.jdbc
 
+import java.sql.SQLException
+
 import acolyte.jdbc.{ ExecutedParameter ⇒ XP }
 
 object ExecutionSpec extends org.specs2.mutable.Specification {
@@ -88,6 +90,22 @@ object ExecutionSpec extends org.specs2.mutable.Specification {
           case Executed((_, Nil)) ⇒ ok
         })
       }
+    }
+  }
+
+  "Update execution" should {
+    "represent DB error" in {
+      val handler = AcolyteDSL.handleStatement.withUpdateHandler { _ ⇒
+        throw new SQLException("Foo bar lorem")
+      }
+
+      val con = AcolyteDSL.connection(handler)
+      val stmt = con.prepareStatement("UPDATE tbl SET nme = ? WHERE id = ?")
+
+      stmt.setString(1, "test")
+      stmt.setString(2, "this")
+
+      stmt.executeUpdate() must throwA[SQLException]("Foo bar lorem")
     }
   }
 }
