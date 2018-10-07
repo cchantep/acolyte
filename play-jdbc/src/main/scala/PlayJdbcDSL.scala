@@ -1,7 +1,7 @@
 // -*- mode: scala -*-
 package acolyte.jdbc.play
 
-import acolyte.jdbc.{ AcolyteDSL, QueryResult, ScalaCompositeHandler }
+import acolyte.jdbc.{ AcolyteDSL, QueryResult, ResourceHandler, ScalaCompositeHandler }
 
 import play.api.db.Database
 
@@ -52,13 +52,15 @@ object PlayJdbcDSL {
 }
 
 /** Acolyte handler for Play JDBC. */
-final class PlayJdbcContext(handler: ScalaCompositeHandler) {
+final class PlayJdbcContext(
+    handler: ScalaCompositeHandler,
+    resourceHandler: ResourceHandler = new ResourceHandler.Default()) {
 
   /**
    * @param f the function applied on the Acolyte/Play `Database`
    */
   def apply[A](f: Database ⇒ A): A = {
-    lazy val db = new AcolyteDatabase(handler)
+    lazy val db = new AcolyteDatabase(handler, resourceHandler)
 
     try {
       f(db)

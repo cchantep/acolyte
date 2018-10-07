@@ -10,7 +10,9 @@ import java.sql.{ Connection, DriverManager }
 import play.api.db.Database
 
 import acolyte.jdbc.{
+  ConnectionHandler,
   Driver ⇒ AcolyteDriver,
+  ResourceHandler,
   ScalaCompositeHandler
 }
 
@@ -22,9 +24,10 @@ import acolyte.jdbc.{
  */
 final class AcolyteDatabase(
     handler: ScalaCompositeHandler,
+    resourceHanndler: ResourceHandler = new ResourceHandler.Default(),
     id: String = java.util.UUID.randomUUID().toString) extends Database { self ⇒
 
-  AcolyteDriver.register(id, handler)
+  AcolyteDriver.register(id, new ConnectionHandler.Default(handler, resourceHanndler))
 
   val name = s"acolyte-$id"
 
