@@ -25,11 +25,14 @@ class PlaySpec extends org.specs2.mutable.Specification {
     "should increment count on commit" in runner2 { db: Database ⇒
       db.withConnection { implicit con ⇒
         con.setAutoCommit(false)
-        SQL"insert into foo values (1, 'foo value')".executeInsert() must beSome(1)
-        SQL"insert into bar values (1, 'bar value')".executeInsert() must beSome(1)
-        con.commit()
+        SQL"insert into foo values (1, 'foo value')".executeInsert() must beSome(1) and {
+          SQL"insert into bar values (1, 'bar value')".executeInsert() must beSome(1)
+        } and {
+          con.commit() must not(throwA[Exception])
+        } and {
+          count must_=== 1
+        }
       }
-      count must_== 1
     }
   }
 
@@ -40,15 +43,14 @@ class PlaySpec extends org.specs2.mutable.Specification {
     "should decrement count on rollback" in runner3 { db: Database ⇒
       db.withConnection { implicit con ⇒
         con.setAutoCommit(false)
-        try {
-          SQL"insert into foo values (1, 'foo value')".executeInsert() must beSome(1)
+        SQL"insert into foo values (1, 'foo value')".executeInsert() must beSome(1) and {
           SQL"insert into bar values (1, 'bar value')".executeInsert() must throwA[java.sql.SQLException]("Simulating on error.")
-          throw new IllegalStateException("Stopping transaction")
-        } catch {
-          case _: Throwable ⇒ con.rollback()
+        } and {
+          con.rollback() must not(throwA[Exception])
+        } and {
+          count must_=== 0
         }
       }
-      count must_== 0
     }
   }
 }
