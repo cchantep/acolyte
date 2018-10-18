@@ -24,10 +24,10 @@ import acolyte.jdbc.{
  */
 final class AcolyteDatabase(
     handler: ScalaCompositeHandler,
-    resourceHanndler: ResourceHandler = new ResourceHandler.Default(),
+    resourceHandler: ResourceHandler = new ResourceHandler.Default(),
     id: String = java.util.UUID.randomUUID().toString) extends Database { self ⇒
 
-  AcolyteDriver.register(id, new ConnectionHandler.Default(handler, resourceHanndler))
+  AcolyteDriver.register(id, new ConnectionHandler.Default(handler, resourceHandler))
 
   val name = s"acolyte-$id"
 
