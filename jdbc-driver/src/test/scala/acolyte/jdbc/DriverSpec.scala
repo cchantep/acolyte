@@ -1,10 +1,12 @@
 package acolyte.jdbc
 
-import java.util.ServiceLoader
+import java.util.{ ServiceLoader, UUID }
+import java.util.concurrent.Executors
 
 import java.sql.{ Driver ⇒ JdbcDriver, DriverManager }
 
 import scala.reflect.ClassTag
+import scala.concurrent.{ Await, ExecutionContext, ExecutionContextExecutorService, Future }
 
 import org.specs2.mutable.Specification
 
@@ -138,6 +140,26 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
       acolyte.jdbc.Driver.unregister("id").
         getStatementHandler aka "handler" mustEqual h
 
+    }
+
+    "handle multi-threaded access" in {
+      import scala.concurrent.duration._
+
+      implicit val ec: ExecutionContextExecutorService =
+        ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(16))
+
+      val futures =
+        (1 to 1000).map { _ =>
+          Future {
+            val handlerId = UUID.randomUUID().toString
+            acolyte.jdbc.Driver.register(handlerId, new CompositeHandler())
+            handlerId
+          }.map { handlerId =>
+            acolyte.jdbc.Driver.handlers.get(handlerId) mustNotEqual null
+          }
+        }
+
+      Await.result(Future.sequence(futures), 5.seconds)
     }
   }
 }

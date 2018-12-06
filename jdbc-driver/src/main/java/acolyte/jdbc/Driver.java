@@ -1,5 +1,7 @@
 package acolyte.jdbc;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Properties;
 import java.util.HashMap;
 
@@ -31,8 +33,8 @@ public final class Driver implements java.sql.Driver {
     /**
      * Handler registry
      */
-    public static final HashMap<String,ConnectionHandler> handlers =
-        new HashMap<String,ConnectionHandler>();
+    public static final Map<String,ConnectionHandler> handlers =
+        Collections.synchronizedMap(new HashMap<String,ConnectionHandler>());
 
     // --- Shared ---
 
