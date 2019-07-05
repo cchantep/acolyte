@@ -1,8 +1,8 @@
 import sbt._
 import Keys._
 
-object Compiler {
-  def settings = Seq(
+object Compiler extends AutoPlugin {
+  override def projectSettings = Seq(
     javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
     scalacOptions ++= Seq(
       "-encoding", "UTF-8",
@@ -47,7 +47,8 @@ object Compiler {
     scalacOptions in (Test, console) += "-Yrepl-class-based",
     scalacOptions in (Compile, doc) ++= Seq("-unchecked", "-deprecation",
       /*"-diagrams", */"-implicits", "-skip-packages", "samples"),
-    scalacOptions in (Compile, doc) ++= Opts.doc.title("ReactiveMongo API"),
+    scalacOptions in (Compile, doc) ++= Opts.doc.title(
+      s"Acolyte ${name.value}"),
     scalacOptions in (Compile, doc) ++= Opts.doc.version(Release.major.value),
     scalacOptions in Compile := {
       val opts = (scalacOptions in Compile).value

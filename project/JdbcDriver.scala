@@ -9,7 +9,6 @@ object JdbcDriver {
   lazy val project =
     Project(id = "jdbc-driver", base = file("jdbc-driver")).settings(
       name := "jdbc-driver",
-      javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
       autoScalaLibrary := false,
       resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
       libraryDependencies ++= Seq(

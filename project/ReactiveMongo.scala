@@ -13,11 +13,11 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
   lazy val generatedClassDirectory = settingKey[File](
     "Directory where classes get generated")
 
-  val reactiveMongoVer = "0.16.0"
+  val reactiveMongoVer = "0.18.0"
 
   lazy val project =
     Project(id = "reactive-mongo", base = file("reactive-mongo")).
-      settings(Compiler.settings ++ formatSettings ++ Set(
+      settings(formatSettings ++ Set(
         name := "reactive-mongo",
         fork in Test := true,
         javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
@@ -32,7 +32,7 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
 
   lazy val playProject =
     Project(id = "play-reactive-mongo", base = file("play-reactive-mongo")).
-      settings(Compiler.settings ++ formatSettings ++ Set(
+      settings(formatSettings ++ Set(
         name := "play-reactive-mongo",
         crossScalaVersions ~= { _.filterNot(_ startsWith "2.10") },
         javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
