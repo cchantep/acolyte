@@ -7,7 +7,7 @@ object ScalacPlugin {
 
   lazy val project = 
     Project(id = "scalac-plugin", base = file("scalac-plugin")).
-      settings(Compiler.settings ++ formatSettings ++ Seq(
+      settings(formatSettings ++ Seq(
         name := "scalac-plugin",
         libraryDependencies ++= Seq(
           "org.scala-lang" % "scala-compiler" % scalaVersion.value % Provided,
@@ -26,16 +26,16 @@ object ScalacPlugin {
           val b = (baseDirectory in Compile).value
           val n = (name in Compile).value
           val msv =
-            if (sv startsWith "2.10") "2.10"
-            else if (sv startsWith "2.11") "2.11"
-            else if (sv startsWith "2.12") "2.12"
+            if (sv startsWith "2.10.") "2.10"
+            else if (sv startsWith "2.11.") "2.11"
+            else if (sv startsWith "2.12.") "2.12"
+            else if (sv startsWith "2.13.") "2.13"
             else sv
 
           val td = b / "target" / s"scala-$msv"
           val j = td / s"${n}_$msv-$v.jar"
 
-          Seq("-feature", "-deprecation", "-P:acolyte:debug",
-            s"-Xplugin:${j.getAbsolutePath}")
+          Seq(s"-Xplugin:${j.getAbsolutePath}", "-P:acolyte:debug")
         }))
 
   private def generateUtility(ver: String, managed: File): Seq[File] = {

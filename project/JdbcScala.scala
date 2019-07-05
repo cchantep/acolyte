@@ -1,7 +1,7 @@
 import sbt._
 import Keys._
 
-class JdbcScala(
+final class JdbcScala(
   jdbcDriver: Project,
   scalacPlugin: Project) {
 
@@ -10,7 +10,7 @@ class JdbcScala(
 
   lazy val project = 
     Project(id = "jdbc-scala", base = file("jdbc-scala")).
-      settings(Compiler.settings ++ formatSettings ++ Seq(
+      settings(formatSettings ++ Seq(
         name := "jdbc-scala",
         javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
         // make sure plugin is there

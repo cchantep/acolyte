@@ -1,18 +1,20 @@
 package acolyte.jdbc
 
 import java.util.{ ServiceLoader, UUID }
-import java.util.concurrent.Executors
 
 import java.sql.{ Driver ⇒ JdbcDriver, DriverManager }
 
 import scala.reflect.ClassTag
-import scala.concurrent.{ Await, ExecutionContext, ExecutionContextExecutorService, Future }
+import scala.concurrent.{ Await, ExecutionContext, Future }
 
 import org.specs2.mutable.Specification
+import org.specs2.concurrent.ExecutionEnv
 
 import acolyte.jdbc.test.EmptyConnectionHandler
 
-object DriverSpec extends Specification with DriverUtils with DriverFixtures {
+class DriverSpec(implicit ee: ExecutionEnv)
+  extends Specification with DriverUtils with DriverFixtures {
+
   "Acolyte driver" title
 
   "Driver class" should {
@@ -52,7 +54,7 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
 
     "support no meta-property" in {
       driver.getPropertyInfo(jdbcUrl, null).
-        aka("meta-properties") mustEqual noMetaProps
+        aka("meta-properties") must_=== noMetaProps
 
     }
 
@@ -64,11 +66,11 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
 
       "as dictionary" in {
         (new acolyte.jdbc.Driver().connect(jdbcUrl, props).getProperties.
-          aka("connection 1 properties") mustEqual props).
+          aka("connection 1 properties") must_=== props).
           and(acolyte.jdbc.Driver.connection(defaultHandler, props).
-            getProperties aka "connection 2 properties" mustEqual props).
+            getProperties aka "connection 2 properties" must_=== props).
           and(acolyte.jdbc.Driver.connection(CompositeHandler.empty, props).
-            getProperties aka "connection 3 properties" mustEqual props)
+            getProperties aka "connection 3 properties" must_=== props)
       }
 
       "as list" in {
@@ -76,13 +78,13 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
         def prop(n: String, v: String) = new Property(n, v)
 
         (new acolyte.jdbc.Driver().connect(jdbcUrl, prop("_test", "_val")).
-          getProperties aka "connection 1 properties" mustEqual props).
+          getProperties aka "connection 1 properties" must_=== props).
           and(acolyte.jdbc.Driver.
             connection(defaultHandler, prop("_test", "_val")).
-            getProperties aka "connection 2 properties" mustEqual props).
+            getProperties aka "connection 2 properties" must_=== props).
           and(acolyte.jdbc.Driver.
             connection(CompositeHandler.empty, prop("_test", "_val")).
-            getProperties aka "connection 3 properties" mustEqual props)
+            getProperties aka "connection 3 properties" must_=== props)
       }
     }
 
@@ -145,9 +147,6 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
     "handle multi-threaded access" in {
       import scala.concurrent.duration._
 
-      implicit val ec: ExecutionContextExecutorService =
-        ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(16))
-
       val futures =
         (1 to 1000).map { _ =>
           Future {
@@ -155,7 +154,7 @@ object DriverSpec extends Specification with DriverUtils with DriverFixtures {
             acolyte.jdbc.Driver.register(handlerId, new CompositeHandler())
             handlerId
           }.map { handlerId =>
-            acolyte.jdbc.Driver.handlers.get(handlerId) mustNotEqual null
+            acolyte.jdbc.Driver.handlers.get(handlerId) must not(beNull)
           }
         }
 

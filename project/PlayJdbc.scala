@@ -10,7 +10,7 @@ class PlayJdbc(
 
   lazy val project = 
     Project(id = "play-jdbc", base = file("play-jdbc")).
-      settings(Compiler.settings ++ formatSettings ++ Seq(
+      settings(formatSettings ++ Seq(
         name := "play-jdbc",
         scalacOptions in Test ++= {
           val v = (version in ThisBuild).value
@@ -36,7 +36,8 @@ class PlayJdbc(
         libraryDependencies ++= {
           val (playVer, anormVer) = {
             if (scalaVersion.value startsWith "2.11") "2.5.8" -> "2.5.2"
-            if (scalaVersion.value startsWith "2.12") "2.6.0" -> "2.5.3"
+            else if (scalaVersion.value startsWith "2.12") "2.6.7" -> "2.5.0"
+            else if (scalaVersion.value startsWith "2.13") "2.7.3" -> "2.5.0"
             else "2.4.8" -> "2.5.0"
           }
 

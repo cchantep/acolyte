@@ -1,9 +1,9 @@
 package acolyte.jdbc;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.Properties;
 import java.util.HashMap;
+import java.util.Map;
 
 import java.util.logging.Logger;
 
