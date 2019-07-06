@@ -7,6 +7,7 @@ cache:
   - $HOME/.ivy2
   - $HOME/.sbt
 scala:
-#   - 2.11.11 (on Circle)
-   - 2.12.6
+  - 2.11.11
+  - 2.12.8
+  - 2.13.0
 script: ./.ci_scripts/validate.sh

@@ -36,7 +36,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
   val name = "AcolyteConnection"
   lazy val seeds = Seq.empty[String]
 
-  val options = reactivemongo.api.MongoConnectionOptions()
+  lazy val options = reactivemongo.api.MongoConnectionOptions()
 
   protected def sendAuthenticate(connection: Connection, authentication: Authenticate): Connection = connection
 
@@ -154,7 +154,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
     }
 
     case msg ⇒
-      println(s"message = $msg")
+      //println(s"message = $msg")
 
       //next forward msg
       ()
