@@ -22,7 +22,6 @@ object Format {
       setPreference(SpaceBeforeColon, false).
       setPreference(SpaceInsideBrackets, false).
       setPreference(SpacesAroundMultiImports, true).
-      setPreference(SpacesWithinPatternBinders, true).
-      setPreference(RewriteArrowSymbols, true)
+      setPreference(SpacesWithinPatternBinders, true)
   )
 }
