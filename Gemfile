@@ -1,12 +1,8 @@
 source 'https://rubygems.org'
 
-gem 'execjs'
-gem 'therubyracer'
-gem 'github-pages'
-
-#gem 'jekyll-paginate'
+gem 'jekyll', '~> 3.6'
 
 group :jekyll_plugins do
-  gem 'algoliasearch-jekyll', '~> 0.8.0'
+  #gem 'jekyll-algolia'
   gem 'jekyll-sitemap', '~> 0.10.0'
 end

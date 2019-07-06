@@ -3,3 +3,4 @@ target
 node_modules
 .sass-cache
 Gemfile.lock
+package-lock.json

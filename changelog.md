@@ -3,9 +3,23 @@ layout: page
 title: Changelog
 ---
 
+## 1.0.52
+
+Add support for Scala 2.13.
+
+([a383dff20fadc08ec9306f2f1f24b2a7e0047449](https://github.com/cchantep/acolyte/commit/a383dff20fadc08ec9306f2f1f24b2a7e0047449) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) Synchronize access to the handlers map (#93)
+
+([f18cf9459e071d00b1c7cbb810b44a78dfc4bd2d](https://github.com/cchantep/acolyte/commit/f18cf9459e071d00b1c7cbb810b44a78dfc4bd2d) @ [jdbc-driver](https://github.com/cchantep/acolyte/tree/master/jdbc-driver)) JDBC transaction handlers (#90)
+
+([d81609665798b1c962233f588d0095f49ea33890](https://github.com/cchantep/acolyte/commit/d81609665798b1c962233f588d0095f49ea33890) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Upgrade ReactiveMongo to 0.16.0 (#86)
+
+## 1.0.50 & 1.0.51
+
+Minor dependency upgrades.
+
 ## 1.0.49
 
-ReactiveMongo: 
+ReactiveMongo:
 
 - Natural conversions (synchronous & async) for the loan patterns utilities.
 - Support 0.16.0

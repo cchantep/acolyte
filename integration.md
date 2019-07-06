@@ -29,12 +29,12 @@ object Zoo {
       rs.next()
 
       rs.getString("type") match {
-        case "bird" ⇒ Some(Bird(rs.getString("name"), rs.getBoolean("fly")))
-        case "dog"  ⇒ Some(Dog(rs.getString("name"), rs.getString("color")))
-        case _      ⇒ None
+        case "bird" => Some(Bird(rs.getString("name"), rs.getBoolean("fly")))
+        case "dog"  => Some(Dog(rs.getString("name"), rs.getString("color")))
+        case _      => None
       }
     } catch {
-      case _: Throwable ⇒ sys.error("Fails to locate animate")
+      case _: Throwable => sys.error("Fails to locate animate")
     } finally {
       try { rs.close() } catch { case _: Throwable => }
       try { stmt.close() } catch { case _: Throwable => }
@@ -64,14 +64,14 @@ object ZooSpec extends org.specs2.mutable.Specification {
   "Dog" should {
     "be found at location 1, and be red" in withQueryResult(
       zooSchema :+ ("dog", 1, "Scooby", null.asInstanceOf[Boolean], "red")) {
-        conn ⇒
+        conn =>
           atLocation(conn)(1) aka "animal" must beSome(Dog("Scooby", "red"))
     }
   }
 
   "Ostrich" should {
     "be found at location 2" in {
-      val conn = connection(handleQuery { _ ⇒
+      val conn = connection(handleQuery { _ =>
         zooSchema :+ ("bird", 2, "Ostrich", false, null.asInstanceOf[String])
       })
 
@@ -271,23 +271,36 @@ Acolyte is useful to write test about persistence in projects using [Anorm](http
 
 Acolyte can be easily used with [Play](http://www.playframework.com/) test helpers.
 
-First step is to create a Play fake application:
+First step is to create an application builder:
 
 ```scala
-import play.api.test.FakeApplication
+import play.api.inject.guice.GuiceApplicationBuilder
+
 import acolyte.jdbc.StatementHandler
 
-def fakeApp(h: Option[StatementHandler] = None): FakeApplication =
-  FakeApplication(additionalConfiguration = Map(
-    "application.secret" -> "test",
-    "evolutionplugin" -> "disabled") ++ h.fold(Map[String, String]())(
-      handler ⇒ {
-        val id = System.identityHashCode(this).toString
-        acolyte.jdbc.Driver.register(id, handler)
+def fakeAppBuilder(
+  h: Option[StatementHandler] = None
+): GuiceApplicationBuilder => GuiceApplicationBuilder = { initial =>
+  val builder = initial.load(
+    new play.api.i18n.I18nModule(),
+    new play.api.mvc.CookiesModule(),
+    new play.api.inject.BuiltinModule()
+  )
 
-        Map("db.default.driver" -> "acolyte.jdbc.Driver",
-          "db.default.url" -> "jdbc:acolyte:test?handler=%s".format(id))
-      }))
+  h match {
+    case Some(handler) => {
+      val id = System.identityHashCode(this).toString
+      acolyte.jdbc.Driver.register(id, handler)
+
+      builder.configure(
+        "db.default.driver" -> "acolyte.jdbc.Driver",
+        "db.default.url" -> s"jdbc:acolyte:test?handler=${id}"
+      )
+    }
+
+    case _ => builder
+  }
+}
 ```
 
 Then Play/DB test can be performed as following:
@@ -296,14 +309,14 @@ Then Play/DB test can be performed as following:
 import acolyte.jdbc.{ AcolyteDSL, QueryResult }, AcolyteDSL.handleStatement
 
 lazy val handler = Some(handleStatement.
-  withQueryDetection("^SELECT").withQueryHandler { e ⇒
+  withQueryDetection("^SELECT").withQueryHandler { e =>
     QueryResult.Nil // Any Acolyte result
   })
 
-implicit val app = fakeApp(handler)
+play.api.test.Helpers.running(fakeAppBuilder(handler)) { app =>
+  val db = app.injector.instanceOf[play.api.db.Database]
 
-play.api.test.Helpers.running(app) {
-  play.api.db.DB.withConnection { con ⇒
+  db.withConnection { con =>
     // Connection |con| will use provided |handler|
     // So any DB related test can be done there
   }
@@ -318,7 +331,7 @@ import acolyte.jdbc.{ AcolyteDSL, QueryResult }
 import acolyte.jdbc.play.{ PlayJdbcContext, PlayJdbcDSL }
 
 val playHandler = AcolyteDSL.handleStatement.
-  withQueryDetection("^SELECT").withQueryHandler { e ⇒
+  withQueryDetection("^SELECT").withQueryHandler { e =>
     QueryResult.Nil // Any Acolyte result
   }
 
