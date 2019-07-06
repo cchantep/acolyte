@@ -54,7 +54,7 @@ class PlayJdbc(
             if (scalaVersion.value startsWith "2.10.") {
               "com.typesafe.play" %% "anorm" % "2.5.0"
             } else {
-              "org.playframework.anorm" %% "anorm" % "2.6.3"
+              "org.playframework.anorm" %% "anorm" % "2.7.3"
             }
           }
 
