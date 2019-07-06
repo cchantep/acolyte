@@ -46,7 +46,7 @@ if [ "_$JAVA_MODULES" = "_" ]; then
   JAVA_MODULES="jdbc-driver"
 fi
 
-#EXTRA_JAVA_MODULES="jdbc-java8"
+EXTRA_JAVA_MODULES="jdbc-java8"
 
 if [ "_$SCALA_MODULES" = "_" ]; then
   SCALA_MODULES="jdbc-scala scalac-plugin reactive-mongo play-jdbc play-reactive-mongo"

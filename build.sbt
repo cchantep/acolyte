@@ -13,7 +13,9 @@ crossScalaVersions in ThisBuild := Seq(
   "2.10.7", "2.11.12", (scalaVersion in ThisBuild).value, "2.13.0"
 )
 
-resolvers in ThisBuild += Resolver.sonatypeRepo("snapshots")
+resolvers in ThisBuild ++= Seq(
+  Resolver.sonatypeRepo("snapshots"),
+  "Tatami Snapshots" at "https://raw.github.com/cchantep/tatami/master/snapshots")
 
 //
 val scalacPlugin = ScalacPlugin.project
