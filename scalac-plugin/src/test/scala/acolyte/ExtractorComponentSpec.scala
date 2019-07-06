@@ -443,7 +443,10 @@ sealed case class Regex(e: String) {
   lazy val re = e.r
 
   /** See [[scala.util.matching.Regex.unapplySeq]]. */
-  def unapplySeq(target: Any): Option[List[String]] = re.unapplySeq(target)
+  def unapplySeq(target: Any): Option[List[String]] = target match {
+    case str: String ⇒ re.unapplySeq(str)
+    case _           ⇒ None
+  }
 }
 
 /** Integer extractor */

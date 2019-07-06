@@ -42,10 +42,17 @@ EOF
   fi
 }
 
-JAVA_MODULES="jdbc-driver"
+if [ "_$JAVA_MODULES" = "_" ]; then
+  JAVA_MODULES="jdbc-driver"
+fi
+
 EXTRA_JAVA_MODULES="jdbc-java8"
-SCALA_MODULES="jdbc-scala scalac-plugin reactive-mongo play-jdbc play-reactive-mongo"
-SCALA_VERSIONS="2.10 2.11 2.12"
+
+if [ "_$SCALA_MODULES" = "_" ]; then
+  SCALA_MODULES="jdbc-scala scalac-plugin reactive-mongo play-jdbc play-reactive-mongo"
+fi
+
+SCALA_VERSIONS="2.10 2.11 2.12 2.13"
 BASES=""
 
 for M in $JAVA_MODULES; do
