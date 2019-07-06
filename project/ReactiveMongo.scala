@@ -22,9 +22,9 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
         fork in Test := true,
         resolvers ++= reactiveResolvers,
         libraryDependencies ++= Seq(
-          "org.reactivemongo" %% "reactivemongo" % reactiveMongoVer % "provided",
+          "org.reactivemongo" %% "reactivemongo" % reactiveMongoVer % Provided,
           "com.jsuereth" %% "scala-arm" % "2.1-SNAPSHOT",
-          "org.slf4j" % "slf4j-simple" % "1.7.13" % Provided,
+          "org.slf4j" % "slf4j-simple" % "1.7.26" % Provided,
           "com.chuusai" %% "shapeless" % "2.3.3",
           "org.specs2" %% "specs2-core" % specsVer.value % Test)
       ))//.dependsOn(scalacPlugin)
