@@ -9,7 +9,7 @@ object Compiler extends AutoPlugin {
       "-unchecked",
       "-deprecation",
       "-feature",
-      //"-Xfatal-warnings",
+      "-Xfatal-warnings",
       "-Xlint",
       "-Ywarn-numeric-widen",
       "-Ywarn-dead-code",

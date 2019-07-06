@@ -12,7 +12,7 @@ import org.specs2.concurrent.ExecutionEnv
 
 import acolyte.jdbc.test.EmptyConnectionHandler
 
-class DriverSpec(implicit ee: ExecutionEnv)
+final class DriverSpec(implicit ee: ExecutionEnv)
   extends Specification with DriverUtils with DriverFixtures {
 
   "Acolyte driver" title
@@ -140,25 +140,24 @@ class DriverSpec(implicit ee: ExecutionEnv)
       acolyte.jdbc.Driver.register("id", h)
 
       acolyte.jdbc.Driver.unregister("id").
-        getStatementHandler aka "handler" mustEqual h
+        getStatementHandler aka "handler" must_=== h
 
     }
 
     "handle multi-threaded access" in {
       import scala.concurrent.duration._
 
-      val futures =
-        (1 to 1000).map { _ =>
-          Future {
-            val handlerId = UUID.randomUUID().toString
-            acolyte.jdbc.Driver.register(handlerId, new CompositeHandler())
-            handlerId
-          }.map { handlerId =>
-            acolyte.jdbc.Driver.handlers.get(handlerId) must not(beNull)
-          }
+      val futures = (1 to 1000).map { _ =>
+        Future {
+          val handlerId = UUID.randomUUID().toString
+          acolyte.jdbc.Driver.register(handlerId, new CompositeHandler())
+          handlerId
+        }.map { handlerId =>
+          acolyte.jdbc.Driver.handlers.get(handlerId) must not beNull
         }
+      }
 
-      Await.result(Future.sequence(futures), 5.seconds)
+      Future.sequence(futures).map(_.fold(ok)(_ and _)).await(1, 5.seconds)
     }
   }
 }

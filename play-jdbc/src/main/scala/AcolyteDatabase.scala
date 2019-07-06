@@ -25,7 +25,7 @@ import acolyte.jdbc.{
 final class AcolyteDatabase(
     handler: ScalaCompositeHandler,
     resourceHandler: ResourceHandler = new ResourceHandler.Default(),
-    id: String = java.util.UUID.randomUUID().toString) extends Database { self ⇒
+    id: String = java.util.UUID.randomUUID().toString) extends Database with AcolyteDatabaseCompat { self ⇒
 
   AcolyteDriver.register(id, new ConnectionHandler.Default(handler, resourceHandler))
 
