@@ -12,7 +12,6 @@ final class JdbcScala(
     Project(id = "jdbc-scala", base = file("jdbc-scala")).
       settings(formatSettings ++ Seq(
         name := "jdbc-scala",
-        javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
         // make sure plugin is there
         libraryDependencies ++= Seq(
           "org.eu.acolyte" % "jdbc-driver" % (version in ThisBuild).value,

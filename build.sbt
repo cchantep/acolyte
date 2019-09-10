@@ -34,8 +34,17 @@ val rm = new ReactiveMongo(scalacPlugin)
 val reactiveMongo = rm.project
 val playReactiveMongo = rm.playProject
 
-//
-val studio = Studio.project
+lazy val studio = (sbt.project in file("studio")).settings(
+  autoScalaLibrary := false,
+  crossPaths := false,
+  resolvers += "Tatami Releases".at(
+    "https://raw.github.com/cchantep/tatami/master/releases"),
+  libraryDependencies ++= Seq(
+    "melasse" % "melasse-core" % "1.0",
+    "de.sciss" % "syntaxpane" % "1.1.0",
+    "org.apache.commons" % "commons-lang3" % "3.2.1"),
+  mainClass in assembly := Some("acolyte.Studio"),
+  assemblyJarName in assembly := s"acolyte-studio-${version.value}.jar")
 
 // Aggregation
 val versionVariant = if (isJavaAtLeast("1.7")) "-j7p" else ""
