@@ -469,8 +469,6 @@ public abstract class RowList<R extends Row> {
             final RowResultSet<R> other = (RowResultSet<R>) o;
 
             return new EqualsBuilder().
-                append(this.rows, other.rows).
-                append(this.last, other.last).
                 append(this.columnClasses, other.columnClasses).
                 append(this.columnLabels, other.columnLabels).
                 append(this.columnNullables, other.columnNullables).
@@ -483,8 +481,6 @@ public abstract class RowList<R extends Row> {
          */
         public int hashCode() {
             return new HashCodeBuilder(11, 9).
-                append(this.rows).
-                append(this.last).
                 append(this.columnClasses).
                 append(this.columnLabels).
                 append(this.columnNullables).
