@@ -17,7 +17,7 @@ object Compiler extends AutoPlugin {
       "-g:vars"
     ),
     scalacOptions in Compile ++= {
-      if (!scalaVersion.value.startsWith("2.11.")) Nil
+      if (scalaBinaryVersion.value != "2.11") Nil
       else Seq(
         "-Yconst-opt",
         "-Yclosure-elim",
@@ -26,7 +26,7 @@ object Compiler extends AutoPlugin {
       )
     },
     scalacOptions in Compile ++= {
-      if (scalaVersion.value startsWith "2.10.") Nil
+      if (scalaBinaryVersion.value == "2.10") Nil
       else Seq(
         "-Ywarn-infer-any",
         "-Ywarn-unused",
@@ -35,7 +35,7 @@ object Compiler extends AutoPlugin {
       )
     },
     scalacOptions in Compile ++= {
-      if (!scalaVersion.value.startsWith("2.12.")) Seq("-target:jvm-1.6")
+      if (scalaBinaryVersion.value != "2.12") Seq("-target:jvm-1.6")
       else Seq("-target:jvm-1.8")
     },
     scalacOptions in (Compile, console) ~= {

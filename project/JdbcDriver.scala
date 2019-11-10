@@ -10,7 +10,7 @@ object JdbcDriver {
     Project(id = "jdbc-driver", base = file("jdbc-driver")).settings(
       name := "jdbc-driver",
       autoScalaLibrary := false,
-      resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
+      resolvers += Resolver.typesafeRepo("snapshots"),
       libraryDependencies ++= Seq(
         "commons-io" % "commons-io" % "2.6",
         "org.apache.commons" % "commons-lang3" % "3.9",

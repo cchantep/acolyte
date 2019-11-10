@@ -6,14 +6,13 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
   import Format._
 
   val reactiveResolvers = Seq(
-    "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/releases/",
-    "Sonatype Snapshots".at(
-      "https://oss.sonatype.org/content/repositories/snapshots/"))
+    Resolver.typesafeRepo("snapshots"),
+    Resolver.sonatypeRepo("snapshots"))
 
   lazy val generatedClassDirectory = settingKey[File](
     "Directory where classes get generated")
 
-  val reactiveMongoVer = "0.18.8"
+  val reactiveMongoVer = "0.19.1"
 
   lazy val project =
     Project(id = "reactive-mongo", base = file("reactive-mongo")).
@@ -35,7 +34,7 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
         name := "play-reactive-mongo",
         crossScalaVersions ~= { _.filterNot(_ startsWith "2.10") },
         sourceDirectory := {
-          if (scalaVersion.value startsWith "2.10.") {
+          if (scalaBinaryVersion.value == "2.10") {
             new java.io.File("/no/sources")
           } else sourceDirectory.value
         },
@@ -58,31 +57,31 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
         resolvers ++= reactiveResolvers,
         publish := (Def.taskDyn {
           val p = publish.value
-          val ver = scalaVersion.value
+          val ver = scalaBinaryVersion.value
 
           Def.task[Unit] {
-            if (ver startsWith "2.10.") ({})
+            if (ver == "2.10") ({})
             else p
           }
         }).value,
         publishTo := (Def.taskDyn {
           val p = publishTo.value
-          val ver = scalaVersion.value
+          val ver = scalaBinaryVersion.value
 
           Def.task {
-            if (ver startsWith "2.10.") None
+            if (ver == "2.10") None
             else p
           }
         }).value,
         libraryDependencies ++= {
-          val sv = scalaVersion.value
+          val sv = scalaBinaryVersion.value
 
-          if (sv startsWith "2.10.") {
+          if (sv == "2.10") {
             Seq.empty[ModuleID]
           } else {
             val (playVer, playVar) = {
-              if (sv startsWith "2.12.") "2.6.3" -> "play26"
-              else if (sv startsWith "2.13.") "2.7.3" -> "play27"
+              if (sv == "2.12") "2.6.3" -> "play26"
+              else if (sv == "2.13") "2.7.3" -> "play27"
               else "2.5.13" -> "play25"
             }
 
@@ -90,11 +89,20 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
               case (v, m) => s"${v}-${playVar}${m}"
             }
 
+            val iteratees = {
+              if (sv != "2.13") {
+                Seq(
+                  "com.typesafe.play" %% "play-iteratees" % "2.6.1" % Provided)
+              } else {
+                Seq.empty
+              }
+            }
+
             Seq(
               "com.typesafe.play" %% "play" % playVer % Provided,
               "org.reactivemongo" %% "play2-reactivemongo" % playRmVer % Provided,
               "org.specs2" %% "specs2-core" % specsVer.value % Test
-            )
+            ) ++ iteratees
           }
         }
       )).dependsOn(scalacPlugin, self.project)
