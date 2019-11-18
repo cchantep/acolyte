@@ -10,21 +10,31 @@ object PlayReactiveMongoDSL {
    * @param drv the MongoDB driver
    * @param con the MongoDB connection
    */
-  def mongoApi(drv: MongoDriver, con: MongoConnection)(implicit ec: ExecutionContext): ReactiveMongoApi = new ReactiveMongoApi {
-    import scala.concurrent.duration._
-    import reactivemongo.api._, gridfs._
-    import reactivemongo.play.json._
-    import reactivemongo.play.json.collection._
-
-    val driver = drv
-    val connection = con
-
-    def database = connection.database("acolyte")
-
-    def asyncGridFS: Future[GridFS[JSONSerializationPack.type]] =
-      database.map(GridFS[JSONSerializationPack.type](_))
-
-    def gridFS = Await.result(
-      database.map(GridFS[JSONSerializationPack.type](_)), 10.seconds)
-  }
+  def mongoApi(drv: MongoDriver, con: MongoConnection)(implicit ec: ExecutionContext): ReactiveMongoApi = new AcolyteMongoApi(drv, con)
 }
+
+private[reactivemongo] final class AcolyteMongoApi(
+    val driver: MongoDriver,
+    val connection: MongoConnection)(implicit ec: ExecutionContext) extends ReactiveMongoApi {
+  import scala.concurrent.duration._
+  import reactivemongo.api._, gridfs._
+  import reactivemongo.play.json._
+  import reactivemongo.play.json.collection._
+
+  def database = connection.database("acolyte")
+
+  def gridFS: GridFS[JSONSerializationPack.type] =
+    GridFS[JSONSerializationPack.type](
+      _pack = JSONSerializationPack,
+      db = Await.result(database, 10.seconds),
+      prefix = "fs")
+
+  def asyncGridFS: Future[GridFS[JSONSerializationPack.type]] =
+    database.map { _db =>
+      GridFS[JSONSerializationPack.type](
+        _pack = JSONSerializationPack,
+        db = _db,
+        prefix = "fs")
+    }
+}
+
