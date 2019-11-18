@@ -147,8 +147,8 @@ object AcolyteDSL {
    * @param whenCommit the function handling commit
    * @param whenRollback the function handling rollback
    *
-   * @see [[java.sql.Connection.commit]]
-   * @see [[java.sql.Connection.rollback]]
+   * @see `java.sql.Connection.commit`
+   * @see `java.sql.Connection.rollback`
    */
   def handleTransaction(
     whenCommit: Connection ⇒ Unit = { _ ⇒ () },

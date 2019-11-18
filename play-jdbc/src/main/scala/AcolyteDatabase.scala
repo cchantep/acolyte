@@ -17,7 +17,7 @@ import acolyte.jdbc.{
 }
 
 /**
- * Acolyte implementation for [[play.api.db.Database]].
+ * Acolyte implementation for `play.api.db.Database`.
  *
  * @param handler the Acolyte handler
  * @param id the unique ID to register the `handler` for this DB instance

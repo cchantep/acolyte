@@ -15,7 +15,7 @@ trait WithResult { withHandler: WithHandler ⇒
    *
    * @param result Query result
    *
-   * @see [[AcolyteDSL.withFlatDriver]]
+   * @see [[AcolyteDSL.withDriver]]
    * @see [[AcolyteDSL.handleQuery]]
    */
   def withQueryResult[A, B](result: ⇒ A)(f: MongoConnection ⇒ B)(

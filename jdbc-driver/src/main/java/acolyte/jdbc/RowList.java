@@ -356,7 +356,7 @@ public abstract class RowList<R extends Row> {
          * Returns update resultset, with rows only including values 
          * for the specified column.
          *
-         * @param columNames the names of the columns
+         * @param columnNames the names of the columns
          * @return Result set with the projected rows
          */
         public RowResultSet<Row> withProjection(final String[] columnNames) {
