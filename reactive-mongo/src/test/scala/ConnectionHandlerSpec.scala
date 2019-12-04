@@ -20,11 +20,10 @@ class ConnectionHandlerSpec extends org.specs2.mutable.Specification
   "Empty handler" should {
     "not respond to any query" in {
       ConnectionHandler.empty aka "connection handler" must beLike {
-        case h ⇒
-          h.queryHandler(channelId(), query1).
-            aka("query result") must beNone and (
-              h.writeHandler(channelId(), write1._1, write1._2).
-              aka("write result") must beNone)
+        case h ⇒ h.queryHandler(channelId(), query1).
+          aka("query result") must beNone and (
+            h.writeHandler(channelId(), write1._1, write1._2).
+            aka("write result") must beNone)
       }
     }
   }

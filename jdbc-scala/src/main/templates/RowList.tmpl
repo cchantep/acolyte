@@ -30,20 +30,16 @@ private[acolyte] final class ScalaRowList#N#[#TC#](#CV#, rows: JList[Row#N#[#TC#
   }
 
   /**
-   * Symbolic alias for `append` operation.
+   * Symbolic alias for `append` operation:
    *
-   * {{{
-   * rowList :+ (#VS#)
-   * }}}
+   * `rowList :+ (#VS#)`
    */
   def :+(#VA#): ScalaRowList#N#[#TC#] = append(#VS#)
 
   /**
    * Defines column label(s) per position(s) (> 0).
    *
-   * {{{
-   * rowList.withLabels(1 -> "label1", 2 -> "label2")
-   * }}}
+   * `rowList.withLabels(1 -> "label1", 2 -> "label2")`
    */
   def withLabels(labels: (Int, String)*): ScalaRowList#N#[#TC#] =
     labels.foldLeft(this) { (l, t) ⇒ l.withLabel(t._1, t._2) }

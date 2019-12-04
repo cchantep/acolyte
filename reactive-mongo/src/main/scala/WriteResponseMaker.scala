@@ -97,7 +97,6 @@ object WriteResponseMaker {
    * import acolyte.reactivemongo.WriteResponseMaker
    *
    * val maker = implicitly[WriteResponseMaker[None.type]]
-   * val response = maker(1, None)
    * }}}
    */
   implicit def UndefinedWriteResponseMaker = new WriteResponseMaker[None.type] {

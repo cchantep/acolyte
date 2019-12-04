@@ -74,7 +74,7 @@ object QueryResponseMaker {
    * import reactivemongo.io.netty.channel.ChannelId
    * import acolyte.reactivemongo.QueryResponseMaker
    *
-   * val maker = implicitly[QueryResponseMaker[(String, ChannelId)]]
+   * val maker = implicitly[QueryResponseMaker[(String, Int)]]
    * }}}
    */
   implicit def ErrorCodeQueryResponseMaker = new QueryResponseMaker[(String, Int)] {
@@ -89,7 +89,6 @@ object QueryResponseMaker {
    * import acolyte.reactivemongo.QueryResponseMaker
    *
    * val maker = implicitly[QueryResponseMaker[None.type]]
-   * val response = maker(1, None)
    * }}}
    */
   implicit def UndefinedQueryResponseMaker = new QueryResponseMaker[None.type] {

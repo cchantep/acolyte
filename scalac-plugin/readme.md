@@ -12,25 +12,38 @@ When extractor needs parameters to be created, it should be declared as stable i
 val Letter = "[a-zA-Z]+".r
 
 "String" match {
-  case Letter ⇒ true
+  case Letter() ⇒ true
 }
 ```
 
 Match component included in this plugin provides syntax `~(extractorFactory[, bindings])` for rich pattern matching.
 
-Consider following extractor, instantiated with one parameter:
+Consider following extractors, instantiated with one parameter:
 
 ```scala
 case class Regex(e: String) {
   lazy val re = e.r
-  def unapplySeq(target: Any): Option[List[String]] = re.unapplySeq(target)
+
+  def unapplySeq(target: CharSequence): Option[List[String]] =
+    re.unapplySeq(target)
+}
+
+case class IndexOf(ch: Char) {
+  def unapply(v: String): Option[List[Int]] = {
+    val is = v.foldLeft(0 → List.empty[Int]) { (st, c) ⇒
+      val (i, l) = st
+      (i + 1) → { if (c == ch) l :+ i else l }
+    }._2
+
+    if (is.isEmpty) None else Some(is)
+  }
 }
 ```
 
 Then provided rich syntax can be used as following (see [complete example](./src/test/scala/acolyte/ExtractorComponentSpec.scala#L379)):
 
 ```scala
-str match {
+def useCase1(str: String) = str match {
   case ~(Regex("^a.*"))                        ⇒ 1 // no binding
 
   case ~(Regex("# ([A-Z]+).*"), a)             ⇒ 2 
@@ -56,9 +69,10 @@ It will be refactored by plugin, so that required stable identifiers will be ava
 
 ```scala
 val Xtr1 = Regex("^a.*")
+
 // ...
-str match {
-  case Xtr1 ⇒ 1 // no binding
+def useCase2(str: String) = str match {
+  case Xtr1() ⇒ 1 // no binding
   // ...
 }
 ```
@@ -68,23 +82,21 @@ str match {
 It also works with partial function (see [more examples](./src/test/scala/acolyte/ExtractorComponentSpec.scala#L322)).
 
 ```scala
-val partialFun: String ⇒ Int = {
+val partialFun1: String ⇒ Int = {
   case ~(Regex("^a.*"))                      ⇒ 1
   case ~(Regex("# ([A-Z]+).*"), a)           ⇒ 2 
   case ~(Regex("([0-9]+);([a-z]+)"), (a, b)) ⇒ 3
   case _                                     ⇒ 4
 }
-// Or def partialFun: String => Int = ...
+// Or def partialFun1: String => Int = ...
 ```
 
 It will be refactored as:
 
 ```scala
-val partialFun: String ⇒ Int = { str: String ⇒
-  val Xtr1 = Regex("^a.*")
-  // ...
+val partialFun2: String ⇒ Int = { str: String ⇒
   str match {
-    case Xtr1 ⇒ 1
+    case Xtr1() ⇒ 1
     // ...
   }
 }
@@ -104,15 +116,15 @@ def test(s: Option[String]): Option[Int] = s map {
 Pattern matching in `val` statement is enriched in the same way ((see [more examples](./src/test/scala/acolyte/ExtractorComponentSpec.scala#L299)).
 
 ```scala
-val ~(Regex("([A-Z]+):([0-9]+)"), (tag, priority)) = "EN:456"
-// tag == "EN" && priority == "456"
+val ~(Regex("([A-Z]+):([0-9]+)"), (tag1, priority1)) = "EN:456"
+// tag1 == "EN" && priority1 == "456"
 ```
 
 Such case is refactored as following:
 
 ```scala
-val Xtr1 = Regex("([A-Z]+):([0-9]+)")
-val Xtr1(tag, priority) = "FR:123"
+val XtrN = Regex("([A-Z]+):([0-9]+)")
+val XtrN(tag, priority) = "FR:123"
 ```
 
 ## Usage
@@ -123,7 +135,7 @@ val Xtr1(tag, priority) = "FR:123"
 
 Scalac plugin can be used with SBT project, using its [compiler plugins support](http://www.scala-sbt.org/0.12.3/docs/Detailed-Topics/Compiler-Plugins.html):
 
-```scala
+```ocaml
 autoCompilerPlugins := true
 
 addCompilerPlugin("org.eu.acolyte" %% "scalac-plugin" % "VERSION")

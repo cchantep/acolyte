@@ -14,22 +14,8 @@ class PlayJdbc(
     Project(id = "play-jdbc", base = file("play-jdbc")).
       settings(formatSettings ++ Seq(
         name := "play-jdbc",
-        scalacOptions in Test ++= {
-          val v = (version in ThisBuild).value
-          val sv = (scalaVersion in Test).value
-          val b = (baseDirectory in (scalacPlugin, Compile)).value
-          val n = (name in (scalacPlugin, Compile)).value
-
-          val msv = CrossVersion.partialVersion(sv) match {
-            case Some((maj, min)) => s"${maj}.${min}"
-            case _ => sv
-          }
-
-          val td = b / "target" / s"scala-$msv"
-          val j = td / s"${n}_${msv}-$v.jar"
-
-          Seq("-feature", "-deprecation", s"-Xplugin:${j.getAbsolutePath}")
-        },
+        scalacOptions in Test ++= ScalacPlugin.
+          compilerOptions(scalacPlugin).value,
         playVersion := {
           val scalaVer = scalaVersion.value
 

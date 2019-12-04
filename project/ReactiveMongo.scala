@@ -20,13 +20,15 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
         name := "reactive-mongo",
         fork in Test := true,
         resolvers ++= reactiveResolvers,
+        scalacOptions in Test ++= ScalacPlugin.
+          compilerOptions(scalacPlugin).value,
         libraryDependencies ++= Seq(
           "org.reactivemongo" %% "reactivemongo" % reactiveMongoVer % Provided,
           "com.jsuereth" %% "scala-arm" % "2.1-SNAPSHOT",
           "org.slf4j" % "slf4j-simple" % "1.7.29" % Provided,
           "com.chuusai" %% "shapeless" % "2.3.3",
           "org.specs2" %% "specs2-core" % specsVer.value % Test)
-      ))//.dependsOn(scalacPlugin)
+      )).dependsOn(scalacPlugin % Test)
 
   lazy val playProject =
     Project(id = "play-reactive-mongo", base = file("play-reactive-mongo")).
@@ -38,22 +40,8 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
             new java.io.File("/no/sources")
           } else sourceDirectory.value
         },
-        scalacOptions ++= {
-          val v = version.value
-          val sv = scalaVersion.value
-          val b = (baseDirectory in (scalacPlugin, Compile)).value
-          val n = (name in (scalacPlugin, Compile)).value
-
-          val msv = CrossVersion.partialVersion(sv) match {
-            case Some((maj, min)) => s"${maj}.${min}"
-            case _ => sv
-          }
-
-          val td = b / "target" / s"scala-$msv"
-          val j = td / s"${n}_${msv}-$v.jar"
-
-          Seq("-feature", "-deprecation", s"-Xplugin:${j.getAbsolutePath}")
-        },
+        scalacOptions in Test ++= ScalacPlugin.
+          compilerOptions(scalacPlugin).value,
         resolvers ++= reactiveResolvers,
         publish := (Def.taskDyn {
           val p = publish.value

@@ -15,33 +15,27 @@ object ScalacPlugin {
         compile in Test := (compile in Test).dependsOn(
           packageBin in Compile/* make sure plugin.jar is available */).value,
         sourceGenerators in Compile += Def.task[Seq[File]] {
-          val ver = scalaVersion.value
           val dir = (sourceManaged in Compile).value
 
-          generateUtility(ver, dir)
+          generateUtility(scalaBinaryVersion.value, dir)
         },
         scalacOptions in Test ++= {
           val v = version.value
-          val sv = scalaVersion.value
           val b = (baseDirectory in Compile).value
           val n = (name in Compile).value
-          val msv =
-            if (sv startsWith "2.10.") "2.10"
-            else if (sv startsWith "2.11.") "2.11"
-            else if (sv startsWith "2.12.") "2.12"
-            else if (sv startsWith "2.13.") "2.13"
-            else sv
+          val msv = scalaBinaryVersion.value
 
           val td = b / "target" / s"scala-$msv"
           val j = td / s"${n}_$msv-$v.jar"
 
           Seq(s"-Xplugin:${j.getAbsolutePath}", "-P:acolyte:debug")
-        }))
+        }
+      ))
 
   private def generateUtility(ver: String, managed: File): Seq[File] = {
     val f = managed / "acolyte" / "CompilerUtility.scala"
     val withSource = 
-      if (ver startsWith "2.11") "withSource(f).withShift(shift)"
+      if (ver == "2.11") "withSource(f).withShift(shift)"
       else "withSource(f, shift)"
 
     IO.writer[Seq[File]](f, "", IO.defaultCharset, false) { w ⇒
@@ -58,5 +52,17 @@ object CompilerUtility {
 
       Seq(f)
     }
+  }
+
+  def compilerOptions(scalacPlugin: Project) = Def.setting[Seq[String]] {
+    val v = (version in ThisBuild).value
+    val b = (baseDirectory in (scalacPlugin, Compile)).value
+    val n = (name in (scalacPlugin, Compile)).value
+    val msv = (scalaBinaryVersion in Test).value
+
+    val td = b / "target" / s"scala-$msv"
+    val j = td / s"${n}_${msv}-$v.jar"
+
+    Seq("-feature", "-deprecation", s"-Xplugin:${j.getAbsolutePath}")
   }
 }

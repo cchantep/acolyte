@@ -16,13 +16,18 @@ trait WithHandler { up: WithDriver ⇒
    * @param handler Query handler
    *
    * {{{
-   * import reactivemongo.api.MongoConnection
-   * import acolyte.reactivemongo.{ AcolyteDSL, Request }
+   * import scala.concurrent.ExecutionContext
    *
-   * AcolyteDSL.withQueryHandler({ req: Request ⇒ aResponse }) { d =>
-   *   val con: MongoConnection = d
-   *   "aResult"
-   * }
+   * import reactivemongo.api.{ MongoDriver, MongoConnection }
+   * import acolyte.reactivemongo.{ AcolyteDSL, PreparedResponse, Request }
+   *
+   * def aResponse: PreparedResponse = ???
+   *
+   * def foo(implicit ec: ExecutionContext, d: MongoDriver) =
+   *   AcolyteDSL.withQueryHandler({ req: Request ⇒ aResponse }) { d =>
+   *     val con: MongoConnection = d
+   *     "aResult"
+   *   }
    * }}}
    *
    * @see [[AcolyteDSL.withDriver]]
@@ -47,13 +52,20 @@ trait WithHandler { up: WithDriver ⇒
    * @param handler Writer handler
    *
    * {{{
-   * import reactivemongo.api.MongoConnection
-   * import acolyte.reactivemongo.{ AcolyteDSL, Request, WriteOp }
+   * import scala.concurrent.ExecutionContext
    *
-   * AcolyteDSL.withWriteHandler({ cmd: (WriteOp, Request) ⇒ aResp }) { d =>
-   *   val con: MongoConnection = d
-   *   "aResult"
+   * import reactivemongo.api.{ MongoDriver, MongoConnection }
+   * import acolyte.reactivemongo.{
+   *   AcolyteDSL, PreparedResponse, Request, WriteOp
    * }
+   *
+   * def aResp: PreparedResponse = ???
+   *
+   * def foo(implicit ec: ExecutionContext, d: MongoDriver) =
+   *   AcolyteDSL.withWriteHandler({ (_: WriteOp, _: Request) ⇒ aResp }) { d =>
+   *     val con: MongoConnection = d
+   *     "aResult"
+   *   }
    * }}}
    *
    * @see [[AcolyteDSL.withDriver]]

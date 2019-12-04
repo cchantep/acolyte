@@ -9,13 +9,9 @@ object AcolyteDSL extends WithDriver
    *
    * {{{
    * import reactivemongo.api.MongoDriver
-   * import acolyte.reactivemongo.AcolyteDSL.{ withDriver, handle }
+   * import acolyte.reactivemongo.AcolyteDSL
    *
-   * withDriver(handle) { d =>
-   *   val driver: MongoDriver = d // configured with empty handler
-   *   // work with driver (e.g. call you function using Mongo)
-   *   "Value"
-   * }
+   * def foo(implicit d: MongoDriver) = AcolyteDSL.handle
    * }}}
    * @see [[withDriver]]
    */
@@ -26,36 +22,52 @@ object AcolyteDSL extends WithDriver
    * but no write handler.
    *
    * {{{
-   * import reactivemongo.api.MongoDriver
-   * import acolyte.reactivemongo.AcolyteDSL.{ withDriver, handleQuery }
-   * import acolyte.reactivemongo.Request
+   * import scala.concurrent.ExecutionContext
    *
-   * withDriver(handleQuery { req: Request => aResponse }) { d =>
-   *   val driver: MongoDriver = d // configured with given handler
-   *   // work with driver (e.g. call you function using Mongo)
-   *   "Value"
+   * import reactivemongo.api.MongoDriver
+   * import acolyte.reactivemongo.AcolyteDSL.{
+   *   withConnection, withDriver, handleQuery
    * }
+   * import acolyte.reactivemongo.{ PreparedResponse, Request }
+   *
+   * def aResponse: PreparedResponse = ???
+   *
+   * def foo(implicit ec: ExecutionContext) =
+   *   withDriver { implicit d =>
+   *     withConnection(handleQuery { req: Request => aResponse }) { con =>
+   *       // work with connection (e.g. call you function using Mongo)
+   *       "Value"
+   *     }
+   *   }
    * }}}
    *
    * @see [[ConnectionHandler.withWriteHandler]]
    */
-  def handleQuery[T](handler: T)(implicit f: T ⇒ QueryHandler) =
-    ConnectionHandler(handler)
+  def handleQuery[T](handler: T)(implicit f: T ⇒ QueryHandler): ConnectionHandler = ConnectionHandler(handler)
 
   /**
    * Creates a connection handler with given write handler,
    * but no query handler.
    *
    * {{{
+   * import scala.concurrent.ExecutionContext
    * import reactivemongo.api.MongoDriver
-   * import acolyte.reactivemongo.AcolyteDSL.{ withDriver, handleWrite }
-   * import acolyte.reactivemongo.{ Request, WriteOp }
    *
-   * withDriver(handleWrite { (op: WriteOp, req: Request) => aResponse }) { d =>
-   *   val driver: MongoDriver = d // configured with given handler
-   *   // work with driver (e.g. call you function using Mongo)
-   *   "Value"
+   * import acolyte.reactivemongo.AcolyteDSL.{
+   *   withConnection, withDriver, handleWrite
    * }
+   * import acolyte.reactivemongo.{ Request, WriteOp, PreparedResponse }
+   *
+   * def aResponse: PreparedResponse = ???
+   *
+   * def foo(implicit ec: ExecutionContext) =
+   *   withDriver { implicit d: MongoDriver =>
+   *     withConnection(handleWrite {
+   *       (op: WriteOp, req: Request) => aResponse }) { con =>
+   *       // work with connection (e.g. call you function using Mongo)
+   *       "Value"
+   *     }
+   *   }
    * }}}
    *
    * @see [[ConnectionHandler.withQueryHandler]]
