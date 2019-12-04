@@ -23,11 +23,13 @@ trait WithCollection { self: WithDB ⇒
    * @param f Function applied to resolved Mongo collection
    *
    * {{{
-   * import reactivemongo.api.Collection
-   * import acolyte.reactivemongo.AcolyteDSL
+   * import scala.concurrent.{ ExecutionContext, Future }
+   * import reactivemongo.api.{ Collection, MongoDriver }
+   * import acolyte.reactivemongo.{ AcolyteDSL, ConnectionManager }
    *
    * // handler: ConnectionHandler
-   * val s: Future[String] =
+   * def s[T: ConnectionManager](handler: => T)(
+   *   implicit ec: ExecutionContext, d: MongoDriver): Future[String] =
    *   AcolyteDSL.withCollection(handler, "colName") { col =>
    *     "Result"
    *   }
@@ -51,15 +53,18 @@ trait WithCollection { self: WithDB ⇒
    * @param f Function applied to resolved Mongo collection
    *
    * {{{
-   * import reactivemongo.api.Collection
-   * import acolyte.reactivemongo.AcolyteDSL
+   * import scala.concurrent.{ ExecutionContext, Future }
+   * import reactivemongo.api.{ Collection, MongoDriver }
+   * import acolyte.reactivemongo.{ AcolyteDSL, ConnectionHandler }
    *
    * // handler: ConnectionHandler
-   * val s: Future[String] = AcolyteDSL.withFlatConnection(handler) { con =>
-   *   AcolyteDSL.withCollection(con, "colName") { col =>
-   *     "Result"
+   * def s(handler: ConnectionHandler)(
+   *   implicit ec: ExecutionContext, d: MongoDriver): Future[String] =
+   *   AcolyteDSL.withConnection(handler) { con =>
+   *     AcolyteDSL.withCollection(con, "colName") { col =>
+   *       "Result"
+   *     }
    *   }
-   * }
    * }}}
    * @see WithDriver.withDB[T]
    */
@@ -79,15 +84,17 @@ trait WithCollection { self: WithDB ⇒
    * @param f Function applied to resolved Mongo collection
    *
    * {{{
-   * import reactivemongo.api.Collection
-   * import acolyte.reactivemongo.AcolyteDSL
+   * import scala.concurrent.{ ExecutionContext, Future }
+   * import reactivemongo.api.{ Collection, MongoDriver }
+   * import acolyte.reactivemongo.{ AcolyteDSL, ConnectionHandler }
    *
-   * // handler: ConnectionHandler
-   * val s: Future[String] = AcolyteDSL.withDB(handler) { db =>
-   *   AcolyteDSL.withCollection(db, "colName") { col =>
-   *     "Result"
+   * def s(handler: ConnectionHandler)(
+   *   implicit ec: ExecutionContext, d: MongoDriver): Future[String] =
+   *   AcolyteDSL.withDB(handler) { db =>
+   *     AcolyteDSL.withCollection(db, "colName") { col =>
+   *       "Result"
+   *     }
    *   }
-   * }
    * }}}
    */
   def withCollection[T](

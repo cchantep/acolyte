@@ -13,8 +13,12 @@ object PlayJdbcDSL {
    * The `result` is given to any query.
    *
    * {{{
-   * import acolyte.jdbc.PlayJdbcDSL.withQueryResult
+   * import acolyte.jdbc.QueryResult
+   * import acolyte.jdbc.Implicits._
    *
+   * import acolyte.jdbc.play.PlayJdbcDSL.withPlayDBResult
+   *
+   * def queryRes: QueryResult = "foo"
    * val str: String = withPlayDBResult(queryRes) { con => "str" }
    * }}}
    */
@@ -27,22 +31,32 @@ object PlayJdbcDSL {
    * as soon as the statement is matching `withQueryDetection`.
    *
    * {{{
-   * import acolyte.jdbc.QueryExecution
-   * import acolyte.jdbc.AcolyteDSL.handleStatement
+   * import acolyte.jdbc.{ QueryExecution, QueryResult }
+   * import acolyte.jdbc.Implicits._
    *
-   * handleStatement withPlayDBHandler { e: QueryExecution => aQueryResult }
+   * import acolyte.jdbc.AcolyteDSL.handleStatement
+   * import acolyte.jdbc.play.PlayJdbcDSL.withPlayDB
+   *
+   * def aQueryResult: QueryResult = "lorem"
+   * val otherResult = "ipsum"
+   *
+   * withPlayDB(
+   *   handleStatement withQueryHandler { e: QueryExecution => aQueryResult })
    *
    * // With pattern matching ...
-   * import acolyte.jdbc.ParameterVal
+   * import acolyte.jdbc.{ ExecutedParameter => P }
    *
-   * val runner = handleStatement withPlayDB {
+   * def runner = withPlayDB(handleStatement withQueryHandler {
    *   _ match {
-   *     case QueryExecution("SELECT * FROM Test WHERE id = ?", ParameterVal(1) :: Nil) => aQueryResult
+   *     case QueryExecution(
+   *       "SELECT * FROM Test WHERE id = ?", P(1) :: Nil) =>
+   *       aQueryResult
+   *
    *     case _ => otherResult
    *   }
-   * }
+   * })
    *
-   * runner { db =>
+   * runner { db: play.api.db.Database =>
    *   // Any code using Play Database
    * }
    * }}}

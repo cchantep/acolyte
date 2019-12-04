@@ -4,7 +4,7 @@ Acolyte API for ReactiveMongo.
 
 ## Motivation
 
-Wherever in your code you use ReactiveMongo driver, you can pass Acolyte Mongo driver instead tests.
+Wherever in your code you use ReactiveMongo driver, you can pass Acolyte MongoDB driver instead tests.
 
 Then any connection created will be managed by your Acolyte (query & writer) handlers.
 
@@ -15,58 +15,74 @@ Then any connection created will be managed by your Acolyte (query & writer) han
 - 3. Provide this testing driver to persistence code during validation.
 
 ```scala
-// 1. On one side configure the Mongo handler
-import acolyte.reactivemongo.AcolyteDSL
+import scala.concurrent.{ ExecutionContext, Future }
 
-val connectionHandler = AcolyteDSL handleQuery {
+// 1. On one side configure the MongoDB handler
+import acolyte.reactivemongo.{ AcolyteDSL, Request, WriteOp }
+
+val connectionHandler = AcolyteDSL.handleQuery { _: Request =>
     // returns result according executed query
-  } withWriteHandler {
+    ???
+  } withWriteHandler { (_: WriteOp, _: Request) =>
     // returns result according executed write operation
+    ???
   }
 
-// 2. In Mongo persistence code, allowing (e.g. cake pattern) 
+// 2. In MongoDB persistence code, allowing (e.g. cake pattern) 
 // to provide driver according environment.
 import reactivemongo.api.MongoDriver
 
 trait MongoPersistence {
   def driver: MongoDriver
 
-  def foo = /* Function using driver, whatever is the way it's provided */
+  /* Function using driver, whatever is the way it's provided */
+  def foo: Future[Boolean] = ???
 }
 
 object ProdPersistence extends MongoPersistence {
-  def driver = /* e.g. Resolve driver according configuration file */
+  def driver: MongoDriver = ???
+  /* e.g. Resolve driver according configuration file */
 }
 
 // 3. Finally in unit tests
 import scala.concurrent.Future
 import acolyte.reactivemongo.AcolyteDSL
 
-def isOk: Future[Boolean] = AcolyteDSL.withFlatDriver { d =>
-  val persistenceWithTestingDriver = new MongoPersistence {
-    val driver: MongoDriver = d // provide testing driver
-  }
+def isOk(implicit ec: ExecutionContext): Future[Boolean] =
+  AcolyteDSL.withDriver { d =>
+    val persistenceWithTestingDriver = new MongoPersistence {
+      val driver: MongoDriver = d // provide testing driver
+    }
 
-  persistenceWithTestingDriver.foo
-}
+    persistenceWithTestingDriver.foo
+  }
 ```
 
-> When result Future is complete, Mongo resources initialized by Acolyte are released (driver and connections).
+> When result Future is complete, MongoDB resources initialized by Acolyte are released (driver and connections).
 
 For persistence code expecting driver as parameter, resolving testing driver is straightforward.
 
 ```scala
-import reactivemongo.api.MongoConnection
+import scala.concurrent.{ ExecutionContext, Future }
+
+import reactivemongo.api.{ MongoConnection, MongoDriver }
+
+import acolyte.reactivemongo.ConnectionHandler
 import acolyte.reactivemongo.AcolyteDSL.withConnection
 
-val res: Future[String] = withConnection(yourConnectionHandler) { c =>
-  val con: MongoConnection = c // configured with `yourConnectionHandler`
+def yourConnectionHandler: ConnectionHandler = ???
 
-  val s: String = yourFunctionUsingMongo(driver)
-  // ... dispatch query and write request as you want using pattern matching
+def yourFunctionUsingMongo(c: MongoConnection): String = ???
 
-  s
-}
+def res(implicit ec: ExecutionContext, d: MongoDriver): Future[String] =
+  withConnection(yourConnectionHandler) { c =>
+    val con: MongoConnection = c // configured with `yourConnectionHandler`
+
+    val s: String = yourFunctionUsingMongo(con)
+    // ... dispatch query and write request as you want using pattern matching
+
+    s
+  }
 ```
 
 As in previous example, main API object is [AcolyteDSL](https://github.com/cchantep/acolyte/blob/master/reactive-mongo/src/main/scala/acolyte/reactivemongo/AcolyteDSL.scala).
@@ -90,88 +106,118 @@ Dependency can be added to SBT project with `"org.eu.acolyte" %% "reactive-mongo
 
 ### Setup driver
 
-Driver behaviour is configured using connection handlers, themselves based on query and write handlers, managing respectively Mongo queries or write operations, and returning appropriate result.
+Driver behaviour is configured using connection handlers, themselves based on query and write handlers, managing respectively MongoDB queries or write operations, and returning appropriate result.
 
 You can start looking at empty/no-op connection handler. With driver configured in this way, there is no query or write handler. So as no response is provided whatever is the command performed, it will raise explicit error `No response: ...` for every request.
 
 ```scala
-import reactivemongo.api.MongoConnection
-import acolyte.reactivemongo.AcolyteDSL
+import scala.concurrent.ExecutionContext
+import reactivemongo.api.{ MongoConnection, MongoDriver }
+import acolyte.reactivemongo.{ AcolyteDSL, ConnectionHandler }
 
-AcolyteDSL.withConnection(AcolyteDSL handle/*ConnectionHandler.empty*/) { c =>
-  val noOpCon: MongoConnection = c
-}
+def handler1: ConnectionHandler = ??? // e.g. AcolyteDSL.handle
+
+def foo1(implicit ec: ExecutionContext, d: MongoDriver) =
+  AcolyteDSL.withConnection(handler1) { c =>
+    val noOpCon: MongoConnection = c
+  }
 ```
 
-Acolyte provides several ways to initialize Mongo resources (driver, connection, DB and collection) your code could expect.
+Acolyte provides several ways to initialize MongoDB resources (driver, connection, DB and collection) your code could expect.
 
-- `withDriver` and `withFlatDriver`,
-- `withConnection` and `withFlatConnection`,
-- `withDB` and `withFlatDB`,
-- `withCollection` and `withFlatCollection`,
-- `withQueryHandler` and `withFlatQueryHandler`,
-- `withQueryResult` and `withFlatQueryResult`,
-- `withWriteHandler` and `withFlatWriteHandler`,
-- `withWriteResult` and `withFlatWriteResult`.
-
-> Naming convention is `withX(...) { a => b }` to use with your Mongo function which doesn't return `Future` result, and `withFlatX(...) { a => b }` when your Mongo function does return `Future` (so that result as `Future[T]` is flatten when returned, not having `Future[Future[YourReturnType]]` finally).
+- `withDriver`
+- `withConnection`
+- `withDB`
+- `withCollection`
+- `withQueryHandler`
+- `withQueryResult`
+- `withWriteHandler`
+- `withWriteResult`
 
 ```scala
-import reactivemongo.api.{ MongoConnection, MongoDriver }
+import scala.concurrent.ExecutionContext
+
+import reactivemongo.api.{ DB, MongoConnection, MongoDriver }
+import reactivemongo.api.collections.bson.BSONCollection
+
 import reactivemongo.bson.BSONDocument
 import acolyte.reactivemongo.{ 
-  AcolyteDSL, QueryResponse, PreparedResponse, Request, WriteOp 
+  AcolyteDSL,
+  ConnectionHandler,
+  QueryResponse,
+  PreparedResponse,
+  Request,
+  WriteOp 
 }
 
-// Simple cases
-AcolyteDSL.withDriver { d =>
-  yourFunctionWorkingWithDriver(d)
-}
+def yourHandler: ConnectionHandler = ???
 
-AcolyteDSL.withConnection(yourHandler) { c =>
-  yourFunctionWorkingWithConnection(c)
-}
+def yourFunctionWorkingWithDriver(d: MongoDriver) = ???
+def yourFunctionWorkingWithConnection(c: MongoConnection) = ???
+def yourFunctionWorkingWithDB(db: DB) = ???
+def yourFunctionWorkingWithCol(c: BSONCollection) = ???
 
-AcolyteDSL.withDB(yourHandler) { db =>
-  yourFunctionWorkingWithDB(db)
-}
+def yourFunction1WorkingWithConnection(c: MongoConnection) = ???
+def yourFunction2WorkingWithConnection(c: MongoConnection) = ???
+def yourFunction3WorkingWithConnection(c: MongoConnection) = ???
+def yourFunction4WorkingWithDB(db: DB) = ???
 
-AcolyteDSL.withCollection(yourHandler, "colName") { col =>
-  yourFunctionWorkingWithCol(col)
-}
+def queryResultForAll: PreparedResponse = ???
+def writeResultForAll: PreparedResponse = ???
+def aResp: PreparedResponse = ???
 
-AcolyteDSL.withQueryHandler({ req: Request => 
-  val resp: PreparedResponse = QueryResponse.empty // empty doc list
-  resp
-}) { d => yourFunctionWorkingWithDriver(d) }
+def simpleExamples1(implicit ec: ExecutionContext) = {
+  // Simple cases
+  AcolyteDSL.withDriver { implicit d: MongoDriver =>
+    yourFunctionWorkingWithDriver(d)
 
-AcolyteDSL.withQueryResult(queryResultForAll) { d =>
-  yourFunctionWorkingWithDriver(d)
-}
+    AcolyteDSL.withConnection(yourHandler) { c =>
+      yourFunctionWorkingWithConnection(c)
+    }
 
-AcolyteDSL.withWriteHandler({ cmd: (WriteOp, Request) => aResp }) { d =>
-  yourFunctionWorkingWithDriver(d)
-}
+    AcolyteDSL.withDB(yourHandler) { db =>
+      yourFunctionWorkingWithDB(db)
+    }
 
-AcolyteDSL.withWriteResult(writeResultForAll) { d =>
-  yourFunctionWorkingWithDriver(d)
-}
+    AcolyteDSL.withCollection(yourHandler, "colName") { col =>
+      yourFunctionWorkingWithCol(col)
+    }
 
-// More complexe case
-AcolyteDSL.withFlatDriver(yourHandler) { d => // expect a Future
-  AcolyteDSL.withConnection(d) { c1 =>
-    if (yourFunction1WorkingWithConnection(c1))
-      yourFunction2WorkingWithConnection(c1)
+    AcolyteDSL.withQueryHandler({ req: Request => 
+      val resp: PreparedResponse = QueryResponse.empty // empty doc list
+      resp
+    }) { con => yourFunctionWorkingWithConnection(con) }
+
+    AcolyteDSL.withQueryResult(queryResultForAll) { con =>
+      yourFunctionWorkingWithConnection(con)
+    }
+
+    AcolyteDSL.withWriteHandler({ (_: WriteOp, _: Request) => aResp }) { con =>
+      yourFunctionWorkingWithConnection(con)
+    }
+
+    AcolyteDSL.withWriteResult(writeResultForAll) { con =>
+      yourFunctionWorkingWithConnection(con)
+    }
   }
+}
 
-  AcolyteDSL.withFlatConnection(d) { c2 => // expect a Future
-    yourFunction3WorkingWithConnection(c2) // return a Future
-  }
+def moreCompleteExamples1(implicit ec: ExecutionContext) = {
+  AcolyteDSL.withDriver { implicit d =>
+    AcolyteDSL.withConnection(yourHandler) { c1 =>
+      if (yourFunction1WorkingWithConnection(c1))
+        yourFunction2WorkingWithConnection(c1)
+    }
 
-  AcolyteDSL.withFlatConnection(d) { c3 => // expect a Future
-    AcolyteDSL.withFlatDB(c3) { db => // expect a Future
-      AcolyteDSL.withFlatCollection(db, "colName") { // expect Future
-        yourFunction4WorkingWithDB(c3) // return a Future
+    AcolyteDSL.withConnection(yourHandler) { c2 =>
+      yourFunction3WorkingWithConnection(c2)
+    }
+
+    AcolyteDSL.withConnection(yourHandler) { c3 => // expect a Future
+      AcolyteDSL.withDB(c3) { db => // expect a Future
+        AcolyteDSL.withCollection(db, "colName") { // expect Future
+          yourFunction4WorkingWithDB(db) // return a Future
+        }
       }
     }
   }
@@ -182,60 +228,91 @@ Many other combinations are possible: see complete [test cases](https://github.c
 
 ### Configure connection behaviour
 
-At this point we can focus on playing handlers. To handle Mongo query and to return the kind of result your code should work with, you can do as following.
+At this point we can focus on playing handlers. To handle MongoDB query and to return the kind of result your code should work with, you can do as following.
 
 ```scala
-import reactivemongo.api.MongoConnection
-import acolyte.reactivemongo.{ AcolyteDSL, Request }
+import scala.util.{ Failure, Success }
 
-AcolyteDSL.withDriver { implicit driver =>
-  AcolyteDSL.withConnection(
-    AcolyteDSL handleQuery { req: Request => aResponse }) { c =>
-    val readOnlyCon: MongoConnection = c
-    // work with configured driver
+import scala.concurrent.ExecutionContext
+
+import reactivemongo.api.{ Cursor, MongoConnection }
+import reactivemongo.api.collections.bson.BSONCollection
+
+import reactivemongo.bson.BSONDocument
+
+import acolyte.reactivemongo.{ AcolyteDSL, PreparedResponse, Request }
+
+def aResponse: PreparedResponse = ???
+
+def setup1(implicit ec: ExecutionContext) =
+  AcolyteDSL.withDriver { implicit driver =>
+    AcolyteDSL.withConnection(
+      AcolyteDSL handleQuery { req: Request => aResponse }) { c =>
+      val readOnlyCon: MongoConnection = c
+      // work with configured driver
+    }
   }
-}
 
-// Then when Mongo code is given this driver instead of production one ...
+// Then when MongoDB code is given this driver instead of production one ...
 // (see DI or cake pattern) and resolve a BSON collection `col` by this way:
 
-col.find(BSONDocument("anyQuery" -> 1).cursor[BSONDocument].toList().
-  onComplete {
-    case Success(res) => ??? // In case of response given by provided handler
-    case Failure(err) => ??? // "No response: " if case not handled
-  }
+def foo2(col: BSONCollection)(implicit ec: ExecutionContext) =
+  col.find(BSONDocument("anyQuery" -> 1)).
+    cursor[BSONDocument]().collect[List](
+      maxDocs = 10,
+      err = Cursor.FailOnError[List[BSONDocument]]()
+    ).onComplete {
+      case Success(res) => ??? // In case of response given by provided handler
+      case Failure(err) => ??? // "No response: " if case not handled
+    }
 ```
 
 In the same way, write operations can be responded with appropriate result.
 
 ```scala
+import scala.util.{ Failure, Success }
+
+import scala.concurrent.ExecutionContext
+
+import reactivemongo.bson.BSONDocument
 import reactivemongo.api.MongoConnection
+import reactivemongo.api.collections.bson.BSONCollection
+
 import acolyte.reactivemongo.{ AcolyteDSL, Request, WriteOp }
 
-AcolyteDSL.withDriver { implicit driver =>
-  AcolyteDSL.withConnection(
-    AcolyteDSL handleWrite { (op: WriteOp, req: Request) => aResponse }) { c =>
-    val writeOnlyDriver: MongoConnection = c
-    // work with configured driver
+def setup2(implicit ec: ExecutionContext) =
+  AcolyteDSL.withDriver { implicit driver =>
+    AcolyteDSL.withConnection(
+      AcolyteDSL handleWrite { (op: WriteOp, r: Request) => aResponse }) { c =>
+      val writeOnlyDriver: MongoConnection = c
+      // work with configured driver
+    }
   }
-}
 
-// Then when Mongo code is given this driver instead of production one ...
+// Then when MongoDB code is given this driver instead of production one ...
 // (see DI or cake pattern) and resolve a BSON collection `col` by this way:
 
-col.insert(BSONDocument("prop" -> "value")).onComplete {
-  case Success(res) => ??? // In case or response given by provided handler
-  case Failure(err) => ??? // "No response: " if case not handled
-}
+def foo3(col: BSONCollection)(implicit ec: ExecutionContext) = 
+  col.insert(BSONDocument("prop" -> "value")).onComplete {
+    case Success(res) => ??? // In case or response given by provided handler
+    case Failure(err) => ??? // "No response: " if case not handled
+  }
 ```
 
 Obviously connection handler can manage both queries and write operations:
 
 ```scala
-import acolyte.reactivemongo.{ AcolyteDSL, Request, WriteOp }
+import scala.concurrent.ExecutionContext
 
-val completeHandler = 
-  AcolyteDSL handleQuery { req: Request => 
+import acolyte.reactivemongo.{
+  AcolyteDSL, ConnectionHandler, PreparedResponse, Request, WriteOp
+}
+
+def aQueryResponse: PreparedResponse = ???
+def aWriteResponse: PreparedResponse = ???
+
+val completeHandler: ConnectionHandler = 
+  AcolyteDSL.handleQuery { req: Request => 
     // First define query handling
     aQueryResponse
   } withWriteHandler { (op: WriteOp, req: Request) =>
@@ -243,8 +320,10 @@ val completeHandler =
     aWriteResponse
   }
 
-AcolyteDSL.withDriver(completeHandler) { d =>
-  // work with configured driver
+def foo4(implicit ec: ExecutionContext) = AcolyteDSL.withDriver { implicit d =>
+  AcolyteDSL.withConnection(completeHandler) { con =>
+    // work with configured connection
+  }
 }
 ```
 
@@ -256,8 +335,33 @@ Pattern matching can be used in handler to dispatch result accordingly.
 import reactivemongo.bson.{ BSONInteger, BSONString }
 
 import acolyte.reactivemongo.{
-  CollectionName, QueryHandler, Request, Property, SimpleBody, &
+  CountRequest,
+  InClause,
+  QueryHandler,
+  PreparedResponse,
+  Property,
+  Request,
+  RequestBody,
+  SimpleBody,
+  ValueDocument,
+  ValueList,
+  &
 }
+
+def resultA: PreparedResponse = ???
+def resultB: PreparedResponse = ???
+def resultC: PreparedResponse = ???
+def resultD: PreparedResponse = ???
+def resultE: PreparedResponse = ???
+def resultF: PreparedResponse = ???
+def resultG: PreparedResponse = ???
+def resultH: PreparedResponse = ???
+def resultI: PreparedResponse = ???
+def resultJ: PreparedResponse = ???
+def resultK: PreparedResponse = ???
+def resultL: PreparedResponse = ???
+def resultM: PreparedResponse = ???
+def resultN: PreparedResponse = ???
 
 val queryHandler = QueryHandler { queryRequest =>
   queryRequest match {
@@ -280,8 +384,8 @@ val queryHandler = QueryHandler { queryRequest =>
       // whose value is "eman"
       resultE
 
-    case Request(_, SimpleBody(("age": ValueDocument(
-      ("$gt", BSONInteger(minAge)) :: Nil)))) =>
+    case Request(_, SimpleBody(("age", ValueDocument(
+      ("$gt", BSONInteger(minAge)) :: Nil)) :: _)) =>
       // Request on any collection, with an "age" document as property,
       // itself with exactly one integer "$gt" property
       // e.g. `{ 'age': { '$gt', 10 } }`
@@ -314,7 +418,7 @@ val queryHandler = QueryHandler { queryRequest =>
       // property (at the same level as age), without order constraint.
       resultJ
 
-    case CountRequest(colName, ("email", "em@il.net") :: Nil) =>
+    case CountRequest(colName, ("email", BSONString("em@il.net")) :: Nil) =>
       // Matching on count query
       resultK
 
@@ -322,7 +426,8 @@ val queryHandler = QueryHandler { queryRequest =>
       BSONString("A") :: BSONString("B") :: Nil)) :: Nil) =>
       resultL // matches count with selector on 'property' using $in operator
 
-    case Request("col1", SimpleBody(("$in", ValueList(bsonA, bsonB)) :: Nil)) =>
+    case Request("col1", SimpleBody((
+      "$in", ValueList(bsonA :: bsonB :: _)) :: Nil)) =>
       // Matching BSONArray using with $in operator
       resultM
 
@@ -346,8 +451,13 @@ Pattern matching using rich syntax `~(..., ...)` requires [scalac plugin](../sca
 Without this plugin, such parameterized extractor need to be declared as stable identifier before `match` block:
 
 ```scala
+import reactivemongo.bson.BSONString
+import acolyte.reactivemongo.{ Property, PreparedResponse, Request, SimpleBody }
+
+def result: PreparedResponse = ???
+
 // With scalac plugin
-request match {
+def check1(request: Request) = request match {
   case Request("db.col", SimpleBody(
     ~(Property("email"), BSONString(e)))) => result
   // ...
@@ -357,8 +467,8 @@ request match {
 val EmailXtr = Property("email")
 // has declare email extractor before, as stable identifier
 
-request match {
-  case Request("db.col", SimpleBody(~(EmailXtr, BSONString(e)))) => result
+def check2(request: Request) = request match {
+  case Request("db.col", SimpleBody(EmailXtr(BSONString(e)))) => result
   // ...
 }
 ```
@@ -366,9 +476,15 @@ request match {
 In case of write operation, handler is given the write operator along with the request itself, so dispatch can be based on this information (and combine with pattern matching on request content).
 
 ```scala
-import acolyte.reactivemongo.{ WriteHandler, DeleteOp, InsertOp, UpdateOp }
+import acolyte.reactivemongo.{
+  DeleteOp, InsertOp, UpdateOp, PreparedResponse, Request, WriteHandler
+}
 
-val handler = WriteHandler { (op, wreq) =>
+def resultDelete: PreparedResponse = ???
+def resultInsert: PreparedResponse = ???
+def resultUpdate: PreparedResponse = ???
+
+val handler2 = WriteHandler { (op, wreq) =>
   (op, wreq) match {
     case (DeleteOp, Request("a-mongo-db.a-col-name", _)) => resultDelete
     case (InsertOp, _) => resultInsert
@@ -387,7 +503,7 @@ import acolyte.reactivemongo.{
   UpdateRequest 
 }
 
-val handler = WriteHandler { (op, req) =>
+val handler3 = WriteHandler { (op, req) =>
   case InsertRequest("colname", ("prop1", BSONString("val")) :: _) => ???
   case UpdateRequest("colname", 
     ("sel", BSONString("ector")) :: Nil, 
@@ -400,7 +516,7 @@ val handler = WriteHandler { (op, req) =>
 
 ### Result creation for queries
 
-Mongo result to be returned by query handler, can be created as following:
+MongoDB result to be returned by query handler, can be created as following:
 
 ```scala
 import reactivemongo.bson.BSONDocument
@@ -422,39 +538,43 @@ val success4 = QueryResponse.successful(
 val success5 = QueryResponse.empty // successful empty response
 val success6 = QueryResponse(List.empty[BSONDocument]) // equivalent
 
-val countResponse = QueryResponse.count(4) // response to Mongo Count
+val countResponse = QueryResponse.count(4) // response to MongoDB Count
 ```
 
 When a handler supports some query cases, but not other, it can return an undefined response, to let the chance other handlers would manage it.
 
 ```scala
+import acolyte.reactivemongo.QueryResponse
+
 val undefined1 = QueryResponse(None)
 val undefined2 = QueryResponse.undefined
 ```
 
 ### Result creation for write operation
 
-Mongo result to be returned by write handler, can be created as following:
+MongoDB result to be returned by write handler, can be created as following:
 
 ```scala
 import reactivemongo.core.protocol.Response 
 import acolyte.reactivemongo.{ WriteResponse, PreparedResponse }
 
-val error1: PreparedResponse = WriteResponse.failed("Error #1")
-val error2 = WriteResponse("Error #1") // equivalent
-val error3 = WriteResponse.failed("Error #2", 1/* code */)
-val error4 = WriteResponse("Error #2" -> 1/* code */) // equivalent
+val errorA: PreparedResponse = WriteResponse.failed("Error #1")
+val errorB = WriteResponse("Error #1") // equivalent
+val errorC = WriteResponse.failed("Error #2", 1/* code */)
+val errorD = WriteResponse("Error #2" -> 1/* code */) // equivalent
 
-val success1 = WriteResponse(1/* update count */ -> true/* updatedExisting */)
-val success2 = WriteResponse.successful(1, true) // equivalent
-val success3 = WriteResponse() // = WriteResponse.successful(0, false)
+val successA = WriteResponse(1/* update count */ -> true/* updatedExisting */)
+val successB = WriteResponse.successful(1, true) // equivalent
+val successC = WriteResponse({}) // = WriteResponse.successful(0, false)
 ```
 
 When a handler supports some write cases, but not other, it can return an undefined response, to let the chance other handlers would manage it.
 
 ```scala
-val undefined1 = WriteResponse(None)
-val undefined2 = WriteResponse.undefined
+import acolyte.reactivemongo.WriteResponse
+
+val undefined3 = WriteResponse(None)
+val undefined4 = WriteResponse.undefined
 ```
 
 ## Integration
@@ -466,17 +586,24 @@ Acolyte for ReactiveMongo can be used with various test and persistence framewor
 It can be used with [specs2](http://etorreborre.github.io/specs2/) to write executable specification for function accessing persistence.
 
 ```scala
+import scala.concurrent.duration._
 import reactivemongo.bson.BSONDocument
-import acolyte.reactivemongo.QueryResponse
 
-object MySpec extends org.specs2.mutable.Specification {
-  "Mongo persistence" should {
+import acolyte.reactivemongo.QueryResponse
+import acolyte.reactivemongo.AcolyteDSL.{ withQueryResult, withDriver }
+
+class MySpec1(implicit ee: org.specs2.concurrent.ExecutionEnv)
+  extends org.specs2.mutable.Specification {
+
+  "MongoDB persistence" should {
     "properly work with query result" in {
-      withQueryResult(QueryResponse(BSONDocument(???))) { driver =>
-        // code executing query with driver,
-        // and parsing result as expected
+      withDriver { implicit driver =>
+        withQueryResult(QueryResponse(BSONDocument("foo" -> 1))) { con =>
+          // code executing query with connection 'con',
+          // and parsing result as expected
+        }
       } aka "result" must beEqualTo(???).
-        await(5) // as ReactiveMongo is async and returns Future
+        awaitFor(5.seconds) // as ReactiveMongo is async and returns Future
     }
   }
 
@@ -487,12 +614,14 @@ object MySpec extends org.specs2.mutable.Specification {
 In order to use same driver accross several example, a custom `After` trait can be used.
 
 ```scala
+import acolyte.reactivemongo.AcolyteDSL
+
 sealed trait WithDriver extends org.specs2.mutable.After {
   implicit lazy val driver = AcolyteDSL.driver
   def after = driver.close()
 }
 
-object MySpec extends org.specs2.mutable.Specification {
+object MySpec2 extends org.specs2.mutable.Specification {
   "Foo" should {
     "Bar" >> new WithDriver {
       implicit val d = driver
@@ -506,15 +635,17 @@ object MySpec extends org.specs2.mutable.Specification {
 To make all Acolyte handlers in a specification share the same driver, it's possible to benefit from specs2 global teardown.
 
 ```scala
-import org.specs2.specification.{ Fragments, Step }
+import org.specs2.specification.core.Fragments
 import org.specs2.mutable.Specification
+
+import acolyte.reactivemongo.AcolyteDSL
 
 sealed trait WithDriver { specs: Specification =>
   implicit lazy val driver = AcolyteDSL.driver
-  override def map(fs: => Fragments) = fs ^ Step(driver.close())
+  override def map(fs: => Fragments) = fs ^ step(driver.close())
 }
 
-object MySpec extends Specification with WithDriver {
+object MySpec3 extends Specification with WithDriver {
   // `driver` available for all examples
 }
 ```
@@ -536,7 +667,7 @@ object Shared {
 
 Then in SBT settings, this driver can be closed after testing.
 
-```scala
+```ocaml
 testOptions in Test += Tests.Cleanup(cl => {
   val c = cl.loadClass("your.pkg.Shared$")
   type M = { def closeDriver(): Unit }

@@ -43,7 +43,10 @@ sealed trait ConnectionHandler { self ⇒
    * or else if it doesn't match, use the other one.
    *
    * {{{
-   * val connectionHandler3 = connectionHandler1 orElse connectionHandler2
+   * import acolyte.reactivemongo.ConnectionHandler
+   *
+   * def connectionHandler3(h1: ConnectionHandler, h2: ConnectionHandler) =
+   *   h1 orElse h2
    * }}}
    */
   final def orElse(other: ConnectionHandler): ConnectionHandler =
@@ -62,9 +65,12 @@ object ConnectionHandler {
    * @param w Write handler
    *
    * {{{
-   * import acolyte.reactivemongo.ConnectionHandler
+   * import acolyte.reactivemongo.{
+   *   ConnectionHandler, QueryHandler, WriteHandler
+   * }
    *
-   * ConnectionHandler(myQueryHandler, myWriteHandler)
+   * def foo(myQueryHandler: QueryHandler, myWriteHandler: WriteHandler) =
+   *   ConnectionHandler(myQueryHandler, myWriteHandler)
    * }}}
    */
   def apply[A, B](queryHandler: A = QueryHandler.empty, writeHandler: B = WriteHandler.empty)(implicit f: A ⇒ QueryHandler, g: B ⇒ WriteHandler): ConnectionHandler = {
@@ -96,7 +102,9 @@ sealed trait QueryHandler extends ((ChannelId, Request) ⇒ Option[Try[Response]
    * or else if it doesn't match, use the other one.
    *
    * {{{
-   * val queryHandler3 = queryHandler1 orElse queryHandler2
+   * import acolyte.reactivemongo.QueryHandler
+   *
+   * def queryHandler3(h1: QueryHandler, h2: QueryHandler) = h1 orElse h2
    * }}}
    */
   final def orElse(other: QueryHandler): QueryHandler = new QueryHandler {
@@ -116,7 +124,7 @@ object QueryHandler {
    *
    * {{{
    * import reactivemongo.bson.BSONDocument
-   * import acolyte.reactivemongo.{ Request, QueryHandler }
+   * import acolyte.reactivemongo.{ Request, QueryHandler, QueryResponse }
    *
    * val handler1: QueryHandler = // Returns a successful empty response
    *   (q: Request) => QueryResponse(Seq.empty[BSONDocument])
@@ -150,7 +158,9 @@ sealed trait WriteHandler
    * or else if it doesn't match, use the other one.
    *
    * {{{
-   * val writeHandler3 = writeHandler1 orElse writeHandler2
+   * import acolyte.reactivemongo.WriteHandler
+   *
+   * def writeHandler3(h1: WriteHandler, h2: WriteHandler) = h1 orElse h2
    * }}}
    */
   final def orElse(other: WriteHandler): WriteHandler = new WriteHandler {
@@ -168,10 +178,14 @@ object WriteHandler {
    * @param f Handling function, with arguments channel ID and write request.
    *
    * {{{
-   * import acolyte.reactivemongo.{ Request, WriteHandler, WriteOp }
+   * import acolyte.reactivemongo.{
+   *   Request, WriteHandler, WriteOp, WriteResponse
+   * }
    *
-   * val handler: WriteHandler = // Returns a successful for 1 doc
-   *   (w: (WriteOp, Request)) => WriteResponse(1, false)
+   * val handler: WriteHandler = WriteHandler {
+   *   // Returns a successful for 1 doc
+   *   (_: WriteOp, _: Request) => WriteResponse(1, false)
+   * }
    * }}}
    */
   implicit def apply(f: (WriteOp, Request) ⇒ PreparedResponse): WriteHandler = new WriteHandler {

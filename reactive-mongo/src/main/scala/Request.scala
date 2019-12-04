@@ -73,10 +73,18 @@ object Request {
    * Request extractor.
    *
    * {{{
-   * import reactivemongo.bson.BSONString
-   * import acolyte.reactivemongo.Request
+   * import reactivemongo.bson.{ BSONInteger, BSONString }
+   * import acolyte.reactivemongo.{
+   *   PreparedResponse, Request, SimpleBody, ValueDocument
+   * }
    *
-   * request match {
+   * def resultA: PreparedResponse = ???
+   * def resultB: PreparedResponse = ???
+   * def resultC: PreparedResponse = ???
+   * def resultD: PreparedResponse = ???
+   * def resultE: PreparedResponse = ???
+   *
+   * def check(request: Request) = request match {
    *   case Request("db.col", _) => // Any request on "db.col"
    *     resultA
    *
@@ -93,19 +101,19 @@ object Request {
    *     // whose value is "eman"
    *     resultD
    *
-   *   case Request(_, SimpleBody(("age": ValueDocument(
-   *     ("\$gt", BSONInteger(minAge)) :: Nil)))) =>
+   *   case Request(_, SimpleBody(("age", ValueDocument(
+   *     ("\\$gt", BSONInteger(minAge)) :: Nil)) :: _)) =>
    *     // Request on any collection, with an "age" document as property,
-   *     // itself with exactly one integer "\$gt" property
-   *     // e.g. `{ 'age': { '\$gt', 10 } }`
+   *     // itself with exactly one integer "\\$gt" property
+   *     // e.g. `{ 'age': { '\\$gt', 10 } }`
    *     resultE
    * }
    * }}}
    *
    * @return Collection name -> request body
-   * @see SimpleBody
-   * @see ValueDocument
-   * @see CountRequest
+   * @see [[SimpleBody]]
+   * @see [[ValueDocument]]
+   * @see [[CountRequest]]
    */
   def unapply(q: Request): Option[(String, List[BDoc])] =
     Some(q.collection → q.body.map(BDoc.apply))
@@ -157,9 +165,7 @@ object UpdateElement {
    *
    * Matches value of the following form:
    *
-   * {{{
-   * { "q": { .. }, "u": { .. }, "upsert": true, "multi": false }
-   * }}}
+   * `{ "q": { .. }, "u": { .. }, "upsert": true, "multi": false }`
    *
    * @return (q, u, upsert, multi)
    */
@@ -258,8 +264,8 @@ object FindAndModifyRequest {
  * Extractor of properties for a document used a BSON value
  * (when operator is used, e.g. `{ 'age': { '\$gt': 10 } }`).
  *
- * @see Request
- * @see Property
+ * @see [[Request]]
+ * @see [[Property]]
  */
 object ValueDocument {
   def unapply(v: BSONValue): Option[List[(String, BSONValue)]] = v match {
@@ -272,7 +278,7 @@ object ValueDocument {
 
 /**
  * Extracts values of BSON array as list.
- * @see ValueDocument
+ * @see [[ValueDocument]]
  */
 object ValueList {
   def unapply(arr: BSONArray): Option[List[BSONValue]] = Some(arr.values.toList)
@@ -280,7 +286,7 @@ object ValueList {
 
 /**
  * Body extractor for Count request.
- * @see SimpleBody
+ * @see [[SimpleBody]]
  */
 object CountRequest {
   /**
@@ -332,8 +338,8 @@ object NotInClause {
 
 /**
  * Meta-extractor, to combine extractor on BSON properties.
- * @see SimpleBody
- * @see Property
+ * @see [[SimpleBody]]
+ * @see [[Property]]
  */
 object & {
   def unapply[A](a: A) = Some(a → a)
@@ -347,11 +353,19 @@ object & {
  *
  * {{{
  * import reactivemongo.bson.{ BSONInteger, BSONString }
- * import acolyte.reactivemongo.{ Request, SimpleBody, Property, & }
+ * import acolyte.reactivemongo.{
+ *   PreparedResponse, Property, Request, SimpleBody, ValueDocument, &
+ * }
  *
  * val EmailXtr = Property("email") // Without scalac plugin
  *
- * request match {
+ * def resultA: PreparedResponse = ???
+ * def resultB: PreparedResponse = ???
+ * def resultC: PreparedResponse = ???
+ * def resultD: PreparedResponse = ???
+ * def resultE: PreparedResponse = ???
+ *
+ * def check(request: Request) = request match {
  *   case Request("db.col", SimpleBody(~(Property("email"), BSONString(e)))) =>
  *     // Request on db.col with an "email" string property,
  *     // anywhere in properties (possibly with others which are ignored there),
@@ -379,18 +393,18 @@ object & {
  *
  *   case Request(colName, SimpleBody(
  *     ~(Property("age"), ValueDocument(
- *       ~(Property("\$gt"), BSONInteger(minAge)))) &
+ *       ~(Property("\\$gt"), BSONInteger(minAge)))) &
  *     ~(Property("email"), BSONString("demo@applicius.fr")))) =>
  *     // Request on any collection, with an "age" property with itself
- *     // a operator property "\$gt" having an integer value, and an "email"
+ *     // a operator property "\\$gt" having an integer value, and an "email"
  *     // property (at the same level as age), without order constraint.
  *     resultE
  *
  * }
  * }}}
  *
- * @see &
- * @see ValueDocument
+ * @see [[&]]
+ * @see [[ValueDocument]]
  */
 case class Property(name: String) {
   def unapply(properties: List[(String, BSONValue)]): Option[BSONValue] =

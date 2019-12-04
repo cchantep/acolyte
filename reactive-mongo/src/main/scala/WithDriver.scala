@@ -32,11 +32,16 @@ trait WithDriver {
    * @param f $f
    *
    * {{{
+   * import scala.concurrent.{ ExecutionContext, Future }
+   * import reactivemongo.api.MongoDriver
+   * import acolyte.reactivemongo.AcolyteDSL
+   *
    * // handler: ConnectionHandler
-   * val s: Future[String] = withDriver { d =>
-   *   val initedDriver: MongoDriver = d
-   *   "Result"
-   * }
+   * def s(implicit ec: ExecutionContext): Future[String] =
+   *   AcolyteDSL.withDriver { d =>
+   *     val initedDriver: MongoDriver = d
+   *     "Result"
+   *   }
    * }}}
    */
   def withDriver[T](f: MongoDriver ⇒ T)(implicit m: DriverManager, ec: ExecutionContext, compose: ComposeWithCompletion[T]): compose.Outer = {
@@ -55,14 +60,18 @@ trait WithDriver {
    * @param f $f
    *
    * {{{
-   * import reactivemongo.api.MongoConnection
-   * import acolyte.reactivemongo.AcolyteDSL
+   * import scala.concurrent.{ ExecutionContext, Future }
+   *
+   * import reactivemongo.api.{ MongoConnection, MongoDriver }
+   * import acolyte.reactivemongo.{ AcolyteDSL, ConnectionHandler }
    *
    * // handler: ConnectionHandler
-   * val s: Future[String] = AcolyteDSL.withConnection(handler) { con =>
-   *   val c: MongoConnection = con
-   *   "Result"
-   * }
+   * def s(handler: ConnectionHandler)(
+   *   implicit ec: ExecutionContext, d: MongoDriver): Future[String] =
+   *   AcolyteDSL.withConnection(handler) { con =>
+   *     val c: MongoConnection = con
+   *     "Result"
+   *   }
    * }}}
    */
   def withConnection[A, B](conParam: ⇒ A)(f: MongoConnection ⇒ B)(

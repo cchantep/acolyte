@@ -23,14 +23,17 @@ trait WithDB { withDriver: WithDriver ⇒
    * @param f $f
    *
    * {{{
-   * import reactivemongo.api.DB
-   * import acolyte.reactivemongo.AcolyteDSL
+   * import scala.concurrent.{ ExecutionContext, Future }
    *
-   * // handler: ConnectionHandler
-   * val s: Future[String] = AcolyteDSL withDB(handler) { db =>
-   *   val d: DB = db
-   *   "Result"
-   * }
+   * import reactivemongo.api.{ DB, MongoDriver }
+   * import acolyte.reactivemongo.{ AcolyteDSL, ConnectionHandler }
+   *
+   * def s(handler: ConnectionHandler)(
+   *   implicit ec: ExecutionContext, d: MongoDriver): Future[String] =
+   *   AcolyteDSL.withDB(handler) { db =>
+   *     val d: DB = db
+   *     "Result"
+   *   }
    * }}}
    * @see AcolyteDSL.withConnection
    */
@@ -54,14 +57,17 @@ trait WithDB { withDriver: WithDriver ⇒
    * @param f $f
    *
    * {{{
-   * import reactivemongo.api.DB
-   * import acolyte.reactivemongo.AcolyteDSL
+   * import scala.concurrent.{ ExecutionContext, Future }
    *
-   * // handler: ConnectionHandler
-   * val s: Future[String] = AcolyteDSL withDB(handler, "my_db") { db =>
-   *   val d: DB = db
-   *   "Result"
-   * }
+   * import reactivemongo.api.{ DB, MongoDriver }
+   * import acolyte.reactivemongo.{ AcolyteDSL, ConnectionHandler }
+   *
+   * def s(handler: ConnectionHandler)(
+   *   implicit ec: ExecutionContext, d: MongoDriver): Future[String] =
+   *   AcolyteDSL.withDB(handler, "my_db") { db =>
+   *     val d: DB = db
+   *     "Result"
+   *   }
    * }}}
    * @see AcolyteDSL.withConnection
    */
@@ -85,16 +91,19 @@ trait WithDB { withDriver: WithDriver ⇒
    * @param f $f
    *
    * {{{
-   * import reactivemongo.api.DB
-   * import acolyte.reactivemongo.AcolyteDSL
+   * import scala.concurrent.{ ExecutionContext, Future }
    *
-   * // handler: ConnectionHandler
-   * val s: Future[String] = AcolyteDSL withConnection(handler) { con =>
-   *   AcolyteDSL withDB(con) { db =>
-   *     val d: DefaultDB = db
-   *     "Result"
+   * import reactivemongo.api.{ DefaultDB, MongoDriver }
+   * import acolyte.reactivemongo.{ AcolyteDSL, ConnectionHandler }
+   *
+   * def s(handler: ConnectionHandler)(
+   *   implicit ec: ExecutionContext, d: MongoDriver) =
+   *   AcolyteDSL.withConnection(handler) { con =>
+   *     AcolyteDSL.withDB(con) { db =>
+   *       val d: DefaultDB = db
+   *       "Result"
+   *     }
    *   }
-   * }
    * }}}
    * @see AcolyteDSL.withConnection
    */
@@ -115,16 +124,20 @@ trait WithDB { withDriver: WithDriver ⇒
    * @param f $f
    *
    * {{{
-   * import reactivemongo.api.DB
-   * import acolyte.reactivemongo.AcolyteDSL
+   * import scala.concurrent.{ ExecutionContext, Future }
+   *
+   * import reactivemongo.api.{ DefaultDB, MongoDriver }
+   * import acolyte.reactivemongo.{ AcolyteDSL, ConnectionHandler }
    *
    * // handler: ConnectionHandler
-   * val s: Future[String] = AcolyteDSL withConnection(handler) { con =>
-   *   AcolyteDSL withDB(con, "my_db") { db =>
-   *     val d: DefaultDB = db
-   *     "Result"
+   * def s(handler: ConnectionHandler)(
+   *   implicit ec: ExecutionContext, d: MongoDriver): Future[String] =
+   *   AcolyteDSL.withConnection(handler) { con =>
+   *     AcolyteDSL.withDB(con, "my_db") { db =>
+   *       val d: DefaultDB = db
+   *       "Result"
+   *     }
    *   }
-   * }
    * }}}
    * @see AcolyteDSL.withConnection
    */
