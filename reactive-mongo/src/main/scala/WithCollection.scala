@@ -1,8 +1,9 @@
 package acolyte.reactivemongo
 
 import scala.concurrent.ExecutionContext
-import reactivemongo.api.collections.bson.BSONCollection
+
 import reactivemongo.api.{ DB, MongoConnection, MongoDriver }
+import reactivemongo.api.bson.collection.BSONCollection
 
 /**
  * Functions to work with a Mongo collection (provided DB functions).

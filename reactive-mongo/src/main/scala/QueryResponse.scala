@@ -1,7 +1,7 @@
 package acolyte.reactivemongo
 
 import reactivemongo.io.netty.channel.ChannelId
-import _root_.reactivemongo.bson.BSONDocument
+import _root_.reactivemongo.api.bson.BSONDocument
 
 /** Query response factory. */
 object QueryResponse {

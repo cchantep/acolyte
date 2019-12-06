@@ -3,7 +3,7 @@ package acolyte.reactivemongo
 import scala.util.Try
 
 import reactivemongo.io.netty.channel.ChannelId
-import reactivemongo.bson.BSONDocument
+import reactivemongo.api.bson.BSONDocument
 import reactivemongo.core.protocol.Response
 
 /**
@@ -29,7 +29,7 @@ object QueryResponseMaker {
 
   /**
    * {{{
-   * import reactivemongo.bson.BSONDocument
+   * import reactivemongo.api.bson.BSONDocument
    * import acolyte.reactivemongo.QueryResponseMaker
    *
    * val maker = implicitly[QueryResponseMaker[Traversable[BSONDocument]]]
@@ -43,7 +43,7 @@ object QueryResponseMaker {
 
   /**
    * {{{
-   * import reactivemongo.bson.BSONDocument
+   * import reactivemongo.api.bson.BSONDocument
    * import acolyte.reactivemongo.QueryResponseMaker
    *
    * val maker = implicitly[QueryResponseMaker[BSONDocument]]

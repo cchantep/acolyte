@@ -123,7 +123,7 @@ object QueryHandler {
    * @param f Handling function, with arguments channel ID and query.
    *
    * {{{
-   * import reactivemongo.bson.BSONDocument
+   * import reactivemongo.api.bson.BSONDocument
    * import acolyte.reactivemongo.{ Request, QueryHandler, QueryResponse }
    *
    * val handler1: QueryHandler = // Returns a successful empty response

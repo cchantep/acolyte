@@ -2,9 +2,11 @@ package acolyte.reactivemongo
 
 import scala.util.{ Failure, Success, Try }
 
-import reactivemongo.api.commands.GetLastError
-import reactivemongo.bson.{ BSONArray, BSONDocument, BSONString, BSONValue }
 import reactivemongo.io.netty.channel.{ ChannelId, DefaultChannelId }
+
+import reactivemongo.api.commands.GetLastError
+import reactivemongo.api.bson.{ BSONArray, BSONDocument, BSONString, BSONValue }
+
 import reactivemongo.core.actors.{
   Close,
   Closed,
@@ -86,16 +88,16 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
 
             val opBody: Option[List[BSONDocument]] = if (k == "insert") {
               es.collectFirst {
-                case ("documents", a @ BSONArray(_)) ⇒ a.values.toList.collect {
-                  case doc @ BSONDocument(_) ⇒ doc
+                case ("documents", a: BSONArray) ⇒ a.values.toList.collect {
+                  case doc: BSONDocument ⇒ doc
                 }
               }
             } else {
               val Key = k + "s"
 
               es.collectFirst {
-                case (Key, a @ BSONArray(_)) ⇒ a.values.toList.collect {
-                  case doc @ BSONDocument(_) ⇒ doc
+                case (Key, a: BSONArray) ⇒ a.values.toList.collect {
+                  case doc: BSONDocument ⇒ doc
                 }
               }
             }
@@ -115,7 +117,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
 
               val body = ps.foldLeft(Option.empty[BSONDocument] → (
                 List.empty[(String, BSONValue)])) {
-                case ((_, opts), ("$query", q @ BSONDocument(_))) ⇒
+                case ((_, opts), ("$query", q: BSONDocument)) ⇒
                   Some(q) → opts
 
                 case ((q, opts), opt) ⇒ q → (opts :+ opt)

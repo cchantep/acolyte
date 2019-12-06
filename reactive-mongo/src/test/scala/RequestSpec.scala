@@ -1,6 +1,6 @@
 package acolyte.reactivemongo
 
-import reactivemongo.bson.{
+import reactivemongo.api.bson.{
   BSONArray,
   BSONDocument,
   BSONDouble,
@@ -8,7 +8,7 @@ import reactivemongo.bson.{
   BSONString
 }
 
-class RequestSpec extends org.specs2.mutable.Specification
+final class RequestSpec extends org.specs2.mutable.Specification
   with RequestFixtures {
 
   "Request" title
@@ -381,9 +381,9 @@ class RequestSpec extends org.specs2.mutable.Specification
     "be pretty-printed" in {
       Request.pretty(update1) aka "representation" must beTypedEqualTo(
         s"""Request(db1.col4, [ {
-  "sel": "hector"
+  'sel': 'hector'
 }, {
-  "updated": "property"
+  'updated': 'property'
 } ])""")
     }
   }

@@ -2,17 +2,18 @@ package acolyte.reactivemongo
 
 import reactivemongo.io.netty.buffer.ByteBuf
 
-import reactivemongo.bson.{
+import reactivemongo.api.bson.{
   BSONArray,
   BSONDocument,
   BSONElement,
   BSONString,
   BSONValue
 }
-import reactivemongo.bson.buffer.{
-  ArrayBSONBuffer,
+import reactivemongo.api.bson.buffer.acolyte.{
   ReadableBuffer,
-  WritableBuffer
+  WritableBuffer,
+  readDocument,
+  writable
 }
 
 /**
@@ -52,12 +53,19 @@ object Request {
   /** Parses body documents from prepared buffer. */
   @annotation.tailrec
   private def parse(buf: ReadableBuffer, body: List[BSONDocument]): List[BSONDocument] = if (buf.readable == 0) return body else {
-    val doc = BSONDocument.read(buf)
-    parse(buf, body :+ doc)
+    val pos = buf.buffer.position()
+    val b = buf.readByte()
+
+    if (b == (0x0: Byte)) body else {
+      buf.buffer.position(pos)
+
+      val doc = readDocument(buf)
+      parse(buf, body :+ doc)
+    }
   }
 
   @annotation.tailrec
-  private def go(chan: ByteBuf, body: WritableBuffer = new ArrayBSONBuffer()): ReadableBuffer = {
+  private def go(chan: ByteBuf, body: WritableBuffer = writable()): ReadableBuffer = {
     val len = chan.readableBytes()
 
     if (len == 0) body.toReadableBuffer
@@ -73,7 +81,7 @@ object Request {
    * Request extractor.
    *
    * {{{
-   * import reactivemongo.bson.{ BSONInteger, BSONString }
+   * import reactivemongo.api.bson.{ BSONInteger, BSONString }
    * import acolyte.reactivemongo.{
    *   PreparedResponse, Request, SimpleBody, ValueDocument
    * }
@@ -170,11 +178,11 @@ object UpdateElement {
    * @return (q, u, upsert, multi)
    */
   def unapply(value: BSONValue): Option[(BSONDocument, BSONDocument, Boolean, Boolean)] = value match {
-    case el @ BSONDocument(_) ⇒ for {
-      q ← el.getAs[BSONDocument]("q")
-      u ← el.getAs[BSONDocument]("u")
-      upsert = el.getAs[Boolean]("upsert").getOrElse(false)
-      multi = el.getAs[Boolean]("multi").getOrElse(false)
+    case el: BSONDocument ⇒ for {
+      q ← el.getAsOpt[BSONDocument]("q")
+      u ← el.getAsOpt[BSONDocument]("u")
+      upsert = el.getAsOpt[Boolean]("upsert").getOrElse(false)
+      multi = el.getAsOpt[Boolean]("multi").getOrElse(false)
     } yield (q, u, upsert, multi)
 
     case _ ⇒ None
@@ -208,13 +216,13 @@ object DeleteRequest {
   /** @return Collection name and elements of selector. */
   def unapply(delete: (WriteOp, Request)): Option[(String, List[(String, BSONValue)])] = (delete._1, delete._2.body) match {
     case (DeleteOp, ValueDocument(
-      ("q", selector @ BSONDocument(_)) :: _) :: Nil) ⇒
+      ("q", selector: BSONDocument) :: _) :: Nil) ⇒
       Some(delete._2.collection → (selector.elements.map {
         case BSONElement(name, value) ⇒ name → value
       }.toList))
 
     case (DeleteOp, ValueDocument(
-      ("q", selector @ BSONDocument(_)) :: _) ::
+      ("q", selector: BSONDocument) :: _) ::
       ValueDocument(_ /*options*/ ) :: _) ⇒
       Some(delete._2.collection → (selector.elements.map {
         case BSONElement(name, value) ⇒ name → value
@@ -268,11 +276,14 @@ object FindAndModifyRequest {
  * @see [[Property]]
  */
 object ValueDocument {
-  def unapply(v: BSONValue): Option[List[(String, BSONValue)]] = v match {
-    case doc @ BSONDocument(_) ⇒ Some(doc.elements.map {
-      case BSONElement(name, value) ⇒ name → value
-    }.toList)
-    case _ ⇒ None
+  def unapply(v: BSONValue): Option[List[(String, BSONValue)]] = {
+    v match {
+      case doc: BSONDocument ⇒ Some(doc.elements.map {
+        case BSONElement(name, value) ⇒ name → value
+      }.toList)
+
+      case _ ⇒ None
+    }
   }
 }
 
@@ -313,7 +324,7 @@ object InClause {
    */
   def unapply(bson: BSONValue): Option[List[BSONValue]] =
     bson match {
-      case ValueDocument(("$in", a @ BSONArray(_)) :: _) ⇒
+      case ValueDocument(("$in", a: BSONArray) :: _) ⇒
         Some(a.values.toList)
       case _ ⇒ None
     }
@@ -330,7 +341,7 @@ object NotInClause {
    */
   def unapply(bson: BSONValue): Option[List[BSONValue]] =
     bson match {
-      case ValueDocument(("$nin", a @ BSONArray(_)) :: _) ⇒
+      case ValueDocument(("$nin", a: BSONArray) :: _) ⇒
         Some(a.values.toList)
       case _ ⇒ None
     }
@@ -352,7 +363,7 @@ object & {
  * http://acolyte.eu.org/scalac-plugin.html
  *
  * {{{
- * import reactivemongo.bson.{ BSONInteger, BSONString }
+ * import reactivemongo.api.bson.{ BSONInteger, BSONString }
  * import acolyte.reactivemongo.{
  *   PreparedResponse, Property, Request, SimpleBody, ValueDocument, &
  * }

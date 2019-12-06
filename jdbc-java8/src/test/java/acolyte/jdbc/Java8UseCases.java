@@ -104,7 +104,7 @@ final class Java8UseCases {
                         return stringList().append("useCase_3a").asResult();
                     } else if (ps.size() == 2 &&
                                "id".equals(ps.get(0).right) &&
-                               (new Integer(3)).equals(ps.get(1).right)) {
+                               (Integer.valueOf(3)).equals(ps.get(1).right)) {
                         return rowList3(String.class, Integer.class, Long.class).append("useCase_3str", 2, 3l).asResult();
                         
                     }
