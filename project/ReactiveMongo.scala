@@ -12,7 +12,7 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
   lazy val generatedClassDirectory = settingKey[File](
     "Directory where classes get generated")
 
-  val reactiveMongoVer = "0.19.2"
+  val reactiveMongoVer = "0.19.3"
 
   lazy val project =
     Project(id = "reactive-mongo", base = file("reactive-mongo")).
@@ -20,6 +20,7 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
         name := "reactive-mongo",
         fork in Test := true,
         resolvers ++= reactiveResolvers,
+        crossScalaVersions ~= { _.filterNot(_ startsWith "2.10") },
         scalacOptions in Test ++= ScalacPlugin.
           compilerOptions(scalacPlugin).value,
         libraryDependencies ++= Seq(

@@ -1,7 +1,7 @@
 package acolyte.reactivemongo
 
 import reactivemongo.io.netty.channel.DefaultChannelId
-import reactivemongo.bson.{
+import reactivemongo.api.bson.{
   BSONBoolean,
   BSONDocument,
   BSONDouble,

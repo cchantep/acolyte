@@ -5,20 +5,21 @@ import scala.util.Try
 import org.specs2.mutable.Specification
 import org.specs2.matcher.{ Expectable, Matcher, MatchResult }
 
-import reactivemongo.bson.{
+import reactivemongo.api.bson.{
   BSONBoolean,
   BSONDocument,
   BSONInteger,
   BSONString
 }
 import reactivemongo.core.protocol.Response
+import reactivemongo.acolyte.parseResponse
 
 trait ResponseMatchers { specs: Specification ⇒
   def beResponse(f: List[BSONDocument] ⇒ MatchResult[_]) =
     new Matcher[Try[Response]] {
       def apply[R <: Try[Response]](e: Expectable[R]) = {
         e.value aka "prepared" must beSuccessfulTry.which { resp ⇒
-          val r = f(Response.parse(resp).toList).toResult
+          val r = f(parseResponse(resp).toList).toResult
 
           result(
             r.isSuccess,
@@ -33,7 +34,7 @@ trait ResponseMatchers { specs: Specification ⇒
       def apply[R <: Try[Response]](e: Expectable[R]) =
         e.value aka "prepared" must beSuccessfulTry.which { r ⇒
           r.reply.inError aka "in-error" must beTrue and (
-            Response.parse(r).toList aka "response" must beLike {
+            parseResponse(r).toList aka "response" must beLike {
               case ValueDocument(("$err", BSONString(m)) :: others) :: Nil ⇒
                 m aka "error message" must_== msg and ((code, others).
                   aka("extra properties") must beLike {
@@ -49,7 +50,7 @@ trait ResponseMatchers { specs: Specification ⇒
     new Matcher[Try[Response]] {
       def apply[R <: Try[Response]](e: Expectable[R]) =
         e.value aka "prepared" must beSuccessfulTry.which {
-          Response.parse(_).toList aka "response" must beLike {
+          parseResponse(_).toList aka "response" must beLike {
             case ValueDocument(("ok", BSONInteger(0)) ::
               ("err", BSONString(err)) ::
               ("errmsg", BSONString(errmsg)) ::

@@ -138,9 +138,10 @@ Acolyte provides several ways to initialize MongoDB resources (driver, connectio
 import scala.concurrent.ExecutionContext
 
 import reactivemongo.api.{ DB, MongoConnection, MongoDriver }
-import reactivemongo.api.collections.bson.BSONCollection
 
-import reactivemongo.bson.BSONDocument
+import reactivemongo.api.bson.BSONDocument
+import reactivemongo.api.bson.collection.BSONCollection
+
 import acolyte.reactivemongo.{ 
   AcolyteDSL,
   ConnectionHandler,
@@ -236,9 +237,9 @@ import scala.util.{ Failure, Success }
 import scala.concurrent.ExecutionContext
 
 import reactivemongo.api.{ Cursor, MongoConnection }
-import reactivemongo.api.collections.bson.BSONCollection
 
-import reactivemongo.bson.BSONDocument
+import reactivemongo.api.bson.collection.BSONCollection
+import reactivemongo.api.bson.BSONDocument
 
 import acolyte.reactivemongo.{ AcolyteDSL, PreparedResponse, Request }
 
@@ -274,9 +275,9 @@ import scala.util.{ Failure, Success }
 
 import scala.concurrent.ExecutionContext
 
-import reactivemongo.bson.BSONDocument
+import reactivemongo.api.bson.BSONDocument
 import reactivemongo.api.MongoConnection
-import reactivemongo.api.collections.bson.BSONCollection
+import reactivemongo.api.bson.collection.BSONCollection
 
 import acolyte.reactivemongo.{ AcolyteDSL, Request, WriteOp }
 
@@ -332,7 +333,7 @@ def foo4(implicit ec: ExecutionContext) = AcolyteDSL.withDriver { implicit d =>
 Pattern matching can be used in handler to dispatch result accordingly.
 
 ```scala
-import reactivemongo.bson.{ BSONInteger, BSONString }
+import reactivemongo.api.bson.{ BSONInteger, BSONString }
 
 import acolyte.reactivemongo.{
   CountRequest,
@@ -451,7 +452,7 @@ Pattern matching using rich syntax `~(..., ...)` requires [scalac plugin](../sca
 Without this plugin, such parameterized extractor need to be declared as stable identifier before `match` block:
 
 ```scala
-import reactivemongo.bson.BSONString
+import reactivemongo.api.bson.BSONString
 import acolyte.reactivemongo.{ Property, PreparedResponse, Request, SimpleBody }
 
 def result: PreparedResponse = ???
@@ -519,7 +520,7 @@ val handler3 = WriteHandler { (op, req) =>
 MongoDB result to be returned by query handler, can be created as following:
 
 ```scala
-import reactivemongo.bson.BSONDocument
+import reactivemongo.api.bson.BSONDocument
 import reactivemongo.core.protocol.Response 
 import acolyte.reactivemongo.{ QueryResponse, PreparedResponse }
 
@@ -587,7 +588,7 @@ It can be used with [specs2](http://etorreborre.github.io/specs2/) to write exec
 
 ```scala
 import scala.concurrent.duration._
-import reactivemongo.bson.BSONDocument
+import reactivemongo.api.bson.BSONDocument
 
 import acolyte.reactivemongo.QueryResponse
 import acolyte.reactivemongo.AcolyteDSL.{ withQueryResult, withDriver }

@@ -3,9 +3,9 @@ package acolyte.reactivemongo
 import scala.util.Try
 
 import reactivemongo.io.netty.channel.DefaultChannelId
-import reactivemongo.bson.BSONDocument
+import reactivemongo.api.bson.BSONDocument
 
-class ResponseMakerSpec
+final class ResponseMakerSpec
   extends org.specs2.mutable.Specification with ResponseMakerFixtures {
 
   "Response maker" title

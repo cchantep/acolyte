@@ -1,9 +1,9 @@
 package acolyte.reactivemongo
 
 import reactivemongo.io.netty.channel.DefaultChannelId
-import reactivemongo.bson.{ BSONDocument, BSONInteger, BSONString }
+import reactivemongo.api.bson.{ BSONDocument, BSONInteger, BSONString }
 
-class QueryResponseSpec
+final class QueryResponseSpec
   extends org.specs2.mutable.Specification with ResponseMatchers {
 
   "Query response" title

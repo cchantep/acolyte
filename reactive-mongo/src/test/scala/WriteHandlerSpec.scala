@@ -1,9 +1,15 @@
 package acolyte.reactivemongo
 
 import reactivemongo.io.netty.channel.DefaultChannelId
-import reactivemongo.bson.{ BSONDocument, BSONBoolean, BSONInteger, BSONString }
 
-class WriteHandlerSpec extends org.specs2.mutable.Specification
+import reactivemongo.api.bson.{
+  BSONDocument,
+  BSONBoolean,
+  BSONInteger,
+  BSONString
+}
+
+final class WriteHandlerSpec extends org.specs2.mutable.Specification
   with ResponseMatchers with WriteHandlerFixtures {
 
   "Write handler" title

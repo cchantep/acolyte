@@ -5,7 +5,7 @@ import reactivemongo.io.netty.buffer.Unpooled
 
 import scala.util.Try
 
-import reactivemongo.bson.BSONDocument
+import reactivemongo.api.bson.BSONDocument
 import reactivemongo.core.protocol.{
   Delete,
   Insert,
@@ -68,11 +68,16 @@ object MongoDB {
    * @param docs BSON documents
    */
   def mkResponse(chanId: ChannelId, flags: Int, docs: Traversable[BSONDocument]): Try[Response] = Try {
-    val body = new reactivemongo.bson.buffer.ArrayBSONBuffer()
+    import _root_.reactivemongo.api.bson.buffer.acolyte.{
+      writable,
+      writeDocument
+    }
 
-    docs foreach { BSONDocument.write(_, body) }
+    val body = writable()
 
-    val len = 36 /* header size */ + body.index
+    docs foreach { writeDocument(_, body) }
+
+    val len = 36 /* header size */ + body.size
     val buf = Unpooled.buffer(len)
 
     buf.writeIntLE(len)
