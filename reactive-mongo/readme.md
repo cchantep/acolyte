@@ -11,7 +11,7 @@ Then any connection created will be managed by your Acolyte (query & writer) han
 ## Usage
 
 - 1. Configure connection handler according expected behaviour: which response to which query, which result for which write request.
-- 2. Allow the persistence code to be given a `MongoDriver` according environment (e.g. test, dev, ..., prod).
+- 2. Allow the persistence code to be given a `AsyncDriver` according environment (e.g. test, dev, ..., prod).
 - 3. Provide this testing driver to persistence code during validation.
 
 ```scala
@@ -30,17 +30,17 @@ val connectionHandler = AcolyteDSL.handleQuery { _: Request =>
 
 // 2. In MongoDB persistence code, allowing (e.g. cake pattern) 
 // to provide driver according environment.
-import reactivemongo.api.MongoDriver
+import reactivemongo.api.AsyncDriver
 
 trait MongoPersistence {
-  def driver: MongoDriver
+  def driver: AsyncDriver
 
   /* Function using driver, whatever is the way it's provided */
   def foo: Future[Boolean] = ???
 }
 
 object ProdPersistence extends MongoPersistence {
-  def driver: MongoDriver = ???
+  def driver: AsyncDriver = ???
   /* e.g. Resolve driver according configuration file */
 }
 
@@ -51,7 +51,7 @@ import acolyte.reactivemongo.AcolyteDSL
 def isOk(implicit ec: ExecutionContext): Future[Boolean] =
   AcolyteDSL.withDriver { d =>
     val persistenceWithTestingDriver = new MongoPersistence {
-      val driver: MongoDriver = d // provide testing driver
+      val driver: AsyncDriver = d // provide testing driver
     }
 
     persistenceWithTestingDriver.foo
@@ -65,7 +65,7 @@ For persistence code expecting driver as parameter, resolving testing driver is 
 ```scala
 import scala.concurrent.{ ExecutionContext, Future }
 
-import reactivemongo.api.{ MongoConnection, MongoDriver }
+import reactivemongo.api.{ MongoConnection, AsyncDriver }
 
 import acolyte.reactivemongo.ConnectionHandler
 import acolyte.reactivemongo.AcolyteDSL.withConnection
@@ -74,7 +74,7 @@ def yourConnectionHandler: ConnectionHandler = ???
 
 def yourFunctionUsingMongo(c: MongoConnection): String = ???
 
-def res(implicit ec: ExecutionContext, d: MongoDriver): Future[String] =
+def res(implicit ec: ExecutionContext, d: AsyncDriver): Future[String] =
   withConnection(yourConnectionHandler) { c =>
     val con: MongoConnection = c // configured with `yourConnectionHandler`
 
@@ -112,12 +112,12 @@ You can start looking at empty/no-op connection handler. With driver configured 
 
 ```scala
 import scala.concurrent.ExecutionContext
-import reactivemongo.api.{ MongoConnection, MongoDriver }
+import reactivemongo.api.{ MongoConnection, AsyncDriver }
 import acolyte.reactivemongo.{ AcolyteDSL, ConnectionHandler }
 
 def handler1: ConnectionHandler = ??? // e.g. AcolyteDSL.handle
 
-def foo1(implicit ec: ExecutionContext, d: MongoDriver) =
+def foo1(implicit ec: ExecutionContext, d: AsyncDriver) =
   AcolyteDSL.withConnection(handler1) { c =>
     val noOpCon: MongoConnection = c
   }
@@ -137,7 +137,7 @@ Acolyte provides several ways to initialize MongoDB resources (driver, connectio
 ```scala
 import scala.concurrent.ExecutionContext
 
-import reactivemongo.api.{ DB, MongoConnection, MongoDriver }
+import reactivemongo.api.{ DB, MongoConnection, AsyncDriver }
 
 import reactivemongo.api.bson.BSONDocument
 import reactivemongo.api.bson.collection.BSONCollection
@@ -153,7 +153,7 @@ import acolyte.reactivemongo.{
 
 def yourHandler: ConnectionHandler = ???
 
-def yourFunctionWorkingWithDriver(d: MongoDriver) = ???
+def yourFunctionWorkingWithDriver(d: AsyncDriver) = ???
 def yourFunctionWorkingWithConnection(c: MongoConnection) = ???
 def yourFunctionWorkingWithDB(db: DB) = ???
 def yourFunctionWorkingWithCol(c: BSONCollection) = ???
@@ -169,7 +169,7 @@ def aResp: PreparedResponse = ???
 
 def simpleExamples1(implicit ec: ExecutionContext) = {
   // Simple cases
-  AcolyteDSL.withDriver { implicit d: MongoDriver =>
+  AcolyteDSL.withDriver { implicit d: AsyncDriver =>
     yourFunctionWorkingWithDriver(d)
 
     AcolyteDSL.withConnection(yourHandler) { c =>
@@ -615,6 +615,8 @@ class MySpec1(implicit ee: org.specs2.concurrent.ExecutionEnv)
 In order to use same driver accross several example, a custom `After` trait can be used.
 
 ```scala
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import acolyte.reactivemongo.AcolyteDSL
 
 sealed trait WithDriver extends org.specs2.mutable.After {
@@ -636,6 +638,8 @@ object MySpec2 extends org.specs2.mutable.Specification {
 To make all Acolyte handlers in a specification share the same driver, it's possible to benefit from specs2 global teardown.
 
 ```scala
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import org.specs2.specification.core.Fragments
 import org.specs2.mutable.Specification
 
@@ -659,6 +663,8 @@ First in test sources, define the shared driver.
 
 ```scala
 package your.pkg
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object Shared {
   lazy val driver = acolyte.reactivemongo.AcolyteDSL.driver

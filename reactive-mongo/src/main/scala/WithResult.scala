@@ -2,7 +2,7 @@ package acolyte.reactivemongo
 
 import scala.concurrent.ExecutionContext
 
-import reactivemongo.api.{ MongoConnection, MongoDriver }
+import reactivemongo.api.{ MongoConnection, AsyncDriver }
 
 /** Functions to work with result (provided collection functions). */
 trait WithResult { withHandler: WithHandler ⇒
@@ -20,7 +20,7 @@ trait WithResult { withHandler: WithHandler ⇒
    */
   def withQueryResult[A, B](result: ⇒ A)(f: MongoConnection ⇒ B)(
     implicit
-    d: MongoDriver,
+    d: AsyncDriver,
     m: ConnectionManager[ConnectionHandler],
     mk: QueryResponseMaker[A],
     ec: ExecutionContext,
@@ -39,7 +39,7 @@ trait WithResult { withHandler: WithHandler ⇒
    */
   def withWriteResult[A, B](result: ⇒ A)(f: MongoConnection ⇒ B)(
     implicit
-    d: MongoDriver,
+    d: AsyncDriver,
     m: ConnectionManager[ConnectionHandler],
     mk: WriteResponseMaker[A],
     ec: ExecutionContext,
