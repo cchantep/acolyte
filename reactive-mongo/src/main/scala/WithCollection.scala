@@ -2,7 +2,7 @@ package acolyte.reactivemongo
 
 import scala.concurrent.ExecutionContext
 
-import reactivemongo.api.{ DB, MongoConnection, MongoDriver }
+import reactivemongo.api.{ DB, MongoConnection, AsyncDriver }
 import reactivemongo.api.bson.collection.BSONCollection
 
 /**
@@ -25,12 +25,12 @@ trait WithCollection { self: WithDB ⇒
    *
    * {{{
    * import scala.concurrent.{ ExecutionContext, Future }
-   * import reactivemongo.api.{ Collection, MongoDriver }
+   * import reactivemongo.api.{ Collection, AsyncDriver }
    * import acolyte.reactivemongo.{ AcolyteDSL, ConnectionManager }
    *
    * // handler: ConnectionHandler
    * def s[T: ConnectionManager](handler: => T)(
-   *   implicit ec: ExecutionContext, d: MongoDriver): Future[String] =
+   *   implicit ec: ExecutionContext, d: AsyncDriver): Future[String] =
    *   AcolyteDSL.withCollection(handler, "colName") { col =>
    *     "Result"
    *   }
@@ -39,7 +39,7 @@ trait WithCollection { self: WithDB ⇒
    */
   def withCollection[A, B](conParam: ⇒ A, name: String)(f: BSONCollection ⇒ B)(
     implicit
-    d: MongoDriver,
+    d: AsyncDriver,
     m: ConnectionManager[A],
     ec: ExecutionContext,
     compose: ComposeWithCompletion[B]): compose.Outer =
@@ -55,12 +55,12 @@ trait WithCollection { self: WithDB ⇒
    *
    * {{{
    * import scala.concurrent.{ ExecutionContext, Future }
-   * import reactivemongo.api.{ Collection, MongoDriver }
+   * import reactivemongo.api.{ Collection, AsyncDriver }
    * import acolyte.reactivemongo.{ AcolyteDSL, ConnectionHandler }
    *
    * // handler: ConnectionHandler
    * def s(handler: ConnectionHandler)(
-   *   implicit ec: ExecutionContext, d: MongoDriver): Future[String] =
+   *   implicit ec: ExecutionContext, d: AsyncDriver): Future[String] =
    *   AcolyteDSL.withConnection(handler) { con =>
    *     AcolyteDSL.withCollection(con, "colName") { col =>
    *       "Result"
@@ -86,11 +86,11 @@ trait WithCollection { self: WithDB ⇒
    *
    * {{{
    * import scala.concurrent.{ ExecutionContext, Future }
-   * import reactivemongo.api.{ Collection, MongoDriver }
+   * import reactivemongo.api.{ Collection, AsyncDriver }
    * import acolyte.reactivemongo.{ AcolyteDSL, ConnectionHandler }
    *
    * def s(handler: ConnectionHandler)(
-   *   implicit ec: ExecutionContext, d: MongoDriver): Future[String] =
+   *   implicit ec: ExecutionContext, d: AsyncDriver): Future[String] =
    *   AcolyteDSL.withDB(handler) { db =>
    *     AcolyteDSL.withCollection(db, "colName") { col =>
    *       "Result"

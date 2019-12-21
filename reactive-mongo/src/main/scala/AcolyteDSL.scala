@@ -8,10 +8,10 @@ object AcolyteDSL extends WithDriver
    * Creates an empty connection handler.
    *
    * {{{
-   * import reactivemongo.api.MongoDriver
+   * import reactivemongo.api.AsyncDriver
    * import acolyte.reactivemongo.AcolyteDSL
    *
-   * def foo(implicit d: MongoDriver) = AcolyteDSL.handle
+   * def foo(implicit d: AsyncDriver) = AcolyteDSL.handle
    * }}}
    * @see [[withDriver]]
    */
@@ -24,7 +24,7 @@ object AcolyteDSL extends WithDriver
    * {{{
    * import scala.concurrent.ExecutionContext
    *
-   * import reactivemongo.api.MongoDriver
+   * import reactivemongo.api.AsyncDriver
    * import acolyte.reactivemongo.AcolyteDSL.{
    *   withConnection, withDriver, handleQuery
    * }
@@ -51,7 +51,7 @@ object AcolyteDSL extends WithDriver
    *
    * {{{
    * import scala.concurrent.ExecutionContext
-   * import reactivemongo.api.MongoDriver
+   * import reactivemongo.api.AsyncDriver
    *
    * import acolyte.reactivemongo.AcolyteDSL.{
    *   withConnection, withDriver, handleWrite
@@ -61,7 +61,7 @@ object AcolyteDSL extends WithDriver
    * def aResponse: PreparedResponse = ???
    *
    * def foo(implicit ec: ExecutionContext) =
-   *   withDriver { implicit d: MongoDriver =>
+   *   withDriver { implicit d: AsyncDriver =>
    *     withConnection(handleWrite {
    *       (op: WriteOp, req: Request) => aResponse }) { con =>
    *       // work with connection (e.g. call you function using Mongo)

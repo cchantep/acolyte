@@ -2,7 +2,7 @@ package acolyte.reactivemongo
 
 import scala.concurrent.{ Await, ExecutionContext, Future }
 
-import reactivemongo.api.{ MongoConnection, MongoDriver }
+import reactivemongo.api.{ MongoConnection, AsyncDriver }
 import play.modules.reactivemongo.ReactiveMongoApi
 
 object PlayReactiveMongoDSL {
@@ -10,16 +10,18 @@ object PlayReactiveMongoDSL {
    * @param drv the MongoDB driver
    * @param con the MongoDB connection
    */
-  def mongoApi(drv: MongoDriver, con: MongoConnection)(implicit ec: ExecutionContext): ReactiveMongoApi = new AcolyteMongoApi(drv, con)
+  def mongoApi(drv: AsyncDriver, con: MongoConnection)(implicit ec: ExecutionContext): ReactiveMongoApi = new AcolyteMongoApi(drv, con)
 }
 
 private[reactivemongo] final class AcolyteMongoApi(
-    val driver: MongoDriver,
+    val asyncDriver: AsyncDriver,
     val connection: MongoConnection)(implicit ec: ExecutionContext) extends ReactiveMongoApi {
   import scala.concurrent.duration._
   import reactivemongo.api._, gridfs._
   import reactivemongo.play.json._
   import reactivemongo.play.json.collection._
+
+  def driver = ???
 
   def database = connection.database("acolyte")
 

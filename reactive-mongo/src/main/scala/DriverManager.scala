@@ -1,25 +1,28 @@
 package acolyte.reactivemongo
 
-import reactivemongo.api.{ MongoConnection, MongoDriver }
+import scala.concurrent.ExecutionContext
+
+import reactivemongo.api.{ MongoConnection, AsyncDriver }
 
 /** Driver manager */
+@annotation.implicitNotFound("Cannot find `acolyte.reactivemongo.DriverManager` (default one requires an `ExecutionContext`)")
 trait DriverManager {
   /** Initializes driver. */
-  def open(): MongoDriver
+  def open(): AsyncDriver
 
   /** Releases driver if necessary. */
-  def releaseIfNecessary(driver: MongoDriver): Boolean
+  def releaseIfNecessary(driver: AsyncDriver): Boolean
 }
 
 /** Driver manage companion. */
 object DriverManager {
   import scala.concurrent.duration._
 
-  private class Default(timeout: FiniteDuration) extends DriverManager {
-    def open() = MongoDriver()
+  private class Default(timeout: FiniteDuration)(implicit ec: ExecutionContext) extends DriverManager {
+    def open() = AsyncDriver()
 
     /** Releases driver if necessary. */
-    def releaseIfNecessary(driver: MongoDriver): Boolean = try {
+    def releaseIfNecessary(driver: AsyncDriver): Boolean = try {
       driver.close(timeout)
       true
     } catch {
@@ -31,15 +34,14 @@ object DriverManager {
     override lazy val toString = s"DriverManager(timeout = $timeout)"
   }
 
-  implicit val Default: DriverManager = new Default(5.seconds)
+  implicit def Default(implicit ec: ExecutionContext): DriverManager = new Default(5.seconds)
 
-  def withTimeout(timeout: FiniteDuration): DriverManager =
-    new Default(timeout)
+  def withTimeout(timeout: FiniteDuration)(implicit ec: ExecutionContext): DriverManager = new Default(timeout)
 
-  def identity(existing: MongoDriver): DriverManager = new DriverManager {
+  def identity(existing: AsyncDriver): DriverManager = new DriverManager {
     def open() = existing
 
-    def releaseIfNecessary(driver: MongoDriver): Boolean = false
+    def releaseIfNecessary(driver: AsyncDriver): Boolean = false
 
     override lazy val toString = "NoOpDriverManager"
   }
@@ -48,7 +50,7 @@ object DriverManager {
 /** Connection manager */
 trait ConnectionManager[T] {
   /** Initializes connection. */
-  def open(driver: MongoDriver, param: T): MongoConnection
+  def open(driver: AsyncDriver, param: T): MongoConnection
 
   /** Releases connection if necessary. */
   def releaseIfNecessary(connection: MongoConnection): Boolean
@@ -66,7 +68,7 @@ object ConnectionManager {
     import scala.concurrent.Await
     import scala.concurrent.duration._
 
-    def open(driver: MongoDriver, handler: ConnectionHandler) = {
+    def open(driver: AsyncDriver, handler: ConnectionHandler) = {
       val sys = driver.system
       val actorRef = sys.actorOf(Props(classOf[Actor], handler))
 
@@ -89,7 +91,7 @@ object ConnectionManager {
 
   /** Manager instance based on already initialized connection. */
   implicit object IdentityConnectionManager extends ConnectionManager[MongoConnection] {
-    def open(driver: MongoDriver, connection: MongoConnection) = connection
+    def open(driver: AsyncDriver, connection: MongoConnection) = connection
 
     /** Releases connection if necessary. */
     def releaseIfNecessary(connection: MongoConnection): Boolean = false

@@ -2,7 +2,7 @@ package acolyte.reactivemongo
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-import reactivemongo.api.{ MongoConnection, MongoDriver }
+import reactivemongo.api.{ MongoConnection, AsyncDriver }
 
 /**
  * Functions to work with driver.
@@ -15,13 +15,13 @@ trait WithDriver {
    * Returns unmanaged driver.
    * You will have to close it by yourself.
    */
-  def driver(implicit m: DriverManager): MongoDriver = m.open
+  def driver(implicit m: DriverManager): AsyncDriver = m.open
 
   // TODO: Pass the driver ClassLoader
-  private def asyncDriver(implicit m: DriverManager): Future[MongoDriver] =
+  private def asyncDriver(implicit m: DriverManager): Future[AsyncDriver] =
     try Future.successful(m.open()) catch {
       case cause: Throwable ⇒
-        Future.failed[MongoDriver](cause)
+        Future.failed[AsyncDriver](cause)
     }
 
   /**
@@ -33,18 +33,18 @@ trait WithDriver {
    *
    * {{{
    * import scala.concurrent.{ ExecutionContext, Future }
-   * import reactivemongo.api.MongoDriver
+   * import reactivemongo.api.AsyncDriver
    * import acolyte.reactivemongo.AcolyteDSL
    *
    * // handler: ConnectionHandler
    * def s(implicit ec: ExecutionContext): Future[String] =
    *   AcolyteDSL.withDriver { d =>
-   *     val initedDriver: MongoDriver = d
+   *     val initedDriver: AsyncDriver = d
    *     "Result"
    *   }
    * }}}
    */
-  def withDriver[T](f: MongoDriver ⇒ T)(implicit m: DriverManager, ec: ExecutionContext, compose: ComposeWithCompletion[T]): compose.Outer = {
+  def withDriver[T](f: AsyncDriver ⇒ T)(implicit m: DriverManager, ec: ExecutionContext, compose: ComposeWithCompletion[T]): compose.Outer = {
     compose(asyncDriver, f) { driver ⇒
       m.releaseIfNecessary(driver); ()
     }
@@ -62,12 +62,12 @@ trait WithDriver {
    * {{{
    * import scala.concurrent.{ ExecutionContext, Future }
    *
-   * import reactivemongo.api.{ MongoConnection, MongoDriver }
+   * import reactivemongo.api.{ MongoConnection, AsyncDriver }
    * import acolyte.reactivemongo.{ AcolyteDSL, ConnectionHandler }
    *
    * // handler: ConnectionHandler
    * def s(handler: ConnectionHandler)(
-   *   implicit ec: ExecutionContext, d: MongoDriver): Future[String] =
+   *   implicit ec: ExecutionContext, d: AsyncDriver): Future[String] =
    *   AcolyteDSL.withConnection(handler) { con =>
    *     val c: MongoConnection = con
    *     "Result"
@@ -76,7 +76,7 @@ trait WithDriver {
    */
   def withConnection[A, B](conParam: ⇒ A)(f: MongoConnection ⇒ B)(
     implicit
-    d: MongoDriver,
+    d: AsyncDriver,
     m: ConnectionManager[A],
     ec: ExecutionContext,
     compose: ComposeWithCompletion[B]): compose.Outer =
