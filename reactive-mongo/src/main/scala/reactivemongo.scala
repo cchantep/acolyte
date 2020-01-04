@@ -2,7 +2,7 @@ package reactivemongo // as a friend project
 
 import reactivemongo.core.protocol.Response
 
-import reactivemongo.core.nodeset.ChannelFactory
+import reactivemongo.core.netty.ChannelFactory
 
 import reactivemongo.api.MongoConnectionOptions
 
