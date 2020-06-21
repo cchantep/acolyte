@@ -11,8 +11,7 @@ import reactivemongo.api.bson.{
   BSONInteger,
   BSONString
 }
-import reactivemongo.core.protocol.Response
-import reactivemongo.acolyte.parseResponse
+import reactivemongo.acolyte.{ Response, parseResponse }
 
 trait ResponseMatchers { specs: Specification ⇒
   def beResponse(f: List[BSONDocument] ⇒ MatchResult[_]) =

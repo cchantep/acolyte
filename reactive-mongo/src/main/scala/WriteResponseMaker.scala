@@ -3,7 +3,8 @@ package acolyte.reactivemongo
 import scala.util.Try
 
 import reactivemongo.io.netty.channel.ChannelId
-import reactivemongo.core.protocol.Response
+
+import reactivemongo.acolyte.Response
 
 /**
  * Creates a write response for given channel ID and result.

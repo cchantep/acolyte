@@ -1,15 +1,19 @@
 package acolyte.reactivemongo
 
-import reactivemongo.bson.BSONDocument
+import reactivemongo.api.bson.BSONDocument
 import reactivemongo.io.netty.channel.DefaultChannelId
-import reactivemongo.core.protocol.{
+
+import reactivemongo.acolyte.{
   Delete,
   Insert,
   Response,
-  Update
+  Update,
+  parseResponse
 }
 
-class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
+final class MongoDBSpec
+  extends org.specs2.mutable.Specification with MongoFixtures {
+
   "MongoDB" title
 
   @inline def channelId() = DefaultChannelId.newInstance()
@@ -18,7 +22,7 @@ class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
     s"contains one expected document BSONDocument(${doc1.elements.toList})" in {
       MongoDB.QuerySuccess(channelId(), Seq(doc1)).
         aka("response") must beSuccessfulTry.which {
-          Response.parse(_).toList aka "results" must beLike {
+          parseResponse(_).toList aka "results" must beLike {
             case first :: Nil ⇒
               bson(first) aka "single document" must_== bson(doc1)
           }
@@ -28,7 +32,7 @@ class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
     s"contains expected collection of 3 documents" in {
       MongoDB.QuerySuccess(channelId(), Seq(doc2, doc1, doc3)) aka "response" must {
         beSuccessfulTry.which {
-          Response.parse(_).toList aka "results" must beLike {
+          parseResponse(_).toList aka "results" must beLike {
             case a :: b :: c :: Nil ⇒
               bson(a) aka "first document" must_== bson(doc2) and (
                 bson(b) aka "second document" must_== bson(doc1)) and (
@@ -42,9 +46,7 @@ class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
   "Response to failed query" should {
     @inline def shouldMatch(r: Response, msg: String) =
       r.error aka "error" must beSome.which { err ⇒
-        err.message aka "message" must_== msg and (
-          err.originalDocument aka "document" must beSome(
-            BSONDocument(f"$$err" → msg)))
+        err.message aka "message" must_== msg
       }
 
     "be expected MkResponseError" in {
@@ -85,7 +87,7 @@ class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
     "contain expected BSON without code" in {
       MongoDB.WriteError(channelId(), "Write Error #1").
         aka("response") must beSuccessfulTry.
-        which(Response.parse(_).toList aka "error" must beLike {
+        which(parseResponse(_).toList aka "error" must beLike {
           case doc :: Nil ⇒ doc aka "error document" must_== doc4
         })
     }
@@ -93,7 +95,7 @@ class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
     "contain expected BSON with code" in {
       MongoDB.WriteError(channelId(), "Write Error #2", Some(3)).
         aka("response") must beSuccessfulTry.
-        which(Response.parse(_).toList aka "error" must beLike {
+        which(parseResponse(_).toList aka "error" must beLike {
           case doc :: Nil ⇒ doc aka "error document" must_== doc5
         })
     }
@@ -102,7 +104,7 @@ class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
   "Response to write success" should {
     "contain expected BSON when no existing document was updated" in {
       MongoDB.WriteSuccess(channelId(), 1) aka "response" must beSuccessfulTry.
-        which(Response.parse(_).toList aka "response" must beLike {
+        which(parseResponse(_).toList aka "response" must beLike {
           case doc :: Nil ⇒ doc aka "success" must_== doc6
         })
     }
@@ -110,7 +112,7 @@ class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
     "contain expected BSON when existing document was updated" in {
       MongoDB.WriteSuccess(channelId(), 2, true).
         aka("response") must beSuccessfulTry.which(
-          Response.parse(_).toList aka "response" must beLike {
+          parseResponse(_).toList aka "response" must beLike {
             case doc :: Nil ⇒ doc aka "success" must_== doc7
           })
     }
@@ -118,7 +120,7 @@ class MongoDBSpec extends org.specs2.mutable.Specification with MongoFixtures {
 }
 
 private[reactivemongo] trait MongoFixtures {
-  import reactivemongo.bson.BSONDateTime
+  import reactivemongo.api.bson.BSONDateTime
 
   val doc1 = BSONDocument("email" → "test1@test.fr", "age" → 3)
 

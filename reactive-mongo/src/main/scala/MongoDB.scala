@@ -6,11 +6,11 @@ import reactivemongo.io.netty.buffer.Unpooled
 import scala.util.Try
 
 import reactivemongo.api.bson.BSONDocument
-import reactivemongo.core.protocol.{
+import reactivemongo.acolyte.{
+  readReply,
   Delete,
   Insert,
   MessageHeader,
-  Reply,
   Response,
   ResponseInfo,
   Update,
@@ -92,7 +92,7 @@ object MongoDB {
 
     val in = Unpooled.wrappedUnmodifiableBuffer(buf)
 
-    Response(MessageHeader(in), Reply(in), in, ResponseInfo(chanId))
+    Response(MessageHeader(in), readReply(in), in, ResponseInfo(chanId))
   }
 
   /** Defines instance of WriteOp enum. */
@@ -111,7 +111,7 @@ object MongoDB {
   @inline private def mkError(chanId: ChannelId, docs: Array[Byte]): Response = {
     val buf = Unpooled.wrappedUnmodifiableBuffer(Unpooled.copiedBuffer(docs))
 
-    Response(MessageHeader(buf), Reply(buf), buf, ResponseInfo(chanId))
+    Response(MessageHeader(buf), readReply(buf), buf, ResponseInfo(chanId))
   }
 }
 

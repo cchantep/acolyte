@@ -5,6 +5,8 @@ import scala.util.Try
 import reactivemongo.io.netty.channel.ChannelId
 import reactivemongo.core.protocol.Response
 
+import reactivemongo.acolyte.Response
+
 /** Connection handler. */
 sealed trait ConnectionHandler { self ⇒
 

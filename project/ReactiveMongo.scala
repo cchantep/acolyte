@@ -1,7 +1,7 @@
 import sbt._
 import Keys._
 
-class ReactiveMongo(scalacPlugin: Project) { self =>
+final class ReactiveMongo(scalacPlugin: Project) { self =>
   import Dependencies._
   import Format._
 
@@ -12,7 +12,7 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
   lazy val generatedClassDirectory = settingKey[File](
     "Directory where classes get generated")
 
-  val reactiveMongoVer = "0.20.11"
+  val reactiveMongoVer = "1.0.0-rc.1-SNAPSHOT"
 
   lazy val project =
     Project(id = "reactive-mongo", base = file("reactive-mongo")).
@@ -74,8 +74,12 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
               else "2.5.13" -> "play25"
             }
 
+            // 1.0.0-play26-rc.1-SNAPSHOT
             val playRmVer = reactiveMongoVer.span(_ != '-') match {
-              case (v, m) => s"${v}-${playVar}${m}"
+              case (v, mod) =>
+                (if (mod != "") mod.drop(1) else mod).span(_ != '-') match {
+                  case (a, b) => s"${v}-${a}-${playVar}${b}"
+                }
             }
 
             val iteratees = {
@@ -87,9 +91,10 @@ class ReactiveMongo(scalacPlugin: Project) { self =>
               }
             }
 
-            Seq(
+            (Seq("reactivemongo-play-json-compat", "play2-reactivemongo").map {
+              "org.reactivemongo" %% _ % playRmVer % Provided
+            }) ++ Seq(
               "com.typesafe.play" %% "play" % playVer % Provided,
-              "org.reactivemongo" %% "play2-reactivemongo" % playRmVer % Provided,
               "org.specs2" %% "specs2-core" % specsVer.value % Test
             ) ++ iteratees
           }

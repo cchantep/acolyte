@@ -4,7 +4,7 @@ import scala.util.Try
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 
-import reactivemongo.core.errors.DetailedDatabaseException
+import reactivemongo.core.errors.DatabaseException
 
 import reactivemongo.api.bson.{
   BSONBoolean,
@@ -14,7 +14,8 @@ import reactivemongo.api.bson.{
   BSONString
 }
 
-import reactivemongo.api.{ Cursor, DefaultDB, MongoConnection, AsyncDriver }
+import reactivemongo.api.{ Cursor, DB, MongoConnection, AsyncDriver }
+import reactivemongo.acolyte.ActorSystem
 import reactivemongo.api.commands.WriteResult
 
 import org.specs2.concurrent.ExecutionEnv
@@ -32,7 +33,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
   val driver = AsyncDriver()
   implicit val driverManager = DriverManager.identity(driver)
   implicit def ec: ExecutionEnv =
-    ExecutionEnv.fromExecutionContext(driver.system.dispatcher)
+    ExecutionEnv.fromExecutionContext(ActorSystem(driver).dispatcher)
 
   "Resource management" should {
     "successfully initialize driver from connection handler" in {
@@ -222,7 +223,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
 
       "when is successful #2" in {
         withDriver { implicit drv: AsyncDriver =>
-          AcolyteDSL.withDB(chandler1) { db: DefaultDB =>
+          AcolyteDSL.withDB(chandler1) { db: DB =>
             db(query2.collection).find(
               query2.body.head, Option.empty[BSONDocument]).
               cursor[BSONDocument]().
@@ -275,8 +276,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
                   collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
               }
             }
-          }) aka "query result" must beFailedTry.
-            withThrowable[DetailedDatabaseException](".*Error.*code = 7.*")
+          }) aka "query result" must beFailedTryWith[DatabaseException]("Error.*code = 7")
         }
 
         "when undefined" in {
@@ -288,8 +288,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
                   collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
               }
             }
-          }) aka "query result" must beFailedTry.
-            withThrowable[DetailedDatabaseException](".*No response:.*")
+          }) aka "query result" must beFailedTryWith[DatabaseException]("No response:")
         }
       }
 
@@ -383,12 +382,12 @@ final class DriverSpec extends org.specs2.mutable.Specification
       "when error is raised without code" in {
         awaitRes(withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withCollection(chandler1, write1._2.collection) {
-            _.delete().one(write1._2.body.head)
+            _.delete.one(write1._2.body.head)
           }
         }) aka "write result" must beFailedTry.like {
-          case err => err.getMessage.indexOf("=Error #2").
+          case err => err.getMessage.indexOf("Error #2").
             aka("errmsg") must not(beEqualTo(-1)) and {
-              err.getMessage.indexOf("code=-1").
+              err.getMessage.indexOf("code = -1").
                 aka("code") must not(beEqualTo(-1))
             }
         }
@@ -397,11 +396,10 @@ final class DriverSpec extends org.specs2.mutable.Specification
       "when successful" in {
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withDB(chandler1) {
-            _(write2._2.collection).insert(write2._2.body.head)
+            _(write2._2.collection).insert.one(write2._2.body.head)
           }
         } aka "result" must beLike[WriteResult] {
-          case result => result.ok aka "ok" must beTrue and (
-            result.n aka "updated" must_== 0)
+          case result => result.n aka "updated" must_=== 0
         }.await(0, timeout)
       }
 
@@ -411,13 +409,13 @@ final class DriverSpec extends org.specs2.mutable.Specification
             val db = con.database("anyDb")
             val col = db.map(_(write3._2.collection))
 
-            col.flatMap(_.update(
+            col.flatMap(_.update.one(
               BSONDocument("name" → "x"),
               write3._2.body.head))
           }
         }) aka "result" must beFailedTry.like {
           case err =>
-            err.getMessage.indexOf("=No response: ") must not(beEqualTo(-1))
+            err.getMessage.indexOf("No response: ") must not(beEqualTo(-1))
         }
       }
 
@@ -427,12 +425,12 @@ final class DriverSpec extends org.specs2.mutable.Specification
             WriteResponse.undefined
           }) { d =>
             AcolyteDSL.withCollection(d, query3.collection) {
-              _.update(BSONDocument("name" → "x"), write3._2.body.head)
+              _.update.one(BSONDocument("name" → "x"), write3._2.body.head)
             }
           }
         }) aka "result" must beFailedTry.like {
           case err =>
-            err.getMessage.indexOf("=No response: ") must not(beEqualTo(-1))
+            err.getMessage.indexOf("No response: ") must not(beEqualTo(-1))
         }
       }
 
@@ -440,12 +438,12 @@ final class DriverSpec extends org.specs2.mutable.Specification
         awaitRes(withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withQueryResult(BSONDocument("prop" → "A")) { con =>
             AcolyteDSL.withCollection(con, write3._2.collection) {
-              _.update(BSONDocument("name" → "x"), write3._2.body.head)
+              _.update.one(BSONDocument("name" → "x"), write3._2.body.head)
             }
           }
         }) aka "result" must beFailedTry.like {
           case err =>
-            err.getMessage.indexOf("=No response: ") must not(beEqualTo(-1))
+            err.getMessage.indexOf("No response: ") must not(beEqualTo(-1))
         }
       }
 
@@ -457,12 +455,11 @@ final class DriverSpec extends org.specs2.mutable.Specification
                 val db = con.database("anyDb")
                 val col = db.map(_(write1._2.collection))
 
-                col.flatMap(_.delete().one(write1._2.body.head))
+                col.flatMap(_.delete.one(write1._2.body.head))
               }
             }
           } aka "write result" must beLike[WriteResult] {
-            case lastError => lastError.ok aka "ok" must beTrue and (
-              lastError.n aka "updated" must_== 2)
+            case lastError => lastError.n aka "updated" must_=== 2
           }.await(0, timeout)
         }
 
@@ -470,13 +467,13 @@ final class DriverSpec extends org.specs2.mutable.Specification
           awaitRes(withDriver { implicit drv: AsyncDriver =>
             AcolyteDSL.withWriteResult("Write err" → 9) { con =>
               AcolyteDSL.withCollection(con, write2._2.collection) {
-                _.insert(write2._2.body.head)
+                _.insert.one(write2._2.body.head)
               }
             }
           }) aka "write result" must beFailedTry.like {
             case err => err.getMessage.indexOf("Write err").
               aka("errmsg") must not(beEqualTo(-1)) and {
-                err.getMessage.indexOf("code=9") must not(beEqualTo(-1))
+                err.getMessage.indexOf("code = 9") must not(beEqualTo(-1))
               }
           }
         }
@@ -485,12 +482,12 @@ final class DriverSpec extends org.specs2.mutable.Specification
           awaitRes(withDriver { implicit drv: AsyncDriver =>
             AcolyteDSL.withWriteResult(None) { driver =>
               AcolyteDSL.withCollection(driver, write3._2.collection) {
-                _.update(BSONDocument(), write3._2.body.head)
+                _.update.one(BSONDocument(), write3._2.body.head)
               }
             }
           }) aka "write result" must beFailedTry.like {
             case err =>
-              err.getMessage.indexOf("=No response: ") must not(beEqualTo(-1))
+              err.getMessage.indexOf("No response: ") must not(beEqualTo(-1))
           }
         }
       }
@@ -504,7 +501,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
                 WriteResponse.successful(1, false)
             }) { con: MongoConnection =>
               AcolyteDSL.withCollection(con, "col1") {
-                _.insert(BSONDocument("a" → "val", "b" → 2))
+                _.insert.one(BSONDocument("a" → "val", "b" → 2))
               }
             }
           }) aka "write result" must beSuccessfulTry[WriteResult]
@@ -525,9 +522,9 @@ final class DriverSpec extends org.specs2.mutable.Specification
                   BSONDocument("foo" → 1),
                   BSONDocument("bar" → 2),
                   BSONDocument("lorem" → 3)))
-              } yield res.ok
+              } yield res.n
             }
-          } must beTrue.await(0, timeout)
+          } must beTypedEqualTo(3).awaitFor(timeout)
         }
 
         "for update" in {
@@ -544,7 +541,8 @@ final class DriverSpec extends org.specs2.mutable.Specification
 
             }) { con: MongoConnection =>
               AcolyteDSL.withCollection(con, "col2") {
-                _.update(BSONDocument("sel" → "hector"), write3._2.body.head)
+                _.update.one(
+                  BSONDocument("sel" → "hector"), write3._2.body.head)
               }
             }
           }) aka "write result" must beSuccessfulTry[WriteResult]
@@ -597,7 +595,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
 
             }) { con: MongoConnection =>
               AcolyteDSL.withCollection(con, "col3") {
-                _.delete().one(BSONDocument("a" → "val")).map(_ => {})
+                _.delete.one(BSONDocument("a" → "val")).map(_ => {})
               }
             }
           } aka "write result" must beTypedEqualTo({}).await(0, timeout)
@@ -611,4 +609,22 @@ final class DriverSpec extends org.specs2.mutable.Specification
   def awaitRes[T](f: Future[T], tmout: Duration = Duration(5, "seconds")): Try[T] = Try[T](Await.result(f, tmout))
 
   def afterAll() = driver.close(Duration(5, "seconds"))
+
+  import org.specs2.matcher.{ Expectable, Matcher }
+
+  // Workaround for https://github.com/etorreborre/specs2/pull/836
+  private def beFailedTryWith[T <: Throwable: scala.reflect.ClassTag](message: String): Matcher[Try[Any]] = new Matcher[Try[Any]] {
+    val Cause = implicitly[scala.reflect.ClassTag[T]]
+    val re = ("(.|\\s)*" + message + "(.|\\s)*").r
+
+    def apply[S <: Try[Any]](e: Expectable[S]) = result({
+      e.value match {
+        case scala.util.Failure(Cause(t)) =>
+          re.findFirstMatchIn(t.getMessage).nonEmpty
+
+        case _ => false
+      }
+    }, "fails with expected throwable",
+      "is not failing with excepted throwable", e)
+  }
 }
