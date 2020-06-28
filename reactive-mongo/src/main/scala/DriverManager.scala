@@ -2,7 +2,8 @@ package acolyte.reactivemongo
 
 import scala.concurrent.ExecutionContext
 
-import reactivemongo.api.{ MongoConnection, AsyncDriver }
+import reactivemongo.api.AsyncDriver
+import reactivemongo.acolyte.{ MongoConnection, ActorSystem }
 
 /** Driver manager */
 @annotation.implicitNotFound("Cannot find `acolyte.reactivemongo.DriverManager` (default one requires an `ExecutionContext`)")
@@ -69,10 +70,10 @@ object ConnectionManager {
     import scala.concurrent.duration._
 
     def open(driver: AsyncDriver, handler: ConnectionHandler) = {
-      val sys = driver.system
+      val sys = ActorSystem(driver)
       val actorRef = sys.actorOf(Props(classOf[Actor], handler))
 
-      new MongoConnection(
+      MongoConnection(
         s"supervisor-${System identityHashCode actorRef}",
         s"connection-${System identityHashCode actorRef}",
         sys, actorRef, MongoConnectionOptions())
@@ -80,7 +81,7 @@ object ConnectionManager {
 
     /** Releases connection if necessary. */
     def releaseIfNecessary(connection: MongoConnection): Boolean = try {
-      Await.result(connection.askClose()(10.seconds), 10.seconds)
+      Await.result(connection.close()(10.seconds), 10.seconds)
       true
     } catch {
       case e: Throwable ⇒
