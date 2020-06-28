@@ -3,8 +3,7 @@ package acolyte.reactivemongo
 import reactivemongo.api.bson.{ BSONDocument, BSONString, BSONDouble, BSONLong }
 import reactivemongo.io.netty.channel.DefaultChannelId
 
-import reactivemongo.core.protocol.Response
-import reactivemongo.acolyte.parseResponse
+import reactivemongo.acolyte.{ Response, parseResponse }
 
 final class ResponseSpec extends org.specs2.mutable.Specification {
   "Response" title
@@ -21,7 +20,7 @@ final class ResponseSpec extends org.specs2.mutable.Specification {
             case ValueDocument(("$err", BSONString(msg)) :: Nil) :: Nil ⇒
               msg aka f"$$err property" must_=== "An error"
 
-          } and (error.info._channelId aka "response info" must_=== cid)
+          } and (error.info.channelId aka "response info" must_=== cid)
         }
     }
 
@@ -33,7 +32,7 @@ final class ResponseSpec extends org.specs2.mutable.Specification {
           parseResponse(error).toList aka "body" must beLike {
             case ValueDocument(("$err", BSONString(msg)) :: Nil) :: Nil ⇒
               msg aka f"$$err property" must_=== "Fails to create response"
-          } and (error.info._channelId aka "response info" must_=== cid)
+          } and (error.info.channelId aka "response info" must_=== cid)
       }
     }
 
@@ -50,7 +49,7 @@ final class ResponseSpec extends org.specs2.mutable.Specification {
               ("2prop", BSONDouble(1.23D)) :: Nil) ::
               ValueDocument(("2prop", ValueDocument(
                 ("property", BSONLong(2L)) :: Nil)) :: Nil) :: Nil ⇒ ok
-          } and (success.info._channelId aka "response info" must_=== cid)
+          } and (success.info.channelId aka "response info" must_=== cid)
         }
     }
   }

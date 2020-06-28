@@ -294,7 +294,7 @@ def setup2(implicit ec: ExecutionContext) =
 // (see DI or cake pattern) and resolve a BSON collection `col` by this way:
 
 def foo3(col: BSONCollection)(implicit ec: ExecutionContext) = 
-  col.insert(BSONDocument("prop" -> "value")).onComplete {
+  col.insert.one(BSONDocument("prop" -> "value")).onComplete {
     case Success(res) => ??? // In case or response given by provided handler
     case Failure(err) => ??? // "No response: " if case not handled
   }

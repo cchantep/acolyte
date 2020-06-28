@@ -6,6 +6,8 @@ import reactivemongo.io.netty.channel.ChannelId
 import reactivemongo.api.bson.BSONDocument
 import reactivemongo.core.protocol.Response
 
+import reactivemongo.acolyte.Response
+
 /**
  * Creates a query response for given channel ID and result.
  * @tparam T Result type
