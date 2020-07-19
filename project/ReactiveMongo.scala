@@ -12,7 +12,7 @@ final class ReactiveMongo(scalacPlugin: Project) { self =>
   lazy val generatedClassDirectory = settingKey[File](
     "Directory where classes get generated")
 
-  val reactiveMongoVer = "1.0.0-rc.1-SNAPSHOT"
+  val reactiveMongoVer = "1.0.0-rc.2"
 
   lazy val project =
     Project(id = "reactive-mongo", base = file("reactive-mongo")).
@@ -74,11 +74,14 @@ final class ReactiveMongo(scalacPlugin: Project) { self =>
               else "2.5.13" -> "play25"
             }
 
-            // 1.0.0-play26-rc.1-SNAPSHOT
             val playRmVer = reactiveMongoVer.span(_ != '-') match {
               case (v, mod) =>
                 (if (mod != "") mod.drop(1) else mod).span(_ != '-') match {
-                  case (a, b) => s"${v}-${a}-${playVar}${b}"
+                  case (a, "") if (a startsWith "rc.") =>
+                    s"${v}-${playVar}-${a}"
+
+                  case (a, b) =>
+                    s"${v}-${a}-${playVar}${b}"
                 }
             }
 
