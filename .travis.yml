@@ -3,6 +3,8 @@ language: scala
 jdk:
    - openjdk8
 sudo: false
+git:
+  depth: 60
 cache:
   directories:
   - $HOME/.ivy2
