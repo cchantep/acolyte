@@ -7,10 +7,10 @@ import ScalacPlugin._
 // Settings
 organization in ThisBuild := "org.eu.acolyte"
 
-scalaVersion in ThisBuild := "2.12.10"
+scalaVersion in ThisBuild := "2.12.11"
 
 crossScalaVersions in ThisBuild := Seq(
-  "2.10.7", "2.11.12", (scalaVersion in ThisBuild).value, "2.13.1"
+  "2.11.12", (scalaVersion in ThisBuild).value, "2.13.2"
 )
 
 resolvers in ThisBuild ++= Seq(
@@ -55,10 +55,11 @@ val javaVersion =
   else "1.6"
 
 lazy val root = Project(id = "acolyte", base = file(".")).
+  settings(Publish.settings).
   aggregate(scalacPlugin, reactiveMongo,
     jdbcDriver, jdbcScala, studio).
   disablePlugins(HighlightExtractorPlugin, ScaladocExtractorPlugin).
-  settings(Publish.settings ++ Release.settings) configure { p =>
+  configure { p =>
     if (isJavaAtLeast("1.8")) {
       p.aggregate(playJdbc, jdbcJava8, playReactiveMongo)
     }

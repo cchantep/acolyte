@@ -9,8 +9,52 @@ cache:
   directories:
   - $HOME/.ivy2
   - $HOME/.sbt
-scala:
-  - 2.11.11
-  - 2.12.8
-  - 2.13.0
-script: ./.ci_scripts/validate.sh
+
+jobs:
+  include:
+    - stage: &build_n_test 'Build & Test'
+      name: 'Scala 2.11'
+      env: SCALA_VERSION=2.11.12
+      script: &validate ./.ci_scripts/validate.sh
+
+    - stage: *build_n_test
+      name: 'Scala 2.12'
+      env: SCALA_VERSION=2.12.11
+      script: *validate
+
+    - stage: *build_n_test
+      name: 'Scala 2.13'
+      env: SCALA_VERSION=2.13.2
+      script: *validate
+
+    - stage: 'Publish snapshot'
+      if: branch = master
+      script: |
+        set -e
+        
+        if [ "$TRAVIS_PULL_REQUEST" -gt '0' ]; then
+          echo "Do not publish on pull request"
+          exit 0
+        fi
+        
+        V=`sbt 'show version' | tail -n 1 | cut -d ']' -f 2 | perl -pe 's/^[ \t]+//;s/[ \t]+$//'`
+
+        if [ `echo "$V" | grep -- '-SNAPSHOT' | wc -l` -eq 0 ]; then
+          echo "Cannot publish release $V"
+          exit 0
+        fi
+        
+        export PUBLISH_REPO_NAME="Sonatype Nexus Repository Manager"
+        export PUBLISH_REPO_ID="oss.sonatype.org"
+        export PUBLISH_REPO_URL="https://oss.sonatype.org/content/repositories/snapshots"
+        
+        if [ "x$PUBLISH_USER" = "x" -o "x$PUBLISH_PASS" = "x" ]; then
+          echo "Missing publication credentials"
+          exit 1
+        fi
+        
+        sbt +publish        
+
+stages:
+  - 'Build & Test'
+  - 'Publish snapshot'

@@ -17,11 +17,11 @@ class PlayJdbc(
         scalacOptions in Test ++= ScalacPlugin.
           compilerOptions(scalacPlugin).value,
         playVersion := {
-          val scalaVer = scalaVersion.value
+          val scalaVer = scalaBinaryVersion.value
 
-          if (scalaVer startsWith "2.11.") "2.5.8"
-          else if (scalaVer startsWith "2.12.") "2.6.7"
-          else if (scalaVer startsWith "2.13.") "2.7.3"
+          if (scalaVer == "2.11") "2.5.8"
+          else if (scalaVer == "2.12") "2.6.7"
+          else if (scalaVer == "2.13") "2.7.3"
           else "2.4.8"
         },
         unmanagedSourceDirectories in Compile += {
@@ -36,13 +36,7 @@ class PlayJdbc(
           dependsOn(compile in (scalacPlugin, Test)).value,
         // make sure plugin is there
         libraryDependencies ++= {
-          val anorm = {
-            if (scalaVersion.value startsWith "2.10.") {
-              "com.typesafe.play" %% "anorm" % "2.5.0"
-            } else {
-              "org.playframework.anorm" %% "anorm" % "2.6.7"
-            }
-          }
+          val anorm = "org.playframework.anorm" %% "anorm" % "2.6.7"
 
           Seq(
             "org.eu.acolyte" % "jdbc-driver" % (version in ThisBuild).value,

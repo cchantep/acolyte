@@ -31,10 +31,8 @@ function deploy {
   else    
     expect << EOF
 set timeout 300
-spawn mvn gpg:sign-and-deploy-file -DuniqueVersion=false -Dkeyname=$KEY -DpomFile=$POM -Dfile=$BASE.jar -Djavadoc=$BASE-javadoc.jar -Dsources=$BASE-sources.jar $ARG -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 log_user 0
-expect "GPG Passphrase:"
-send "$PASS\r"
+spawn mvn gpg:sign-and-deploy-file -DuniqueVersion=false -Dpassphrase=$PASS -Dkeyname=$KEY -DpomFile=$POM -Dfile=$BASE.jar -Djavadoc=$BASE-javadoc.jar -Dsources=$BASE-sources.jar $ARG -Durl=$REPO -DrepositoryId=sonatype-nexus-staging
 log_user 1
 expect "BUILD SUCCESS"
 expect eof
@@ -52,7 +50,7 @@ if [ "_$SCALA_MODULES" = "_" ]; then
   SCALA_MODULES="jdbc-scala scalac-plugin reactive-mongo play-jdbc play-reactive-mongo"
 fi
 
-SCALA_VERSIONS="2.10 2.11 2.12 2.13"
+SCALA_VERSIONS="2.11 2.12 2.13"
 BASES=""
 
 for M in $JAVA_MODULES; do

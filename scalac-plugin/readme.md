@@ -166,7 +166,7 @@ Maven scala plugin [supports compiler plugin](http://scala-tools.org/mvnsites/ma
           <compilerPlugins>
             <compilerPlugin>
               <groupId>org.eu.acolyte</groupId>
-              <artifactId>scalac-plugin_2.10</artifactId>
+              <artifactId>scalac-plugin_2.12</artifactId>
               <version>VERSION</version>
             </compilerPlugin>
           </compilerPlugins>

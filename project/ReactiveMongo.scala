@@ -20,7 +20,8 @@ final class ReactiveMongo(scalacPlugin: Project) { self =>
         name := "reactive-mongo",
         fork in Test := true,
         resolvers ++= reactiveResolvers,
-        crossScalaVersions ~= { _.filterNot(_ startsWith "2.10") },
+        compile in Test := (compile in Test).dependsOn(
+          scalacPlugin / packageBin in Compile).value,
         scalacOptions in Test ++= ScalacPlugin.
           compilerOptions(scalacPlugin).value,
         libraryDependencies ++= Seq(
@@ -29,79 +30,53 @@ final class ReactiveMongo(scalacPlugin: Project) { self =>
           "org.slf4j" % "slf4j-simple" % "1.7.30" % Provided,
           "com.chuusai" %% "shapeless" % "2.3.3",
           "org.specs2" %% "specs2-core" % specsVer.value % Test)
-      )).dependsOn(scalacPlugin % Test)
+      ))
 
   lazy val playProject =
     Project(id = "play-reactive-mongo", base = file("play-reactive-mongo")).
       settings(formatSettings ++ Set(
         name := "play-reactive-mongo",
-        crossScalaVersions ~= { _.filterNot(_ startsWith "2.10") },
-        sourceDirectory := {
-          if (scalaBinaryVersion.value == "2.10") {
-            new java.io.File("/no/sources")
-          } else sourceDirectory.value
-        },
+        compile in Test := (compile in Test).dependsOn(
+          scalacPlugin / packageBin in Compile).value,
         scalacOptions in Test ++= ScalacPlugin.
           compilerOptions(scalacPlugin).value,
         resolvers ++= reactiveResolvers,
-        publish := (Def.taskDyn {
-          val p = publish.value
-          val ver = scalaBinaryVersion.value
-
-          Def.task[Unit] {
-            if (ver == "2.10") ({})
-            else p
-          }
-        }).value,
-        publishTo := (Def.taskDyn {
-          val p = publishTo.value
-          val ver = scalaBinaryVersion.value
-
-          Def.task {
-            if (ver == "2.10") None
-            else p
-          }
-        }).value,
         libraryDependencies ++= {
           val sv = scalaBinaryVersion.value
 
-          if (sv == "2.10") {
-            Seq.empty[ModuleID]
-          } else {
-            val (playVer, playVar) = {
-              if (sv == "2.12") "2.6.3" -> "play26"
-              else if (sv == "2.13") "2.7.3" -> "play27"
-              else "2.5.13" -> "play25"
-            }
-
-            val playRmVer = reactiveMongoVer.span(_ != '-') match {
-              case (v, mod) =>
-                (if (mod != "") mod.drop(1) else mod).span(_ != '-') match {
-                  case (a, "") if (a startsWith "rc.") =>
-                    s"${v}-${playVar}-${a}"
-
-                  case (a, b) =>
-                    s"${v}-${a}-${playVar}${b}"
-                }
-            }
-
-            val iteratees = {
-              if (sv != "2.13") {
-                Seq(
-                  "com.typesafe.play" %% "play-iteratees" % "2.6.1" % Provided)
-              } else {
-                Seq.empty
-              }
-            }
-
-            (Seq("reactivemongo-play-json-compat", "play2-reactivemongo").map {
-              "org.reactivemongo" %% _ % playRmVer % Provided
-            }) ++ Seq(
-              "com.typesafe.play" %% "play" % playVer % Provided,
-              "org.specs2" %% "specs2-core" % specsVer.value % Test
-            ) ++ iteratees
+          val (playVer, playVar) = {
+            if (sv == "2.12") "2.6.3" -> "play26"
+            else if (sv == "2.13") "2.7.3" -> "play27"
+            else "2.5.13" -> "play25"
           }
+
+          val playRmVer = reactiveMongoVer.span(_ != '-') match {
+            case (v, mod) =>
+              (if (mod != "") mod.drop(1) else mod).span(_ != '-') match {
+                case (a, "") if (a startsWith "rc.") =>
+                  s"${v}-${playVar}-${a}"
+
+                case (a, b) =>
+                  s"${v}-${a}-${playVar}${b}"
+              }
+          }
+
+          val iteratees = {
+            if (sv != "2.13") {
+              Seq(
+                "com.typesafe.play" %% "play-iteratees" % "2.6.1" % Provided)
+            } else {
+              Seq.empty
+            }
+          }
+
+          (Seq("reactivemongo-play-json-compat", "play2-reactivemongo").map {
+            "org.reactivemongo" %% _ % playRmVer % Provided
+          }) ++ Seq(
+            "com.typesafe.play" %% "play" % playVer % Provided,
+            "org.specs2" %% "specs2-core" % specsVer.value % Test
+          ) ++ iteratees
         }
-      )).dependsOn(scalacPlugin, self.project)
+      )).dependsOn(self.project)
 
 }
