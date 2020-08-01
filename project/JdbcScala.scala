@@ -22,7 +22,7 @@ final class JdbcScala(
 
           generateRowClasses(base, managed / "acolyte" / "jdbc",
             "acolyte.jdbc", false)
-        })).dependsOn(/*scalacPlugin, */jdbcDriver)
+        })).dependsOn(jdbcDriver)
 
   // Source generator
   private def generateRowClasses(base: File, outdir: File, pkg: String, deprecated: Boolean): Seq[File] = {

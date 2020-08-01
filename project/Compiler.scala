@@ -49,14 +49,10 @@ object Compiler extends AutoPlugin {
       /*"-diagrams", */"-implicits", "-skip-packages", "samples"),
     scalacOptions in (Compile, doc) ++= Opts.doc.title(
       s"Acolyte ${name.value}"),
-    scalacOptions in (Compile, doc) ++= Opts.doc.version(Release.major.value),
-    scalacOptions in Compile := {
-      val opts = (scalacOptions in Compile).value
-
-      if (scalaVersion.value != "2.10.7") opts
-      else {
-        opts.filter(_ != "-Ywarn-unused-import")
-      }
+    scalacOptions in (Compile, doc) ++= {
+      sbtdynver.DynVerPlugin.autoImport.previousStableVersion.value.map {
+        _.takeWhile(_ != '.')
+      }.toSeq
     }
   )
 }
