@@ -1,5 +1,7 @@
 package acolyte.reactivemongo
 
+import scala.util.control.NonFatal
+
 import scala.concurrent.{ ExecutionContext, Future }
 
 import reactivemongo.api.{ MongoConnection, AsyncDriver }
@@ -20,7 +22,7 @@ trait WithDriver {
   // TODO: Pass the driver ClassLoader
   private def asyncDriver(implicit m: DriverManager): Future[AsyncDriver] =
     try Future.successful(m.open()) catch {
-      case cause: Throwable ⇒
+      case NonFatal(cause) ⇒
         Future.failed[AsyncDriver](cause)
     }
 

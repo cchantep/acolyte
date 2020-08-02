@@ -37,10 +37,10 @@ object QueryResponseMaker {
    * val maker = implicitly[QueryResponseMaker[Traversable[BSONDocument]]]
    * }}}
    */
-  implicit def TraversableQueryResponseMaker[T <: Traversable[BSONDocument]] =
+  implicit def traversableQueryResponseMaker[T <: Traversable[BSONDocument]] =
     new QueryResponseMaker[T] {
       def apply(chanId: ChannelId, result: T): Option[Try[Response]] =
-        Some(MongoDB.QuerySuccess(chanId, result))
+        Some(MongoDB.querySuccess(chanId, result))
     }
 
   /**
@@ -51,8 +51,8 @@ object QueryResponseMaker {
    * val maker = implicitly[QueryResponseMaker[BSONDocument]]
    * }}}
    */
-  implicit def SingleQueryResponseMaker = new QueryResponseMaker[BSONDocument] {
-    def apply(chanId: ChannelId, result: BSONDocument): Option[Try[Response]] = Some(MongoDB.QuerySuccess(chanId, Seq(result)))
+  implicit def singleQueryResponseMaker = new QueryResponseMaker[BSONDocument] {
+    def apply(chanId: ChannelId, result: BSONDocument): Option[Try[Response]] = Some(MongoDB.querySuccess(chanId, Seq(result)))
   }
 
   /**
@@ -64,9 +64,9 @@ object QueryResponseMaker {
    * val maker = implicitly[QueryResponseMaker[String]]
    * }}}
    */
-  implicit def ErrorQueryResponseMaker = new QueryResponseMaker[String] {
+  implicit def errorQueryResponseMaker = new QueryResponseMaker[String] {
     def apply(chanId: ChannelId, error: String): Option[Try[Response]] =
-      Some(MongoDB.QueryError(chanId, error))
+      Some(MongoDB.queryError(chanId, error))
   }
 
   /**
@@ -79,9 +79,9 @@ object QueryResponseMaker {
    * val maker = implicitly[QueryResponseMaker[(String, Int)]]
    * }}}
    */
-  implicit def ErrorCodeQueryResponseMaker = new QueryResponseMaker[(String, Int)] {
+  implicit def errorCodeQueryResponseMaker = new QueryResponseMaker[(String, Int)] {
     def apply(chanId: ChannelId, error: (String, Int)): Option[Try[Response]] =
-      Some(MongoDB.QueryError(chanId, error._1, Some(error._2)))
+      Some(MongoDB.queryError(chanId, error._1, Some(error._2)))
   }
 
   /**
@@ -93,7 +93,7 @@ object QueryResponseMaker {
    * val maker = implicitly[QueryResponseMaker[None.type]]
    * }}}
    */
-  implicit def UndefinedQueryResponseMaker = new QueryResponseMaker[None.type] {
+  implicit def undefinedQueryResponseMaker = new QueryResponseMaker[None.type] {
     /** @return None */
     def apply(chanId: ChannelId, undefined: None.type): Option[Try[Response]] = None
   }

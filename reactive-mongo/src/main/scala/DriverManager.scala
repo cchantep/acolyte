@@ -1,5 +1,7 @@
 package acolyte.reactivemongo
 
+import scala.util.control.NonFatal
+
 import scala.concurrent.ExecutionContext
 
 import reactivemongo.api.AsyncDriver
@@ -27,15 +29,15 @@ object DriverManager {
       driver.close(timeout)
       true
     } catch {
-      case e: Throwable ⇒
-        e.printStackTrace()
+      case NonFatal(cause) ⇒
+        cause.printStackTrace()
         false
     }
 
     override lazy val toString = s"DriverManager(timeout = $timeout)"
   }
 
-  implicit def Default(implicit ec: ExecutionContext): DriverManager = new Default(5.seconds)
+  implicit def default(implicit ec: ExecutionContext): DriverManager = new Default(5.seconds)
 
   def withTimeout(timeout: FiniteDuration)(implicit ec: ExecutionContext): DriverManager = new Default(timeout)
 
@@ -84,8 +86,8 @@ object ConnectionManager {
       Await.result(connection.close()(10.seconds), 10.seconds)
       true
     } catch {
-      case e: Throwable ⇒
-        e.printStackTrace()
+      case NonFatal(cause) ⇒
+        cause.printStackTrace()
         false
     }
   }

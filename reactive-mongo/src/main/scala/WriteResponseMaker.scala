@@ -34,8 +34,8 @@ object WriteResponseMaker {
    * val maker = implicitly[WriteResponseMaker[(Int, Boolean)]]
    * }}}
    */
-  implicit def SuccessWriteResponseMaker = new WriteResponseMaker[(Int, Boolean)] {
-    def apply(chanId: ChannelId, up: (Int, Boolean)): Option[Try[Response]] = Some(MongoDB.WriteSuccess(chanId, up._1, up._2))
+  implicit def successWriteResponseMaker = new WriteResponseMaker[(Int, Boolean)] {
+    def apply(chanId: ChannelId, up: (Int, Boolean)): Option[Try[Response]] = Some(MongoDB.writeSuccess(chanId, up._1, up._2))
   }
 
   /**
@@ -45,10 +45,10 @@ object WriteResponseMaker {
    * val maker = implicitly[WriteResponseMaker[Int]]
    * }}}
    */
-  implicit def SuccessNotUpdatedWriteResponseMaker =
+  implicit def successNotUpdatedWriteResponseMaker =
     new WriteResponseMaker[Int] {
       def apply(chanId: ChannelId, count: Int): Option[Try[Response]] =
-        Some(MongoDB.WriteSuccess(chanId, count))
+        Some(MongoDB.writeSuccess(chanId, count))
     }
 
   /**
@@ -58,8 +58,8 @@ object WriteResponseMaker {
    * val maker = implicitly[WriteResponseMaker[Unit]]
    * }}}
    */
-  implicit def UnitWriteResponseMaker = new WriteResponseMaker[Unit] {
-    def apply(chanId: ChannelId, effect: Unit): Option[Try[Response]] = Some(MongoDB.WriteSuccess(chanId, 0, false))
+  implicit def unitWriteResponseMaker = new WriteResponseMaker[Unit] {
+    def apply(chanId: ChannelId, effect: Unit): Option[Try[Response]] = Some(MongoDB.writeSuccess(chanId, 0, false))
   }
 
   /**
@@ -71,9 +71,9 @@ object WriteResponseMaker {
    * val maker = implicitly[WriteResponseMaker[String]]
    * }}}
    */
-  implicit def ErrorWriteResponseMaker = new WriteResponseMaker[String] {
+  implicit def errorWriteResponseMaker = new WriteResponseMaker[String] {
     def apply(chanId: ChannelId, error: String): Option[Try[Response]] =
-      Some(MongoDB.WriteError(chanId, error, None))
+      Some(MongoDB.writeError(chanId, error, None))
   }
 
   /**
@@ -85,9 +85,9 @@ object WriteResponseMaker {
    * val maker = implicitly[WriteResponseMaker[(String, Int)]]
    * }}}
    */
-  implicit def ErrorCodeWriteResponseMaker =
+  implicit def errorCodeWriteResponseMaker =
     new WriteResponseMaker[(String, Int)] {
-      def apply(chanId: ChannelId, error: (String, Int)): Option[Try[Response]] = Some(MongoDB.WriteError(chanId, error._1, Some(error._2)))
+      def apply(chanId: ChannelId, error: (String, Int)): Option[Try[Response]] = Some(MongoDB.writeError(chanId, error._1, Some(error._2)))
     }
 
   /**
@@ -100,7 +100,7 @@ object WriteResponseMaker {
    * val maker = implicitly[WriteResponseMaker[None.type]]
    * }}}
    */
-  implicit def UndefinedWriteResponseMaker = new WriteResponseMaker[None.type] {
+  implicit def undefinedWriteResponseMaker = new WriteResponseMaker[None.type] {
     /** @return None */
     def apply(chanId: ChannelId, undefined: None.type): Option[Try[Response]] = None
   }
