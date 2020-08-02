@@ -26,7 +26,7 @@ object MongoDB {
    * @param chanId Unique ID of channel
    * @param error Error message
    */
-  def QueryError(chanId: ChannelId, error: String, code: Option[Int] = None): Try[Response] = mkResponse(chanId, 1 /*QueryFailure*/ , {
+  def queryError(chanId: ChannelId, error: String, code: Option[Int] = None): Try[Response] = mkResponse(chanId, 1 /*QueryFailure*/ , {
     val doc = BSONDocument("$err" → error)
     code.fold(Seq(doc)) { c ⇒ Seq(doc ++ ("code" → c)) }
   })
@@ -37,7 +37,7 @@ object MongoDB {
    * @param chanId Unique ID of channel
    * @param docs BSON documents
    */
-  def QuerySuccess(chanId: ChannelId, docs: Traversable[BSONDocument]): Try[Response] = mkResponse(chanId, 4 /* unspecified */ , docs)
+  def querySuccess(chanId: ChannelId, docs: Traversable[BSONDocument]): Try[Response] = mkResponse(chanId, 4 /* unspecified */ , docs)
 
   /**
    * Builds a response with error details for a write operation.
@@ -46,7 +46,7 @@ object MongoDB {
    * @param error Error message
    * @param code Error code
    */
-  def WriteError(chanId: ChannelId, error: String, code: Option[Int] = None): Try[Response] = mkResponse(chanId, 4 /* unspecified */ , List(
+  def writeError(chanId: ChannelId, error: String, code: Option[Int] = None): Try[Response] = mkResponse(chanId, 4 /* unspecified */ , List(
     BSONDocument("ok" → 0, "err" → error, "errmsg" → error,
       "code" → code.getOrElse(-1), "updatedExisting" → false, "n" → 0)))
 
@@ -57,7 +57,7 @@ object MongoDB {
    * @param count The number of documents affected by last command, 0 if none
    * @param updatedExisting Some existing document has been updated
    */
-  def WriteSuccess(chanId: ChannelId, count: Int, updatedExisting: Boolean = false): Try[Response] = mkResponse(chanId, 4 /*unspecified*/ ,
+  def writeSuccess(chanId: ChannelId, count: Int, updatedExisting: Boolean = false): Try[Response] = mkResponse(chanId, 4 /*unspecified*/ ,
     List(BSONDocument(
       "ok" → 1, "updatedExisting" → updatedExisting, "n" → count)))
 
@@ -96,7 +96,7 @@ object MongoDB {
   }
 
   /** Defines instance of WriteOp enum. */
-  @inline def WriteOp(mongoOp: WriteRequestOp): Option[WriteOp] =
+  @inline def writeOp(mongoOp: WriteRequestOp): Option[WriteOp] =
     mongoOp match {
       case Delete(_, _) ⇒ Some(DeleteOp)
       case Insert(_, _) ⇒ Some(InsertOp)
@@ -104,9 +104,9 @@ object MongoDB {
       case _            ⇒ None
     }
 
-  private[reactivemongo] def MkQueryError(chanId: ChannelId = DefaultChannelId.newInstance()): Response = mkError(chanId, Array[Byte](76, 0, 0, 0, 16, -55, -63, 115, -49, 116, 119, 55, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 40, 0, 0, 0, 2, 36, 101, 114, 114, 0, 25, 0, 0, 0, 70, 97, 105, 108, 115, 32, 116, 111, 32, 99, 114, 101, 97, 116, 101, 32, 114, 101, 115, 112, 111, 110, 115, 101, 0, 0)) // "Fails to create response"
+  private[reactivemongo] def mkQueryError(chanId: ChannelId = DefaultChannelId.newInstance()): Response = mkError(chanId, Array[Byte](76, 0, 0, 0, 16, -55, -63, 115, -49, 116, 119, 55, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 40, 0, 0, 0, 2, 36, 101, 114, 114, 0, 25, 0, 0, 0, 70, 97, 105, 108, 115, 32, 116, 111, 32, 99, 114, 101, 97, 116, 101, 32, 114, 101, 115, 112, 111, 110, 115, 101, 0, 0)) // "Fails to create response"
 
-  private[reactivemongo] def MkWriteError(chanId: ChannelId = DefaultChannelId.newInstance()): Response = mkError(chanId, Array[Byte](-126, 0, 0, 0, -29, 50, 14, 73, -115, -6, 46, 67, 4, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 94, 0, 0, 0, 16, 111, 107, 0, 0, 0, 0, 0, 2, 101, 114, 114, 0, 25, 0, 0, 0, 70, 97, 105, 108, 115, 32, 116, 111, 32, 99, 114, 101, 97, 116, 101, 32, 114, 101, 115, 112, 111, 110, 115, 101, 0, 2, 101, 114, 114, 109, 115, 103, 0, 25, 0, 0, 0, 70, 97, 105, 108, 115, 32, 116, 111, 32, 99, 114, 101, 97, 116, 101, 32, 114, 101, 115, 112, 111, 110, 115, 101, 0, 16, 99, 111, 100, 101, 0, -1, -1, -1, -1, 0))
+  private[reactivemongo] def mkWriteError(chanId: ChannelId = DefaultChannelId.newInstance()): Response = mkError(chanId, Array[Byte](-126, 0, 0, 0, -29, 50, 14, 73, -115, -6, 46, 67, 4, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 94, 0, 0, 0, 16, 111, 107, 0, 0, 0, 0, 0, 2, 101, 114, 114, 0, 25, 0, 0, 0, 70, 97, 105, 108, 115, 32, 116, 111, 32, 99, 114, 101, 97, 116, 101, 32, 114, 101, 115, 112, 111, 110, 115, 101, 0, 2, 101, 114, 114, 109, 115, 103, 0, 25, 0, 0, 0, 70, 97, 105, 108, 115, 32, 116, 111, 32, 99, 114, 101, 97, 116, 101, 32, 114, 101, 115, 112, 111, 110, 115, 101, 0, 16, 99, 111, 100, 101, 0, -1, -1, -1, -1, 0))
 
   @inline private def mkError(chanId: ChannelId, docs: Array[Byte]): Response = {
     val buf = Unpooled.wrappedUnmodifiableBuffer(Unpooled.copiedBuffer(docs))

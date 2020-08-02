@@ -20,7 +20,7 @@ final class ResponseMakerSpec
       val cid = channelId()
 
       makr(cid, documents) aka "response" must beSome.which { prepared ⇒
-        zip(prepared, MongoDB.QuerySuccess(cid, documents)).
+        zip(prepared, MongoDB.querySuccess(cid, documents)).
           aka("maker") must beSuccessfulTry.like {
             case (a, b) ⇒ a.documents aka "response" must_== b.documents
           }
@@ -32,7 +32,7 @@ final class ResponseMakerSpec
       val cid = channelId()
 
       makr(cid, "Custom error") aka "response" must beSome.which { prepared ⇒
-        zip(prepared, MongoDB.QueryError(cid, "Custom error")).
+        zip(prepared, MongoDB.queryError(cid, "Custom error")).
           aka("maker") must beSuccessfulTry.like {
             case (a, b) ⇒ a.documents aka "response" must_== b.documents
           }
@@ -45,7 +45,7 @@ final class ResponseMakerSpec
 
       makr(cid, "Custom error" → 5) aka "response" must beSome.
         which { prepared ⇒
-          zip(prepared, MongoDB.QueryError(cid, "Custom error", Some(5))).
+          zip(prepared, MongoDB.queryError(cid, "Custom error", Some(5))).
             aka("maker") must beSuccessfulTry.like {
               case (a, b) ⇒ a.documents aka "response" must_== b.documents
             }
@@ -61,7 +61,7 @@ final class ResponseMakerSpec
       val cid = channelId()
 
       makr(cid, 1 → true) aka "response" must beSome.which { prepared ⇒
-        zip(prepared, MongoDB.WriteSuccess(cid, 1, true)).
+        zip(prepared, MongoDB.writeSuccess(cid, 1, true)).
           aka("maker") must beSuccessfulTry.like {
             case (a, b) ⇒ a.documents aka "response" must_== b.documents
           }
@@ -73,7 +73,7 @@ final class ResponseMakerSpec
       val cid = channelId()
 
       makr(cid, ()) aka "response" must beSome.which { prepared ⇒
-        zip(prepared, MongoDB.WriteSuccess(cid, 0, false)).
+        zip(prepared, MongoDB.writeSuccess(cid, 0, false)).
           aka("maker") must beSuccessfulTry.like {
             case (a, b) ⇒ a.documents aka "response" must_== b.documents
           }
@@ -86,7 +86,7 @@ final class ResponseMakerSpec
 
       makr(cid, "Custom error #1") aka "response" must beSome.
         which { prepared ⇒
-          zip(prepared, MongoDB.WriteError(cid, "Custom error #1", None)).
+          zip(prepared, MongoDB.writeError(cid, "Custom error #1", None)).
             aka("maker") must beSuccessfulTry.like {
               case (a, b) ⇒ a.documents aka "response" must_== b.documents
             }
@@ -99,7 +99,7 @@ final class ResponseMakerSpec
 
       makr(cid, "Custom error #2" → 7) aka "response" must beSome.
         which { prepared ⇒
-          zip(prepared, MongoDB.WriteError(cid, "Custom error #2", Some(7))).
+          zip(prepared, MongoDB.writeError(cid, "Custom error #2", Some(7))).
             aka("maker") must beSuccessfulTry.like {
               case (a, b) ⇒ a.documents aka "response" must_== b.documents
             }

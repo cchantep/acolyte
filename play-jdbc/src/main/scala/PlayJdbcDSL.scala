@@ -78,8 +78,6 @@ final class PlayJdbcContext(
 
     try {
       f(db)
-    } catch {
-      case e: Throwable ⇒ sys.error(s"error: $e")
     } finally {
       db.shutdown()
     }

@@ -42,14 +42,14 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
     reactivemongo.acolyte.channelFactory(supervisor, name, options)
 
   private def handleWrite(chanId: ChannelId, op: WriteOp, req: Request): Option[Response] = Try(handler.writeHandler(chanId, op, req)) match {
-    case Failure(cause) ⇒ Some(InvalidWriteHandler(chanId, cause.getMessage))
+    case Failure(cause) ⇒ Some(invalidWriteHandler(chanId, cause.getMessage))
 
     case Success(res) ⇒ res.map {
       case Success(r) ⇒ r
-      case Failure(e) ⇒ MongoDB.WriteError(chanId, Option(e.getMessage).
+      case Failure(e) ⇒ MongoDB.writeError(chanId, Option(e.getMessage).
         getOrElse(e.getClass.getName)) match {
         case Success(err) ⇒ err
-        case _            ⇒ MongoDB.MkWriteError(chanId)
+        case _            ⇒ MongoDB.mkWriteError(chanId)
       }
     }
   }
@@ -64,7 +64,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
 
       val resp = req match {
         case Request(_, SimpleBody((k @ WriteQuery(op),
-          BSONString(cn)) :: es)) if (coln endsWith ".$cmd") ⇒ {
+          BSONString(cn)) :: es)) if (coln endsWith f".$$cmd") ⇒ {
 
           val opBody: Option[List[BSONDocument]] = if (k == "insert") {
             es.collectFirst {
@@ -88,33 +88,39 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
           }
 
           handleWrite(cid, op, wreq).getOrElse(
-            NoWriteResponse(cid, msg.toString))
+            noWriteResponse(cid, msg.toString))
         }
 
         case Request(coln, SimpleBody(ps)) ⇒ {
-          val qreq = new Request {
-            val collection = coln
-
-            val body = ps.foldLeft(Option.empty[BSONDocument] → (
+          val reqBody: List[BSONDocument] =
+            ps.foldLeft(Option.empty[BSONDocument] → (
               List.empty[(String, BSONValue)])) {
               case ((_, opts), ("$query", q: BSONDocument)) ⇒
                 Some(q) → opts
 
-              case ((q, opts), opt) ⇒ q → (opts :+ opt)
+              case ((q, opts), opt) ⇒ q → (opt +: opts)
             } match {
-              case (q, opts) ⇒ q.toList :+ BSONDocument(opts)
+              case (Some(q), opts) ⇒
+                List(q, BSONDocument(opts.reverse))
+
+              case (_, opts) ⇒
+                List(BSONDocument(opts.reverse))
             }
+
+          val qreq = new Request {
+            val collection = coln
+            val body = reqBody
           }
 
           Try(handler.queryHandler(cid, qreq)) match {
-            case Failure(cause) ⇒ InvalidQueryHandler(cid, cause.getMessage)
+            case Failure(cause) ⇒ invalidQueryHandler(cid, cause.getMessage)
 
-            case Success(res) ⇒ res.fold(NoQueryResponse(cid, msg.toString)) {
+            case Success(res) ⇒ res.fold(noQueryResponse(cid, msg.toString)) {
               case Success(r) ⇒ r
-              case Failure(e) ⇒ MongoDB.QueryError(cid, Option(e.getMessage).
+              case Failure(e) ⇒ MongoDB.queryError(cid, Option(e.getMessage).
                 getOrElse(e.getClass.getName)) match {
                 case Success(err) ⇒ err
-                case _            ⇒ MongoDB.MkQueryError(cid)
+                case _            ⇒ MongoDB.mkQueryError(cid)
               }
             }
           }
@@ -157,26 +163,26 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
   }
 
   // Fallback response when no handler provides a query response.
-  @inline private def NoQueryResponse(chanId: ChannelId, req: String): Response = MongoDB.QueryError(chanId, s"No response: $req") match {
+  @inline private def noQueryResponse(chanId: ChannelId, req: String): Response = MongoDB.queryError(chanId, s"No response: $req") match {
     case Success(resp) ⇒ resp
-    case _             ⇒ MongoDB.MkQueryError(chanId)
+    case _             ⇒ MongoDB.mkQueryError(chanId)
   }
 
   // Fallback response when write handler is failing.
-  @inline private def InvalidWriteHandler(chanId: ChannelId, msg: String): Response = MongoDB.WriteError(chanId, s"Invalid write handler: $msg") match {
+  @inline private def invalidWriteHandler(chanId: ChannelId, msg: String): Response = MongoDB.writeError(chanId, s"Invalid write handler: $msg") match {
     case Success(resp) ⇒ resp
-    case _             ⇒ MongoDB.MkWriteError(chanId)
+    case _             ⇒ MongoDB.mkWriteError(chanId)
   }
 
   // Fallback response when no handler provides a write response.
-  @inline private def NoWriteResponse(chanId: ChannelId, req: String): Response = MongoDB.WriteError(chanId, s"No response: $req") match {
+  @inline private def noWriteResponse(chanId: ChannelId, req: String): Response = MongoDB.writeError(chanId, s"No response: $req") match {
     case Success(resp) ⇒ resp
-    case _             ⇒ MongoDB.MkWriteError(chanId)
+    case _             ⇒ MongoDB.mkWriteError(chanId)
   }
 
   // Fallback response when query handler is failing.
-  @inline private def InvalidQueryHandler(chanId: ChannelId, msg: String): Response = MongoDB.QueryError(chanId, s"Invalid query handler: $msg") match {
+  @inline private def invalidQueryHandler(chanId: ChannelId, msg: String): Response = MongoDB.queryError(chanId, s"Invalid query handler: $msg") match {
     case Success(resp) ⇒ resp
-    case _             ⇒ MongoDB.MkQueryError(chanId)
+    case _             ⇒ MongoDB.mkQueryError(chanId)
   }
 }

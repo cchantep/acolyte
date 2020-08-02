@@ -52,7 +52,7 @@ object Request {
 
   /** Parses body documents from prepared buffer. */
   @annotation.tailrec
-  private def parse(buf: ReadableBuffer, body: List[BSONDocument]): List[BSONDocument] = if (buf.readable == 0) return body else {
+  private def parse(buf: ReadableBuffer, body: List[BSONDocument]): List[BSONDocument] = if (buf.readable == 0) return body.reverse else {
     val pos = buf.buffer.position()
     val b = buf.readByte()
 
@@ -60,7 +60,7 @@ object Request {
       buf.buffer.position(pos)
 
       val doc = readDocument(buf)
-      parse(buf, body :+ doc)
+      parse(buf, doc +: body)
     }
   }
 
@@ -237,7 +237,7 @@ object CommandRequest {
   /** @return The body of the command request */
   def unapply(request: Request): Option[List[(String, BSONValue)]] =
     request match {
-      case Request(c, SimpleBody(body)) if (c endsWith ".$cmd") ⇒
+      case Request(c, SimpleBody(body)) if (c endsWith f".$$cmd") ⇒
         Some(body)
 
       case _ ⇒ None
@@ -352,6 +352,7 @@ object NotInClause {
  * @see [[SimpleBody]]
  * @see [[Property]]
  */
+@SuppressWarnings(Array("ObjectNames"))
 object & {
   def unapply[A](a: A) = Some(a → a)
 }

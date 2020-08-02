@@ -34,6 +34,7 @@ package object acolyte {
     }
   }
 
+  @SuppressWarnings(Array("MethodNames"))
   def Closed = reactivemongo.core.actors.Closed
 
   type Delete = reactivemongo.core.protocol.Delete

@@ -180,17 +180,17 @@ class AcolytePlugin(val global: Global) extends Plugin {
         case (AState(id, a :: as, xs), _) ⇒
           refactorApply(top, AState(id, as, xs :+ a), up, vds)
 
-        case (BState(an, Some(at), _), ::(BState(bn, _, _), us)) ⇒
-          refactorApply(top, BState(bn, None, Some(Bind(an, at))), us, vds)
+        case (BState(an, Some(at1), _), ::(BState(bn, _, _), us)) ⇒
+          refactorApply(top, BState(bn, None, Some(Bind(an, at1))), us, vds)
 
-        case (BState(an, Some(at), _), ::(AState(ai, ts, xs), us)) ⇒
-          refactorApply(top, AState(ai, ts, xs :+ Bind(an, at)), us, vds)
+        case (BState(an, Some(at1), _), ::(AState(ai, ts, xs), us)) ⇒
+          refactorApply(top, AState(ai, ts, xs :+ Bind(an, at1)), us, vds)
 
-        case (BState(an, _, Some(at)), ::(BState(bn, _, _), us)) ⇒
-          refactorApply(top, BState(bn, None, Some(Bind(an, at))), us, vds)
+        case (BState(an, _, Some(at2)), ::(BState(bn, _, _), us)) ⇒
+          refactorApply(top, BState(bn, None, Some(Bind(an, at2))), us, vds)
 
-        case (BState(an, _, Some(at)), ::(AState(ai, ts, xs), us)) ⇒
-          refactorApply(top, AState(ai, ts, xs :+ Bind(an, at)), us, vds)
+        case (BState(an, _, Some(at2)), ::(AState(ai, ts, xs), us)) ⇒
+          refactorApply(top, AState(ai, ts, xs :+ Bind(an, at2)), us, vds)
 
         case (AState(id, Nil, xs), ::(AState(iu, y, z), us)) ⇒
           val ap = rewriteApply(top, id, xs, vds)

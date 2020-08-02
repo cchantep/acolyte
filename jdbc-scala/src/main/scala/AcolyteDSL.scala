@@ -235,12 +235,12 @@ object Implicits extends ScalaRowLists with CompositeHandlerImplicits {
    *
    * {{{
    * import acolyte.jdbc.RowLists.rowList1
-   * import acolyte.jdbc.Implicits.PairAsColumn
+   * import acolyte.jdbc.Implicits.pairAsColumn
    *
    * rowList1(classOf[Int] -> "name") // rowList(new Column(...))
    * }}}
    */
-  implicit def PairAsColumn[T](c: (Class[T], String)): Column[T] =
+  implicit def pairAsColumn[T](c: (Class[T], String)): Column[T] =
     Col(c._1, c._2)
 
 }
@@ -271,7 +271,7 @@ final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: Upda
    * import acolyte.jdbc.{ QueryExecution, QueryResult }
    * import acolyte.jdbc.AcolyteDSL.handleStatement
    *
-   * import acolyte.jdbc.Implicits.StringAsResult
+   * import acolyte.jdbc.Implicits.stringAsResult
    * def aQueryResult: QueryResult = "lorem"
    *
    * handleStatement withQueryHandler { e: QueryExecution => aQueryResult }
@@ -332,9 +332,9 @@ final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: Upda
     })
 
   private def scalaParameters(p: JList[Parameter]): List[ExecutedParameter] =
-    p.asScala.foldLeft(Nil: List[ExecutedParameter]) { (l, t) ⇒
-      l :+ DefinedParameter(t.right, t.left)
-    }
+    p.asScala.foldLeft(List.empty[ExecutedParameter]) { (l, t) ⇒
+      DefinedParameter(t.right, t.left) +: l
+    }.reverse
 
 }
 
@@ -350,68 +350,69 @@ trait CompositeHandlerImplicits { srl: ScalaRowLists ⇒
    * handleStatement withUpdateHandler { exec => 1 } // 1 = count
    * }}}
    */
-  implicit def IntUpdateResult(updateCount: Int) = new UpdateResult(updateCount)
+  implicit def intUpdateResult(updateCount: Int) = new UpdateResult(updateCount)
 
   /**
    * Allows to directly use row list as query result.
    *
    * {{{
    * import acolyte.jdbc.{ QueryResult, RowLists }
-   * import acolyte.jdbc.Implicits.RowListAsResult // import this conversion
+   * import acolyte.jdbc.Implicits.rowListAsResult // import this conversion
    *
    * val qr: QueryResult = RowLists.stringList
    * }}}
    */
-  implicit def RowListAsResult[R <: RowList[_]](r: R): QueryResult = r.asResult
+  implicit def rowListAsResult[R <: RowList[_]](r: R): QueryResult = r.asResult
 
   /**
    * Allows to directly use string as query result.
    *
    * {{{
-   * import acolyte.jdbc.Implicits.StringAsResult // import this conversion
+   * import acolyte.jdbc.Implicits.stringAsResult // import this conversion
    *
    * val qr: acolyte.jdbc.QueryResult = "str"
    * }}}
    */
-  implicit def StringAsResult(v: String): QueryResult =
+  implicit def stringAsResult(v: String): QueryResult =
     (RowLists.stringList :+ v).asResult
 
-  implicit def BooleanAsResult(v: Boolean): QueryResult =
+  implicit def booleanAsResult(v: Boolean): QueryResult =
     (RowLists.booleanList :+ v).asResult
 
-  implicit def ByteAsResult(v: Byte): QueryResult =
+  implicit def byteAsResult(v: Byte): QueryResult =
     (RowLists.byteList :+ v).asResult
 
-  implicit def ShortAsResult(v: Short): QueryResult =
+  implicit def shortAsResult(v: Short): QueryResult =
     (RowLists.shortList :+ v).asResult
 
-  implicit def IntAsResult(v: Int): QueryResult =
+  implicit def intAsResult(v: Int): QueryResult =
     (RowLists.intList :+ v).asResult
 
-  implicit def LongAsResult(v: Long): QueryResult =
+  implicit def longAsResult(v: Long): QueryResult =
     (RowLists.longList :+ v).asResult
 
-  implicit def FloatAsResult(v: Float): QueryResult =
+  implicit def floatAsResult(v: Float): QueryResult =
     (RowLists.floatList :+ v).asResult
 
-  implicit def DoubleAsResult(v: Double): QueryResult =
+  implicit def doubleAsResult(v: Double): QueryResult =
     (RowLists.doubleList :+ v).asResult
 
-  implicit def ScalaBigDecimalAsResult(v: BigDecimal): QueryResult =
+  implicit def scalaBigDecimalAsResult(v: BigDecimal): QueryResult =
     (RowLists.bigDecimalList :+ v.bigDecimal).asResult
 
-  implicit def JavaBigDecimalAsResult(v: java.math.BigDecimal): QueryResult =
+  implicit def javaBigDecimalAsResult(v: java.math.BigDecimal): QueryResult =
     (RowLists.bigDecimalList :+ v).asResult
 
-  implicit def DateAsTimestampResult(v: java.util.Date): QueryResult =
+  implicit def dateAsTimestampResult(v: java.util.Date): QueryResult =
     (RowLists.timestampList :+ new java.sql.Timestamp(v.getTime)).asResult
 
-  implicit def SqlDateAsTimestampResult(v: java.sql.Timestamp): QueryResult =
+  implicit def sqlDateAsTimestampResult(v: java.sql.Timestamp): QueryResult =
     (RowLists.timestampList :+ v).asResult
 
 }
 
 private object ScalaCompositeHandler {
+  @SuppressWarnings(Array("NullParameter"))
   def empty = new ScalaCompositeHandler(null, null, null)
 }
 
@@ -437,7 +438,7 @@ object JavaConverters {
     lazy val cells = r.cells
 
     lazy val list: List[Any] = cells.asScala.foldLeft(List[Any]()) {
-      (l, v) ⇒ l :+ v
-    }
+      (l, v) ⇒ v +: l
+    }.reverse
   }
 }

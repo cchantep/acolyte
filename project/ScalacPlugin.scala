@@ -46,6 +46,7 @@ import scala.tools.nsc.Global
 import scala.reflect.internal.util.BatchSourceFile
 
 object CompilerUtility {
+  @SuppressWarnings(Array("UnusedMethodParameter"))
   @inline def withSource(global: Global)(pos: global.Position, f: BatchSourceFile, shift: Int): global.Position = pos.$withSource
 }"""
       }

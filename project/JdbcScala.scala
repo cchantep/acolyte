@@ -1,6 +1,8 @@
 import sbt._
 import Keys._
 
+import com.sksamuel.scapegoat.sbt.ScapegoatSbtPlugin.autoImport._
+
 final class JdbcScala(
   jdbcDriver: Project,
   scalacPlugin: Project) {
@@ -16,6 +18,7 @@ final class JdbcScala(
         libraryDependencies ++= Seq(
           "org.eu.acolyte" % "jdbc-driver" % (version in ThisBuild).value,
           "org.specs2" %% "specs2-core" % specsVer.value % Test),
+        scapegoatDisabledInspections ++= Seq("MaxParameters"),
         sourceGenerators in Compile += Def.task[Seq[File]] {
           val base = (baseDirectory in Compile).value
           val managed = (sourceManaged in Compile).value
@@ -72,7 +75,7 @@ final class JdbcScala(
         val gp = (for (i ← 0 until n) yield letter(i)).mkString(", ")
         val ca = (for (i ← 0 until n) yield s"l.c$i").mkString(", ")
 
-        s"implicit def RowList${n}AsScala[$gp](l: RowList$n.Impl[$gp]): ScalaRowList$n[$gp] = new ScalaRowList$n[$gp]($ca, l.rows, l.colNames, l.colNullables)"
+        s"  implicit def rowList${n}AsScala[$gp](l: RowList$n.Impl[$gp]): ScalaRowList$n[$gp] = new ScalaRowList$n[$gp]($ca, l.rows, l.colNames, l.colNullables)\r\n"
 
       })
       val tmpl = base / "src" / "main" / "templates" / "RowLists.tmpl"

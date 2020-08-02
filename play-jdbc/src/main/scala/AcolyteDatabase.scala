@@ -33,6 +33,7 @@ final class AcolyteDatabase(
 
   val url = s"jdbc:acolyte:db?handler=$id"
 
+  @SuppressWarnings(Array("NullAssignment"))
   object dataSource extends javax.sql.DataSource {
     private var timeout: Int = 0
     private var logWriter: PrintWriter = null
@@ -73,8 +74,6 @@ final class AcolyteDatabase(
 
     try {
       block(con)
-    } catch {
-      case e: Throwable ⇒ sys.error(s"error: $e")
     } finally {
       con.close()
     }
@@ -86,5 +85,6 @@ final class AcolyteDatabase(
   def withTransaction[A](block: Connection ⇒ A): A =
     withConnection(autocommit = true)(block)
 
+  @SuppressWarnings(Array("EmptyMethod"))
   def shutdown(): Unit = {}
 }
