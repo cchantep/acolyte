@@ -4,7 +4,7 @@ jdk:
    - openjdk8
 sudo: false
 git:
-  depth: 60
+  depth: 70
 cache:
   directories:
   - $HOME/.ivy2
