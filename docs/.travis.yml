@@ -1,0 +1,24 @@
+language: ruby
+sudo: true
+dist: trusty
+rvm: 2.3
+
+addons:
+  apt:
+    packages:
+    - oracle-java8-installer
+cache:
+  - bundler
+  - directories:
+    - $HOME/.ivy2
+    - $HOME/.sbt
+    - $HOME/.gem
+    - $HOME/.local
+    - $PWD/node_modules
+    
+before_install: ./.ci_scripts/beforeInstall.sh 1.2.8
+
+script: echo 'Skip'
+  #- ./.ci_scripts/validate.sh 1.2.8
+  #- bundle exec jekyll serve --detach && echo '[INFO] Local Jekyll started'
+  #- ./.ci_scripts/consolidate.sh
