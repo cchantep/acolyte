@@ -16,6 +16,8 @@ val Letter = "[a-zA-Z]+".r
 }
 ```
 
+> Scala interpolation could also be used (as in [Playframework Sird Router](https://www.playframework.com/documentation/2.8.x/ScalaSirdRouter)), but that would require to refactor extractors as interpolators, or define interpolators over extractors.
+
 Match component included in this plugin provides syntax `~(extractorFactory[, bindings])` for rich pattern matching.
 
 Consider following extractors, instantiated with one parameter:
