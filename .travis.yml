@@ -19,7 +19,7 @@ jobs:
 
     - stage: *build_n_test
       name: 'Scala 2.12'
-      env: SCALA_VERSION=2.12.11
+      env: SCALA_VERSION=2.12.13
       script: *validate
 
     - stage: *build_n_test
