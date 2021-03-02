@@ -14,7 +14,7 @@ jobs:
   include:
     - stage: &build_n_test 'Build & Test'
       name: 'Scala 2.11'
-      env: SCALA_VERSION=2.11.12
+      env: SCALA_VERSION=2.13.5
       script: &validate ./.ci_scripts/validate.sh
 
     - stage: *build_n_test
