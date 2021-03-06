@@ -36,7 +36,7 @@ class PlayJdbc(
           dependsOn(compile in (scalacPlugin, Test)).value,
         // make sure plugin is there
         libraryDependencies ++= {
-          val anorm = "org.playframework.anorm" %% "anorm" % "2.6.9"
+          val anorm = "org.playframework.anorm" %% "anorm" % "2.6.10"
 
           Seq(
             "org.eu.acolyte" % "jdbc-driver" % (version in ThisBuild).value,
