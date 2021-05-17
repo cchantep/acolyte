@@ -34,7 +34,7 @@ jobs:
 
     - stage: *build_n_test
       name: 'Scala 2.13'
-      env: SCALA_VERSION=2.13.2
+      env: SCALA_VERSION=2.13.6
       script: *validate
 
     - stage: 'Publish snapshot'
