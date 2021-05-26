@@ -12,7 +12,7 @@ object JdbcDriver {
       autoScalaLibrary := false,
       resolvers += Resolver.typesafeRepo("snapshots"),
       libraryDependencies ++= Seq(
-        "commons-io" % "commons-io" % "2.8.0",
+        "commons-io" % "commons-io" % "2.9.0",
         "org.apache.commons" % "commons-lang3" % "3.9",
         "org.specs2" %% "specs2-core" % specsVer.value % Test),
       crossPaths := false,
