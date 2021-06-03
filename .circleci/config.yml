@@ -1,0 +1,169 @@
+version: 2.1
+
+commands:
+  setup_sbt:
+    description: Get and install SBT
+    parameters:
+      sbt_version:
+        type: string
+        default: "1.5.0"
+    steps:
+      - restore_cache:
+          keys:
+          - &sbt_cache_key sbt-{{ checksum "project/build.properties" }}
+
+      - run:
+          name: Setup SBT
+          command: |
+                    if [ ! -x ~/sbt/bin/sbt ]; then
+                      cd ~/
+                      curl --silent -L -o sbt.tgz https://github.com/sbt/sbt/releases/download/v<< parameters.sbt_version >>/sbt-<< parameters.sbt_version >>.tgz
+                      tar -xzvf sbt.tgz && rm -f sbt.tgz
+                    fi
+
+      - save_cache:
+          paths:
+            - ~/sbt
+          key: *sbt_cache_key
+
+  build_n_tests:
+    description: Build & Run tests
+    steps:
+      - restore_cache:
+          keys:
+          - &scala_cache_key scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "version.sbt" }}-{{ checksum "build.sbt" }}-{{ checksum "project/Dependencies.scala" }}
+
+      - run:
+          name: Build & Run tests
+          command: |
+                    export PATH=$PATH:~/sbt/bin
+                    export USER=`basename $HOME`
+                    
+                    ./.ci_scripts/validate.sh
+
+      - save_cache:
+          paths:
+            - ~/.ivy2
+            - ~/.coursier/cache
+            - ~/.sbt
+          key: *scala_cache_key
+
+  collect_test_reports:
+    description: Collect test reports
+    steps:
+      - run:
+          name: Collect test report
+          command: |
+                    mkdir test-reports
+                    find . -path '*/test-reports/*' -name '*.xml' \
+                      -print -exec cp {} test-reports \;
+          when: always
+
+jobs:
+  scala211_jdk8:
+    docker:
+      - image: circleci/openjdk:8-jdk
+
+    working_directory: ~/repo
+
+    environment:
+      SCALA_VERSION: 2.11.12
+    
+    steps:
+      - checkout
+      - setup_sbt
+      - build_n_tests
+      - collect_test_reports
+      - store_test_results:
+          path: test-reports
+
+  scala212_jdk8:
+    docker:
+      - image: circleci/openjdk:8-jdk
+
+    working_directory: ~/repo
+
+    environment:
+      SCALA_VERSION: 2.12.13
+    
+    steps:
+      - checkout
+      - setup_sbt
+      - build_n_tests
+      - collect_test_reports
+      - store_test_results:
+          path: test-reports
+
+  scala213_jdk8:
+    docker:
+      - image: circleci/openjdk:8-jdk
+
+    working_directory: ~/repo
+
+    environment:
+      SCALA_VERSION: 2.13.2
+    
+    steps:
+      - checkout
+      - setup_sbt
+      - build_n_tests
+      - collect_test_reports
+      - store_test_results:
+          path: test-reports
+
+  publish_snapshots:
+    docker:
+      - image: circleci/openjdk:8-jdk
+
+    working_directory: ~/repo
+    
+    steps:
+      - checkout
+      - setup_sbt
+      - deploy:
+          name: Publish artifacts to Sonatype Snapshots
+          command: |
+            set -e
+        
+            if [ "$TRAVIS_PULL_REQUEST" -gt '0' ]; then
+              echo "Do not publish on pull request"
+              exit 0
+            fi
+
+            V=`sbt 'show version' | tail -n 1 | cut -d ']' -f 2 | perl -pe 's/^[ \t]+//;s/[ \t]+$//'`
+    
+            if [ `echo "$V" | grep -- '-SNAPSHOT' | wc -l` -eq 0 ]; then
+              echo "Cannot publish release $V"
+              exit 0
+            fi
+
+            export PUBLISH_REPO_NAME="Sonatype Nexus Repository Manager"
+            export PUBLISH_REPO_ID="oss.sonatype.org"
+            export PUBLISH_REPO_URL="https://oss.sonatype.org/content/repositories/snapshots"
+
+            if [ "x$PUBLISH_USER" = "x" -o "x$PUBLISH_PASS" = "x" ]; then
+              echo "Missing publication credentials"
+              exit 1
+            fi
+
+            sbt +publish
+
+
+workflows:
+  version: 2
+
+  main_suite:
+    jobs:
+      - scala211_jdk8
+      - scala212_jdk8
+      - scala213_jdk8
+
+      - publish_snapshots:
+          filters:
+            branches:
+              only:
+                - master
+          requires:
+            - scala211_jdk8
+            - scala212_jdk8
+            - scala213_jdk8
