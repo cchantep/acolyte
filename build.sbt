@@ -7,10 +7,10 @@ import ScalacPlugin._
 // Settings
 organization in ThisBuild := "org.eu.acolyte"
 
-scalaVersion in ThisBuild := "2.12.13"
+scalaVersion in ThisBuild := "2.12.14"
 
 crossScalaVersions in ThisBuild := Seq(
-  "2.11.12", (scalaVersion in ThisBuild).value, "2.13.2"
+  "2.11.12", (scalaVersion in ThisBuild).value, "2.13.6"
 )
 
 resolvers in ThisBuild ++= Seq(
