@@ -27,7 +27,7 @@ final class ReactiveMongo(scalacPlugin: Project) { self =>
         libraryDependencies ++= Seq(
           "org.reactivemongo" %% "reactivemongo" % reactiveMongoVer % Provided,
           "com.jsuereth" %% "scala-arm" % "2.1-SNAPSHOT",
-          "org.slf4j" % "slf4j-simple" % "1.7.31" % Provided,
+          "org.slf4j" % "slf4j-simple" % "1.7.32" % Provided,
           "com.chuusai" %% "shapeless" % "2.3.7",
           "org.specs2" %% "specs2-core" % specsVer.value % Test)
       ))
