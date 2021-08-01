@@ -11,4 +11,4 @@ addSbtPlugin("cchantep" % "sbt-scaladoc-compiler" % "0.2")
 
 addSbtPlugin("com.dwijnand" % "sbt-dynver" % "4.1.1")
 
-addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % "1.1.0")
+addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % "1.1.1")
