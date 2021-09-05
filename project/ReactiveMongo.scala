@@ -12,7 +12,7 @@ final class ReactiveMongo(scalacPlugin: Project) { self =>
   lazy val generatedClassDirectory = settingKey[File](
     "Directory where classes get generated")
 
-  val reactiveMongoVer = "1.0.6"
+  val reactiveMongoVer = "1.0.7"
 
   lazy val project =
     Project(id = "reactive-mongo", base = file("reactive-mongo")).
