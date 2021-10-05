@@ -19,7 +19,7 @@ class PlayJdbc(
         playVersion := {
           val scalaVer = scalaBinaryVersion.value
 
-          if (scalaVer == "2.11") "2.5.8"
+          if (scalaVer == "2.11") "2.5.19"
           else if (scalaVer == "2.12") "2.6.7"
           else if (scalaVer == "2.13") "2.7.3"
           else "2.4.8"
