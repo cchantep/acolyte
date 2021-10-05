@@ -47,7 +47,7 @@ final class ReactiveMongo(scalacPlugin: Project) { self =>
           val (playVer, playVar) = {
             if (sv == "2.12") "2.6.3" -> "play26"
             else if (sv == "2.13") "2.7.3" -> "play27"
-            else "2.5.13" -> "play25"
+            else "2.5.19" -> "play25"
           }
 
           val playRmVer = reactiveMongoVer.span(_ != '-') match {
