@@ -10,7 +10,7 @@ organization in ThisBuild := "org.eu.acolyte"
 scalaVersion in ThisBuild := "2.12.15"
 
 crossScalaVersions in ThisBuild := Seq(
-  "2.11.12", (scalaVersion in ThisBuild).value, "2.13.6"
+  "2.11.12", (scalaVersion in ThisBuild).value, "2.13.7"
 )
 
 resolvers in ThisBuild ++= Seq(
