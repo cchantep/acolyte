@@ -80,7 +80,7 @@ def yourFunctionUsingMongo(drv: MongoDriver) = "foo"
 
 def yourConnectionHandler = AcolyteDSL.handleQuery { req: Request =>
   acolyte.reactivemongo.QueryResponse( // any query result
-    reactivemongo.bson.BSONDocument("foo" -> "bar")
+    reactivemongo.api.bson.BSONDocument("foo" -> "bar")
   )
 }
 
@@ -265,7 +265,7 @@ At this point we can focus on playing handlers. To handle MongoDB query and to r
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import reactivemongo.api.{ MongoConnection, MongoDriver }
-import reactivemongo.bson.BSONDocument
+import reactivemongo.api.bson.BSONDocument
 import acolyte.reactivemongo.{
   AcolyteDSL, PreparedResponse, QueryResponse, Request
 }
@@ -314,7 +314,7 @@ AcolyteDSL.withDriver { implicit driver: MongoDriver =>
 // Then when Mongo code is given this driver instead of production one ...
 // (see DI or cake pattern) and resolve a BSON collection `col` by this way:
 import scala.util.{ Failure, Success }
-import reactivemongo.bson.BSONDocument
+import reactivemongo.api.bson.BSONDocument
 import reactivemongo.api.collections.bson.BSONCollection
 
 def foo(col: BSONCollection) = 
@@ -355,7 +355,7 @@ AcolyteDSL.withDriver { implicit drv: MongoDriver =>
 Pattern matching can be used in handler to dispatch result accordingly.
 
 ```scala
-import reactivemongo.bson.{ BSONInteger, BSONString }
+import reactivemongo.api.bson.{ BSONInteger, BSONString }
 
 import acolyte.reactivemongo.{
   CountRequest, QueryHandler, QueryResponse, Request, InClause, Property,
@@ -453,7 +453,7 @@ Pattern matching using rich syntax `~(..., ...)` requires [scalac plugin](/scala
 Without this plugin, such parametrized extractor need to be declared as stable identifier before `match` block:
 
 ```scala
-import reactivemongo.bson.BSONString
+import reactivemongo.api.bson.BSONString
 import acolyte.reactivemongo.{ Property, Request, SimpleBody }
 
 // With scalac plugin
@@ -525,7 +525,7 @@ val handler2 = WriteHandler { (op, req) =>
 MongoDB result to be returned by query handler, can be created as following:
 
 ```scala
-import reactivemongo.bson.BSONDocument
+import reactivemongo.api.bson.BSONDocument
 import acolyte.reactivemongo.{ QueryResponse, PreparedResponse }
 
 val error1: PreparedResponse = QueryResponse.failed("Error #1")
@@ -590,7 +590,7 @@ Acolyte for ReactiveMongo can be used with various test and persistence framewor
 It can be used with [specs2](http://etorreborre.github.io/specs2/) to write executable specification for function accessing persistence.
 
 ```scala
-import reactivemongo.bson.BSONDocument
+import reactivemongo.api.bson.BSONDocument
 import acolyte.reactivemongo.{ AcolyteDSL, QueryResponse }
 
 import org.specs2.concurrent.ExecutionEnv

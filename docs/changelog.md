@@ -3,7 +3,7 @@ layout: page
 title: Changelog
 ---
 
-## 1.0.53, 1.0.54, 1.0.55 & 1.0.56
+## 1.0.53, 1.0.54 - 1.0.58
 
 Update dependencies.
 
