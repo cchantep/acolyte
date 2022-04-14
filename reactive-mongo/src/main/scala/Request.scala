@@ -244,7 +244,11 @@ object CommandRequest {
     }
 }
 
-/** Request extractor for the `findAndModify` command */
+/**
+ * Request extractor for the `findAndModify` command.
+ *
+ * @see [[QueryResponse.findAndModify]]
+ */
 object FindAndModifyRequest {
   /**
    * @return Collection name, query, update and then options

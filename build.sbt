@@ -5,15 +5,15 @@ import Format._
 import ScalacPlugin._
 
 // Settings
-organization in ThisBuild := "org.eu.acolyte"
+ThisBuild / organization := "org.eu.acolyte"
 
-scalaVersion in ThisBuild := "2.12.15"
+ThisBuild / scalaVersion := "2.12.15"
 
-crossScalaVersions in ThisBuild := Seq(
-  "2.11.12", (scalaVersion in ThisBuild).value, "2.13.8"
+ThisBuild / crossScalaVersions := Seq(
+  "2.11.12", (ThisBuild / scalaVersion).value, "2.13.8"
 )
 
-resolvers in ThisBuild ++= Seq(
+ThisBuild / resolvers ++= Seq(
   Resolver.sonatypeRepo("snapshots"),
   "Tatami Snapshots" at "https://raw.github.com/cchantep/tatami/master/snapshots")
 
@@ -43,8 +43,8 @@ lazy val studio = (sbt.project in file("studio")).settings(
     "melasse" % "melasse-core" % "1.0",
     "de.sciss" % "syntaxpane" % "1.2.0",
     "org.apache.commons" % "commons-lang3" % "3.12.0"),
-  mainClass in assembly := Some("acolyte.Studio"),
-  assemblyJarName in assembly := s"acolyte-studio-${version.value}.jar")
+  assembly / mainClass := Some("acolyte.Studio"),
+  assembly / assemblyJarName := s"acolyte-studio-${version.value}.jar")
 
 // Aggregation
 val versionVariant = if (isJavaAtLeast("1.7")) "-j7p" else ""

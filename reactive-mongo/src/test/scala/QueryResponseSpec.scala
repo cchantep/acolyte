@@ -66,6 +66,17 @@ final class QueryResponseSpec
         }
       }
 
+      "with a single document using a writable value" in {
+        QueryResponse(Foo("test", 1)) aka "prepared" must beLike {
+          case prepared ⇒ prepared(channelId()) aka "applied" must beSome.which(
+            _ aka "query response" must beResponse {
+              case ValueDocument(
+                ("name", BSONString("test")) ::
+                  ("age", BSONInteger(1)) :: Nil) :: Nil ⇒ ok
+            })
+        }
+      }
+
       "with a many documents using generic factory" in {
         QueryResponse(Seq(Doc1, BSONDocument("b" → 2))).
           aka("prepared") must beLike {
@@ -75,6 +86,21 @@ final class QueryResponseSpec
                   ("b", BSONInteger(2)) :: Nil) :: Nil ⇒ ok
               })
           }
+      }
+
+      "with many writable values" in {
+        QueryResponse(List(Foo("foo", 1), Foo("bar", 2))) must beLike {
+          case prepared ⇒ prepared(channelId()) aka "applied" must beSome.which(
+            _ aka "query response" must beResponse {
+              case ValueDocument(
+                ("name", BSONString("foo")) ::
+                  ("age", BSONInteger(1)) :: Nil) ::
+                ValueDocument(
+                ("name", BSONString("bar")) ::
+                  ("age", BSONInteger(2)) :: Nil) ::
+                Nil ⇒ ok
+            })
+        }
       }
 
       "with a many documents using named factory" in {
@@ -138,4 +164,12 @@ final class QueryResponseSpec
         }
     }
   }
+}
+
+case class Foo(name: String, age: Int)
+
+object Foo {
+  import reactivemongo.api.bson._
+
+  implicit val writer: BSONDocumentWriter[Foo] = Macros.writer
 }

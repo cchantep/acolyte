@@ -3,7 +3,7 @@ import Keys._
 
 object Compiler extends AutoPlugin {
   override def projectSettings = Seq(
-    javacOptions in Test ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
+    Test / javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
     scalacOptions ++= Seq(
       "-encoding", "UTF-8",
       "-unchecked",
@@ -16,7 +16,7 @@ object Compiler extends AutoPlugin {
       "-Ywarn-value-discard",
       "-g:vars"
     ),
-    scalacOptions in Compile ++= {
+    Compile / scalacOptions ++= {
       if (scalaBinaryVersion.value != "2.11") Nil
       else Seq(
         "-Yconst-opt",
@@ -25,7 +25,7 @@ object Compiler extends AutoPlugin {
         "-Yopt:_"
       )
     },
-    scalacOptions in Compile ++= {
+    Compile / scalacOptions ++= {
       if (scalaBinaryVersion.value == "2.10") Nil
       else Seq(
         "-Ywarn-infer-any",
@@ -34,22 +34,22 @@ object Compiler extends AutoPlugin {
         "-Xlint:missing-interpolator"
       )
     },
-    scalacOptions in Compile ++= {
+    Compile / scalacOptions ++= {
       if (scalaBinaryVersion.value != "2.12") Seq("-target:jvm-1.6")
       else Seq("-target:jvm-1.8")
     },
-    scalacOptions in (Compile, console) ~= {
+    Compile / console / scalacOptions ~= {
       _.filterNot { opt => opt.startsWith("-X") || opt.startsWith("-Y") }
     },
-    scalacOptions in (Test, console) ~= {
+    Test / console / scalacOptions ~= {
       _.filterNot { opt => opt.startsWith("-X") || opt.startsWith("-Y") }
     },
-    scalacOptions in (Test, console) += "-Yrepl-class-based",
-    scalacOptions in (Compile, doc) ++= Seq("-unchecked", "-deprecation",
+    Test / console / scalacOptions += "-Yrepl-class-based",
+    Compile / doc / scalacOptions ++= Seq("-unchecked", "-deprecation",
       /*"-diagrams", */"-implicits", "-skip-packages", "samples"),
-    scalacOptions in (Compile, doc) ++= Opts.doc.title(
+    Compile / doc / scalacOptions ++= Opts.doc.title(
       s"Acolyte ${name.value}"),
-    scalacOptions in (Compile, doc) ++= {
+    Compile / doc / scalacOptions ++= {
       sbtdynver.DynVerPlugin.autoImport.previousStableVersion.value.map {
         _.takeWhile(_ != '.')
       }.toSeq

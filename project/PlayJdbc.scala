@@ -14,7 +14,7 @@ class PlayJdbc(
     Project(id = "play-jdbc", base = file("play-jdbc")).
       settings(formatSettings ++ Seq(
         name := "play-jdbc",
-        scalacOptions in Test ++= ScalacPlugin.
+        Test / scalacOptions ++= ScalacPlugin.
           compilerOptions(scalacPlugin).value,
         playVersion := {
           val scalaVer = scalaBinaryVersion.value
@@ -24,22 +24,22 @@ class PlayJdbc(
           else if (scalaVer == "2.13") "2.7.9"
           else "2.4.8"
         },
-        unmanagedSourceDirectories in Compile += {
-          val base = (sourceDirectory in Compile).value
+        Compile / unmanagedSourceDirectories += {
+          val base = (Compile / sourceDirectory).value
 
           CrossVersion.partialVersion(playVersion.value) match {
             case Some((maj, min)) => base / s"play-${maj}.${min}"
             case _                => base / "play"
           }
         },
-        compile in Test := (compile in Test).
-          dependsOn(compile in (scalacPlugin, Test)).value,
+        Test / compile := (Test / compile).
+          dependsOn(scalacPlugin / Test / compile).value,
         // make sure plugin is there
         libraryDependencies ++= {
           val anorm = "org.playframework.anorm" %% "anorm" % "2.6.10"
 
           Seq(
-            "org.eu.acolyte" % "jdbc-driver" % (version in ThisBuild).value,
+            "org.eu.acolyte" % "jdbc-driver" % (ThisBuild / version).value,
             "com.typesafe.play" %% "play-jdbc-api" % playVersion.value % "provided",
             anorm % Test,
             "org.specs2" %% "specs2-core" % specsVer.value % Test)

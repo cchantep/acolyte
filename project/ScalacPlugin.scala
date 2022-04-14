@@ -12,17 +12,17 @@ object ScalacPlugin {
         libraryDependencies ++= Seq(
           "org.scala-lang" % "scala-compiler" % scalaVersion.value % Provided,
           "org.specs2" %% "specs2-core" % specsVer.value % Test),
-        compile in Test := (compile in Test).dependsOn(
-          packageBin in Compile/* make sure plugin.jar is available */).value,
-        sourceGenerators in Compile += Def.task[Seq[File]] {
-          val dir = (sourceManaged in Compile).value
+        Test / compile := (Test / compile).dependsOn(
+          Compile / packageBin/* make sure plugin.jar is available */).value,
+        Compile / sourceGenerators += Def.task[Seq[File]] {
+          val dir = (Compile / sourceManaged).value
 
           generateUtility(scalaBinaryVersion.value, dir)
         },
-        scalacOptions in Test ++= {
+        Test / scalacOptions ++= {
           val v = version.value
-          val b = (baseDirectory in Compile).value
-          val n = (name in Compile).value
+          val b = (Compile / baseDirectory).value
+          val n = (Compile / name).value
           val msv = scalaBinaryVersion.value
 
           val td = b / "target" / s"scala-$msv"
@@ -56,10 +56,10 @@ object CompilerUtility {
   }
 
   def compilerOptions(scalacPlugin: Project) = Def.setting[Seq[String]] {
-    val v = (version in ThisBuild).value
-    val b = (baseDirectory in (scalacPlugin, Compile)).value
-    val n = (name in (scalacPlugin, Compile)).value
-    val msv = (scalaBinaryVersion in Test).value
+    val v = (ThisBuild / version).value
+    val b = (scalacPlugin / Compile / baseDirectory).value
+    val n = (scalacPlugin / Compile / name).value
+    val msv = (Test / scalaBinaryVersion).value
 
     val td = b / "target" / s"scala-$msv"
     val j = td / s"${n}_${msv}-$v.jar"
