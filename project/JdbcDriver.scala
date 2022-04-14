@@ -16,9 +16,9 @@ object JdbcDriver {
         "org.apache.commons" % "commons-lang3" % "3.9",
         "org.specs2" %% "specs2-core" % specsVer.value % Test),
       crossPaths := false,
-      sourceGenerators in Compile += Def.task[Seq[File]] {
-        val base = (baseDirectory in Compile).value
-        val managed = (sourceManaged in Compile).value
+      Compile / sourceGenerators += Def.task[Seq[File]] {
+        val base = (Compile / baseDirectory).value
+        val managed = (Compile / sourceManaged).value
 
         generateCallableStatement(base, managed / "acolyte" / "jdbc") +:
         generateRowClasses(base, managed / "acolyte" / "jdbc",

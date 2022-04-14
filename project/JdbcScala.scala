@@ -16,12 +16,12 @@ final class JdbcScala(
         name := "jdbc-scala",
         // make sure plugin is there
         libraryDependencies ++= Seq(
-          "org.eu.acolyte" % "jdbc-driver" % (version in ThisBuild).value,
+          "org.eu.acolyte" % "jdbc-driver" % (ThisBuild / version).value,
           "org.specs2" %% "specs2-core" % specsVer.value % Test),
         scapegoatDisabledInspections ++= Seq("MaxParameters"),
-        sourceGenerators in Compile += Def.task[Seq[File]] {
-          val base = (baseDirectory in Compile).value
-          val managed = (sourceManaged in Compile).value
+        Compile / sourceGenerators += Def.task[Seq[File]] {
+          val base = (Compile / baseDirectory).value
+          val managed = (Compile / sourceManaged).value
 
           generateRowClasses(base, managed / "acolyte" / "jdbc",
             "acolyte.jdbc", false)

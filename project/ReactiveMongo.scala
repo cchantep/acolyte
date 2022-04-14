@@ -18,11 +18,11 @@ final class ReactiveMongo(scalacPlugin: Project) { self =>
     Project(id = "reactive-mongo", base = file("reactive-mongo")).
       settings(formatSettings ++ Set(
         name := "reactive-mongo",
-        fork in Test := true,
+        Test / fork := true,
         resolvers ++= reactiveResolvers,
-        compile in Test := (compile in Test).dependsOn(
-          scalacPlugin / packageBin in Compile).value,
-        scalacOptions in Test ++= ScalacPlugin.
+        Test / compile := (Test / compile).dependsOn(
+          scalacPlugin / Compile / packageBin).value,
+        Test / scalacOptions ++= ScalacPlugin.
           compilerOptions(scalacPlugin).value,
         libraryDependencies ++= Seq(
           "org.reactivemongo" %% "reactivemongo" % reactiveMongoVer % Provided,
@@ -36,9 +36,9 @@ final class ReactiveMongo(scalacPlugin: Project) { self =>
     Project(id = "play-reactive-mongo", base = file("play-reactive-mongo")).
       settings(formatSettings ++ Set(
         name := "play-reactive-mongo",
-        compile in Test := (compile in Test).dependsOn(
-          scalacPlugin / packageBin in Compile).value,
-        scalacOptions in Test ++= ScalacPlugin.
+        Test / compile := (Test / compile).dependsOn(
+          scalacPlugin / Compile / packageBin).value,
+        Test / scalacOptions ++= ScalacPlugin.
           compilerOptions(scalacPlugin).value,
         resolvers ++= reactiveResolvers,
         libraryDependencies ++= {
