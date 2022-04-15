@@ -207,6 +207,10 @@ object UpdateRequest {
           multi)
     }
 
+    case (UpdateOp, req) =>
+      println(s"_HERE: $req")
+      None
+
     case _ ⇒ None
   }
 }

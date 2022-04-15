@@ -393,6 +393,34 @@ final class DriverSpec extends org.specs2.mutable.Specification
 
       }
 
+      "support pipeline on update" in {
+        withDriver { implicit drv: AsyncDriver =>
+          AcolyteDSL.withWriteHandler({
+            case UpdateRequest(
+              "foo.bar",
+              List(("category", BSONString("A"))),
+              List(("$set", ValueDocument(("foo", BSONString("bar")) :: Nil))),
+              false, true) =>
+              WriteResponse(3)
+
+          }) { con =>
+            con.database("foo").flatMap { db =>
+              val coll = db.collection("bar")
+
+              import coll.AggregationFramework._
+
+              coll.update.one(
+                q = BSONDocument("category" -> "A"),
+                u = Set(BSONDocument("foo" -> "bar")),
+                upsert = false,
+                multi = true,
+                collation = None,
+                arrayFilters = Seq.empty).map(_.n)
+            }
+          }
+        } aka "update result" must beTypedEqualTo(3).awaitFor(timeout)
+      }
+
       "as error when connection handler is empty" in {
         awaitRes(withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withCollection(AcolyteDSL.handle, query3.collection) {
@@ -446,7 +474,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
             _(write2._2.collection).insert.one(write2._2.body.head)
           }
         } aka "result" must beLike[WriteResult] {
-          case result => result.n aka "updated" must_=== 0
+          case result => result.n aka "inserted" must_=== 0
         }.await(0, timeout)
       }
 
@@ -506,7 +534,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
               }
             }
           } aka "write result" must beLike[WriteResult] {
-            case lastError => lastError.n aka "updated" must_=== 2
+            case lastError => lastError.n aka "deleted" must_=== 2
           }.await(0, timeout)
         }
 
