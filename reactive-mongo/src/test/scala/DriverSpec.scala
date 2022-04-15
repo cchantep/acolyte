@@ -346,6 +346,53 @@ final class DriverSpec extends org.specs2.mutable.Specification
 
       }
 
+      "support aggregate" in {
+        val expected = List(
+          BSONDocument("_id" -> "Foo", "maxAge" -> 20),
+          BSONDocument("_id" -> "Bar", "maxAge" -> 54))
+
+        withDriver { implicit drv: AsyncDriver =>
+          AcolyteDSL.withQueryHandler({
+            case AggregateRequest(
+              "test", List(
+                ValueDocument(("$match", ValueDocument(
+                  ("age", ValueDocument(
+                    ("$gt", BSONInteger(10)) :: Nil)) :: Nil)) :: Nil),
+                ValueDocument(("$group", ValueDocument(
+                  ("_id", BSONString("$lastName")) ::
+                    ("maxAge", ValueDocument(
+                      ("$max", BSONString("$age")) :: Nil
+                      )) :: Nil
+                  )) :: Nil),
+                ValueDocument(("$sort", ValueDocument(
+                  ("_id", BSONInteger(1)) :: Nil
+                  )) :: Nil)
+                ),
+              List(
+                ("explain", BSONBoolean(false)),
+                ("allowDiskUse", BSONBoolean(false)),
+                ("cursor", ValueDocument(
+                  ("batchSize", BSONInteger(101)) :: Nil))
+                )) =>
+              QueryResponse(expected)
+          }) { con: MongoConnection =>
+            AcolyteDSL.withCollection(con, "test") {
+              _.aggregateWith[BSONDocument]() { framework =>
+                import framework._
+
+                List(
+                  Match(BSONDocument("age" -> BSONDocument(f"$$gt" -> 10))),
+                  Group(BSONString(f"$$lastName"))(
+                    "maxAge" -> MaxField("age")),
+                  Sort(Ascending("_id")))
+              }.collect[List]()
+            }
+          }
+        } aka "aggregation result" must beTypedEqualTo(
+          expected).awaitFor(timeout)
+
+      }
+
       "as error when connection handler is empty" in {
         awaitRes(withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withCollection(AcolyteDSL.handle, query3.collection) {

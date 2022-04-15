@@ -272,6 +272,23 @@ object FindAndModifyRequest {
   }
 }
 
+object AggregateRequest {
+  /**
+   * @return Collection name, pipeline stages and then options
+   */
+  def unapply(request: Request): Option[(String, List[BSONDocument], List[(String, BSONValue)])] = request match {
+    case CommandRequest(
+      ("aggregate", BSONString(col)) ::
+        ("pipeline", ValueList(stages)) :: opts) =>
+      Some((col, stages.collect {
+        case stage: BSONDocument => stage
+      }, opts))
+
+    case _ =>
+      None
+  }
+}
+
 /**
  * Extractor of properties for a document used a BSON value
  * (when operator is used, e.g. `{ 'age': { '\$gt': 10 } }`).
