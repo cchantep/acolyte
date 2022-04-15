@@ -207,6 +207,10 @@ object UpdateRequest {
           multi)
     }
 
+    case (UpdateOp, req) =>
+      println(s"_HERE: $req")
+      None
+
     case _ ⇒ None
   }
 }
@@ -269,6 +273,23 @@ object FindAndModifyRequest {
     }
 
     case _ ⇒ None
+  }
+}
+
+object AggregateRequest {
+  /**
+   * @return Collection name, pipeline stages and then options
+   */
+  def unapply(request: Request): Option[(String, List[BSONDocument], List[(String, BSONValue)])] = request match {
+    case CommandRequest(
+      ("aggregate", BSONString(col)) ::
+        ("pipeline", ValueList(stages)) :: opts) =>
+      Some((col, stages.collect {
+        case stage: BSONDocument => stage
+      }, opts))
+
+    case _ =>
+      None
   }
 }
 

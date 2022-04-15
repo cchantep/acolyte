@@ -346,6 +346,81 @@ final class DriverSpec extends org.specs2.mutable.Specification
 
       }
 
+      "support aggregate" in {
+        val expected = List(
+          BSONDocument("_id" -> "Foo", "maxAge" -> 20),
+          BSONDocument("_id" -> "Bar", "maxAge" -> 54))
+
+        withDriver { implicit drv: AsyncDriver =>
+          AcolyteDSL.withQueryHandler({
+            case AggregateRequest(
+              "test", List(
+                ValueDocument(("$match", ValueDocument(
+                  ("age", ValueDocument(
+                    ("$gt", BSONInteger(10)) :: Nil)) :: Nil)) :: Nil),
+                ValueDocument(("$group", ValueDocument(
+                  ("_id", BSONString("$lastName")) ::
+                    ("maxAge", ValueDocument(
+                      ("$max", BSONString("$age")) :: Nil
+                      )) :: Nil
+                  )) :: Nil),
+                ValueDocument(("$sort", ValueDocument(
+                  ("_id", BSONInteger(1)) :: Nil
+                  )) :: Nil)
+                ),
+              List(
+                ("explain", BSONBoolean(false)),
+                ("allowDiskUse", BSONBoolean(false)),
+                ("cursor", ValueDocument(
+                  ("batchSize", BSONInteger(101)) :: Nil))
+                )) =>
+              QueryResponse(expected)
+          }) { con: MongoConnection =>
+            AcolyteDSL.withCollection(con, "test") {
+              _.aggregateWith[BSONDocument]() { framework =>
+                import framework._
+
+                List(
+                  Match(BSONDocument("age" -> BSONDocument(f"$$gt" -> 10))),
+                  Group(BSONString(f"$$lastName"))(
+                    "maxAge" -> MaxField("age")),
+                  Sort(Ascending("_id")))
+              }.collect[List]()
+            }
+          }
+        } aka "aggregation result" must beTypedEqualTo(
+          expected).awaitFor(timeout)
+
+      }
+
+      "support pipeline on update" in {
+        withDriver { implicit drv: AsyncDriver =>
+          AcolyteDSL.withWriteHandler({
+            case UpdateRequest(
+              "foo.bar",
+              List(("category", BSONString("A"))),
+              List(("$set", ValueDocument(("foo", BSONString("bar")) :: Nil))),
+              false, true) =>
+              WriteResponse(3)
+
+          }) { con =>
+            con.database("foo").flatMap { db =>
+              val coll = db.collection("bar")
+
+              import coll.AggregationFramework._
+
+              coll.update.one(
+                q = BSONDocument("category" -> "A"),
+                u = Set(BSONDocument("foo" -> "bar")),
+                upsert = false,
+                multi = true,
+                collation = None,
+                arrayFilters = Seq.empty).map(_.n)
+            }
+          }
+        } aka "update result" must beTypedEqualTo(3).awaitFor(timeout)
+      }
+
       "as error when connection handler is empty" in {
         awaitRes(withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withCollection(AcolyteDSL.handle, query3.collection) {
@@ -399,7 +474,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
             _(write2._2.collection).insert.one(write2._2.body.head)
           }
         } aka "result" must beLike[WriteResult] {
-          case result => result.n aka "updated" must_=== 0
+          case result => result.n aka "inserted" must_=== 0
         }.await(0, timeout)
       }
 
@@ -459,7 +534,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
               }
             }
           } aka "write result" must beLike[WriteResult] {
-            case lastError => lastError.n aka "updated" must_=== 2
+            case lastError => lastError.n aka "deleted" must_=== 2
           }.await(0, timeout)
         }
 
