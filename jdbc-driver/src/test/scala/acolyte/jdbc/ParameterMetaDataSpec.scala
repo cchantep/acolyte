@@ -1,45 +1,17 @@
 package acolyte.jdbc
 
-import java.sql.Types
-import java.sql.SQLException
-import java.sql.ParameterMetaData.{
-  parameterModeIn ⇒ IN,
-  parameterModeInOut ⇒ IN_OUT,
-  parameterNullableUnknown ⇒ UNKNOWN_NULL,
-  parameterNoNulls ⇒ NOT_NULL
-}
+import java.sql.{SQLException, Types}
+import java.sql.ParameterMetaData.{parameterModeIn => IN, parameterModeInOut => IN_OUT, parameterNoNulls => NOT_NULL, parameterNullableUnknown => UNKNOWN_NULL}
 
-import org.specs2.specification.core.Fragment
 import org.specs2.mutable.Specification
+import org.specs2.specification.core.Fragment
 
-import acolyte.jdbc.ParameterMetaData.{
-  ParameterDef ⇒ Param,
-  Binary,
-  Array => ArrayP,
-  Blob ⇒ BlobP,
-  Bool ⇒ BoolP,
-  Byte ⇒ ByteP,
-  Decimal ⇒ DecimalP,
-  Default ⇒ DefaultP,
-  Long ⇒ LongP,
-  Null ⇒ NullP,
-  Short ⇒ ShortP,
-  Int ⇒ IntP,
-  Float ⇒ FloatP,
-  Double ⇒ DoubleP,
-  Numeric ⇒ NumericP,
-  Str ⇒ StrP,
-  Date ⇒ DateP,
-  Time ⇒ TimeP,
-  Timestamp ⇒ TimestampP,
-  Real ⇒ RealP,
-  Scaled ⇒ ScaledP
-}
+import acolyte.jdbc.ParameterMetaData.{Array => ArrayP, Binary, Blob => BlobP, Bool => BoolP, Byte => ByteP, Date => DateP, Decimal => DecimalP, Default => DefaultP, Double => DoubleP, Float => FloatP, Int => IntP, Long => LongP, Null => NullP, Numeric => NumericP, ParameterDef => Param, Real => RealP, Scaled => ScaledP, Short => ShortP, Str => StrP, Time => TimeP, Timestamp => TimestampP}
 
 object ParameterMetaDataSpec
   extends Specification with ParameterMetaDataFixtures {
 
-  "Parameter metadata specification" title
+  "Parameter metadata specification".title
 
   "Parameter definition" should {
     "not be maid with invalid class name" in {
@@ -64,11 +36,11 @@ object ParameterMetaDataSpec
 
   "Parameter count" should {
     "be zero" in {
-      metadata().getParameterCount aka "count" mustEqual 0
+      metadata().getParameterCount aka "count" must_=== 0
     }
 
     "be two" in {
-      twoParams.getParameterCount aka "count" mustEqual 2
+      twoParams.getParameterCount aka "count" must_=== 2
     }
   }
 
@@ -85,8 +57,8 @@ object ParameterMetaDataSpec
     }
 
     "be (NOT NULL, UNKNOWN)" in {
-      (twoParams.isNullable(1) aka "first" mustEqual NOT_NULL).
-        and(twoParams.isNullable(2) aka "second" mustEqual UNKNOWN_NULL)
+      (twoParams.isNullable(1) aka "first" must_=== NOT_NULL).
+        and(twoParams.isNullable(2) aka "second" must_=== UNKNOWN_NULL)
 
     }
   }
@@ -111,8 +83,8 @@ object ParameterMetaDataSpec
     }
 
     "be (-1, 10)" in {
-      twoParams.getPrecision(1) aka "first" mustEqual -1 and (
-        twoParams.getPrecision(2) aka "second" mustEqual 10)
+      twoParams.getPrecision(1) aka "first" must_=== -1 and (
+        twoParams.getPrecision(2) aka "second" must_=== 10)
 
     }
   }
@@ -124,8 +96,8 @@ object ParameterMetaDataSpec
     }
 
     "be (-1, 1)" in {
-      twoParams.getScale(1) aka "first" must_== -1 and (
-        twoParams.getScale(2) aka "second" must_== 1)
+      twoParams.getScale(1) aka "first" must_=== -1 and (
+        twoParams.getScale(2) aka "second" must_=== 1)
 
     }
   }
@@ -137,8 +109,8 @@ object ParameterMetaDataSpec
     }
 
     "be (VARCHAR, INTEGER)" in {
-      (twoParams.getParameterType(1) aka "first" mustEqual Types.VARCHAR).
-        and(twoParams.getParameterType(2) aka "second" mustEqual Types.INTEGER)
+      (twoParams.getParameterType(1) aka "first" must_=== Types.VARCHAR).
+        and(twoParams.getParameterType(2) aka "second" must_=== Types.INTEGER)
 
     }
   }
@@ -150,8 +122,8 @@ object ParameterMetaDataSpec
     }
 
     "be (VARCHAR, INTEGER)" in {
-      (twoParams.getParameterTypeName(1) aka "first" mustEqual "VARCHAR").
-        and(twoParams.getParameterTypeName(2) aka "second" mustEqual "INTEGER")
+      (twoParams.getParameterTypeName(1) aka "first" must_=== "VARCHAR").
+        and(twoParams.getParameterTypeName(2) aka "second" must_=== "INTEGER")
 
     }
   }
@@ -164,9 +136,9 @@ object ParameterMetaDataSpec
 
     "be (String, Integer)" in {
       (twoParams.getParameterClassName(1).
-        aka("first") mustEqual "java.lang.String").
+        aka("first") must_=== "java.lang.String").
         and(twoParams.getParameterClassName(2).
-          aka("second") mustEqual "java.lang.Integer")
+          aka("second") must_=== "java.lang.Integer")
 
     }
   }
@@ -178,8 +150,8 @@ object ParameterMetaDataSpec
     }
 
     "be (INOUT, IN)" in {
-      (twoParams.getParameterMode(1) aka "first" mustEqual IN_OUT).
-        and(twoParams.getParameterMode(2) aka "second" mustEqual IN)
+      (twoParams.getParameterMode(1) aka "first" must_=== IN_OUT).
+        and(twoParams.getParameterMode(2) aka "second" must_=== IN)
 
     }
   }
@@ -193,8 +165,7 @@ object ParameterMetaDataSpec
 
     "be unwrapped to java.sql.ParameterMetaData" in {
       Option(metadata().unwrap(classOf[java.sql.ParameterMetaData])).
-        aka("unwrapped") must beSome.which(
-          _.isInstanceOf[java.sql.ParameterMetaData])
+        aka("unwrapped") must beSome[java.sql.ParameterMetaData]
 
     }
   }
@@ -203,7 +174,7 @@ object ParameterMetaDataSpec
     Fragment.foreach(jdbcTypeMap.toList) {
       case (k, v) =>
         s"be expected one for ${typeName(k)}" in {
-          DefaultP(k) aka "default parameter" mustEqual param(v, IN, k,
+          DefaultP(k) aka "default parameter" must_=== param(v, IN, k,
             typeName(k), typePrecision(k), typeScale(k), UNKNOWN_NULL,
             typeSign(k))
 
@@ -215,9 +186,9 @@ object ParameterMetaDataSpec
     Fragment.foreach(
       Seq(Types.DECIMAL, Types.DOUBLE, Types.FLOAT, Types.REAL)) { t =>
         s"be ok for $t" in {
-          (1 to 32).foldLeft(ok) { (prev, s) ⇒
+          (1 to 32).foldLeft(ok) { (prev, s) =>
             prev and {
-              ScaledP(t, s) mustEqual param(
+              ScaledP(t, s) must_=== param(
                 jdbcTypeMap(t),
                 IN, t, typeName(t), typePrecision(t), s, UNKNOWN_NULL, typeSign(t))
             }
@@ -227,118 +198,118 @@ object ParameterMetaDataSpec
   }
 
   "Null parameter" should {
-    Fragment.foreach(jdbcTypeMap.keys.toSeq) { k ⇒
+    Fragment.foreach(jdbcTypeMap.keys.toSeq) { k =>
       s"be expected ${typeName(k)}" in {
-        NullP(k) aka "null parameter" mustEqual DefaultP(k)
+        NullP(k) aka "null parameter" must_=== DefaultP(k)
       }
     }
   }
 
   "Array parameter" should {
     "be default one" in {
-      ArrayP aka "array parameter" mustEqual DefaultP(Types.ARRAY)
+      ArrayP aka "array parameter" must_=== DefaultP(Types.ARRAY)
     }
   }
 
   "Binary parameter" should {
     "be default one" in {
-      Binary aka "binary parameter" mustEqual DefaultP(Types.BINARY)
+      Binary aka "binary parameter" must_=== DefaultP(Types.BINARY)
     }
   }
 
   "Blob parameter" should {
     "be default one" in {
-      BlobP aka "blob parameter" mustEqual DefaultP(Types.BLOB)
+      BlobP aka "blob parameter" must_=== DefaultP(Types.BLOB)
     }
   }
 
   "Boolean parameter" should {
     "be default one" in {
-      BoolP aka "boolean parameter" mustEqual DefaultP(Types.BOOLEAN)
+      BoolP aka "boolean parameter" must_=== DefaultP(Types.BOOLEAN)
     }
   }
 
   "Byte parameter" should {
     "be default one" in {
-      ByteP aka "byte parameter" mustEqual DefaultP(Types.TINYINT)
+      ByteP aka "byte parameter" must_=== DefaultP(Types.TINYINT)
     }
   }
 
   "Short parameter" should {
     "be default one" in {
-      ShortP aka "short parameter" mustEqual DefaultP(Types.SMALLINT)
+      ShortP aka "short parameter" must_=== DefaultP(Types.SMALLINT)
     }
   }
 
   "Integer parameter" should {
     "be default one" in {
-      IntP aka "integer parameter" mustEqual DefaultP(Types.INTEGER)
+      IntP aka "integer parameter" must_=== DefaultP(Types.INTEGER)
     }
   }
 
   "Long parameter" should {
     "be default one" in {
-      LongP aka "long parameter" mustEqual DefaultP(Types.BIGINT)
+      LongP aka "long parameter" must_=== DefaultP(Types.BIGINT)
     }
   }
 
   "Float parameter" should {
     "have scale 1" in {
-      (FloatP(1.2f) aka "float parameter" mustEqual ScaledP(Types.FLOAT, 1)).
-        and(RealP(1.2f) aka "real parameter" mustEqual ScaledP(Types.REAL, 1))
+      (FloatP(1.2f) aka "float parameter" must_=== ScaledP(Types.FLOAT, 1)).
+        and(RealP(1.2f) aka "real parameter" must_=== ScaledP(Types.REAL, 1))
     }
 
     "have scale 2" in {
-      (FloatP(1.23f) aka "float parameter" mustEqual ScaledP(Types.FLOAT, 2)).
-        and(RealP(1.23f) aka "real parameter" mustEqual ScaledP(Types.REAL, 2))
+      (FloatP(1.23f) aka "float parameter" must_=== ScaledP(Types.FLOAT, 2)).
+        and(RealP(1.23f) aka "real parameter" must_=== ScaledP(Types.REAL, 2))
     }
 
     "have scale 6" in {
       (FloatP(1.234567f).
-        aka("float parameter") mustEqual ScaledP(Types.FLOAT, 6)).
+        aka("float parameter") must_=== ScaledP(Types.FLOAT, 6)).
         and(RealP(1.234567f).
-          aka("real parameter") mustEqual ScaledP(Types.REAL, 6))
+          aka("real parameter") must_=== ScaledP(Types.REAL, 6))
     }
   }
 
   "Double parameter" should {
     "have scale 1" in {
-      DoubleP(1.2f) aka "double parameter" mustEqual ScaledP(Types.DOUBLE, 1)
+      DoubleP(1.2f) aka "double parameter" must_=== ScaledP(Types.DOUBLE, 1)
     }
 
     "have scale 5" in {
       DoubleP(1.23456f).
-        aka("double parameter") mustEqual ScaledP(Types.DOUBLE, 5)
+        aka("double parameter") must_=== ScaledP(Types.DOUBLE, 5)
     }
   }
 
   "BigDecimal parameter" should {
     "have scale 3" in {
       (NumericP(new java.math.BigDecimal("1.234")).
-        aka("numeric parameter") mustEqual ScaledP(Types.NUMERIC, 3)).
+        aka("numeric parameter") must_=== ScaledP(Types.NUMERIC, 3)).
         and(DecimalP(new java.math.BigDecimal("1.234")).
-          aka("decimal parameter") mustEqual ScaledP(Types.DECIMAL, 3))
+          aka("decimal parameter") must_=== ScaledP(Types.DECIMAL, 3))
 
     }
   }
 
   "String parameter" should {
     "be default one" in {
-      StrP aka "string parameter" mustEqual DefaultP(Types.VARCHAR)
+      StrP aka "string parameter" must_=== DefaultP(Types.VARCHAR)
     }
   }
 
   "Temporaral parameters" should {
     "be date" in {
-      DateP aka "date parameter" mustEqual DefaultP(Types.DATE)
+      DateP aka "date parameter" must_=== DefaultP(Types.DATE)
     }
 
     "be time" in {
-      TimeP aka "time parameter" mustEqual DefaultP(Types.TIME)
+      TimeP aka "time parameter" must_=== DefaultP(Types.TIME)
     }
 
     "be timestamp" in {
-      TimestampP aka "ts parameter" mustEqual DefaultP(Types.TIMESTAMP)
+      TimestampP aka "ts parameter" must_=== DefaultP(Types.TIMESTAMP)
     }
   }
 
@@ -392,7 +363,7 @@ sealed trait ParameterMetaDataFixtures {
   import acolyte.jdbc.ParameterMetaData.ParameterDef
 
   lazy val jdbcTypeMap = JavaConverters.mapAsScalaMapConverter[Integer, String](
-    Defaults.jdbcTypeMappings).asScala.foldLeft(Map[Int, String]()) { (m, p) ⇒
+    Defaults.jdbcTypeMappings).asScala.foldLeft(Map[Int, String]()) { (m, p) =>
       m + (p._1.toInt -> p._2)
     }
 

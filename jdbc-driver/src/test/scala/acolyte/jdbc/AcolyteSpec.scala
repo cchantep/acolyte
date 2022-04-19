@@ -5,7 +5,7 @@ import java.sql.Date
 import org.specs2.mutable.Specification
 
 object AcolyteSpec extends Specification {
-  "Acolyte" title
+  "Acolyte".title
 
   sequential
 
@@ -14,7 +14,7 @@ object AcolyteSpec extends Specification {
 
     "return 2 for DELETE statement" in {
       con.prepareStatement("DELETE * FROM table").
-        executeUpdate aka "update count" mustEqual 2
+        executeUpdate aka "update count" must_=== 2
 
     }
 
@@ -25,12 +25,12 @@ object AcolyteSpec extends Specification {
       s.setString(1, "idVal");
       s.setString(2, "idName")
 
-      s.executeUpdate aka "update count" mustEqual 1
+      s.executeUpdate aka "update count" must_=== 1
     }
 
     "return empty resultset for SELECT query" in {
       con.createStatement().executeQuery("SELECT * FROM table").
-        aka("resultset") mustEqual RowLists.
+        aka("resultset") must_=== RowLists.
         rowList1(classOf[String]).resultSet()
 
     }
@@ -45,23 +45,23 @@ object AcolyteSpec extends Specification {
 
       "with expected 3 columns on first row" in {
         (rs.next aka "has first row" must beTrue).
-          and(rs.getString(1) aka "1st row/1st col (by index)" mustEqual "str").
+          and(rs.getString(1) aka "1st row/1st col (by index)" must_=== "str").
           and(rs.getString("String").
-            aka("1st row/1st col (by label)") mustEqual "str").
-          and(rs.getFloat(2) aka "1st row/2nd col" mustEqual 1.2f).
+            aka("1st row/1st col (by label)") must_=== "str").
+          and(rs.getFloat(2) aka "1st row/2nd col" must_=== 1.2F).
           and(rs.getDate(3).
-            aka("1st row/2rd col (by index)") mustEqual new Date(1l)).
+            aka("1st row/2rd col (by index)") must_=== new Date(1L)).
           and(rs.getDate("Date").
-            aka("1st row/2rd col (by label)") mustEqual new Date(1l))
+            aka("1st row/2rd col (by label)") must_=== new Date(1L))
 
       }
 
       "with expected 3 columns on second row" in {
         (rs.next aka "has second row" must beTrue).
-          and(rs.getString(1) aka "2nd row/1st col (by index)" mustEqual "val").
+          and(rs.getString(1) aka "2nd row/1st col (by index)" must_=== "val").
           and(rs.getString("String").
-            aka("2nd row/1st col (by label)") mustEqual "val").
-          and(rs.getFloat(2) aka "2nd row/2nd col" mustEqual 2.34f).
+            aka("2nd row/1st col (by label)") must_=== "val").
+          and(rs.getFloat(2) aka "2nd row/2nd col" must_=== 2.34F).
           and(rs.getDate(3) aka "2nd row/2rd col (by index)" must beNull).
           and(rs.getDate("Date") aka "2nd row/2rd col (by label)" must beNull)
 
@@ -87,34 +87,34 @@ object AcolyteSpec extends Specification {
       "with expected 3 columns on first row" in {
         (rs.next aka "has first row" must beTrue).
           and(rs.getString(1).
-            aka("1st row/1st col (by index)") mustEqual "text").
+            aka("1st row/1st col (by index)") must_=== "text").
           and(rs.getFloat(2).
-            aka("1st row/2nd col (by index)") mustEqual 2.3f).
+            aka("1st row/2nd col (by index)") must_=== 2.3F).
           and(rs.getDate(3).
-            aka("1st row/2rd col (by index)") mustEqual new Date(3l)).
+            aka("1st row/2rd col (by index)") must_=== new Date(3L)).
           and(rs.getString("str").
-            aka("1st row/1st col (by label)") mustEqual "text").
+            aka("1st row/1st col (by label)") must_=== "text").
           and(rs.getFloat("f").
-            aka("1st row/2nd col (by label)") mustEqual 2.3f).
+            aka("1st row/2nd col (by label)") must_=== 2.3F).
           and(rs.getDate("date").
-            aka("1st row/2rd col (by label)") mustEqual new Date(3l))
+            aka("1st row/2rd col (by label)") must_=== new Date(3L))
 
       }
 
       "with expected 3 columns on second row" in {
         (rs.next aka "has second row" must beTrue).
           and(rs.getString(1).
-            aka("2nd row/1st col (by index)") mustEqual "label").
+            aka("2nd row/1st col (by index)") must_=== "label").
           and(rs.getFloat(2).
-            aka("2nd row/2nd col (by index)") mustEqual 4.56f).
+            aka("2nd row/2nd col (by index)") must_=== 4.56F).
           and(rs.getDate(3).
-            aka("2nd row/2rd col (by index)") mustEqual new Date(4l)).
+            aka("2nd row/2rd col (by index)") must_=== new Date(4L)).
           and(rs.getString("str").
-            aka("2nd row/1st col (by label)") mustEqual "label").
+            aka("2nd row/1st col (by label)") must_=== "label").
           and(rs.getFloat("f").
-            aka("2nd row/2nd col (by label)") mustEqual 4.56f).
+            aka("2nd row/2nd col (by label)") must_=== 4.56F).
           and(rs.getDate("date").
-            aka("2nd row/2rd col (by label)") mustEqual new Date(4l))
+            aka("2nd row/2rd col (by label)") must_=== new Date(4L))
 
       }
 
@@ -137,20 +137,20 @@ object AcolyteSpec extends Specification {
       lazy val s = con.prepareStatement("EXEC proc")
 
       (s.executeQuery.next aka "has first row" must beFalse).
-        and(s.getWarnings.getMessage aka "reason" mustEqual "Warn EXEC")
+        and(s.getWarnings.getMessage aka "reason" must_=== "Warn EXEC")
     }
 
     "update nothing" in {
       lazy val s = con.prepareStatement("UPDATE x")
 
-      s.executeUpdate aka "updated count" mustEqual 0
+      s.executeUpdate aka "updated count" must_=== 0
     }
 
     "raise SQL warning on DELETE execution" in {
       lazy val s = con.prepareStatement("DELETE y")
 
-      (s.executeUpdate aka "updated count" mustEqual 0).
-        and(s.getWarnings.getMessage aka "reason" mustEqual "Warn DELETE")
+      (s.executeUpdate aka "updated count" must_=== 0).
+        and(s.getWarnings.getMessage aka "reason" must_=== "Warn DELETE")
     }
   }
 
@@ -177,7 +177,7 @@ object AcolyteSpec extends Specification {
       val keys = s.getGeneratedKeys
 
       (keys.next aka "has generated key" must beTrue).
-        and(keys.getInt(1) aka "first key" must_== 100).
+        and(keys.getInt(1) aka "first key" must_=== 100).
         and(keys.next aka "has second key" must beFalse)
 
     }

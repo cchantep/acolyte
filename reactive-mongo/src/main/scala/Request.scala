@@ -10,12 +10,7 @@ import reactivemongo.api.bson.{
   BSONString,
   BSONValue
 }
-import reactivemongo.api.bson.buffer.acolyte.{
-  ReadableBuffer,
-  WritableBuffer,
-  readDocument,
-  writable
-}
+import reactivemongo.api.bson.buffer.acolyte.{readDocument, writable, ReadableBuffer, WritableBuffer}
 
 /**
  * Request executed against Mongo connection.
@@ -34,6 +29,7 @@ trait Request {
 
 /** Request companion */
 object Request {
+
   /**
    * Parses request for specified collection from given `buffer`.
    *
@@ -49,15 +45,23 @@ object Request {
    * Returns a string representation of the given request,
    * for pretty-print it (debug).
    */
-  def pretty(request: Request): String = s"""Request(${request.collection}, [ ${request.body.map(BSONDocument.pretty) mkString ", "} ])"""
+  def pretty(
+      request: Request
+    ): String = s"""Request(${request.collection}, [ ${request.body
+      .map(BSONDocument.pretty) mkString ", "} ])"""
 
   /** Parses body documents from prepared buffer. */
   @annotation.tailrec
-  private def parse(buf: ReadableBuffer, body: List[BSONDocument]): List[BSONDocument] = if (buf.readable == 0) return body.reverse else {
+  private def parse(
+      buf: ReadableBuffer,
+      body: List[BSONDocument]
+    ): List[BSONDocument] = if (buf.readable() == 0) return body.reverse
+  else {
     val pos = buf.buffer.position()
     val b = buf.readByte()
 
-    if (b == (0x0: Byte)) body else {
+    if (b == (0x0: Byte)) body
+    else {
       buf.buffer.position(pos)
 
       val doc = readDocument(buf)
@@ -66,10 +70,13 @@ object Request {
   }
 
   @annotation.tailrec
-  private def go(chan: ByteBuf, body: WritableBuffer = writable()): ReadableBuffer = {
+  private def go(
+      chan: ByteBuf,
+      body: WritableBuffer = writable()
+    ): ReadableBuffer = {
     val len = chan.readableBytes()
 
-    if (len == 0) body.toReadableBuffer
+    if (len == 0) body.toReadableBuffer()
     else {
       val buff = new Array[Byte](len)
       chan.readBytes(buff)
@@ -82,7 +89,7 @@ object Request {
    * Request extractor.
    *
    * {{{
-   * import reactivemongo.api.bson.{ BSONInteger, BSONString }
+   * import reactivemongo.api.bson.BSONInteger
    * import acolyte.reactivemongo.{
    *   PreparedResponse, Request, SimpleBody, ValueDocument
    * }
@@ -99,23 +106,19 @@ object Request {
    *
    *   case Request(colName, SimpleBody((k1, v1) :: (k2, v2) :: Nil)) =>
    *     // Any request with exactly 2 BSON properties
+   *     println(colName + " -> " + (k1, v1).toString + ", " + (k2, v2).toString)
    *     resultB
-   *
-   *   case Request("db.col", SimpleBody(("email", BSONString(v)) :: _)) =>
-   *     // Request on db.col starting with an "email" string property
-   *     resultC
-   *
-   *   case Request("db.col", SimpleBody(("name", BSONString("eman")) :: _)) =>
-   *     // Request on db.col starting with an "name" string property,
-   *     // whose value is "eman"
-   *     resultD
    *
    *   case Request(_, SimpleBody(("age", ValueDocument(
    *     ("\\$gt", BSONInteger(minAge)) :: Nil)) :: _)) =>
    *     // Request on any collection, with an "age" document as property,
    *     // itself with exactly one integer "\\$gt" property
    *     // e.g. `{ 'age': { '\\$gt', 10 } }`
+   *     println("minAge=" + minAge)
    *     resultE
+   * 
+   *   case req =>
+   *     sys.error("req = " + req)
    * }
    * }}}
    *
@@ -136,9 +139,10 @@ case class BDoc(underlying: BSONDocument)
  * If there are more than one document, matching just ignore extra ones.
  */
 object SimpleBody {
+
   /** @return BSON properties from the first document of the body. */
   def unapply(body: List[BDoc]): Option[List[(String, BSONValue)]] =
-    body.headOption.map(_.underlying.elements.map {
+    body.headOption.map(_.underlying.elements.collect {
       case BSONElement(name, value) => name -> value
     }.toList)
 
@@ -146,28 +150,34 @@ object SimpleBody {
 
 /** Complete request body extractor; Matches body with many documents. */
 object RequestBody {
+
   /** @return List of document, each document as list of its BSON properties. */
   def unapply(body: List[BDoc]): Option[List[List[(String, BSONValue)]]] =
-    Some(body.map(_.underlying.elements.map {
+    Some(body.map(_.underlying.elements.collect {
       case BSONElement(name, value) => name -> value
     }.toList))
 }
 
 /** Insert request */
 object InsertRequest {
-  /** @return Collection name and elements of document to be inserted. */
-  def unapply(insert: (WriteOp, Request)): Option[(String, List[(String, BSONValue)])] = (insert._1, insert._2.body) match {
-    case (InsertOp, body :: Nil) =>
-      Some(insert._2.collection -> (body.elements.map {
-        case BSONElement(name, value) => name -> value
-      }.toList))
 
-    case _ => None
-  }
+  /** @return Collection name and elements of document to be inserted. */
+  def unapply(
+      insert: (WriteOp, Request)
+    ): Option[(String, List[(String, BSONValue)])] =
+    (insert._1, insert._2.body) match {
+      case (InsertOp, body :: Nil) =>
+        Some(insert._2.collection -> (body.elements.collect {
+          case BSONElement(name, value) => name -> value
+        }.toList))
+
+      case _ => None
+    }
 }
 
 /** Update request */
 object UpdateElement {
+
   /**
    * Extracts an update element: query (q), update operator (u),
    * and option `upsert` and `multi`.
@@ -178,13 +188,16 @@ object UpdateElement {
    *
    * @return (q, u, upsert, multi)
    */
-  def unapply(value: BSONValue): Option[(BSONDocument, BSONValue, Boolean, Boolean)] = value match {
-    case el: BSONDocument => for {
-      q ← el.getAsOpt[BSONDocument]("q")
-      u ← el.getAsOpt[BSONValue]("u")
-      upsert = el.getAsOpt[Boolean]("upsert").getOrElse(false)
-      multi = el.getAsOpt[Boolean]("multi").getOrElse(false)
-    } yield (q, u, upsert, multi)
+  def unapply(
+      value: BSONValue
+    ): Option[(BSONDocument, BSONValue, Boolean, Boolean)] = value match {
+    case el: BSONDocument =>
+      for {
+        q <- el.getAsOpt[BSONDocument]("q")
+        u <- el.getAsOpt[BSONValue]("u")
+        upsert = el.getAsOpt[Boolean]("upsert").getOrElse(false)
+        multi = el.getAsOpt[Boolean]("multi").getOrElse(false)
+      } yield (q, u, upsert, multi)
 
     case _ => None
   }
@@ -192,63 +205,79 @@ object UpdateElement {
 
 /** Update request */
 object UpdateRequest {
+
   /** @return Collection name, elements of selector/document to be updated. */
-  def unapply(update: (WriteOp, Request)): Option[(String, List[(String, BSONValue)], List[(String, BSONValue)], Boolean, Boolean)] = (update._1, update._2.body) match {
-    case (UpdateOp, first :: _) => UpdateElement.unapply(first).collect {
-      case (selector, doc: BSONDocument, upsert, multi) =>
-        (
-          update._2.collection,
-          selector.elements.map {
-            case BSONElement(name, value) => name -> value
-          }.toList,
-          doc.elements.map {
-            case BSONElement(name, value) => name -> value
-          }.toList,
-          upsert,
-          multi)
+  def unapply(
+      update: (WriteOp, Request)
+    ): Option[(String, List[(String, BSONValue)], List[(String, BSONValue)], Boolean, Boolean)] =
+    (update._1, update._2.body) match {
+      case (UpdateOp, first :: _) =>
+        UpdateElement.unapply(first).collect {
+          case (selector, doc: BSONDocument, upsert, multi) =>
+            (
+              update._2.collection,
+              selector.elements.collect {
+                case BSONElement(name, value) => name -> value
+              }.toList,
+              doc.elements.collect {
+                case BSONElement(name, value) => name -> value
+              }.toList,
+              upsert,
+              multi
+            )
 
-      case (selector, arr: BSONArray, upsert, multi) =>
-        (
-          update._2.collection,
-          selector.elements.map {
-            case BSONElement(name, value) => name -> value
-          }.toList,
-          arr.values.collect {
-            case ValueDocument((name, stage) :: Nil) =>
-              name -> stage
+          case (selector, arr: BSONArray, upsert, multi) =>
+            (
+              update._2.collection,
+              selector.elements.collect {
+                case BSONElement(name, value) => name -> value
+              }.toList,
+              arr.values.collect {
+                case ValueDocument((name, stage) :: Nil) =>
+                  name -> stage
 
-          }.toList,
-          upsert,
-          multi)
+              }.toList,
+              upsert,
+              multi
+            )
+        }
+
+      case _ => None
     }
-
-    case _ => None
-  }
 }
 
 /** Delete request */
 object DeleteRequest {
+
   /** @return Collection name and elements of selector. */
-  def unapply(delete: (WriteOp, Request)): Option[(String, List[(String, BSONValue)])] = (delete._1, delete._2.body) match {
-    case (DeleteOp, ValueDocument(
-      ("q", selector: BSONDocument) :: _) :: Nil) =>
-      Some(delete._2.collection -> (selector.elements.map {
-        case BSONElement(name, value) => name -> value
-      }.toList))
+  def unapply(
+      delete: (WriteOp, Request)
+    ): Option[(String, List[(String, BSONValue)])] =
+    (delete._1, delete._2.body) match {
+      case (
+            DeleteOp,
+            ValueDocument(("q", selector: BSONDocument) :: _) :: Nil
+          ) =>
+        Some(delete._2.collection -> (selector.elements.collect {
+          case BSONElement(name, value) => name -> value
+        }.toList))
 
-    case (DeleteOp, ValueDocument(
-      ("q", selector: BSONDocument) :: _) ::
-      ValueDocument(_ /*options*/ ) :: _) =>
-      Some(delete._2.collection -> (selector.elements.map {
-        case BSONElement(name, value) => name -> value
-      }.toList))
+      case (
+            DeleteOp,
+            ValueDocument(("q", selector: BSONDocument) :: _) ::
+            ValueDocument(_ /*options*/ ) :: _
+          ) =>
+        Some(delete._2.collection -> (selector.elements.collect {
+          case BSONElement(name, value) => name -> value
+        }.toList))
 
-    case _ => None
-  }
+      case _ => None
+    }
 }
 
 /** Request extractor for any command (at DB or collection level) */
 object CommandRequest {
+
   /** @return The body of the command request */
   def unapply(request: Request): Option[List[(String, BSONValue)]] =
     request match {
@@ -272,6 +301,7 @@ object CommandRequest {
  * }}}
  */
 object StartSessionRequest {
+
   def unapply(request: Request): Boolean = request match {
     case CommandRequest(("startSession", BSONInteger(1)) :: _) =>
       true
@@ -282,6 +312,7 @@ object StartSessionRequest {
 }
 
 object StartTransactionRequest {
+
   def unapply(request: Request): Option[String] = request match {
     case Request(name, SimpleBody(Nil)) if (name.indexOf(".startx") != -1) =>
       Some(name)
@@ -297,43 +328,50 @@ object StartTransactionRequest {
  * @see [[QueryResponse.findAndModify]]
  */
 object FindAndModifyRequest {
+
   /**
    * @return Collection name, query, update and then options
    */
-  def unapply(request: Request): Option[(String, List[(String, BSONValue)], List[(String, BSONValue)], List[(String, BSONValue)])] = request match {
-    case CommandRequest(("findAndModify", BSONString(col)) :: ps) => {
-      var q = List.empty[(String, BSONValue)]
-      var u = List.empty[(String, BSONValue)]
-      val o = List.newBuilder[(String, BSONValue)]
+  def unapply(
+      request: Request
+    ): Option[(String, List[(String, BSONValue)], List[(String, BSONValue)], List[(String, BSONValue)])] =
+    request match {
+      case CommandRequest(("findAndModify", BSONString(col)) :: ps) => {
+        var q = List.empty[(String, BSONValue)]
+        var u = List.empty[(String, BSONValue)]
+        val o = List.newBuilder[(String, BSONValue)]
 
-      ps.foreach {
-        case ("query", ValueDocument(query))   => q = query
-        case ("update", ValueDocument(update)) => u = update
-        case opt                               => o += opt
+        ps.foreach {
+          case ("query", ValueDocument(query))   => q = query
+          case ("update", ValueDocument(update)) => u = update
+          case opt                               => o += opt
+        }
+
+        Some((col, q, u, o.result()))
       }
 
-      Some((col, q, u, o.result()))
+      case _ => None
     }
-
-    case _ => None
-  }
 }
 
 object AggregateRequest {
+
   /**
    * @return Collection name, pipeline stages and then options
    */
-  def unapply(request: Request): Option[(String, List[BSONDocument], List[(String, BSONValue)])] = request match {
-    case CommandRequest(
-      ("aggregate", BSONString(col)) ::
-        ("pipeline", ValueList(stages)) :: opts) =>
-      Some((col, stages.collect {
-        case stage: BSONDocument => stage
-      }, opts))
+  def unapply(
+      request: Request
+    ): Option[(String, List[BSONDocument], List[(String, BSONValue)])] =
+    request match {
+      case CommandRequest(
+            ("aggregate", BSONString(col)) ::
+            ("pipeline", ValueList(stages)) :: opts
+          ) =>
+        Some((col, stages.collect { case stage: BSONDocument => stage }, opts))
 
-    case _ =>
-      None
-  }
+      case _ =>
+        None
+    }
 }
 
 /**
@@ -344,11 +382,13 @@ object AggregateRequest {
  * @see [[Property]]
  */
 object ValueDocument {
+
   def unapply(v: BSONValue): Option[List[(String, BSONValue)]] = {
     v match {
-      case doc: BSONDocument => Some(doc.elements.map {
-        case BSONElement(name, value) => name -> value
-      }.toList)
+      case doc: BSONDocument =>
+        Some(doc.elements.collect {
+          case BSONElement(name, value) => name -> value
+        }.toList)
 
       case _ => None
     }
@@ -368,13 +408,17 @@ object ValueList {
  * @see [[SimpleBody]]
  */
 object CountRequest {
+
   /**
    * @return Collection name -> query body (count BSON properties)
    */
   def unapply(request: Request): Option[(String, List[(String, BSONValue)])] =
     request match {
-      case CommandRequest(("count", BSONString(col)) ::
-        ("query", ValueDocument(query)) :: _) => Some(col -> query)
+      case CommandRequest(
+            ("count", BSONString(col)) ::
+            ("query", ValueDocument(query)) :: _
+          ) =>
+        Some(col -> query)
       // TODO: limit
 
       case _ => None
@@ -386,6 +430,7 @@ object CountRequest {
  * (\$in with BSONArray; e.g. { '\$in': [ ... ] })
  */
 object InClause {
+
   /**
    * Matches BSON property with name \$in and a BSONArray as value,
    * and extracts subvalues from the array.
@@ -403,6 +448,7 @@ object InClause {
  * (\$nin with BSONArray; e.g. { '\$nin': [ ... ] })
  */
 object NotInClause {
+
   /**
    * Matches BSON property with name \$nin and a BSONArray as value,
    * and extracts subvalues from the array.
@@ -428,13 +474,11 @@ object & {
 /**
  * Extractor for BSON property,
  * allowing partial and un-ordered match by name.
- * Rich match syntax `~(Property(name), ...)` requires use of
- * http://acolyte.eu.org/scalac-plugin.html
  *
  * {{{
- * import reactivemongo.api.bson.{ BSONInteger, BSONString }
+ * import reactivemongo.api.bson.BSONString
  * import acolyte.reactivemongo.{
- *   PreparedResponse, Property, Request, SimpleBody, ValueDocument, &
+ *   PreparedResponse, Property, Request, SimpleBody
  * }
  *
  * val EmailXtr = Property("email") // Without scalac plugin
@@ -446,40 +490,15 @@ object & {
  * def resultE: PreparedResponse = ???
  *
  * def check(request: Request) = request match {
- *   case Request("db.col", SimpleBody(~(Property("email"), BSONString(e)))) =>
- *     // Request on db.col with an "email" string property,
- *     // anywhere in properties (possibly with others which are ignored there),
- *     // with `e` bound to extracted string value.
- *     resultA
- *
  *   case Request("db.col", SimpleBody(EmailXtr(BSONString(e)))) =>
  *     // Request on db.col with an "email" string property,
  *     // anywhere in properties (possibly with others which are ignored there),
  *     // with `e` bound to extracted string value.
+ *     println(e)
  *     resultB // similar to case resultA without scalac plugin
  *
- *   case Request("db.col", SimpleBody(
- *     ~(Property("name"), BSONString("eman")))) =>
- *     // Request on db.col with an "name" string property with "eman" as value,
- *     // anywhere in properties (possibly with others which are ignored there).
- *     resultC
- *
- *   case Request(colName, SimpleBody(
- *     ~(Property("age"), BSONInteger(age)) &
- *     ~(Property("email"), BSONString(v)))) =>
- *     // Request on any collection, with an "age" integer property
- *     // and an "email" string property, possibly not in this order.
- *     resultD
- *
- *   case Request(colName, SimpleBody(
- *     ~(Property("age"), ValueDocument(
- *       ~(Property("\\$gt"), BSONInteger(minAge)))) &
- *     ~(Property("email"), BSONString("demo@applicius.fr")))) =>
- *     // Request on any collection, with an "age" property with itself
- *     // a operator property "\\$gt" having an integer value, and an "email"
- *     // property (at the same level as age), without order constraint.
- *     resultE
- *
+ *   case req =>
+ *     sys.error("Unexpected request: " + req)
  * }
  * }}}
  *
@@ -487,6 +506,7 @@ object & {
  * @see [[ValueDocument]]
  */
 case class Property(name: String) {
+
   def unapply(properties: List[(String, BSONValue)]): Option[BSONValue] =
     properties.collectFirst { case (`name`, value) => value }
 }

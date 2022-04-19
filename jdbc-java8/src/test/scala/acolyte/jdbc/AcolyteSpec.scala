@@ -1,10 +1,11 @@
 package acolyte.jdbc
 
-import java.util.function.{ Function ⇒ Fun }
+import java.util.function.{ Function => Fun }
+
 import java.sql.{ Date, SQLException }
 
 object AcolyteSpec extends org.specs2.mutable.Specification {
-  "Acolyte" title
+  "Acolyte".title
 
   sequential
 
@@ -12,8 +13,7 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
     val con = Java8UseCases.useCase1
 
     "return 2 for DELETE statement" in {
-      con.prepareStatement("DELETE * FROM table").
-        executeUpdate aka "update count" mustEqual 2
+      con.prepareStatement("DELETE * FROM table").executeUpdate() must_=== 2
 
     }
 
@@ -24,7 +24,7 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
       s.setString(1, "idVal");
       s.setString(2, "idName")
 
-      s.executeUpdate aka "update count" mustEqual 1
+      s.executeUpdate aka "update count" must_=== 1
     }
 
     "return empty resultset for SELECT query" in {
@@ -44,15 +44,15 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
       "with expected 3 columns on first row" in {
         (rs.next aka "has first row" must beTrue).
           and(rs.getString(1) aka "1st row/1st col" mustEqual "str").
-          and(rs.getFloat(2) aka "1st row/2nd col" mustEqual 1.2f).
-          and(rs.getDate(3) aka "1st row/2rd col" mustEqual new Date(1l))
+          and(rs.getFloat(2) aka "1st row/2nd col" mustEqual 1.2F).
+          and(rs.getDate(3) aka "1st row/2rd col" mustEqual new Date(1L))
 
       }
 
       "with expected 3 columns on second row" in {
         (rs.next aka "has second row" must beTrue).
           and(rs.getString(1) aka "2nd row/1st col" mustEqual "val").
-          and(rs.getFloat(2) aka "2nd row/2nd col" mustEqual 2.34f).
+          and(rs.getFloat(2) aka "2nd row/2nd col" mustEqual 2.34F).
           and(rs.getDate(3) aka "2nd row/2rd col" must beNull)
 
       }
@@ -86,15 +86,15 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
           and(rs.getString(1).
             aka("1st row/1st col (by index)") mustEqual "text").
           and(rs.getFloat(2).
-            aka("1st row/2nd col (by index)") mustEqual 2.3f).
+            aka("1st row/2nd col (by index)") mustEqual 2.3F).
           and(rs.getDate(3).
-            aka("1st row/2rd col (by index)") mustEqual new Date(3l)).
+            aka("1st row/2rd col (by index)") mustEqual new Date(3L)).
           and(rs.getString("str").
             aka("1st row/1st col (by label)") mustEqual "text").
           and(rs.getFloat("f").
-            aka("1st row/2nd col (by label)") mustEqual 2.3f).
+            aka("1st row/2nd col (by label)") mustEqual 2.3F).
           and(rs.getDate("date").
-            aka("1st row/2rd col (by label)") mustEqual new Date(3l))
+            aka("1st row/2rd col (by label)") mustEqual new Date(3L))
 
       }
 
@@ -103,15 +103,15 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
           and(rs.getString(1).
             aka("2nd row/1st col (by index)") mustEqual "label").
           and(rs.getFloat(2).
-            aka("2nd row/2nd col (by index)") mustEqual 4.56f).
+            aka("2nd row/2nd col (by index)") mustEqual 4.56F).
           and(rs.getDate(3).
-            aka("2nd row/2rd col (by index)") mustEqual new Date(4l)).
+            aka("2nd row/2rd col (by index)") mustEqual new Date(4L)).
           and(rs.getString("str").
             aka("2nd row/1st col (by label)") mustEqual "label").
           and(rs.getFloat("f").
-            aka("2nd row/2nd col (by label)") mustEqual 4.56f).
+            aka("2nd row/2nd col (by label)") mustEqual 4.56F).
           and(rs.getDate("date").
-            aka("2nd row/2rd col (by label)") mustEqual new Date(4l))
+            aka("2nd row/2rd col (by label)") mustEqual new Date(4L))
 
       }
 
@@ -154,9 +154,7 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
       lazy val s = con.prepareStatement("SELECT dummy")
       s.executeQuery
 
-      Option(s.getWarnings) aka "warning" must beSome.which { w ⇒
-        w.getMessage aka "message" mustEqual "Now you're warned"
-      }
+      s.getWarnings.getMessage aka "message" must_=== "Now you're warned"
     }
   }
 
@@ -187,7 +185,7 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
       "for SELECT" in {
         val str: String = AcolyteDSL.withQueryResult(
           res1,
-          fun({ c: java.sql.Connection ⇒
+          fun({ (c: java.sql.Connection) =>
             val rs = query("SELECT * FROM table", c)
             s"${rs.getString(1)} -> ${rs.getFloat(2) + 1f}"
           }))
@@ -197,9 +195,9 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
 
       "for EXEC" in AcolyteDSL.withQueryResult(
         res1,
-        fun({ c: java.sql.Connection ⇒
+        fun({ (c: java.sql.Connection) =>
           query("EXEC proc", c) aka "proc result" must beLike {
-            case rs ⇒
+            case rs =>
               (rs.getString(1) aka "col #1" mustEqual "test").
                 and(rs.getFloat(2) aka "col #2" mustEqual 3.45f)
           }
@@ -228,9 +226,9 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
     "have generated keys" in {
       AcolyteDSL.updateResult(2, RowLists.intList(3, 4)).
         aka("update result") must beLike {
-          case res ⇒ (res.getUpdateCount aka "count" must_== 2).
+          case res => (res.getUpdateCount aka "count" must_== 2).
             and(res.getGeneratedKeys.resultSet aka "keys" must beLike {
-              case genKeys ⇒
+              case genKeys =>
                 (genKeys.next aka "has first generated key" must beTrue).
                   and(genKeys.getInt(1) aka "first key" must_== 3).
                   and(genKeys.next aka "has second generated key" must beTrue).
@@ -241,7 +239,7 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
     }
   }
 
-  def fun[A, B](f: A ⇒ B): Fun[A, B] = new Fun[A, B] {
+  def fun[A, B](f: A => B): Fun[A, B] = new Fun[A, B] {
     def apply(a: A): B = f(a)
   }
 }

@@ -1,11 +1,16 @@
 package acolyte.reactivemongo
 
+import scala.util.Try
+
 import reactivemongo.io.netty.channel.DefaultChannelId
 
-class WriteResponseSpec
-  extends org.specs2.mutable.Specification with ResponseMatchers {
+import reactivemongo.acolyte.Response
 
-  "Write response" title
+final class WriteResponseSpec
+    extends org.specs2.mutable.Specification
+    with ResponseMatchers {
+
+  "Write response".title
 
   @inline def channelId() = DefaultChannelId.newInstance()
 
@@ -13,89 +18,111 @@ class WriteResponseSpec
     "be made for error message" >> {
       "using generic factory" in {
         WriteResponse("error message #1") aka "prepared" must beLike {
-          case prepared ⇒ prepared(channelId()) aka "applied" must beSome.which(
-            _ aka "write response" must beWriteError("error message #1"))
+          case prepared =>
+            prepared(channelId()) aka "applied" must beSome[Try[Response]]
+              .which(
+                _ aka "write response" must beWriteError("error message #1")
+              )
         }
       }
 
       "using named factory" in {
         WriteResponse.failed("error message #2") aka "prepared" must beLike {
-          case prepared ⇒ prepared(channelId()) aka "applied" must beSome.which(
-            _ aka "write response" must beWriteError("error message #2"))
+          case prepared =>
+            prepared(channelId()) aka "applied" must beSome[Try[Response]]
+              .which(
+                _ aka "write response" must beWriteError("error message #2")
+              )
         }
       }
     }
 
     "be made for error with code" >> {
       "using generic factory" in {
-        WriteResponse("error message #3" → 9) aka "prepared" must beLike {
-          case prepared ⇒ prepared(channelId()) aka "applied" must beSome.which(
-            _ aka "write response" must beWriteError(
-              "error message #3", Some(9)))
+        WriteResponse("error message #3" -> 9) aka "prepared" must beLike {
+          case prepared =>
+            prepared(channelId()) aka "applied" must beSome[Try[Response]]
+              .which(
+                _ aka "write response" must beWriteError(
+                  "error message #3",
+                  Some(9)
+                )
+              )
         }
       }
 
       "using named factory" in {
         WriteResponse.failed("error message #4", 7) aka "prepared" must beLike {
-          case prepared ⇒ prepared(channelId()) aka "applied" must beSome.which(
-            _ aka "write response" must beWriteError(
-              "error message #4", Some(7)))
+          case prepared =>
+            prepared(channelId()) aka "applied" must beSome[Try[Response]]
+              .which(
+                _ aka "write response" must beWriteError(
+                  "error message #4",
+                  Some(7)
+                )
+              )
         }
       }
     }
 
     "be made for successful result" >> {
       "with count and updatedExisting flag" in {
-        WriteResponse(1 → true) aka "prepared" must beLike {
-          case prepared ⇒ prepared(channelId()) aka "applied" must beSome.which(
-            _ aka "result" must beResponse {
-              _ aka "response" must beWriteSuccess(1, true)
-            })
+        WriteResponse(1 -> true) aka "prepared" must beLike {
+          case prepared =>
+            prepared(channelId()) aka "applied" must beSome[Try[Response]]
+              .which(_ aka "result" must beResponse {
+                _ aka "response" must beWriteSuccess(1, true)
+              })
         }
       }
 
       "with count and updatedExisting using named factory" in {
         WriteResponse.successful(0, false) aka "prepared" must beLike {
-          case prepared ⇒ prepared(channelId()) aka "applied" must beSome.which(
-            _ aka "result" must beResponse {
-              _ aka "response" must beWriteSuccess(0, false)
-            })
+          case prepared =>
+            prepared(channelId()) aka "applied" must beSome[Try[Response]]
+              .which(_ aka "result" must beResponse {
+                _ aka "response" must beWriteSuccess(0, false)
+              })
         }
       }
 
       "with count using generic factory" in {
         WriteResponse(1) aka "prepared" must beLike {
-          case prepared ⇒ prepared(channelId()) aka "applied" must beSome.which(
-            _ aka "result" must beResponse {
-              _ aka "response" must beWriteSuccess(1, false)
-            })
+          case prepared =>
+            prepared(channelId()) aka "applied" must beSome[Try[Response]]
+              .which(_ aka "result" must beResponse {
+                _ aka "response" must beWriteSuccess(1, false)
+              })
         }
       }
 
       "with count using named factory" in {
         WriteResponse.successful(2) aka "prepared" must beLike {
-          case prepared ⇒ prepared(channelId()) aka "applied" must beSome.which(
-            _ aka "result" must beResponse {
-              _ aka "response" must beWriteSuccess(2, false)
-            })
+          case prepared =>
+            prepared(channelId()) aka "applied" must beSome[Try[Response]]
+              .which(_ aka "result" must beResponse {
+                _ aka "response" must beWriteSuccess(2, false)
+              })
         }
       }
 
       "with a unit (effect)" in {
         WriteResponse({}) aka "prepared" must beLike {
-          case prepared ⇒ prepared(channelId()) aka "applied" must beSome.which(
-            _ aka "result" must beResponse {
-              _ aka "response" must beWriteSuccess(0, false)
-            })
+          case prepared =>
+            prepared(channelId()) aka "applied" must beSome[Try[Response]]
+              .which(_ aka "result" must beResponse {
+                _ aka "response" must beWriteSuccess(0, false)
+              })
         }
       }
 
       "with a unit (effect) using named factory" in {
         WriteResponse.successful() aka "prepared" must beLike {
-          case prepared ⇒ prepared(channelId()) aka "applied" must beSome.which(
-            _ aka "result" must beResponse {
-              _ aka "response" must beWriteSuccess(0, false)
-            })
+          case prepared =>
+            prepared(channelId()) aka "applied" must beSome[Try[Response]]
+              .which(_ aka "result" must beResponse {
+                _ aka "response" must beWriteSuccess(0, false)
+              })
         }
       }
     }
@@ -103,23 +130,23 @@ class WriteResponseSpec
     "be undefined" >> {
       "using generic factory" in {
         WriteResponse(None) aka "prepared" must beLike {
-          case prepared ⇒ prepared(channelId()) aka "applied" must beNone
+          case prepared => prepared(channelId()) aka "applied" must beNone
         }
       }
 
       "using named factory" in {
         WriteResponse.undefined aka "prepared" must beLike {
-          case prepared ⇒ prepared(channelId()) aka "applied" must beNone
+          case prepared => prepared(channelId()) aka "applied" must beNone
         }
       }
     }
 
     "be made from already prepared response" in {
-      WriteResponse(WriteResponse("already")).
-        aka("prepared") must beLike {
-          case prepared ⇒ prepared(channelId()) aka "applied" must beSome.which(
-            _ aka "write response" must beWriteError("already"))
-        }
+      WriteResponse(WriteResponse("already")).aka("prepared") must beLike {
+        case prepared =>
+          prepared(channelId()) aka "applied" must beSome[Try[Response]]
+            .which(_ aka "write response" must beWriteError("already"))
+      }
     }
   }
 }

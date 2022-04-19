@@ -5,8 +5,13 @@ import _root_.reactivemongo.io.netty.channel.ChannelId
 
 /** Write response factory. */
 object WriteResponse {
+
   /** Creates a response for given `body`. */
-  def apply[T](body: ⇒ T)(implicit mkResponse: WriteResponseMaker[T]): PreparedResponse = new PreparedResponse {
+  def apply[T](
+      body: => T
+    )(implicit
+      mkResponse: WriteResponseMaker[T]
+    ): PreparedResponse = new PreparedResponse {
     def apply(chanId: ChannelId) = mkResponse(chanId, body)
   }
 
@@ -23,7 +28,7 @@ object WriteResponse {
    * @param message Error message
    * @param code Error code
    */
-  def failed(message: String, code: Int) = apply(message → code)
+  def failed(message: String, code: Int) = apply(message -> code)
 
   /**
    * Factory for successful response.
@@ -32,7 +37,7 @@ object WriteResponse {
    * @param updatedExisting Some existing document has been updated
    */
   def successful(count: Int = 0, updatedExisting: Boolean = false) =
-    apply(count → updatedExisting)
+    apply(count -> updatedExisting)
 
   /**
    * Undefined response, returned by handler no supporting

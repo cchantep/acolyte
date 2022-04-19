@@ -13,6 +13,8 @@ package object acolyte {
     DefaultBufferHandler.readDocument(buf)
 
   @inline def writeDocument(
-    doc: BSONDocument, buf: WritableBuffer): WritableBuffer =
+      doc: BSONDocument,
+      buf: WritableBuffer
+    ): WritableBuffer =
     DefaultBufferHandler.writeDocument(doc, buf)
 }

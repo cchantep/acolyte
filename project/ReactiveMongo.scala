@@ -1,52 +1,55 @@
 import sbt._
 import Keys._
 
-final class ReactiveMongo(scalacPlugin: Project) { self =>
+final class ReactiveMongo { self =>
   import Dependencies._
-  import Format._
 
-  val reactiveResolvers = Seq(
-    Resolver.typesafeRepo("snapshots"),
-    Resolver.sonatypeRepo("snapshots"))
+  lazy val generatedClassDirectory =
+    settingKey[File]("Directory where classes get generated")
 
-  lazy val generatedClassDirectory = settingKey[File](
-    "Directory where classes get generated")
-
-  val reactiveMongoVer = "1.0.10"
+  val reactiveMongoVer = "1.1.0-RC6"
 
   lazy val project =
-    Project(id = "reactive-mongo", base = file("reactive-mongo")).
-      settings(formatSettings ++ Set(
-        name := "reactive-mongo",
-        Test / fork := true,
-        resolvers ++= reactiveResolvers,
-        Test / compile := (Test / compile).dependsOn(
-          scalacPlugin / Compile / packageBin).value,
-        Test / scalacOptions ++= ScalacPlugin.
-          compilerOptions(scalacPlugin).value,
-        libraryDependencies ++= Seq(
-          "org.reactivemongo" %% "reactivemongo" % reactiveMongoVer % Provided,
-          "com.jsuereth" %% "scala-arm" % "2.1-SNAPSHOT",
-          "org.slf4j" % "slf4j-simple" % "1.7.36" % Provided,
+    Project(id = "reactive-mongo", base = file("reactive-mongo")).settings(
+      name := "reactive-mongo",
+      Test / fork := true,
+      Compile / unmanagedSourceDirectories ++= {
+        val base = (Compile / sourceDirectory).value
+
+        CrossVersion.partialVersion(scalaVersion.value) match {
+          case Some((2, n)) if n < 13 =>
+            Seq(base / "scala-2.13-")
+
+          case _ =>
+            Seq(base / "scala-2.13+")
+
+        }
+      },
+      libraryDependencies ++= Seq(
+        "org.reactivemongo" %% "reactivemongo" % reactiveMongoVer % Provided,
+        "org.slf4j" % "slf4j-simple" % "1.7.36" % Provided,
+        "org.specs2" %% "specs2-core" % specsVer.value % Test
+      ),
+      libraryDependencies += {
+        if (scalaBinaryVersion.value == "3") {
+          "org.typelevel" %% "shapeless3-test" % "3.0.4"
+        } else {
           "com.chuusai" %% "shapeless" % "2.3.9",
-          "org.specs2" %% "specs2-core" % specsVer.value % Test)
-      ))
+        }
+      }
+    )
 
   lazy val playProject =
-    Project(id = "play-reactive-mongo", base = file("play-reactive-mongo")).
-      settings(formatSettings ++ Set(
+    Project(id = "play-reactive-mongo", base = file("play-reactive-mongo"))
+      .settings(
         name := "play-reactive-mongo",
-        Test / compile := (Test / compile).dependsOn(
-          scalacPlugin / Compile / packageBin).value,
-        Test / scalacOptions ++= ScalacPlugin.
-          compilerOptions(scalacPlugin).value,
-        resolvers ++= reactiveResolvers,
         libraryDependencies ++= {
           val sv = scalaBinaryVersion.value
 
           val (playVer, playVar) = {
             if (sv == "2.12") "2.6.3" -> "play26"
             else if (sv == "2.13") "2.7.9" -> "play27"
+            else if (sv == "3") "2.8.16" -> "play28"
             else "2.5.19" -> "play25"
           }
 
@@ -56,7 +59,7 @@ final class ReactiveMongo(scalacPlugin: Project) { self =>
                 case ("", _) =>
                   s"${v}-${playVar}"
 
-                case (a, "") if (a startsWith "rc.") =>
+                case (a, "") if (a startsWith "RC") =>
                   s"${v}-${playVar}-${a}"
 
                 case (a, b) =>
@@ -65,9 +68,8 @@ final class ReactiveMongo(scalacPlugin: Project) { self =>
           }
 
           val iteratees = {
-            if (sv != "2.13") {
-              Seq(
-                "com.typesafe.play" %% "play-iteratees" % "2.6.1" % Provided)
+            if (sv != "2.13" && sv != "3") {
+              Seq("com.typesafe.play" %% "play-iteratees" % "2.6.1" % Provided)
             } else {
               Seq.empty
             }
@@ -76,10 +78,12 @@ final class ReactiveMongo(scalacPlugin: Project) { self =>
           (Seq("reactivemongo-play-json-compat", "play2-reactivemongo").map {
             "org.reactivemongo" %% _ % playRmVer % Provided
           }) ++ Seq(
-            "com.typesafe.play" %% "play" % playVer % Provided,
+            ("com.typesafe.play" %% "play" % playVer % Provided).
+              cross(CrossVersion.for3Use2_13/* TODO */),
             "org.specs2" %% "specs2-core" % specsVer.value % Test
           ) ++ iteratees
         }
-      )).dependsOn(self.project)
+      )
+      .dependsOn(self.project)
 
 }

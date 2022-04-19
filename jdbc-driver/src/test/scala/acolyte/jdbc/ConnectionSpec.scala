@@ -2,29 +2,15 @@ package acolyte.jdbc
 
 import java.util.concurrent.Executors
 
-import java.sql.{
-  Statement,
-  ResultSet,
-  SQLClientInfoException,
-  SQLException,
-  SQLFeatureNotSupportedException,
-  Types
-}
-import java.sql.ResultSet.{
-  TYPE_FORWARD_ONLY,
-  TYPE_SCROLL_INSENSITIVE,
-  CONCUR_READ_ONLY,
-  CONCUR_UPDATABLE,
-  CLOSE_CURSORS_AT_COMMIT,
-  HOLD_CURSORS_OVER_COMMIT
-}
+import java.sql.{ResultSet, SQLClientInfoException, SQLException, SQLFeatureNotSupportedException, Statement, Types}
+import java.sql.ResultSet.{CLOSE_CURSORS_AT_COMMIT, CONCUR_READ_ONLY, CONCUR_UPDATABLE, HOLD_CURSORS_OVER_COMMIT, TYPE_FORWARD_ONLY, TYPE_SCROLL_INSENSITIVE}
 
 import org.specs2.mutable.Specification
 
 import acolyte.jdbc.test.EmptyConnectionHandler
 
 object ConnectionSpec extends Specification with ConnectionFixtures {
-  "Connection specification" title
+  "Connection specification".title
 
   "Connection constructor" should {
     "not accept null URL" in {
@@ -40,25 +26,26 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
     }
 
     "return not-null instance for valid information" in {
-      Option(connection(url = jdbcUrl, props = null, handler = defaultHandler)).
-        aka("connection") must beSome.which { conn ⇒
+      val conn = connection(
+        url = jdbcUrl,
+        props = null, handler = defaultHandler)
+
           (conn.getAutoCommit aka "auto-commit" must beFalse).
             and(conn.isReadOnly aka "read-only" must beFalse).
             and(conn.isClosed aka "closed" must beFalse).
             and(conn.isValid(0) aka "validity" must beTrue).
             and(conn.getWarnings aka "warnings" must beNull).
             and(conn.getTransactionIsolation.aka("transaction isolation").
-              mustEqual(java.sql.Connection.TRANSACTION_NONE)).
-            and(conn.getTypeMap aka "type-map" mustEqual emptyTypeMap).
-            and(conn.getClientInfo aka "client info" mustEqual emptyClientInfo).
+              must_===(java.sql.Connection.TRANSACTION_NONE)).
+            and(conn.getTypeMap aka "type-map" must_=== emptyTypeMap).
+            and(conn.getClientInfo aka "client info" must_=== emptyClientInfo).
             and(conn.getCatalog aka "catalog" must beNull).
             and(conn.getSchema aka "schema" must beNull).
             and(conn.getHoldability.
-              aka("holdability") mustEqual ResultSet.CLOSE_CURSORS_AT_COMMIT).
-            and(Option(conn.getMetaData) aka "meta-data" must beSome.which(
-              _.getConnection aka "meta-data owner" mustEqual conn))
+              aka("holdability") must_=== ResultSet.CLOSE_CURSORS_AT_COMMIT).
+            and(Option(conn.getMetaData) aka "meta-data" must beSome[java.sql.DatabaseMetaData].which(
+              _.getConnection aka "meta-data owner" must_=== conn))
 
-        }
     }
 
     "set immutable properties on new connection" in {
@@ -68,9 +55,9 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       val con =
         connection(url = jdbcUrl, props = props, handler = defaultHandler)
 
-      con.getProperties aka "properties" mustEqual props and {
+      con.getProperties aka "properties" must_=== props and {
         props.put("_test", "_2")
-        con.getProperties.get("_test") aka "property" mustEqual "_1"
+        con.getProperties.get("_test") aka "property" must_=== "_1"
       }
     }
   }
@@ -523,7 +510,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
     }
 
     "return unchanged SQL" in {
-      defaultCon.nativeSQL("SELECT *") aka "SQL" mustEqual "SELECT *"
+      defaultCon.nativeSQL("SELECT *") aka "SQL" must_=== "SELECT *"
     }
   }
 
@@ -565,7 +552,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
     "be unwrapped to java.sql.Connection" in {
       Option(defaultCon.unwrap(classOf[java.sql.Connection])).
-        aka("unwrapped") must beSome.which(_.isInstanceOf[java.sql.Connection])
+        aka("unwrapped") must beSome[java.sql.Connection]
 
     }
   }
@@ -604,15 +591,19 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
 
     "not be created for binary" in {
       val data = s"test:${System identityHashCode this}".getBytes("UTF-8")
+      val dataLen = data.length.toLong
 
-      Option(defaultCon.createBlob) aka "create blob" must beSome.which { b ⇒
-        b.length aka "initial size" must_== 0 and (
-          b.setBytes(0, data) aka "setting bytes #1" must_== data.length) and (
-            b.length aka "updated size" must_== data.length) and (
-              b.setBytes(2, "test".getBytes("UTF-8"), 1, 3).
-              aka("setting bytes #2") must_== 3) and (
-                b.length aka "overriden size" must_== data.length)
-
+      Option(defaultCon.createBlob()) aka "create blob" must beSome[java.sql.Blob].which { b =>
+        b.length aka "initial size" must_=== 0L and {
+          b.setBytes(0, data).toLong aka "setting bytes #1" must_=== dataLen
+        } and {
+          b.length aka "updated size" must_=== dataLen
+        } and {
+          b.setBytes(2, "test".getBytes("UTF-8"), 1, 3).
+            aka("setting bytes #2") must_=== 3
+        } and {
+          b.length aka "overriden size" must_=== dataLen
+        }
       }
     }
 
@@ -639,15 +630,15 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
     "be supported for ARRAY" in {
       defaultCon.createArrayOf("VARCHAR", Array("Ab", "cD", "EF")).
         aka("array") must beLike {
-          case strArr ⇒
-            (strArr.getBaseType aka "base type" mustEqual Types.VARCHAR) and
-              (strArr.getBaseTypeName aka "base type name" mustEqual "VARCHAR").
+          case strArr =>
+            (strArr.getBaseType aka "base type" must_=== Types.VARCHAR) and
+              (strArr.getBaseTypeName aka "base type name" must_=== "VARCHAR").
               and(strArr.getArray aka "element array" must beLike {
-                case elmts: Array[String] ⇒
-                  (elmts.size aka "size" must_== 3) and
-                    (elmts(0) aka "1st element" must_== "Ab") and
-                    (elmts(1) aka "2nd element" must_== "cD") and
-                    (elmts(2) aka "3rd element" must_== "EF")
+                case elmts: Array[String] =>
+                  (elmts.size aka "size" must_=== 3) and
+                    (elmts(0) aka "1st element" must_=== "Ab") and
+                    (elmts(1) aka "2nd element" must_=== "cD") and
+                    (elmts(2) aka "3rd element" must_=== "EF")
               })
         }
 
@@ -658,12 +649,12 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
     "be owned by connection" in {
       lazy val c = defaultCon
 
-      (c.createStatement.getConnection aka "statement connection" mustEqual c).
+      (c.createStatement.getConnection aka "statement connection" must_=== c).
         and(c.createStatement(TYPE_FORWARD_ONLY, CONCUR_READ_ONLY).
-          getConnection aka "statement connection" mustEqual c).
+          getConnection aka "statement connection" must_=== c).
         and(c.createStatement(
           TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
-          getConnection aka "statement connection" mustEqual c)
+          getConnection aka "statement connection" must_=== c)
 
     }
 
@@ -732,11 +723,11 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
         new acolyte.jdbc.ConnectionHandler.Default(h))
 
       def spec(s: java.sql.PreparedStatement) = {
-        (s.executeUpdate aka "update count" must_== 1).
+        (s.executeUpdate aka "update count" must_=== 1).
           and(s.getGeneratedKeys aka "generated keys" must beLike {
-            case ks ⇒ (ks.getStatement aka "keys statement" must_=== s).
+            case ks => (ks.getStatement aka "keys statement" must_=== s).
               and(ks.next aka "has first key" must beTrue).
-              and(ks.getInt(1) aka "first key" must_== 200).
+              and(ks.getInt(1) aka "first key" must_=== 200).
               and(ks.next aka "has second key" must beFalse)
           })
       }
@@ -754,17 +745,17 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       lazy val c = defaultCon
 
       (c.prepareStatement("TEST").getConnection.
-        aka("statement connection") mustEqual c).
+        aka("statement connection") must_=== c).
         and(c.prepareStatement("TEST", Statement.NO_GENERATED_KEYS).
-          getConnection aka "statement connection" mustEqual c).
+          getConnection aka "statement connection" must_=== c).
         and(c.prepareStatement("TEST", Statement.RETURN_GENERATED_KEYS).
-          getConnection aka "statement connection" mustEqual c).
+          getConnection aka "statement connection" must_=== c).
         and(c.prepareStatement("TEST", TYPE_FORWARD_ONLY, CONCUR_READ_ONLY).
-          getConnection aka "statement connection" mustEqual c).
+          getConnection aka "statement connection" must_=== c).
         and(c.prepareStatement(
           "TEST",
           TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
-          getConnection aka "statement connection" mustEqual c)
+          getConnection aka "statement connection" must_=== c)
 
     }
 
@@ -828,13 +819,13 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       lazy val c = defaultCon
 
       (c.prepareCall("TEST").getConnection.
-        aka("statement connection") mustEqual c).
+        aka("statement connection") must_=== c).
         and(c.prepareCall("TEST", TYPE_FORWARD_ONLY, CONCUR_READ_ONLY).
-          getConnection aka "statement connection" mustEqual c).
+          getConnection aka "statement connection" must_=== c).
         and(c.prepareCall(
           "TEST",
           TYPE_FORWARD_ONLY, CONCUR_READ_ONLY, CLOSE_CURSORS_AT_COMMIT).
-          getConnection aka "statement connection" mustEqual c)
+          getConnection aka "statement connection" must_=== c)
 
     }
 

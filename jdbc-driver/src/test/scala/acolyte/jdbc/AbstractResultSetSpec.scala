@@ -4,8 +4,8 @@ import java.sql.{ ResultSet, SQLException }
 
 import org.specs2.mutable.Specification
 
-object AbstractResultSetSpec extends Specification {
-  "Abstract resultset specification" title
+final class AbstractResultSetSpec extends Specification {
+  "Abstract resultset specification".title
 
   "Wrapping" should {
     "be valid for java.sql.ResultSet" in {
@@ -15,8 +15,8 @@ object AbstractResultSetSpec extends Specification {
     }
 
     "be unwrapped to java.sql.ResultSet" in {
-      Option(defaultSet.unwrap(classOf[java.sql.ResultSet])).
-        aka("unwrapped") must beSome.which(_.isInstanceOf[java.sql.ResultSet])
+      Option(defaultSet.unwrap(classOf[ResultSet])).
+        aka("unwrapped") must beSome[ResultSet]
 
     }
   }
@@ -24,7 +24,7 @@ object AbstractResultSetSpec extends Specification {
   "Holdability" should {
     "be CLOSE_CURSORS_AT_COMMIT" in {
       defaultSet.getHoldability.
-        aka("holdability") mustEqual ResultSet.CLOSE_CURSORS_AT_COMMIT
+        aka("holdability") must_=== ResultSet.CLOSE_CURSORS_AT_COMMIT
 
     }
   }
@@ -55,16 +55,16 @@ object AbstractResultSetSpec extends Specification {
 
     "have read-only concurrency" in {
       defaultSet.getConcurrency.
-        aka("concurrency") mustEqual ResultSet.CONCUR_READ_ONLY
+        aka("concurrency") must_=== ResultSet.CONCUR_READ_ONLY
 
     }
 
     "be forward only" in {
-      defaultSet.getType aka "type" mustEqual ResultSet.TYPE_FORWARD_ONLY
+      defaultSet.getType aka "type" must_=== ResultSet.TYPE_FORWARD_ONLY
     }
 
     "have a cursor name" in {
-      defaultSet.getCursorName aka "cursor name" must not beNull
+      defaultSet.getCursorName aka "cursor name" must not(beNull)
     }
 
     "have no warnings" in {
@@ -74,21 +74,21 @@ object AbstractResultSetSpec extends Specification {
 
   "Fetch size" should {
     "initially be zero" in {
-      defaultSet.getFetchSize aka "size" must_== 0
+      defaultSet.getFetchSize aka "size" must_=== 0
     }
 
     "be properly set" in {
       lazy val rs = defaultSet
       rs.setFetchSize(2)
 
-      rs.getFetchSize aka "size" must_== 2
+      rs.getFetchSize aka "size" must_=== 2
     }
   }
 
   "Fetch direction" should {
     "initially be FETCH_FORWARD" in {
       defaultSet.getFetchDirection.
-        aka("direction") mustEqual ResultSet.FETCH_FORWARD
+        aka("direction") must_=== ResultSet.FETCH_FORWARD
 
     }
 
@@ -107,7 +107,7 @@ object AbstractResultSetSpec extends Specification {
 
         rs.setFetchDirection(ResultSet.FETCH_REVERSE)
 
-        rs.getFetchDirection aka "direction" mustEqual ResultSet.FETCH_REVERSE
+        rs.getFetchDirection aka "direction" must_=== ResultSet.FETCH_REVERSE
       }
 
       "unknown" in {
@@ -115,14 +115,14 @@ object AbstractResultSetSpec extends Specification {
 
         rs.setFetchDirection(ResultSet.FETCH_UNKNOWN)
 
-        rs.getFetchDirection aka "direction" mustEqual ResultSet.FETCH_UNKNOWN
+        rs.getFetchDirection aka "direction" must_=== ResultSet.FETCH_UNKNOWN
       }
     }
   }
 
   "Row" should {
     "initially be zero" in {
-      defaultSet.getRow aka "row" must_== 0
+      defaultSet.getRow aka "row" must_=== 0
     }
 
     "not be moved backward (forward only)" in {
@@ -142,7 +142,7 @@ object AbstractResultSetSpec extends Specification {
       "with failure when out-of bounds" in {
         lazy val rs = defaultSet
         (rs.relative(1) aka "forward move" must beFalse).
-          and(rs.getRow aka "row" mustEqual 1)
+          and(rs.getRow aka "row" must_=== 1)
 
       }
 
@@ -150,9 +150,9 @@ object AbstractResultSetSpec extends Specification {
         lazy val rs = defaultSet
         rs.setFetchSize(1)
 
-        (rs.getRow aka "current row" mustEqual 0).
+        (rs.getRow aka "current row" must_=== 0).
           and(rs.relative(1) aka "forward move" must beTrue).
-          and(rs.getRow aka "new row" mustEqual 1)
+          and(rs.getRow aka "new row" must_=== 1)
 
       }
     }
@@ -162,9 +162,9 @@ object AbstractResultSetSpec extends Specification {
         lazy val rs = defaultSet
         rs.setFetchSize(1)
 
-        (rs.getRow aka "current row" mustEqual 0).
+        (rs.getRow aka "current row" must_=== 0).
           and(rs.next() aka "move to next" must beTrue).
-          and(rs.getRow aka "new row" mustEqual 1)
+          and(rs.getRow aka "new row" must_=== 1)
 
       }
     }
@@ -179,7 +179,7 @@ object AbstractResultSetSpec extends Specification {
         rs.setFetchSize(1)
         rs.next()
 
-        (rs.getRow aka "current row" mustEqual 1).
+        (rs.getRow aka "current row" must_=== 1).
           and(rs.absolute(0) aka "backward move" must throwA[SQLException](
             message = "Backward move"))
 
@@ -196,7 +196,7 @@ object AbstractResultSetSpec extends Specification {
         lazy val rs = defaultSet
 
         (rs.absolute(-1) aka "move" must beTrue).
-          and(rs.getRow aka "new row" mustEqual 0)
+          and(rs.getRow aka "new row" must_=== 0)
 
       }
 
@@ -205,7 +205,7 @@ object AbstractResultSetSpec extends Specification {
         rs.setFetchSize(1)
 
         (rs.absolute(-1) aka "move" must beTrue).
-          and(rs.getRow aka "new row" mustEqual 1)
+          and(rs.getRow aka "new row" must_=== 1)
 
       }
 
@@ -237,7 +237,7 @@ object AbstractResultSetSpec extends Specification {
         lazy val rs = scrollInsensitiveSet
         rs.beforeFirst
 
-        rs.getRow aka "row" must_== 0 and (
+        rs.getRow aka "row" must_=== 0 and (
           rs.isBeforeFirst aka "before first" must beTrue)
       }
 
@@ -246,7 +246,7 @@ object AbstractResultSetSpec extends Specification {
         rs.setFetchSize(1)
 
         (rs.first aka "move first" must beTrue).
-          and(rs.getRow aka "row" mustEqual 1).
+          and(rs.getRow aka "row" must_=== 1).
           and(rs.beforeFirst aka "before first" must throwA[SQLException](
             message = "Type of result set is forward only"))
 
@@ -257,7 +257,7 @@ object AbstractResultSetSpec extends Specification {
       "without change" in {
         lazy val rs = defaultSet
         (rs.first aka "first" must beFalse).
-          and(rs.getRow aka "row" mustEqual 1).
+          and(rs.getRow aka "row" must_=== 1).
           and(rs.isAfterLast aka "after last" must beTrue)
       }
 
@@ -266,7 +266,7 @@ object AbstractResultSetSpec extends Specification {
         rs.setFetchSize(1)
 
         (rs.first aka "first" must beTrue).
-          and(rs.getRow aka "row" mustEqual 1).
+          and(rs.getRow aka "row" must_=== 1).
           and(rs.isOn aka "on" must beTrue)
       }
 
@@ -275,7 +275,7 @@ object AbstractResultSetSpec extends Specification {
         rs.setFetchSize(2)
 
         (rs.absolute(2) aka "forward move" must beTrue).
-          and(rs.getRow aka "row" mustEqual 2).
+          and(rs.getRow aka "row" must_=== 2).
           and(rs.first aka "backward first" must throwA[SQLException](
             message = "Backward move"))
 
@@ -285,14 +285,14 @@ object AbstractResultSetSpec extends Specification {
     "be moved to last" >> {
       "without change" in {
         lazy val rs = defaultSet
-        rs.last aka "last" must beTrue and (rs.getRow aka "row" must_== 0)
+        rs.last aka "last" must beTrue and (rs.getRow aka "row" must_=== 0)
       }
 
       "at 1" in {
         lazy val rs = defaultSet
         rs.setFetchSize(1)
 
-        rs.last aka "last" must beTrue and (rs.getRow aka "row" must_== 1)
+        rs.last aka "last" must beTrue and (rs.getRow aka "row" must_=== 1)
       }
     }
 
@@ -307,7 +307,7 @@ object AbstractResultSetSpec extends Specification {
         rs.setFetchSize(1)
         rs.afterLast()
 
-        rs.getRow aka "row" must_== 2
+        rs.getRow aka "row" must_=== 2
       }
     }
   }

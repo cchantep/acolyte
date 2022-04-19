@@ -50,7 +50,7 @@ if [ "_$SCALA_MODULES" = "_" ]; then
   SCALA_MODULES="jdbc-scala scalac-plugin reactive-mongo play-jdbc play-reactive-mongo"
 fi
 
-SCALA_VERSIONS="2.11 2.12 2.13"
+SCALA_VERSIONS="2.11 2.12 2.13 3.1.3"
 BASES=""
 
 for M in $JAVA_MODULES; do
@@ -65,8 +65,10 @@ for M in $EXTRA_JAVA_MODULES; do
 done
 
 for V in $SCALA_VERSIONS; do
+  MV=`echo "$V" | sed -e 's/^3.*/3/'`
+
   for M in $SCALA_MODULES; do
-    BASES="$BASES $M/target/scala-$V/$M"_$V-$VERSION
+    BASES="$BASES $M/target/scala-$V/$M"_$MV-$VERSION
   done
 done
 

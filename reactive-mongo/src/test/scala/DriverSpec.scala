@@ -1,11 +1,11 @@
 package acolyte.reactivemongo
 
 import scala.util.Try
+
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 
-import reactivemongo.core.errors.DatabaseException
-
+import reactivemongo.api.{AsyncDriver, Cursor, DB, MongoConnection}
 import reactivemongo.api.bson.{
   BSONBoolean,
   BSONDocument,
@@ -13,29 +13,33 @@ import reactivemongo.api.bson.{
   BSONInteger,
   BSONString
 }
-
-import reactivemongo.api.{ Cursor, DB, MongoConnection, AsyncDriver }
-import reactivemongo.acolyte.ReactiveMongoActorSystem
 import reactivemongo.api.commands.WriteResult
 
 import org.specs2.concurrent.ExecutionEnv
 
-final class DriverSpec extends org.specs2.mutable.Specification
-  with org.specs2.specification.AfterAll
-  with QueryHandlerFixtures with WriteHandlerFixtures
-  with ConnectionHandlerFixtures with ResponseMatchers {
+import reactivemongo.acolyte.ReactiveMongoActorSystem
+import reactivemongo.core.errors.DatabaseException
 
-  "Acolyte Mongo driver" title
+final class DriverSpec
+    extends org.specs2.mutable.Specification
+    with org.specs2.specification.AfterAll
+    with QueryHandlerFixtures
+    with WriteHandlerFixtures
+    with ConnectionHandlerFixtures
+    with ResponseMatchers {
+
+  "Acolyte Mongo driver".title
 
   import AcolyteDSL.withDriver
 
   val timeout = 5.seconds
   val driver = AsyncDriver()
-  implicit val driverManager = DriverManager.identity(driver)
+  implicit val driverManager: DriverManager = DriverManager.identity(driver)
 
   implicit def ec: ExecutionEnv =
     ExecutionEnv.fromExecutionContext(
-      ReactiveMongoActorSystem(driver).dispatcher)
+      ReactiveMongoActorSystem(driver).dispatcher
+    )
 
   "Resource management" should {
     "successfully initialize driver from connection handler" in {
@@ -45,36 +49,41 @@ final class DriverSpec extends org.specs2.mutable.Specification
     "successfully work with initialized driver" >> {
       "from sync query handler" in {
         withDriver { implicit drv: AsyncDriver =>
-          AcolyteDSL.withQueryHandler(
-            { _: Request => QueryResponse.empty })(_ => true)
+          AcolyteDSL.withQueryHandler({ (_: Request) => QueryResponse.empty })(
+            _ => true
+          )
         } aka "work with query handler" must beTrue.awaitFor(timeout)
       }
 
       "from sync query result" in {
         withDriver { implicit drv: AsyncDriver =>
-          AcolyteDSL.withQueryResult(QueryResponse(
-            BSONDocument("res" -> "ult")))(_ => true)
+          AcolyteDSL.withQueryResult(
+            QueryResponse(BSONDocument("res" -> "ult"))
+          )(_ => true)
         } aka "work with query result" must beTrue.awaitFor(timeout)
       }
 
       "from query handler with future result" in {
         withDriver { implicit drv: AsyncDriver =>
-          AcolyteDSL.withQueryHandler(
-            { _: Request => QueryResponse.undefined })(_ => Future(2 + 6))
+          AcolyteDSL.withQueryHandler({ (_: Request) =>
+            QueryResponse.undefined
+          })(_ => Future(2 + 6))
         } aka "work with query handler" must beTypedEqualTo(8).awaitFor(timeout)
       }
 
       "from future query result" in {
         withDriver { implicit drv: AsyncDriver =>
-          AcolyteDSL.withQueryResult(QueryResponse(
-            BSONDocument("res" -> "ult")))(_ => Future(1 + 2))
+          AcolyteDSL.withQueryResult(
+            QueryResponse(BSONDocument("res" -> "ult"))
+          )(_ => Future(1 + 2))
         } aka "work with query result" must beTypedEqualTo(3).awaitFor(timeout)
       }
 
       "from sync write handler" in {
         withDriver { implicit drv: AsyncDriver =>
-          AcolyteDSL.withWriteHandler(
-            { (_: WriteOp, _: Request) => WriteResponse(1) })(_ => true)
+          AcolyteDSL.withWriteHandler({ (_: WriteOp, _: Request) =>
+            WriteResponse(1)
+          })(_ => true)
         } aka "work with write result" must beTrue.awaitFor(timeout)
       }
 
@@ -86,15 +95,15 @@ final class DriverSpec extends org.specs2.mutable.Specification
 
       "from write handler with future result" in {
         withDriver { implicit drv: AsyncDriver =>
-          AcolyteDSL.withWriteHandler(
-            { (_: WriteOp, _: Request) => WriteResponse(1) })(_ => Future(1 + 6))
+          AcolyteDSL.withWriteHandler({ (_: WriteOp, _: Request) =>
+            WriteResponse(1)
+          })(_ => Future.successful(1 + 6))
         } aka "work with write result" must beTypedEqualTo(7).awaitFor(timeout)
       }
 
       "from sync future result" in {
         withDriver { implicit drv: AsyncDriver =>
-          AcolyteDSL.withWriteResult(
-            WriteResponse("error"))(_ => Future(1 + 2))
+          AcolyteDSL.withWriteResult(WriteResponse("error"))(_ => Future(1 + 2))
         } aka "work with write result" must beTypedEqualTo(3).awaitFor(timeout)
       }
     }
@@ -161,7 +170,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
       }
 
       "with session and transaction" in {
-        val handler = AcolyteDSL.handleQuery { req: Request =>
+        val handler = AcolyteDSL.handleQuery { (req: Request) =>
           req match {
             case StartSessionRequest() =>
               QueryResponse.startSession()
@@ -176,12 +185,14 @@ final class DriverSpec extends org.specs2.mutable.Specification
 
         implicit val drv = driver
 
-        (AcolyteDSL.withDB(handler, "foo", setName = Some("testrs")) { db =>
-          for {
-            withSession <- db.startSession()
-            _ <- withSession.startTransaction(None)
-          } yield withSession
-        }).map(_.name) must beTypedEqualTo("foo").awaitFor(timeout)
+        (AcolyteDSL
+          .withDB(handler, "foo", setName = Some("testrs")) { db =>
+            for {
+              withSession <- db.startSession()
+              _ <- withSession.startTransaction(None)
+            } yield withSession
+          })
+          .map(_.name) must beTypedEqualTo("foo").awaitFor(timeout)
       }
     }
 
@@ -210,8 +221,9 @@ final class DriverSpec extends org.specs2.mutable.Specification
 
       "from connection handler with future result" in {
         withDriver { implicit drv: AsyncDriver =>
-          AcolyteDSL.withCollection(chandler1, "colName")(
-            _ => Future.successful(true))
+          AcolyteDSL.withCollection(chandler1, "colName")(_ =>
+            Future.successful(true)
+          )
         } aka "work with collection" must beTrue.awaitFor(timeout)
       }
 
@@ -238,9 +250,9 @@ final class DriverSpec extends org.specs2.mutable.Specification
       "when is successful #1" in {
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withCollection(chandler1, query1.collection) {
-            _.find(query1.body.head, Option.empty[BSONDocument]).
-              cursor[BSONDocument]().
-              collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
+            _.find(query1.body.head, Option.empty[BSONDocument])
+              .cursor[BSONDocument]()
+              .collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
           }
         } aka "query result" must beLike[List[BSONDocument]] {
           case ValueDocument(("b", BSONInteger(3)) :: Nil) :: Nil => ok
@@ -249,85 +261,109 @@ final class DriverSpec extends org.specs2.mutable.Specification
 
       "when is successful #2" in {
         withDriver { implicit drv: AsyncDriver =>
-          AcolyteDSL.withDB(chandler1) { db: DB =>
-            db(query2.collection).find(
-              query2.body.head, Option.empty[BSONDocument]).
-              cursor[BSONDocument]().
-              collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
+          AcolyteDSL.withDB(chandler1) { (db: DB) =>
+            db(query2.collection)
+              .find(query2.body.head, Option.empty[BSONDocument])
+              .cursor[BSONDocument]()
+              .collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
           }
         } aka ("query result") must beLike[List[BSONDocument]] {
           case ValueDocument(("d", BSONDouble(4.56D)) :: Nil) ::
-            ValueDocument(("ef", BSONString("ghi")) :: Nil) :: Nil => ok
+              ValueDocument(("ef", BSONString("ghi")) :: Nil) :: Nil =>
+            ok
         }.awaitFor(timeout)
       }
 
       "using withQueryResult" >> {
         "for a single document" in {
           withDriver { implicit drv: AsyncDriver =>
-            AcolyteDSL.withQueryResult(
-              BSONDocument("res" -> "ult", "n" -> 3)) { con: MongoConnection =>
-                con.database("anyDb").flatMap(_("anyCol").
-                  find(query1.body.head, Option.empty[BSONDocument]).
-                  cursor[BSONDocument]().
-                  collect[List](-1, Cursor.FailOnError[List[BSONDocument]]()))
-              }
+            AcolyteDSL.withQueryResult(BSONDocument("res" -> "ult", "n" -> 3)) {
+              (con: MongoConnection) =>
+                con
+                  .database("anyDb")
+                  .flatMap(
+                    _("anyCol")
+                      .find(query1.body.head, Option.empty[BSONDocument])
+                      .cursor[BSONDocument]()
+                      .collect[List](
+                        -1,
+                        Cursor.FailOnError[List[BSONDocument]]()
+                      )
+                  )
+            }
           } aka "query result" must beLike[List[BSONDocument]] {
-            case ValueDocument(("res", BSONString("ult")) ::
-              ("n", BSONInteger(3)) :: Nil) :: Nil => ok
+            case ValueDocument(
+                  ("res", BSONString("ult")) ::
+                  ("n", BSONInteger(3)) :: Nil
+                ) :: Nil =>
+              ok
           }.awaitFor(timeout)
         }
 
         "for a many documents" in {
           withDriver { implicit drv: AsyncDriver =>
             AcolyteDSL.withQueryResult(
-              List(BSONDocument("doc" -> 1), BSONDocument("doc" -> 2.3d))) { d =>
-                AcolyteDSL.withCollection(d, "anyCol") {
-                  _.find(query1.body.head, Option.empty[BSONDocument]).
-                    cursor[BSONDocument]().
-                    collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
-                }
+              List(BSONDocument("doc" -> 1), BSONDocument("doc" -> 2.3D))
+            ) { d =>
+              AcolyteDSL.withCollection(d, "anyCol") {
+                _.find(query1.body.head, Option.empty[BSONDocument])
+                  .cursor[BSONDocument]()
+                  .collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
               }
+            }
           } aka "query result" must beLike[List[BSONDocument]] {
             case ValueDocument(("doc", BSONInteger(1)) :: Nil) ::
-              ValueDocument(("doc", BSONDouble(2.3d)) :: Nil) :: Nil => ok
+                ValueDocument(("doc", BSONDouble(2.3D)) :: Nil) :: Nil =>
+              ok
           }.awaitFor(timeout)
         }
 
         "for an explicit error" in {
           awaitRes(withDriver { implicit drv: AsyncDriver =>
-            AcolyteDSL.withQueryResult("Error" -> 7) { con: MongoConnection =>
+            AcolyteDSL.withQueryResult("Error" -> 7) { (con: MongoConnection) =>
               AcolyteDSL.withCollection(con, query1.collection) {
-                _.find(query1.body.head, Option.empty[BSONDocument]).
-                  cursor[BSONDocument]().
-                  collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
+                _.find(query1.body.head, Option.empty[BSONDocument])
+                  .cursor[BSONDocument]()
+                  .collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
               }
             }
-          }) aka "query result" must beFailedTryWith[DatabaseException]("Error.*code = 7")
+          }) aka "query result" must beFailedTryWith[DatabaseException](
+            "Error.*code = 7"
+          )
         }
 
         "when undefined" in {
           awaitRes(withDriver { implicit drv: AsyncDriver =>
-            AcolyteDSL.withQueryResult(None) { con: MongoConnection =>
+            AcolyteDSL.withQueryResult(None) { (con: MongoConnection) =>
               AcolyteDSL.withCollection(con, query1.collection) {
-                _.find(query1.body.head, Option.empty[BSONDocument]).
-                  cursor[BSONDocument]().
-                  collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
+                _.find(query1.body.head, Option.empty[BSONDocument])
+                  .cursor[BSONDocument]()
+                  .collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
               }
             }
-          }) aka "query result" must beFailedTryWith[DatabaseException]("No response:")
+          }) aka "query result" must beFailedTryWith[DatabaseException](
+            "No response:"
+          )
         }
       }
 
       "as error when query handler returns no query result" in {
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withQueryHandler({
-            case Request("acolyte.test3", SimpleBody(
-              ("filter", BSONString("valC")) :: Nil)) => QueryResponse.empty
-          }) { con: MongoConnection =>
+            case Request(
+                  "acolyte.test3",
+                  SimpleBody(("filter", BSONString("valC")) :: Nil)
+                ) =>
+              QueryResponse.empty
+
+            case req =>
+              sys.error(s"Unexpected request: $req")
+
+          }) { (con: MongoConnection) =>
             AcolyteDSL.withCollection(con, query3.collection) {
-              _.find(query3.body.head, Option.empty[BSONDocument]).
-                cursor[BSONDocument]().
-                collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
+              _.find(query3.body.head, Option.empty[BSONDocument])
+                .cursor[BSONDocument]()
+                .collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
             }
           }
         }.map(_.isEmpty) aka "query result" must beTrue.awaitFor(timeout)
@@ -336,86 +372,146 @@ final class DriverSpec extends org.specs2.mutable.Specification
       "support query options" in {
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withQueryHandler({
-            case Request("acolyte.test3", RequestBody(
-              List(("filter", BSONString("valC"))) :: List(
-                ("$orderby", ValueDocument(List(("foo", BSONInteger(1))))),
-                ("$readPreference", ValueDocument(
-                  List(("mode", BSONString("primary")))))
-                ) :: Nil)) =>
+            case Request(
+                  "acolyte.test3",
+                  RequestBody(
+                    List(("filter", BSONString("valC"))) :: List(
+                      (
+                        "$orderby",
+                        ValueDocument(List(("foo", BSONInteger(1))))
+                      ),
+                      (
+                        "$readPreference",
+                        ValueDocument(List(("mode", BSONString("primary"))))
+                      )
+                    ) :: Nil
+                  )
+                ) =>
               QueryResponse(BSONDocument("lorem" -> 1.2D))
-          }) { con: MongoConnection =>
+
+            case req =>
+              sys.error(s"Unexpected request: $req")
+
+          }) { (con: MongoConnection) =>
             AcolyteDSL.withCollection(con, query3.collection) {
-              _.find(query3.body.head, Option.empty[BSONDocument]).
-                sort(BSONDocument("foo" -> 1)).cursor[BSONDocument]().
-                collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
+              _.find(query3.body.head, Option.empty[BSONDocument])
+                .sort(BSONDocument("foo" -> 1))
+                .cursor[BSONDocument]()
+                .collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
             }
           }
-        }.map(_.size) aka "query result" must beTypedEqualTo(1).awaitFor(timeout)
+        }.map(_.size) aka "query result" must beTypedEqualTo(1).awaitFor(
+          timeout
+        )
       }
 
       "support findAndModify" in {
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withQueryHandler({
-            case FindAndModifyRequest("test3", List(("id", BSONInteger(1))),
-              List(("title", BSONString("foo"))), opts) =>
+            case FindAndModifyRequest(
+                  "test3",
+                  List(("id", BSONInteger(1))),
+                  List(("title", BSONString("foo"))),
+                  opts
+                ) =>
               QueryResponse.findAndModify(BSONDocument(opts))
-          }) { con: MongoConnection =>
+
+            case req =>
+              sys.error(s"Unexpected request: $req")
+
+          }) { (con: MongoConnection) =>
             AcolyteDSL.withCollection(con, query3.collection) {
               _.findAndUpdate(
                 BSONDocument("id" -> 1),
-                BSONDocument("title" -> "foo")).map(_.value)
+                BSONDocument("title" -> "foo")
+              ).map(_.value)
             }
           }
-        } aka "query result" must beSome(BSONDocument(
-          "bypassDocumentValidation" -> false,
-          "upsert" -> false, "new" -> false)).awaitFor(timeout)
+        } aka "query result" must beSome(
+          BSONDocument(
+            "bypassDocumentValidation" -> false,
+            "upsert" -> false,
+            "new" -> false
+          )
+        ).awaitFor(timeout)
 
       }
 
       "support aggregate" in {
         val expected = List(
           BSONDocument("_id" -> "Foo", "maxAge" -> 20),
-          BSONDocument("_id" -> "Bar", "maxAge" -> 54))
+          BSONDocument("_id" -> "Bar", "maxAge" -> 54)
+        )
 
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withQueryHandler({
             case AggregateRequest(
-              "test", List(
-                ValueDocument(("$match", ValueDocument(
-                  ("age", ValueDocument(
-                    ("$gt", BSONInteger(10)) :: Nil)) :: Nil)) :: Nil),
-                ValueDocument(("$group", ValueDocument(
-                  ("_id", BSONString("$lastName")) ::
-                    ("maxAge", ValueDocument(
-                      ("$max", BSONString("$age")) :: Nil
-                      )) :: Nil
-                  )) :: Nil),
-                ValueDocument(("$sort", ValueDocument(
-                  ("_id", BSONInteger(1)) :: Nil
-                  )) :: Nil)
-                ),
-              List(
-                ("explain", BSONBoolean(false)),
-                ("allowDiskUse", BSONBoolean(false)),
-                ("cursor", ValueDocument(
-                  ("batchSize", BSONInteger(101)) :: Nil))
-                )) =>
+                  "test",
+                  List(
+                    ValueDocument(
+                      (
+                        "$match",
+                        ValueDocument(
+                          (
+                            "age",
+                            ValueDocument(("$gt", BSONInteger(10)) :: Nil)
+                          ) :: Nil
+                        )
+                      ) :: Nil
+                    ),
+                    ValueDocument(
+                      (
+                        "$group",
+                        ValueDocument(
+                          ("_id", BSONString("$lastName")) ::
+                          (
+                            "maxAge",
+                            ValueDocument(
+                              ("$max", BSONString("$age")) :: Nil
+                            )
+                          ) :: Nil
+                        )
+                      ) :: Nil
+                    ),
+                    ValueDocument(
+                      (
+                        "$sort",
+                        ValueDocument(
+                          ("_id", BSONInteger(1)) :: Nil
+                        )
+                      ) :: Nil
+                    )
+                  ),
+                  List(
+                    ("explain", BSONBoolean(false)),
+                    ("allowDiskUse", BSONBoolean(false)),
+                    (
+                      "cursor",
+                      ValueDocument(("batchSize", BSONInteger(101)) :: Nil)
+                    )
+                  )
+                ) =>
               QueryResponse(expected)
-          }) { con: MongoConnection =>
+
+            case req =>
+              sys.error(s"Unexpected request: $req")
+
+          }) { (con: MongoConnection) =>
             AcolyteDSL.withCollection(con, "test") {
               _.aggregateWith[BSONDocument]() { framework =>
                 import framework._
 
                 List(
                   Match(BSONDocument("age" -> BSONDocument(f"$$gt" -> 10))),
-                  Group(BSONString(f"$$lastName"))(
-                    "maxAge" -> MaxField("age")),
-                  Sort(Ascending("_id")))
+                  Group(BSONString(f"$$lastName"))("maxAge" -> MaxField("age")),
+                  Sort(Ascending("_id"))
+                )
               }.collect[List]()
             }
           }
-        } aka "aggregation result" must beTypedEqualTo(
-          expected).awaitFor(timeout)
+        } aka "aggregation result" must beTypedEqualTo(expected).awaitFor(
+          timeout
+        )
 
       }
 
@@ -423,11 +519,18 @@ final class DriverSpec extends org.specs2.mutable.Specification
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withWriteHandler({
             case UpdateRequest(
-              "foo.bar",
-              List(("category", BSONString("A"))),
-              List(("$set", ValueDocument(("foo", BSONString("bar")) :: Nil))),
-              false, true) =>
+                  "foo.bar",
+                  List(("category", BSONString("A"))),
+                  List(
+                    ("$set", ValueDocument(("foo", BSONString("bar")) :: Nil))
+                  ),
+                  false,
+                  true
+                ) =>
               WriteResponse(3)
+
+            case req =>
+              sys.error(s"Unexpected request: $req")
 
           }) { con =>
             con.database("foo").flatMap { db =>
@@ -435,13 +538,16 @@ final class DriverSpec extends org.specs2.mutable.Specification
 
               import coll.AggregationFramework._
 
-              coll.update.one(
-                q = BSONDocument("category" -> "A"),
-                u = Set(BSONDocument("foo" -> "bar")),
-                upsert = false,
-                multi = true,
-                collation = None,
-                arrayFilters = Seq.empty).map(_.n)
+              coll.update
+                .one(
+                  q = BSONDocument("category" -> "A"),
+                  u = Set(BSONDocument("foo" -> "bar")),
+                  upsert = false,
+                  multi = true,
+                  collation = None,
+                  arrayFilters = Seq.empty
+                )
+                .map(_.n)
             }
           }
         } aka "update result" must beTypedEqualTo(3).awaitFor(timeout)
@@ -450,9 +556,9 @@ final class DriverSpec extends org.specs2.mutable.Specification
       "as error when connection handler is empty" in {
         awaitRes(withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withCollection(AcolyteDSL.handle, query3.collection) {
-            _.find(query3.body.head, Option.empty[BSONDocument]).
-              cursor[BSONDocument]().
-              collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
+            _.find(query3.body.head, Option.empty[BSONDocument])
+              .cursor[BSONDocument]()
+              .collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
           }
         }) aka "query result" must beFailedTry.like {
           case err =>
@@ -461,16 +567,20 @@ final class DriverSpec extends org.specs2.mutable.Specification
       }
 
       "as error when query handler is undefined" in {
-        lazy val handler = AcolyteDSL.handleWrite(
-          { (_: WriteOp, _: Request) => WriteResponse(1 /* one doc */ ) })
+        lazy val handler = AcolyteDSL.handleWrite({ (_: WriteOp, _: Request) =>
+          WriteResponse(1 /* one doc */ )
+        })
 
         awaitRes(withDriver { implicit drv: AsyncDriver =>
-          AcolyteDSL.withConnection(handler) { con: MongoConnection =>
-            con.database("anyDb").flatMap(
-              _(query3.collection).
-                find(query3.body.head, Option.empty[BSONDocument]).
-                cursor[BSONDocument]().
-                collect[List](-1, Cursor.FailOnError[List[BSONDocument]]()))
+          AcolyteDSL.withConnection(handler) { (con: MongoConnection) =>
+            con
+              .database("anyDb")
+              .flatMap(
+                _(query3.collection)
+                  .find(query3.body.head, Option.empty[BSONDocument])
+                  .cursor[BSONDocument]()
+                  .collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
+              )
           }
         }) aka "query result" must beFailedTry.like {
           case err =>
@@ -486,10 +596,13 @@ final class DriverSpec extends org.specs2.mutable.Specification
             _.delete.one(write1._2.body.head)
           }
         }) aka "write result" must beFailedTry.like {
-          case err => err.getMessage.indexOf("Error #2").
-            aka("errmsg") must not(beEqualTo(-1)) and {
-              err.getMessage.indexOf("code = -1").
-                aka("code") must not(beEqualTo(-1))
+          case err =>
+            err.getMessage.indexOf("Error #2").aka("errmsg") must not(
+              beEqualTo(-1)
+            ) and {
+              err.getMessage.indexOf("code = -1").aka("code") must not(
+                beEqualTo(-1)
+              )
             }
         }
       }
@@ -510,9 +623,9 @@ final class DriverSpec extends org.specs2.mutable.Specification
             val db = con.database("anyDb")
             val col = db.map(_(write3._2.collection))
 
-            col.flatMap(_.update.one(
-              BSONDocument("name" -> "x"),
-              write3._2.body.head))
+            col.flatMap(
+              _.update.one(BSONDocument("name" -> "x"), write3._2.body.head)
+            )
           }
         }) aka "result" must beFailedTry.like {
           case err =>
@@ -552,7 +665,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
         "for success count" in {
           withDriver { implicit drv: AsyncDriver =>
             AcolyteDSL.withWriteResult(2 -> true) {
-              AcolyteDSL.withConnection(_) { con: MongoConnection =>
+              AcolyteDSL.withConnection(_) { (con: MongoConnection) =>
                 val db = con.database("anyDb")
                 val col = db.map(_(write1._2.collection))
 
@@ -572,8 +685,10 @@ final class DriverSpec extends org.specs2.mutable.Specification
               }
             }
           }) aka "write result" must beFailedTry.like {
-            case err => err.getMessage.indexOf("Write err").
-              aka("errmsg") must not(beEqualTo(-1)) and {
+            case err =>
+              err.getMessage.indexOf("Write err").aka("errmsg") must not(
+                beEqualTo(-1)
+              ) and {
                 err.getMessage.indexOf("code = 9") must not(beEqualTo(-1))
               }
           }
@@ -597,10 +712,16 @@ final class DriverSpec extends org.specs2.mutable.Specification
         "for insert" in {
           awaitRes(withDriver { implicit drv: AsyncDriver =>
             AcolyteDSL.withWriteHandler({
-              case InsertRequest("acolyte.col1", ("a", BSONString("val")) ::
-                ("b", BSONInteger(2)) :: _) =>
+              case InsertRequest(
+                    "acolyte.col1",
+                    ("a", BSONString("val")) ::
+                    ("b", BSONInteger(2)) :: _
+                  ) =>
                 WriteResponse.successful(1, false)
-            }) { con: MongoConnection =>
+
+              case req =>
+                sys.error(s"Unexpected request: $req")
+            }) { (con: MongoConnection) =>
               AcolyteDSL.withCollection(con, "col1") {
                 _.insert.one(BSONDocument("a" -> "val", "b" -> 2))
               }
@@ -611,18 +732,36 @@ final class DriverSpec extends org.specs2.mutable.Specification
         "for bulk-insert" in {
           withDriver { implicit drv: AsyncDriver =>
             AcolyteDSL.withWriteHandler({
-              case (InsertOp, Request("foo.bar", RequestBody(List(
-                List(("foo", BSONInteger(1))),
-                List(("bar", BSONInteger(2))),
-                List(("lorem", BSONInteger(3)))
-                )))) => WriteResponse.successful(count = 3)
-            }) { con: MongoConnection =>
+              case (
+                    InsertOp,
+                    Request(
+                      "foo.bar",
+                      RequestBody(
+                        List(
+                          List(("foo", BSONInteger(1))),
+                          List(("bar", BSONInteger(2))),
+                          List(("lorem", BSONInteger(3)))
+                        )
+                      )
+                    )
+                  ) =>
+                WriteResponse.successful(count = 3)
+
+              case req =>
+                sys.error(s"Unexpected request: $req")
+            }) { (con: MongoConnection) =>
               for {
-                db ← con.database("foo")
-                res ← db.collection("bar").insert(ordered = true).many(List(
-                  BSONDocument("foo" -> 1),
-                  BSONDocument("bar" -> 2),
-                  BSONDocument("lorem" -> 3)))
+                db <- con.database("foo")
+                res <- db
+                  .collection("bar")
+                  .insert(ordered = true)
+                  .many(
+                    List(
+                      BSONDocument("foo" -> 1),
+                      BSONDocument("bar" -> 2),
+                      BSONDocument("lorem" -> 3)
+                    )
+                  )
               } yield res.n
             }
           } must beTypedEqualTo(3).awaitFor(timeout)
@@ -631,19 +770,25 @@ final class DriverSpec extends org.specs2.mutable.Specification
         "for update" in {
           awaitRes(withDriver { implicit drv: AsyncDriver =>
             AcolyteDSL.withWriteHandler({
-              case UpdateRequest("acolyte.col2",
-                ("sel", BSONString("hector")) :: Nil,
-                ("filter", BSONString("valC")) :: Nil,
-                _ /*upsert*/ , _ /*multi*/ ) =>
+              case UpdateRequest(
+                    "acolyte.col2",
+                    ("sel", BSONString("hector")) :: Nil,
+                    ("filter", BSONString("valC")) :: Nil,
+                    _ /*upsert*/,
+                    _ /*multi*/
+                  ) =>
                 WriteResponse(1)
 
               case UpdateRequest("acolyte.col2", q, u, upsert, multi) =>
                 sys.error(s"Unexpected: $q, $u, $upsert, $multi")
 
-            }) { con: MongoConnection =>
+              case req =>
+                sys.error(s"Unexpected request: $req")
+
+            }) { (con: MongoConnection) =>
               AcolyteDSL.withCollection(con, "col2") {
-                _.update.one(
-                  BSONDocument("sel" -> "hector"), write3._2.body.head)
+                _.update
+                  .one(BSONDocument("sel" -> "hector"), write3._2.body.head)
               }
             }
           }) aka "write result" must beSuccessfulTry[WriteResult]
@@ -652,35 +797,62 @@ final class DriverSpec extends org.specs2.mutable.Specification
         "for bulk-update" in {
           withDriver { implicit drv: AsyncDriver =>
             AcolyteDSL.withWriteHandler({
-              case (UpdateOp, Request("foo.bar", RequestBody(List(
-                List(
-                  ("q", ValueDocument(("foo", BSONInteger(1)) :: _)),
-                  ("u", ValueDocument(("bar", BSONInteger(2)) :: _)),
-                  ("upsert", BSONBoolean(true)),
-                  ("multi", BSONBoolean(false))),
-                List(
-                  ("q", ValueDocument(("foo", BSONInteger(2)) :: _)),
-                  ("u", ValueDocument(("lorem", BSONInteger(3)) :: _)),
-                  ("upsert", BSONBoolean(false)),
-                  ("multi", BSONBoolean(true))))))) => {
+              case (
+                    UpdateOp,
+                    Request(
+                      "foo.bar",
+                      RequestBody(
+                        List(
+                          List(
+                            ("q", ValueDocument(("foo", BSONInteger(1)) :: _)),
+                            ("u", ValueDocument(("bar", BSONInteger(2)) :: _)),
+                            ("upsert", BSONBoolean(true)),
+                            ("multi", BSONBoolean(false))
+                          ),
+                          List(
+                            ("q", ValueDocument(("foo", BSONInteger(2)) :: _)),
+                            (
+                              "u",
+                              ValueDocument(("lorem", BSONInteger(3)) :: _)
+                            ),
+                            ("upsert", BSONBoolean(false)),
+                            ("multi", BSONBoolean(true))
+                          )
+                        )
+                      )
+                    )
+                  ) => {
                 WriteResponse.successful(count = 3)
               }
-            }) { con: MongoConnection =>
+
+              case req =>
+                sys.error(s"Unexpected request: $req")
+
+            }) { (con: MongoConnection) =>
               for {
-                db ← con.database("foo")
-                res ← {
+                db <- con.database("foo")
+                res <- {
                   val coll = db.collection("bar")
                   val upd = coll.update(ordered = false)
 
-                  Future.sequence(Seq(
-                    upd.element(
-                      q = BSONDocument("foo" -> 1),
-                      u = BSONDocument("bar" -> 2),
-                      upsert = true, multi = false),
-                    upd.element(
-                      q = BSONDocument("foo" -> 2),
-                      u = BSONDocument("lorem" -> 3),
-                      upsert = false, multi = true))).flatMap(upd.many(_))
+                  Future
+                    .sequence(
+                      Seq(
+                        upd.element(
+                          q = BSONDocument("foo" -> 1),
+                          u = BSONDocument("bar" -> 2),
+                          upsert = true,
+                          multi = false
+                        ),
+                        upd.element(
+                          q = BSONDocument("foo" -> 2),
+                          u = BSONDocument("lorem" -> 3),
+                          upsert = false,
+                          multi = true
+                        )
+                      )
+                    )
+                    .flatMap(upd.many(_))
                 }
               } yield res.n
             }
@@ -690,11 +862,16 @@ final class DriverSpec extends org.specs2.mutable.Specification
         "for delete" in {
           withDriver { implicit drv: AsyncDriver =>
             AcolyteDSL.withWriteHandler({
-              case DeleteRequest("acolyte.col3",
-                ("a", BSONString("val")) :: Nil) =>
+              case DeleteRequest(
+                    "acolyte.col3",
+                    ("a", BSONString("val")) :: Nil
+                  ) =>
                 WriteResponse.successful(2, true)
 
-            }) { con: MongoConnection =>
+              case _ =>
+                WriteResponse.failed("error")
+
+            }) { (con: MongoConnection) =>
               AcolyteDSL.withCollection(con, "col3") {
                 _.delete.one(BSONDocument("a" -> "val")).map(_ => {})
               }
@@ -707,25 +884,37 @@ final class DriverSpec extends org.specs2.mutable.Specification
 
   // ---
 
-  def awaitRes[T](f: Future[T], tmout: Duration = Duration(5, "seconds")): Try[T] = Try[T](Await.result(f, tmout))
+  def awaitRes[T](
+      f: Future[T],
+      tmout: Duration = Duration(5, "seconds")
+    ): Try[T] = Try[T](Await.result(f, tmout))
 
-  def afterAll() = driver.close(Duration(5, "seconds"))
+  def afterAll() = {
+    driver.close(Duration(5, "seconds"))
+    ()
+  }
 
   import org.specs2.matcher.{ Expectable, Matcher }
 
   // Workaround for https://github.com/etorreborre/specs2/pull/836
-  private def beFailedTryWith[T <: Throwable: scala.reflect.ClassTag](message: String): Matcher[Try[Any]] = new Matcher[Try[Any]] {
+  private def beFailedTryWith[T <: Throwable: scala.reflect.ClassTag](
+      message: String
+    ): Matcher[Try[Any]] = new Matcher[Try[Any]] {
     val Cause = implicitly[scala.reflect.ClassTag[T]]
     val re = ("(.|\\s)*" + message + "(.|\\s)*").r
 
-    def apply[S <: Try[Any]](e: Expectable[S]) = result({
-      e.value match {
-        case scala.util.Failure(Cause(t)) =>
-          re.findFirstMatchIn(t.getMessage).nonEmpty
+    def apply[S <: Try[Any]](e: Expectable[S]) = result(
+      {
+        e.value match {
+          case scala.util.Failure(Cause(t)) =>
+            re.findFirstMatchIn(t.getMessage).nonEmpty
 
-        case _ => false
-      }
-    }, "fails with expected throwable",
-      "is not failing with excepted throwable", e)
+          case _ => false
+        }
+      },
+      "fails with expected throwable",
+      "is not failing with excepted throwable",
+      e
+    )
   }
 }

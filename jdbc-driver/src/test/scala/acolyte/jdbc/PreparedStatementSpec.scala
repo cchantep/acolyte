@@ -1,37 +1,37 @@
 package acolyte.jdbc
 
-import java.util.{ Properties, TimeZone }
-
 import java.io.{ ByteArrayInputStream, InputStream }
+
+import java.util.{ Properties, TimeZone }
 
 import java.sql.{
   BatchUpdateException,
   SQLException,
   SQLFeatureNotSupportedException,
-  Types
+  Types,
+  ResultSet
 }
 import java.sql.Statement.EXECUTE_FAILED
 
-import org.specs2.mutable.Specification
-
-import org.apache.commons.io.IOUtils.contentEquals
-
 import scala.collection.JavaConverters
+
+import org.specs2.mutable.Specification
 
 import acolyte.jdbc.StatementHandler.Parameter
 import acolyte.jdbc.test.{ EmptyConnectionHandler, Params }
+import org.apache.commons.io.IOUtils.contentEquals
 
 object PreparedStatementSpec
   extends Specification with StatementSpecification[PreparedStatement] {
 
-  "Prepared statement specification" title
+  "Prepared statement specification".title
 
   def statement(c: Connection = defaultCon, s: String = "TEST", h: StatementHandler = defaultHandler.getStatementHandler) = new PreparedStatement(c, s, java.sql.Statement.RETURN_GENERATED_KEYS, null, null, h)
 
 }
 
 trait StatementSpecification[S <: PreparedStatement] extends Setters {
-  specs: Specification ⇒
+  specs: Specification =>
 
   "Test time zone" should {
     "be UTC" in {
@@ -137,7 +137,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       s.executeBatch() aka "batch execution" must_=== Array[Int](1, 2) and (
         h.exed aka "executed" must beLike {
-          case ("TEST", x) :: ("TEST", y) :: Nil ⇒
+          case ("TEST", x) :: ("TEST", y) :: Nil =>
             (x aka "x" must_=== a) and (y aka "y" must_=== b)
         })
     }
@@ -153,8 +153,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       s.executeBatch() aka "batch execution" must throwA[BatchUpdateException].
         like {
-          case ex: BatchUpdateException ⇒
-            (ex.getUpdateCounts aka "update count" must_== Array[Int](
+          case ex: BatchUpdateException =>
+            (ex.getUpdateCounts aka "update count" must_=== Array[Int](
               EXECUTE_FAILED, EXECUTE_FAILED)).
               and(ex.getCause.getMessage aka "cause" must_=== "Batch error")
         }
@@ -179,8 +179,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       s.executeBatch() aka "batch execution" must throwA[BatchUpdateException].
         like {
-          case ex: BatchUpdateException ⇒
-            (ex.getUpdateCounts aka "update count" must_== Array[Int](
+          case ex: BatchUpdateException =>
+            (ex.getUpdateCounts aka "update count" must_=== Array[Int](
               EXECUTE_FAILED, 2)).
               and(ex.getCause.getMessage aka "cause" must_=== "Batch error: 1")
         }
@@ -201,8 +201,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       s.executeBatch() aka "batch execution" must throwA[BatchUpdateException].
         like {
-          case ex: BatchUpdateException ⇒
-            (ex.getUpdateCounts aka "update count" must_== Array[Int](
+          case ex: BatchUpdateException =>
+            (ex.getUpdateCounts aka "update count" must_=== Array[Int](
               1, EXECUTE_FAILED)).
               and(ex.getCause.getMessage aka "cause" must_=== "Batch error: 2")
         }
@@ -227,8 +227,8 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       s.executeBatch() aka "batch execution" must throwA[BatchUpdateException].
         like {
-          case ex: BatchUpdateException ⇒
-            (ex.getUpdateCounts aka "update count" must_== Array[Int](
+          case ex: BatchUpdateException =>
+            (ex.getUpdateCounts aka "update count" must_=== Array[Int](
               1, EXECUTE_FAILED)).
               and(ex.getCause.getMessage aka "cause" must_=== "Batch error: 2")
         }
@@ -241,7 +241,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       s.setString(1, "B"); s.setInt(2, 4); s.addBatch()
 
       s.clearBatch() aka "clear batch" must not(throwA[SQLException]) and (
-        h.exed.size aka "executed" must_== 0)
+        h.exed.size aka "executed" must_=== 0)
     }
   }
 
@@ -812,7 +812,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
           aka("SQL update") must_=== ("TEST ?, y" -> 1.23.toFloat)).
           and(executeQuery("SELECT ? WHERE false", Types.FLOAT, 34.561.toFloat).
             aka("SQL query").
-            mustEqual("SELECT ? WHERE false" -> 34.561.toFloat))
+            must_===("SELECT ? WHERE false" -> 34.561.toFloat))
 
       }
 
@@ -821,7 +821,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
           aka("SQL update") must_=== ("TEST ?, y" -> 1.23.toFloat)).
           and(executeQuery("SELECT ? WHERE false", Types.REAL, 34.561.toFloat).
             aka("SQL query").
-            mustEqual("SELECT ? WHERE false" -> 34.561.toFloat))
+            must_===("SELECT ? WHERE false" -> 34.561.toFloat))
 
       }
     }
@@ -1153,12 +1153,12 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       "when BINARY as stream" in {
         (executeUpdate("TEST ?, y", Types.BINARY, binstream).
           aka("SQL update") must beLike {
-            case ("TEST ?, y", s) ⇒ contentEquals(binstream, s).
+            case ("TEST ?, y", s) => contentEquals(binstream, s).
               aka("same content") must beTrue
 
           }) and (executeQuery("SELECT ? WHERE false", Types.BINARY, binstream).
             aka("SQL query") must beLike {
-              case ("SELECT ? WHERE false", s) ⇒ contentEquals(binstream, s).
+              case ("SELECT ? WHERE false", s) => contentEquals(binstream, s).
                 aka("same content") must beTrue
             })
 
@@ -1167,11 +1167,11 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       "when VARBINARY as stream" in {
         (executeUpdate("TEST ?, y", Types.VARBINARY, binstream).
           aka("SQL update") must beLike {
-            case ("TEST ?, y", s) ⇒ contentEquals(binstream, s).
+            case ("TEST ?, y", s) => contentEquals(binstream, s).
               aka("same content") must beTrue
           }) and (executeQuery("SELECT ? WHERE false", Types.VARBINARY,
             binstream).aka("SQL query") must beLike {
-            case ("SELECT ? WHERE false", s) ⇒ contentEquals(binstream, s).
+            case ("SELECT ? WHERE false", s) => contentEquals(binstream, s).
               aka("same content") must beTrue
           })
 
@@ -1180,12 +1180,12 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       "when LONGVARBINARY as stream" in {
         (executeUpdate("TEST ?, y", Types.LONGVARBINARY, binstream).
           aka("SQL update") must beLike {
-            case ("TEST ?, y", s) ⇒ contentEquals(binstream, s).
+            case ("TEST ?, y", s) => contentEquals(binstream, s).
               aka("same content") must beTrue
           }) and (executeQuery(
             "SELECT ? WHERE false",
             Types.LONGVARBINARY, binstream) aka "SQL query" must beLike {
-              case ("SELECT ? WHERE false", s) ⇒ contentEquals(binstream, s).
+              case ("SELECT ? WHERE false", s) => contentEquals(binstream, s).
                 aka("same content") must beTrue
             })
 
@@ -1200,7 +1200,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       lazy val m = s.getParameterMetaData
 
-      m.getParameterCount aka "count" must_== 1 and (
+      m.getParameterCount aka "count" must_=== 1 and (
         m.getParameterType(1) aka "SQL type" must_=== Types.DATE)
 
     }
@@ -1529,9 +1529,9 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       lazy val query = s.executeQuery()
 
       (query aka "execution" must not(throwA[SQLException])).
-        and(query aka "resultset" must not beNull).
+        and(query aka "resultset" must not(beNull)).
         and(s.getGeneratedKeys aka "generated keys" must beLike {
-          case genKeys ⇒
+          case genKeys =>
             (genKeys.getStatement aka "keys statement" must_=== s).
               and(genKeys.next aka "has keys" must beFalse)
         })
@@ -1574,11 +1574,11 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       }
       lazy val s = statement(h = h)
 
-      (s.executeUpdate aka "update count" must_== 1).
+      (s.executeUpdate aka "update count" must_=== 1).
         and(s.getGeneratedKeys aka "generated keys" must beLike {
-          case ks ⇒ (ks.getStatement aka "keys statement" must_=== s).
+          case ks => (ks.getStatement aka "keys statement" must_=== s).
             and(ks.next aka "has first key" must beTrue).
-            and(ks.getInt(1) aka "first key" must_== 200).
+            and(ks.getInt(1) aka "first key" must_=== 200).
             and(ks.next aka "has second key" must beFalse)
         })
     }
@@ -1672,7 +1672,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       s.executeQuery("TEST")
 
       (s.getWarnings aka "warning" must_=== warning).
-        and(Option(s.getResultSet) aka "resultset" must beSome.which {
+        and(Option(s.getResultSet) must beSome[ResultSet].which {
           _.getWarnings aka "result warning" must_=== warning
         })
 

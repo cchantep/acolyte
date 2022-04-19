@@ -2,7 +2,7 @@ package acolyte.jdbc
 
 import java.io.ByteArrayInputStream
 
-import java.math.{ BigDecimal ⇒ JBigDec }
+import java.math.{ BigDecimal => JBigDec }
 
 import java.sql.{
   Date,
@@ -14,16 +14,18 @@ import java.sql.{
   Types
 }
 
-import org.specs2.specification.core.Fragment
+import scala.reflect.ClassTag
+
 import org.specs2.mutable.Specification
+import org.specs2.specification.core.Fragment
+
+import acolyte.jdbc.RowList.{ Column => Col }
+import acolyte.jdbc.test.Params
 
 import org.apache.commons.io.IOUtils.contentEquals
 
-import acolyte.jdbc.RowList.{ Column ⇒ Col }
-import acolyte.jdbc.test.Params
-
 object RowListSpec extends Specification with RowListTest {
-  "Row list" title
+  "Row list".title
 
   "Creation" should {
     "not accept null list" in {
@@ -54,7 +56,7 @@ object RowListSpec extends Specification with RowListTest {
   "Factory" should {
     "create list with given classes" in {
       RowLists.rowList2(classOf[String], classOf[Int]) aka "list" must beLike {
-        case list ⇒
+        case list =>
           val cs = list.getColumnClasses
 
           (cs.get(0) -> cs.get(1)) aka "col classes" must beTypedEqualTo(
@@ -66,20 +68,20 @@ object RowListSpec extends Specification with RowListTest {
 
     "create list with given labels" in {
       RowLists.rowList2(meta._1, meta._2).aka("list") must beLike {
-        case list ⇒
+        case list =>
           val cs = list.getColumnClasses
           val ls = list.getColumnLabels
 
           ((cs.get(0) -> cs.get(1)) aka "column classes" must beTypedEqualTo(
             classOf[String] -> classOf[Int])) and {
-              (ls.get("a") -> ls.get("b")) aka "labels" must_== (1 -> 2)
+              (ls.get("a") -> ls.get("b")) aka "labels" must beEqualTo(1 -> 2)
             }
       }
     }
 
     "create list with given meta-data" in {
       RowLists.rowList2(meta._1, meta._2.withNullable(true)) must beLike {
-        case list ⇒
+        case list =>
           val cs = list.getColumnClasses
           val ls = list.getColumnLabels
           val ns = list.getColumnNullables
@@ -87,9 +89,9 @@ object RowListSpec extends Specification with RowListTest {
           ((cs.get(0) -> cs.get(1)) aka "col classes" must beTypedEqualTo {
             classOf[String] -> classOf[Int]
           }) and {
-            (ls.get("a") -> ls.get("b")) aka "labels" must_== (1 -> 2)
+            (ls.get("a") -> ls.get("b")) aka "labels" must beEqualTo(1 -> 2)
           } and {
-            (ns.get(1), ns.get(2)) aka "nullables" must_== (false -> true)
+            (ns.get(1), ns.get(2)) aka "nullables" must beEqualTo(false -> true)
           }
       }
     }
@@ -229,29 +231,29 @@ object RowListSpec extends Specification with RowListTest {
 
     "have expected precision" >> {
       "for column #1" in {
-        meta.getPrecision(1) aka "precision" mustEqual 32
+        meta.getPrecision(1) aka "precision" must_=== 32
       }
 
       "for column #2" in {
-        meta.getPrecision(2) aka "precision" mustEqual 0
+        meta.getPrecision(2) aka "precision" must_=== 0
       }
 
       "for column #3" in {
-        meta.getPrecision(3) aka "precision" mustEqual 0
+        meta.getPrecision(3) aka "precision" must_=== 0
       }
     }
 
     "have expected scale" >> {
       "for column #1" in {
-        meta.getScale(1) aka "scale" mustEqual 2
+        meta.getScale(1) aka "scale" must_=== 2
       }
 
       "for column #2" in {
-        meta.getScale(2) aka "scale" mustEqual 0
+        meta.getScale(2) aka "scale" must_=== 0
       }
 
       "for column #3" in {
-        meta.getScale(3) aka "scale" mustEqual 0
+        meta.getScale(3) aka "scale" must_=== 0
       }
     }
 
@@ -345,7 +347,7 @@ object RowListSpec extends Specification with RowListTest {
     "be created with initial string values" in {
       val rs = RowLists.stringList("A", "B", "C").resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 3).
+      (rs.getFetchSize aka "size" must_=== 3).
         and(rs.next aka "has row #1" must beTrue).
         and(rs.getString(1) aka "single col #1" must_=== "A").
         and(rs.next aka "has row #2" must beTrue).
@@ -373,7 +375,7 @@ object RowListSpec extends Specification with RowListTest {
       val (a, b) = (Array[Byte](1) -> Array[Byte](2))
       val rs = RowLists.binaryList(a, b).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 2).
+      (rs.getFetchSize aka "size" must_=== 2).
         and(rs.next aka "has row #1" must beTrue).
         and(rs.getBytes(1) aka "single col #1" must_=== a).
         and(rs.next aka "has row #2" must beTrue).
@@ -401,7 +403,7 @@ object RowListSpec extends Specification with RowListTest {
 
       val rs = RowLists.blobList(a, b).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 2).
+      (rs.getFetchSize aka "size" must_=== 2).
         and(rs.next aka "has row #1" must beTrue).
         and(rs.getBlob(1) aka "single col #1" must_=== a).
         and(rs.next aka "has row #2" must beTrue).
@@ -420,7 +422,7 @@ object RowListSpec extends Specification with RowListTest {
     "be created with initial boolean values" in {
       val rs = RowLists.booleanList(true, true, false).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 3).
+      (rs.getFetchSize aka "size" must_=== 3).
         and(rs.next aka "has row #1" must beTrue).
         and(rs.getBoolean(1) aka "single col #1" must beTrue).
         and(rs.next aka "has row #2" must beTrue).
@@ -435,19 +437,19 @@ object RowListSpec extends Specification with RowListTest {
 
       (rs.getFetchSize aka "size" must_=== 1).
         and(rs.next aka "has row" must beTrue).
-        and(rs.getByte(1) aka "single col" mustEqual 2)
+        and(rs.getByte(1) aka "single col" must_=== 2)
     }
 
     "be created with initial byte values" in {
       val rs = RowLists.byteList(1.toByte, 2.toByte, 3.toByte).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 3).
+      (rs.getFetchSize aka "size" must_=== 3).
         and(rs.next aka "has row #1" must beTrue).
-        and(rs.getByte(1) aka "single col #1" mustEqual 1).
+        and(rs.getByte(1) aka "single col #1" must_=== 1).
         and(rs.next aka "has row #2" must beTrue).
-        and(rs.getByte(1) aka "single col #2" mustEqual 2).
+        and(rs.getByte(1) aka "single col #2" must_=== 2).
         and(rs.next aka "has row #3" must beTrue).
-        and(rs.getByte(1) aka "single col #3" mustEqual 3)
+        and(rs.getByte(1) aka "single col #3" must_=== 3)
 
     }
 
@@ -456,19 +458,19 @@ object RowListSpec extends Specification with RowListTest {
 
       (rs.getFetchSize aka "size" must_=== 1).
         and(rs.next aka "has row" must beTrue).
-        and(rs.getShort(1) aka "single col" mustEqual 3)
+        and(rs.getShort(1) aka "single col" must_=== 3)
     }
 
     "be created with initial short values" in {
       val rs = RowLists.shortList(1.toShort, 2.toShort, 3.toShort).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 3).
+      (rs.getFetchSize aka "size" must_=== 3).
         and(rs.next aka "has row #1" must beTrue).
-        and(rs.getShort(1) aka "single col #1" mustEqual 1).
+        and(rs.getShort(1) aka "single col #1" must_=== 1).
         and(rs.next aka "has row #2" must beTrue).
-        and(rs.getShort(1) aka "single col #2" mustEqual 2).
+        and(rs.getShort(1) aka "single col #2" must_=== 2).
         and(rs.next aka "has row #3" must beTrue).
-        and(rs.getShort(1) aka "single col #3" mustEqual 3)
+        and(rs.getShort(1) aka "single col #3" must_=== 3)
 
     }
 
@@ -477,19 +479,19 @@ object RowListSpec extends Specification with RowListTest {
 
       (rs.getFetchSize aka "size" must_=== 1).
         and(rs.next aka "has row" must beTrue).
-        and(rs.getInt(1) aka "single col" mustEqual 4)
+        and(rs.getInt(1) aka "single col" must_=== 4)
     }
 
     "be created with initial int values" in {
       val rs = RowLists.intList(1, 2, 3).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 3).
+      (rs.getFetchSize aka "size" must_=== 3).
         and(rs.next aka "has row #1" must beTrue).
-        and(rs.getInt(1) aka "single col #1" mustEqual 1).
+        and(rs.getInt(1) aka "single col #1" must_=== 1).
         and(rs.next aka "has row #2" must beTrue).
-        and(rs.getInt(1) aka "single col #2" mustEqual 2).
+        and(rs.getInt(1) aka "single col #2" must_=== 2).
         and(rs.next aka "has row #3" must beTrue).
-        and(rs.getInt(1) aka "single col #3" mustEqual 3)
+        and(rs.getInt(1) aka "single col #3" must_=== 3)
 
     }
 
@@ -513,13 +515,13 @@ object RowListSpec extends Specification with RowListTest {
       val c = new ByteArrayInputStream(Array[Byte](3, 9, 10))
       val rs = RowLists.streamList(a, b, c).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 3).
+      (rs.getFetchSize aka "size" must_=== 3).
         and(rs.next aka "has row #1" must beTrue).
-        and(rs.getBinaryStream(1) aka "single col #1" mustEqual a).
+        and(rs.getBinaryStream(1) aka "single col #1" must_=== a).
         and(rs.next aka "has row #2" must beTrue).
-        and(rs.getBinaryStream(1) aka "single col #2" mustEqual b).
+        and(rs.getBinaryStream(1) aka "single col #2" must_=== b).
         and(rs.next aka "has row #3" must beTrue).
-        and(rs.getBinaryStream(1) aka "single col #3" mustEqual c)
+        and(rs.getBinaryStream(1) aka "single col #3" must_=== c)
 
     }
 
@@ -528,19 +530,19 @@ object RowListSpec extends Specification with RowListTest {
 
       (rs.getFetchSize aka "size" must_=== 1).
         and(rs.next aka "has row" must beTrue).
-        and(rs.getLong(1) aka "single col" mustEqual 5L)
+        and(rs.getLong(1) aka "single col" must_=== 5L)
     }
 
     "be created with initial long values" in {
-      val rs = RowLists.longList(1l, 2l, 3l).resultSet
+      val rs = RowLists.longList(1L, 2L, 3L).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 3).
+      (rs.getFetchSize aka "size" must_=== 3).
         and(rs.next aka "has row #1" must beTrue).
-        and(rs.getLong(1) aka "single col #1" mustEqual 1L).
+        and(rs.getLong(1) aka "single col #1" must_=== 1L).
         and(rs.next aka "has row #2" must beTrue).
-        and(rs.getLong(1) aka "single col #2" mustEqual 2L).
+        and(rs.getLong(1) aka "single col #2" must_=== 2L).
         and(rs.next aka "has row #3" must beTrue).
-        and(rs.getLong(1) aka "single col #3" mustEqual 3L)
+        and(rs.getLong(1) aka "single col #3" must_=== 3L)
 
     }
 
@@ -549,19 +551,19 @@ object RowListSpec extends Specification with RowListTest {
 
       (rs.getFetchSize aka "size" must_=== 1).
         and(rs.next aka "has row" must beTrue).
-        and(rs.getFloat(1) aka "single col" mustEqual 6.7F)
+        and(rs.getFloat(1) aka "single col" must_=== 6.7F)
     }
 
     "be created with initial float values" in {
       val rs = RowLists.floatList(1F, 2F, 3F).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 3).
+      (rs.getFetchSize aka "size" must_=== 3).
         and(rs.next aka "has row #1" must beTrue).
-        and(rs.getFloat(1) aka "single col #1" mustEqual 1F).
+        and(rs.getFloat(1) aka "single col #1" must_=== 1F).
         and(rs.next aka "has row #2" must beTrue).
-        and(rs.getFloat(1) aka "single col #2" mustEqual 2F).
+        and(rs.getFloat(1) aka "single col #2" must_=== 2F).
         and(rs.next aka "has row #3" must beTrue).
-        and(rs.getFloat(1) aka "single col #3" mustEqual 3F)
+        and(rs.getFloat(1) aka "single col #3" must_=== 3F)
 
     }
 
@@ -570,19 +572,19 @@ object RowListSpec extends Specification with RowListTest {
 
       (rs.getFetchSize aka "size" must_=== 1).
         and(rs.next aka "has row" must beTrue).
-        and(rs.getDouble(1) aka "single col" mustEqual 7.89D)
+        and(rs.getDouble(1) aka "single col" must_=== 7.89D)
     }
 
     "be created with initial double values" in {
       val rs = RowLists.doubleList(1D, 2D, 3D).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 3).
+      (rs.getFetchSize aka "size" must_=== 3).
         and(rs.next aka "has row #1" must beTrue).
-        and(rs.getDouble(1) aka "single col #1" mustEqual 1D).
+        and(rs.getDouble(1) aka "single col #1" must_=== 1D).
         and(rs.next aka "has row #2" must beTrue).
-        and(rs.getDouble(1) aka "single col #2" mustEqual 2D).
+        and(rs.getDouble(1) aka "single col #2" must_=== 2D).
         and(rs.next aka "has row #3" must beTrue).
-        and(rs.getDouble(1) aka "single col #3" mustEqual 3D)
+        and(rs.getDouble(1) aka "single col #3" must_=== 3D)
 
     }
 
@@ -603,7 +605,7 @@ object RowListSpec extends Specification with RowListTest {
 
       val rs = RowLists.bigDecimalList(a, b, c).resultSet
 
-      (rs.getFetchSize aka "size" mustEqual 3).
+      (rs.getFetchSize aka "size" must_=== 3).
         and(rs.next aka "has row #1" must beTrue).
         and(rs.getBigDecimal(1) aka "single col #1" must_=== a).
         and(rs.next aka "has row #2" must beTrue).
@@ -668,7 +670,7 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "accept timestamp" in {
-      val ts = new Timestamp(1234l)
+      val ts = new Timestamp(1234L)
       val rs = RowLists.timestampList.append(ts).resultSet
 
       (rs.getFetchSize aka "size" must_=== 1).
@@ -806,10 +808,11 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "be expected one" in {
-      lazy val rs = (new RowList1.Impl(classOf[Long]).append(123L)).resultSet
+      val value = 123L
+      lazy val rs = (new RowList1.Impl(classOf[Long]).append(value)).resultSet
       rs.next
 
-      rs.getObject(1) must_== 123L
+      rs.getObject(1) must beEqualTo(value)
     }
 
     "be null" in {
@@ -827,7 +830,7 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "not be read with invalid index" in {
-      lazy val rs = new RowList1.Impl(classOf[Long]).append(123.toLong).
+      lazy val rs = new RowList1.Impl(classOf[Long]).append(123L).
         resultSet
       rs.next
 
@@ -936,11 +939,12 @@ object RowListSpec extends Specification with RowListTest {
     }
 
     "be expected one" in {
+      val value = 123L
       lazy val rs = (new RowList1.Impl(classOf[Long]).
-        withLabel(1, "l").append(123L)).resultSet
+        withLabel(1, "l").append(value)).resultSet
       rs.next
 
-      rs.getObject("l") must_== 123L
+      rs.getObject("l") must beEqualTo(value)
     }
 
     "be null" in {
@@ -955,7 +959,7 @@ object RowListSpec extends Specification with RowListTest {
 
     "not be read with invalid name" in {
       lazy val rs = new RowList1.Impl(classOf[Long]).
-        withLabel(1, "n").append(123.toLong).resultSet
+        withLabel(1, "n").append(123L).resultSet
       rs.next
 
       (rs.getObject(null).
@@ -967,7 +971,7 @@ object RowListSpec extends Specification with RowListTest {
     "not be read with invalid name mapping" in {
       lazy val rs = new RowList1.Impl(classOf[Long]).
         withLabel(0, "before").withLabel(2, "after").
-        append(123.toLong).resultSet
+        append(123L).resultSet
       rs.next
 
       (rs.getLong("before") aka "get" must throwA[SQLException](
@@ -1113,8 +1117,8 @@ object RowListSpec extends Specification with RowListTest {
   numberGetterSpec[Byte]("Byte", 1.toByte)
   numberGetterSpec[Short]("Short", 1.toShort)
   numberGetterSpec[Int]("Int", 1)
-  numberGetterSpec[Long]("Long", 1.toLong)
-  numberGetterSpec[Float]("Float", 1.toFloat)
+  numberGetterSpec[Long]("Long", 1L)
+  numberGetterSpec[Float]("Float", 1F)
   numberGetterSpec[Double]("Double", 1.toDouble)
 
   "BigDecimal column from result set" should {
@@ -1329,7 +1333,7 @@ object RowListSpec extends Specification with RowListTest {
     new Timestamp(System.currentTimeMillis()))
 }
 
-sealed trait RowListTest { specs: Specification ⇒
+sealed trait RowListTest { specs: Specification =>
   import java.util.Calendar
 
   implicit def dateByIndex(rs: ResultSet, i: Int): Date = rs.getDate(i)
@@ -1354,7 +1358,7 @@ sealed trait RowListTest { specs: Specification ⇒
     rs.getTimestamp(i, c)
   implicit def tsByLabelWithCal(rs: ResultSet, n: String, c: Calendar): Timestamp = rs.getTimestamp(n, c)
 
-  def temporalGetterSpec[D <: java.util.Date](name: String, v: D)(implicit mf: Manifest[D], byIndex: (ResultSet, Int) ⇒ D, byLabel: (ResultSet, String) ⇒ D, byIndexWithCal: (ResultSet, Int, Calendar) ⇒ D, byLabelWithCal: (ResultSet, String, Calendar) ⇒ D) =
+  def temporalGetterSpec[D <: java.util.Date](name: String, v: D)(implicit mf: ClassTag[D], byIndex: (ResultSet, Int) => D, byLabel: (ResultSet, String) => D, byIndexWithCal: (ResultSet, Int, Calendar) => D, byLabelWithCal: (ResultSet, String, Calendar) => D) =
     s"$name column from result set" should {
       "not be read by index when not on a row" in {
         (byIndex(new RowList1.Impl(mf.runtimeClass.asInstanceOf[Class[D]]).
@@ -1461,7 +1465,7 @@ sealed trait RowListTest { specs: Specification ⇒
   implicit def doubleByIndex(rs: ResultSet, i: Int): Double = rs.getDouble(i)
   implicit def doubleByLabel(rs: ResultSet, n: String): Double = rs.getDouble(n)
 
-  def numberGetterSpec[N](name: String, v: N)(implicit num: Numeric[N], mf: Manifest[N], byIndex: (ResultSet, Int) ⇒ N, byLabel: (ResultSet, String) ⇒ N) =
+  def numberGetterSpec[N](name: String, v: N)(implicit num: Numeric[N], mf: ClassTag[N], byIndex: (ResultSet, Int) => N, byLabel: (ResultSet, String) => N) =
     s"$name column from result set" should {
       "not be read by index when not on a row" in {
         (byIndex(new RowList1.Impl(mf.runtimeClass.asInstanceOf[Class[N]]).
@@ -1488,8 +1492,8 @@ sealed trait RowListTest { specs: Specification ⇒
           withLabel(1, "n").append(null.asInstanceOf[N]).resultSet
         rs.next
 
-        (byIndex(rs, 1) aka s"$name" must_== 0).
-          and(byLabel(rs, "n") aka s"$name" must_== 0)
+        (num.toInt(byIndex(rs, 1)) aka name must_=== 0).
+          and(num.toInt(byLabel(rs, "n")) aka name must_=== 0)
       }
 
       "be undefined (-1)" in {
@@ -1497,8 +1501,8 @@ sealed trait RowListTest { specs: Specification ⇒
           append("str").resultSet
         rs.next
 
-        (byIndex(rs, 1) aka s"$name" must_== -1).
-          and(byLabel(rs, "n") aka s"$name" must_== -1)
+        (num.toInt(byIndex(rs, 1)) aka s"$name" must_=== -1).
+          and(num.toInt(byLabel(rs, "n")) aka s"$name" must_=== -1)
 
       }
 
@@ -1520,7 +1524,9 @@ sealed trait RowListTest { specs: Specification ⇒
         rs.foreach(_._2.next)
 
         Fragment.foreach(rs) { r =>
-          s"from ${r._1}" in { byIndex(r._2, 1) aka s"$name" must_== 1 }
+          s"from ${r._1}" in {
+            num.toInt(byIndex(r._2, 1)) aka s"$name" must_=== 1
+          }
         }
       }
 
@@ -1542,7 +1548,9 @@ sealed trait RowListTest { specs: Specification ⇒
         rs.foreach(_._2.next)
 
         Fragment.foreach(rs) { r =>
-          s"from ${r._1}" in { byLabel(r._2, "n") aka s"$name" must_== 1 }
+          s"from ${r._1}" in {
+            num.toInt(byLabel(r._2, "n")) aka s"$name" must_=== 1
+          }
         }
       }
     }

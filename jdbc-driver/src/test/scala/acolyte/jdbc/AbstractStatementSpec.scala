@@ -2,21 +2,16 @@ package acolyte.jdbc
 
 import java.util.Properties
 
-import java.sql.{
-  ResultSet,
-  SQLException,
-  BatchUpdateException,
-  SQLFeatureNotSupportedException,
-  Statement
-}
-import Statement.EXECUTE_FAILED
+import java.sql.{BatchUpdateException, ResultSet, SQLException, SQLFeatureNotSupportedException, Statement}
 
 import org.specs2.mutable.Specification
 
 import acolyte.jdbc.test.{ EmptyConnectionHandler, Params }
 
+import Statement.EXECUTE_FAILED
+
 object AbstractStatementSpec extends Specification {
-  "Abstract statement specification" title
+  "Abstract statement specification".title
 
   "Constructor" should {
     "refuse null connection" in {
@@ -40,7 +35,7 @@ object AbstractStatementSpec extends Specification {
 
     "be unwrapped to java.sql.Statement" in {
       Option(statement().unwrap(classOf[Statement])).
-        aka("unwrapped") must beSome.which(_.isInstanceOf[Statement])
+        aka("unwrapped") must beSome[Statement]
 
     }
   }
@@ -60,11 +55,11 @@ object AbstractStatementSpec extends Specification {
       lazy val s = statement(h = h)
       lazy val rows = RowLists.stringList
 
-      (s.executeQuery("QUERY") aka "result" mustEqual rows.resultSet).
-        and(s.getResultSet aka "resultset" mustEqual rows.resultSet).
-        and(s.getResultSet.getStatement aka "statement" mustEqual s).
-        and(s.getUpdateCount aka "update count" mustEqual -1).
-        and(sql aka "executed SQL" mustEqual "QUERY")
+      (s.executeQuery("QUERY") aka "result" must_=== rows.resultSet).
+        and(s.getResultSet aka "resultset" must_=== rows.resultSet).
+        and(s.getResultSet.getStatement aka "statement" must_=== s).
+        and(s.getUpdateCount aka "update count" must_=== -1).
+        and(sql aka "executed SQL" must_=== "QUERY")
 
     }
 
@@ -82,9 +77,9 @@ object AbstractStatementSpec extends Specification {
 
       (s.execute("QUERY") aka "flag" must beTrue).
         and(s.getResultSet.
-          aka("resultset") mustEqual RowLists.stringList.resultSet).
-        and(s.getUpdateCount aka "update count" mustEqual -1).
-        and(sql aka "executed SQL" mustEqual "QUERY")
+          aka("resultset") must_=== RowLists.stringList.resultSet).
+        and(s.getUpdateCount aka "update count" must_=== -1).
+        and(sql aka "executed SQL" must_=== "QUERY")
 
     }
 
@@ -93,17 +88,17 @@ object AbstractStatementSpec extends Specification {
 
       ((s.execute("QUERY", Statement.RETURN_GENERATED_KEYS).
         aka("flag") must beTrue).
-        and(s.getResultSet aka "resultset" mustEqual RowLists.stringList.resultSet).
-        and(s.getUpdateCount aka "update count" mustEqual -1).
-        and(sql aka "executed SQL" mustEqual "QUERY")).
+        and(s.getResultSet aka "resultset" must_=== RowLists.stringList.resultSet).
+        and(s.getUpdateCount aka "update count" must_=== -1).
+        and(sql aka "executed SQL" must_=== "QUERY")).
         /*2*/ and((s.execute("QUERY", Array[Int]()) aka "flag" must beTrue).
-          and(s.getResultSet aka "resultset" mustEqual RowLists.stringList.resultSet).
-          and(s.getUpdateCount aka "update count" mustEqual -1).
-          and(sql aka "executed SQL" mustEqual "QUERY")).
+          and(s.getResultSet aka "resultset" must_=== RowLists.stringList.resultSet).
+          and(s.getUpdateCount aka "update count" must_=== -1).
+          and(sql aka "executed SQL" must_=== "QUERY")).
         /*3*/ and((s.execute("QUERY", Array[String]()) aka "flag" must beTrue).
-          and(s.getResultSet aka "resultset" mustEqual RowLists.stringList.resultSet).
-          and(s.getUpdateCount aka "update count" mustEqual -1).
-          and(sql aka "executed SQL" mustEqual "QUERY"))
+          and(s.getResultSet aka "resultset" must_=== RowLists.stringList.resultSet).
+          and(s.getUpdateCount aka "update count" must_=== -1).
+          and(sql aka "executed SQL" must_=== "QUERY"))
 
     }
 
@@ -112,9 +107,9 @@ object AbstractStatementSpec extends Specification {
 
       (s.execute("QUERY", Statement.NO_GENERATED_KEYS).
         aka("flag") must beTrue).
-        and(s.getResultSet aka "resultset" mustEqual RowLists.stringList.resultSet).
-        and(s.getUpdateCount aka "update count" mustEqual -1).
-        and(sql aka "executed SQL" mustEqual "QUERY")
+        and(s.getResultSet aka "resultset" must_=== RowLists.stringList.resultSet).
+        and(s.getUpdateCount aka "update count" must_=== -1).
+        and(sql aka "executed SQL" must_=== "QUERY")
 
     }
 
@@ -144,16 +139,16 @@ object AbstractStatementSpec extends Specification {
     "return expected row count" in {
       lazy val s = statement(h = h)
 
-      (s.executeUpdate("UPDATE") aka "result" mustEqual 5).
-        and(s.getUpdateCount aka "update count" mustEqual 5).
+      (s.executeUpdate("UPDATE") aka "result" must_=== 5).
+        and(s.getUpdateCount aka "update count" must_=== 5).
         and(s.getResultSet aka "resultset" must beNull).
         and(s.getGeneratedKeys aka "generated keys" must beLike {
-          case ks ⇒ (ks.next aka "has first key" must beTrue).
-            and(ks.getInt(1) aka "first key" must_== 2).
+          case ks => (ks.next aka "has first key" must beTrue).
+            and(ks.getInt(1) aka "first key" must_=== 2).
             and(ks.next aka "has second key" must beTrue).
-            and(ks.getInt(1) aka "second key" must_== 5).
+            and(ks.getInt(1) aka "second key" must_=== 5).
             and(ks.next aka "has third key" must beFalse)
-        }).and(sql aka "executed SQL" mustEqual "UPDATE")
+        }).and(sql aka "executed SQL" must_=== "UPDATE")
 
     }
 
@@ -161,12 +156,12 @@ object AbstractStatementSpec extends Specification {
       lazy val s = statement(h = h)
 
       (s.executeUpdate("UPDATE", Statement.NO_GENERATED_KEYS).
-        aka("result") mustEqual 5).
-        and(s.getUpdateCount aka "update count" mustEqual 5).
+        aka("result") must_=== 5).
+        and(s.getUpdateCount aka "update count" must_=== 5).
         and(s.getResultSet aka "resultset" must beNull).
         and(s.getGeneratedKeys aka "generated keys" must beLike {
-          case ks ⇒ ks.next aka "has key" must beFalse
-        }).and(sql aka "executed SQL" mustEqual "UPDATE")
+          case ks => ks.next aka "has key" must beFalse
+        }).and(sql aka "executed SQL" must_=== "UPDATE")
 
     }
 
@@ -183,10 +178,10 @@ object AbstractStatementSpec extends Specification {
       lazy val s = statement(h = h)
 
       (s.execute("UPDATE") aka "result" must beFalse).
-        and(s.getUpdateCount aka "update count" mustEqual 5).
+        and(s.getUpdateCount aka "update count" must_=== 5).
         and(s.getResultSet aka "resultset" must beNull).
-        and(s.getGeneratedKeys aka "gen keys" mustEqual genKeys.resultSet).
-        and(sql aka "executed SQL" mustEqual "UPDATE")
+        and(s.getGeneratedKeys aka "gen keys" must_=== genKeys.resultSet).
+        and(sql aka "executed SQL" must_=== "UPDATE")
 
     }
 
@@ -195,11 +190,11 @@ object AbstractStatementSpec extends Specification {
 
       (s.execute("UPDATE", Statement.NO_GENERATED_KEYS).
         aka("result") must beFalse).
-        and(s.getUpdateCount aka "update count" mustEqual 5).
+        and(s.getUpdateCount aka "update count" must_=== 5).
         and(s.getResultSet aka "resultset" must beNull).
-        and(s.getGeneratedKeys aka "generated keys" mustEqual (
+        and(s.getGeneratedKeys aka "generated keys" must_=== (
           RowLists.stringList.resultSet)).
-        and(sql aka "executed SQL" mustEqual "UPDATE")
+        and(sql aka "executed SQL" must_=== "UPDATE")
 
     }
 
@@ -226,17 +221,17 @@ object AbstractStatementSpec extends Specification {
 
   "Statement" should {
     "have expected connection" in {
-      statement().getConnection aka "connection" mustEqual defaultCon
+      statement().getConnection aka "connection" must_=== defaultCon
     }
 
     "have no field max size" in {
-      (statement().getMaxFieldSize aka "max size" mustEqual 0).
+      (statement().getMaxFieldSize aka "max size" must_=== 0).
         and(statement().setMaxFieldSize(1).
           aka("setter") must throwA[UnsupportedOperationException])
     }
 
     "have not query timeout" in {
-      (statement().getQueryTimeout aka "timeout" mustEqual 0).
+      (statement().getQueryTimeout aka "timeout" must_=== 0).
         and(statement().setQueryTimeout(1).
           aka("setter") must throwA[UnsupportedOperationException])
 
@@ -250,7 +245,7 @@ object AbstractStatementSpec extends Specification {
 
     "have default resultset holdability" in {
       statement().getResultSetHoldability().
-        aka("holdability") mustEqual ResultSet.CLOSE_CURSORS_AT_COMMIT
+        aka("holdability") must_=== ResultSet.CLOSE_CURSORS_AT_COMMIT
 
     }
 
@@ -265,7 +260,7 @@ object AbstractStatementSpec extends Specification {
 
   "Fetch size" should {
     "initially be zero" in {
-      statement().getFetchSize aka "initial size" mustEqual 0
+      statement().getFetchSize aka "initial size" must_=== 0
     }
 
     "not be accessible on a closed statement" in {
@@ -296,7 +291,7 @@ object AbstractStatementSpec extends Specification {
     }
 
     "initially be zero" in {
-      statement().getMaxRows aka "initial count" mustEqual 0
+      statement().getMaxRows aka "initial count" must_=== 0
     }
 
     "not be accessible on a closed statement" in {
@@ -322,8 +317,8 @@ object AbstractStatementSpec extends Specification {
       lazy val rs = s.getResultSet
 
       (s.execute("QUERY") aka "flag" must beTrue).
-        and(rs.getFetchSize must_== 2).
-        and(rs aka "resultset" mustEqual (
+        and(rs.getFetchSize must_=== 2).
+        and(rs aka "resultset" must_=== (
           RowLists.stringList("A", "B").resultSet))
     }
   }
@@ -351,7 +346,7 @@ object AbstractStatementSpec extends Specification {
       lazy val s = statement(h = h)
       s.addBatch("BATCH1"); s.addBatch("2_BATCH")
 
-      s.executeBatch() aka "batch execution" mustEqual Array[Int](1, 2) and (
+      s.executeBatch() aka "batch execution" must_=== Array[Int](1, 2) and (
         h.exed aka "executed" must contain(allOf("BATCH1", "2_BATCH").inOrder))
     }
 
@@ -365,10 +360,10 @@ object AbstractStatementSpec extends Specification {
 
       s.executeBatch() aka "batch execution" must throwA[BatchUpdateException].
         like {
-          case ex: BatchUpdateException ⇒
-            (ex.getUpdateCounts aka "update count" must_== Array[Int](
+          case ex: BatchUpdateException =>
+            (ex.getUpdateCounts aka "update count" must_=== Array[Int](
               EXECUTE_FAILED, EXECUTE_FAILED)).
-              and(ex.getCause.getMessage aka "cause" mustEqual "Batch error")
+              and(ex.getCause.getMessage aka "cause" must_=== "Batch error")
         }
     }
 
@@ -390,10 +385,10 @@ object AbstractStatementSpec extends Specification {
 
       s.executeBatch() aka "batch execution" must throwA[BatchUpdateException].
         like {
-          case ex: BatchUpdateException ⇒
-            (ex.getUpdateCounts aka "update count" must_== Array[Int](
+          case ex: BatchUpdateException =>
+            (ex.getUpdateCounts aka "update count" must_=== Array[Int](
               EXECUTE_FAILED, 2)).
-              and(ex.getCause.getMessage aka "cause" mustEqual "Batch error: 1")
+              and(ex.getCause.getMessage aka "cause" must_=== "Batch error: 1")
         }
     }
 
@@ -411,10 +406,10 @@ object AbstractStatementSpec extends Specification {
 
       s.executeBatch() aka "batch execution" must throwA[BatchUpdateException].
         like {
-          case ex: BatchUpdateException ⇒
-            (ex.getUpdateCounts aka "update count" must_== Array[Int](
+          case ex: BatchUpdateException =>
+            (ex.getUpdateCounts aka "update count" must_=== Array[Int](
               1, EXECUTE_FAILED)).
-              and(ex.getCause.getMessage aka "cause" mustEqual "Batch error: 2")
+              and(ex.getCause.getMessage aka "cause" must_=== "Batch error: 2")
         }
     }
 
@@ -436,10 +431,10 @@ object AbstractStatementSpec extends Specification {
 
       s.executeBatch() aka "batch execution" must throwA[BatchUpdateException].
         like {
-          case ex: BatchUpdateException ⇒
-            (ex.getUpdateCounts aka "update count" must_== Array[Int](
+          case ex: BatchUpdateException =>
+            (ex.getUpdateCounts aka "update count" must_=== Array[Int](
               1, EXECUTE_FAILED)).
-              and(ex.getCause.getMessage aka "cause" mustEqual "Batch error: 2")
+              and(ex.getCause.getMessage aka "cause" must_=== "Batch error: 2")
         }
     }
 
@@ -449,14 +444,14 @@ object AbstractStatementSpec extends Specification {
       s.addBatch("BATCH1"); s.addBatch("2_BATCH")
 
       s.clearBatch() aka "clear batch" must not(throwA[SQLException]) and (
-        h.exed.size aka "executed" must_== 0)
+        h.exed.size aka "executed" must_=== 0)
     }
   }
 
   "Generated keys" should {
     "be initially empty" in {
       statement().getGeneratedKeys.
-        aka("keys") mustEqual RowLists.stringList.resultSet
+        aka("keys") must_=== RowLists.stringList.resultSet
 
     }
 
@@ -496,9 +491,9 @@ object AbstractStatementSpec extends Specification {
       lazy val s = statement(h = h)
       s.executeQuery("TEST")
 
-      (s.getWarnings aka "warning" mustEqual warning).
-        and(Option(s.getResultSet) aka "resultset" must beSome.which {
-          _.getWarnings aka "result warning" mustEqual warning
+      (s.getWarnings aka "warning" must_=== warning).
+        and(Option(s.getResultSet) aka "resultset" must beSome[ResultSet].which {
+          _.getWarnings aka "result warning" must_=== warning
         })
     }
 
@@ -514,7 +509,7 @@ object AbstractStatementSpec extends Specification {
       lazy val s = statement(h = h)
       s.executeUpdate("TEST")
 
-      s.getWarnings aka "warning" mustEqual warning
+      s.getWarnings aka "warning" must_=== warning
     }
   }
 

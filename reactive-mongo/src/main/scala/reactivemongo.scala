@@ -2,21 +2,15 @@ package reactivemongo // as a friend project
 
 import scala.concurrent.Promise
 
-import reactivemongo.core.actors.{ ExpectingResponse => ExpResp }
+import reactivemongo.api.MongoConnectionOptions
 
+import reactivemongo.core.actors.{ ExpectingResponse => ExpResp }
+import reactivemongo.core.netty.ChannelFactory
 import reactivemongo.core.protocol.{
   ProtocolMetadata,
   RequestMaker => ReqMkr,
-  RequestOp,
-  Response
+  RequestOp
 }
-
-import reactivemongo.core.netty.ChannelFactory
-
-import reactivemongo.api.MongoConnectionOptions
-
-import reactivemongo.api.bson.BSONDocument
-import reactivemongo.api.bson.collection.BSONSerializationPack
 
 package object acolyte {
   type Authenticate = reactivemongo.core.nodeset.Authenticate
@@ -26,9 +20,11 @@ package object acolyte {
   // ---
 
   object Close {
+
     def unapply(that: Any): Boolean = that match {
       case reactivemongo.core.actors.Close |
-        reactivemongo.core.actors.Close(_) => true
+          reactivemongo.core.actors.Close(_) =>
+        true
 
       case _ => false
     }
@@ -40,6 +36,7 @@ package object acolyte {
   type Delete = reactivemongo.core.protocol.Delete
 
   object Delete {
+
     @inline def apply(fullCollectionName: String, flags: Int) =
       new reactivemongo.core.protocol.Delete(fullCollectionName, flags)
 
@@ -48,6 +45,7 @@ package object acolyte {
   }
 
   object Insert {
+
     @inline def apply(flags: Int, fullCollectionName: String) =
       new reactivemongo.core.protocol.Insert(flags, fullCollectionName)
 
@@ -60,18 +58,24 @@ package object acolyte {
   lazy val MessageHeader = reactivemongo.core.protocol.MessageHeader.apply _
 
   def MessageHeader(
-    messageLength: Int,
-    requestID: Int,
-    responseTo: Int,
-    opCode: Int) = new reactivemongo.core.protocol.MessageHeader(
-    messageLength, requestID, responseTo, opCode)
+      messageLength: Int,
+      requestID: Int,
+      responseTo: Int,
+      opCode: Int
+    ) = new reactivemongo.core.protocol.MessageHeader(
+    messageLength,
+    requestID,
+    responseTo,
+    opCode
+  )
 
   def Reply(
-    flags: Int,
-    cursorID: Long,
-    startingFrom: Int,
-    numberReturned: Int) = reactivemongo.core.protocol.Reply(
-    flags, cursorID, startingFrom, numberReturned)
+      flags: Int,
+      cursorID: Long,
+      startingFrom: Int,
+      numberReturned: Int
+    ) = reactivemongo.core.protocol
+    .Reply(flags, cursorID, startingFrom, numberReturned)
 
   def readReply(buf: reactivemongo.io.netty.buffer.ByteBuf) =
     reactivemongo.core.protocol.Reply.readFrom(buf)
@@ -86,11 +90,13 @@ package object acolyte {
   type ResponseInfo = reactivemongo.core.protocol.ResponseInfo
 
   object ResponseInfo {
+
     @inline def apply(channelId: reactivemongo.io.netty.channel.ChannelId) =
       new ResponseInfo(channelId)
   }
 
   object Update {
+
     @inline def apply(fullCollectionName: String, flags: Int) =
       new reactivemongo.core.protocol.Update(fullCollectionName, flags)
 
@@ -103,7 +109,7 @@ package object acolyte {
 
     def unapply(q: Qry): Option[(Int, String, Int, Int)] = q match {
       case Qry(a, b, c, d) => Some((a, b, c, d))
-      case _               => None
+      // TODO: case _ => None
     }
   }
 
@@ -113,23 +119,28 @@ package object acolyte {
 
   object RequestMaker {
     import reactivemongo.api.ReadPreference
-    import reactivemongo.core.netty.BufferSequence
+    import reactivemongo.io.netty.buffer.ByteBuf
     import reactivemongo.io.netty.channel.ChannelId
 
-    def unapply(mkr: ReqMkr): Option[(RequestOp, BufferSequence, ReadPreference, Option[ChannelId])] = mkr match {
-      case ReqMkr(a, b, c, d) => Some((a, b, c, d))
-      case _                  => None
-    }
+    def unapply(
+        mkr: ReqMkr
+      ): Option[(RequestOp, ByteBuf, ReadPreference, Option[ChannelId])] =
+      mkr match {
+        case ReqMkr(a, b, c, d) => Some((a, b, c, d))
+        case _                  => None
+      }
   }
 
   type RegisterMonitor = reactivemongo.core.actors.RegisterMonitor.type
 
   object PrimaryAvailable {
+
     @inline def apply(p: ProtocolMetadata) =
       reactivemongo.core.actors.PrimaryAvailable(p)
   }
 
   object SetAvailable {
+
     @inline def apply(p: ProtocolMetadata) =
       reactivemongo.core.actors.SetAvailable(p)
   }
@@ -137,12 +148,13 @@ package object acolyte {
   // ---
 
   object ExpectingResponse {
+
     def unapply(resp: ExpResp): Option[(ReqMkr, Promise[Response])] =
       resp match {
         case er: ExpResp =>
           Some(er.requestMaker -> resp.promise)
 
-        case _ => None
+        // TODO: case _ => None
       }
   }
 
@@ -153,14 +165,21 @@ package object acolyte {
   type MongoConnection = reactivemongo.api.MongoConnection
 
   object MongoConnection {
+
     @inline def apply(
-      supervisor: String,
-      name: String,
-      actorSystem: akka.actor.ActorSystem,
-      mongosystem: akka.actor.ActorRef,
-      options: reactivemongo.api.MongoConnectionOptions) =
+        supervisor: String,
+        name: String,
+        actorSystem: akka.actor.ActorSystem,
+        mongosystem: akka.actor.ActorRef,
+        options: reactivemongo.api.MongoConnectionOptions
+      ) =
       new reactivemongo.api.MongoConnection(
-        supervisor, name, actorSystem, mongosystem, options)
+        supervisor,
+        name,
+        actorSystem,
+        mongosystem,
+        options
+      )
   }
 
   object ReactiveMongoActorSystem {
@@ -170,9 +189,10 @@ package object acolyte {
   // ---
 
   @inline def channelFactory(
-    supervisor: String,
-    name: String,
-    options: MongoConnectionOptions) =
+      supervisor: String,
+      name: String,
+      options: MongoConnectionOptions
+    ) =
     new ChannelFactory(supervisor, name, options)
 
   val parseResponse = reactivemongo.core.protocol.Response.parse(_: Response)

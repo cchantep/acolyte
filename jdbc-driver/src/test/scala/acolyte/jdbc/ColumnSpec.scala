@@ -2,10 +2,10 @@ package acolyte.jdbc
 
 import org.specs2.mutable.Specification
 
-import acolyte.jdbc.RowList.{ Column ⇒ Col }
+import acolyte.jdbc.RowList.{ Column => Col }
 
 object ColumnSpec extends Specification {
-  "Column" title
+  "Column".title
 
   "Definition" should {
     "refuse null class" in {
@@ -30,8 +30,8 @@ object ColumnSpec extends Specification {
 
       "and not nullable" in {
         col1 aka "define" must beLike {
-          case col ⇒ (col.columnClass aka "class" mustEqual classOf[Int]).
-            and(col.name aka "name" mustEqual "int").
+          case col => (col.columnClass aka "class" must_=== classOf[Int]).
+            and(col.name aka "name" must_=== "int").
             and(col.nullable aka "nullable" must beFalse)
 
         }
@@ -39,8 +39,8 @@ object ColumnSpec extends Specification {
 
       "and nullable" in {
         col2 aka "define" must beLike {
-          case col ⇒ (col.columnClass aka "class" mustEqual classOf[Int]).
-            and(col.name aka "name" mustEqual "int").
+          case col => (col.columnClass aka "class" must_=== classOf[Int]).
+            and(col.name aka "name" must_=== "int").
             and(col.nullable aka "nullable" must beTrue)
 
         }
@@ -48,8 +48,8 @@ object ColumnSpec extends Specification {
 
       "and updated as not nullable" in {
         col2.withNullable(false) must beLike {
-          case col ⇒ (col.columnClass aka "class" mustEqual classOf[Int]).
-            and(col.name aka "name" mustEqual "int").
+          case col => (col.columnClass aka "class" must_=== classOf[Int]).
+            and(col.name aka "name" must_=== "int").
             and(col.nullable aka "nullable" must beFalse)
         }
       }

@@ -3,12 +3,11 @@ package acolyte.reactivemongo
 import scala.util.Try
 
 import reactivemongo.io.netty.channel.ChannelId
-import reactivemongo.core.protocol.Response
 
 import reactivemongo.acolyte.Response
 
 /** Connection handler. */
-sealed trait ConnectionHandler { self ⇒
+sealed trait ConnectionHandler { self =>
 
   /** Query handler */
   def queryHandler: QueryHandler
@@ -22,11 +21,15 @@ sealed trait ConnectionHandler { self ⇒
    *
    * @param handler Query handler
    */
-  final def withQueryHandler[T](handler: T)(implicit f: T ⇒ QueryHandler) =
-    ConnectionHandler(new QueryHandler {
-      def apply(chanId: ChannelId, q: Request) =
-        self.queryHandler(chanId, q).orElse(f(handler)(chanId, q))
-    }, writeHandler)
+  final def withQueryHandler[T](handler: T)(implicit f: T => QueryHandler) =
+    ConnectionHandler(
+      new QueryHandler {
+
+        def apply(chanId: ChannelId, q: Request) =
+          self.queryHandler(chanId, q).orElse(f(handler)(chanId, q))
+      },
+      writeHandler
+    )
 
   /**
    * Creates a copy of this connection handler,
@@ -34,11 +37,15 @@ sealed trait ConnectionHandler { self ⇒
    *
    * @param handler Write handler
    */
-  final def withWriteHandler[T](handler: T)(implicit f: T ⇒ WriteHandler) =
-    ConnectionHandler(queryHandler, new WriteHandler {
-      def apply(chanId: ChannelId, op: WriteOp, w: Request) =
-        self.writeHandler(chanId, op, w).orElse(f(handler)(chanId, op, w))
-    })
+  final def withWriteHandler[T](handler: T)(implicit f: T => WriteHandler) =
+    ConnectionHandler(
+      queryHandler,
+      new WriteHandler {
+
+        def apply(chanId: ChannelId, op: WriteOp, w: Request) =
+          self.writeHandler(chanId, op, w).orElse(f(handler)(chanId, op, w))
+      }
+    )
 
   /**
    * Returns a new connection handler that first try this one,
@@ -60,6 +67,7 @@ sealed trait ConnectionHandler { self ⇒
 
 /** Companion object for connection handler. */
 object ConnectionHandler {
+
   /**
    * Creates connection handler using given query and write handlers.
    *
@@ -75,7 +83,13 @@ object ConnectionHandler {
    *   ConnectionHandler(myQueryHandler, myWriteHandler)
    * }}}
    */
-  def apply[A, B](queryHandler: A = QueryHandler.empty, writeHandler: B = WriteHandler.empty)(implicit f: A ⇒ QueryHandler, g: B ⇒ WriteHandler): ConnectionHandler = {
+  def apply[A, B](
+      queryHandler: A = QueryHandler.empty,
+      writeHandler: B = WriteHandler.empty
+    )(implicit
+      f: A => QueryHandler,
+      g: B => WriteHandler
+    ): ConnectionHandler = {
     val q = queryHandler
     val w = writeHandler
 
@@ -92,8 +106,9 @@ object ConnectionHandler {
 }
 
 /** Query handler. */
-sealed trait QueryHandler extends ((ChannelId, Request) ⇒ Option[Try[Response]]) {
-  self ⇒
+sealed trait QueryHandler
+    extends ((ChannelId, Request) => Option[Try[Response]]) {
+  self =>
 
   /**
    * @param chanId ID of channel
@@ -112,6 +127,7 @@ sealed trait QueryHandler extends ((ChannelId, Request) ⇒ Option[Try[Response]
    * }}}
    */
   final def orElse(other: QueryHandler): QueryHandler = new QueryHandler {
+
     def apply(chanId: ChannelId, query: Request): Option[Try[Response]] =
       self(chanId, query).orElse(other(chanId, query))
   }
@@ -131,31 +147,37 @@ object QueryHandler {
    * import acolyte.reactivemongo.{ Request, QueryHandler, QueryResponse }
    *
    * val handler1: QueryHandler = // Returns a successful empty response
-   *   (q: Request) => QueryResponse(Seq.empty[BSONDocument])
+   *   (_: Request) => QueryResponse(Seq.empty[BSONDocument])
    *
    * }}}
    */
-  implicit def apply(f: Request ⇒ PreparedResponse): QueryHandler =
+  implicit def apply(f: Request => PreparedResponse): QueryHandler =
     new QueryHandler {
-      def apply(chanId: ChannelId, q: Request): Option[Try[Response]] = f(q)(chanId)
+
+      def apply(chanId: ChannelId, q: Request): Option[Try[Response]] =
+        f(q)(chanId)
     }
 
   /**
    * Empty query handler, not handling any request.
    */
-  lazy val empty = apply(_ ⇒ QueryResponse(None))
+  lazy val empty = apply(_ => QueryResponse(None))
 }
 
 /** Write handler. */
 sealed trait WriteHandler
-  extends ((ChannelId, WriteOp, Request) ⇒ Option[Try[Response]]) { self ⇒
+    extends ((ChannelId, WriteOp, Request) => Option[Try[Response]]) { self =>
 
   /**
    * @param chanId ID of channel
    * @param op Write operator
    * @param req Write request
    */
-  override def apply(chanId: ChannelId, op: WriteOp, req: Request): Option[Try[Response]]
+  override def apply(
+      chanId: ChannelId,
+      op: WriteOp,
+      req: Request
+    ): Option[Try[Response]]
 
   /**
    * Returns a new write handler that first try this one,
@@ -168,7 +190,13 @@ sealed trait WriteHandler
    * }}}
    */
   final def orElse(other: WriteHandler): WriteHandler = new WriteHandler {
-    def apply(chanId: ChannelId, op: WriteOp, req: Request): Option[Try[Response]] = self(chanId, op, req).orElse(other(chanId, op, req))
+
+    def apply(
+        chanId: ChannelId,
+        op: WriteOp,
+        req: Request
+      ): Option[Try[Response]] =
+      self(chanId, op, req).orElse(other(chanId, op, req))
   }
 }
 
@@ -188,16 +216,22 @@ object WriteHandler {
    *
    * val handler: WriteHandler = WriteHandler {
    *   // Returns a successful for 1 doc
-   *   (_: WriteOp, _: Request) => WriteResponse(1, false)
+   *   (_: WriteOp, _: Request) => WriteResponse(1 -> false)
    * }
    * }}}
    */
-  implicit def apply(f: (WriteOp, Request) ⇒ PreparedResponse): WriteHandler = new WriteHandler {
-    def apply(chanId: ChannelId, op: WriteOp, w: Request): Option[Try[Response]] = f(op, w)(chanId)
-  }
+  implicit def apply(f: (WriteOp, Request) => PreparedResponse): WriteHandler =
+    new WriteHandler {
+
+      def apply(
+          chanId: ChannelId,
+          op: WriteOp,
+          w: Request
+        ): Option[Try[Response]] = f(op, w)(chanId)
+    }
 
   /**
    * Empty query handler, not handling any request.
    */
-  lazy val empty = apply((_, _) ⇒ WriteResponse(None))
+  lazy val empty = apply((_, _) => WriteResponse(None))
 }

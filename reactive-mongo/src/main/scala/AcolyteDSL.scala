@@ -1,17 +1,20 @@
 package acolyte.reactivemongo
 
 /** Acolyte DSL for ReactiveMongo. */
-object AcolyteDSL extends WithDriver
-  with WithDB with WithCollection with WithHandler with WithResult {
+object AcolyteDSL
+    extends WithDriver
+    with WithDB
+    with WithCollection
+    with WithHandler
+    with WithResult {
 
   /**
    * Creates an empty connection handler.
    *
    * {{{
-   * import reactivemongo.api.AsyncDriver
    * import acolyte.reactivemongo.AcolyteDSL
    *
-   * def foo(implicit d: AsyncDriver) = AcolyteDSL.handle
+   * def foo = AcolyteDSL.handle
    * }}}
    * @see [[withDriver]]
    */
@@ -24,7 +27,6 @@ object AcolyteDSL extends WithDriver
    * {{{
    * import scala.concurrent.ExecutionContext
    *
-   * import reactivemongo.api.AsyncDriver
    * import acolyte.reactivemongo.AcolyteDSL.{
    *   withConnection, withDriver, handleQuery
    * }
@@ -34,7 +36,7 @@ object AcolyteDSL extends WithDriver
    *
    * def foo(implicit ec: ExecutionContext) =
    *   withDriver { implicit d =>
-   *     withConnection(handleQuery { req: Request => aResponse }) { con =>
+   *     withConnection(handleQuery { (_: Request) => aResponse }) { _ =>
    *       // work with connection (e.g. call you function using Mongo)
    *       "Value"
    *     }
@@ -43,7 +45,11 @@ object AcolyteDSL extends WithDriver
    *
    * @see [[ConnectionHandler.withWriteHandler]]
    */
-  def handleQuery[T](handler: T)(implicit f: T ⇒ QueryHandler): ConnectionHandler = ConnectionHandler(handler)
+  def handleQuery[T](
+      handler: T
+    )(implicit
+      f: T => QueryHandler
+    ): ConnectionHandler = ConnectionHandler(handler)
 
   /**
    * Creates a connection handler with given write handler,
@@ -63,7 +69,7 @@ object AcolyteDSL extends WithDriver
    * def foo(implicit ec: ExecutionContext) =
    *   withDriver { implicit d: AsyncDriver =>
    *     withConnection(handleWrite {
-   *       (op: WriteOp, req: Request) => aResponse }) { con =>
+   *       (_: WriteOp, _: Request) => aResponse }) { _ =>
    *       // work with connection (e.g. call you function using Mongo)
    *       "Value"
    *     }
@@ -72,6 +78,10 @@ object AcolyteDSL extends WithDriver
    *
    * @see [[ConnectionHandler.withQueryHandler]]
    */
-  def handleWrite[T](handler: T)(implicit f: T ⇒ WriteHandler): ConnectionHandler = ConnectionHandler(writeHandler = handler)
+  def handleWrite[T](
+      handler: T
+    )(implicit
+      f: T => WriteHandler
+    ): ConnectionHandler = ConnectionHandler(writeHandler = handler)
 
 }

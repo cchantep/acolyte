@@ -1,6 +1,6 @@
 package acolyte.jdbc
 
-import java.util.{ List ⇒ JList }
+import java.util.{ List => JList }
 
 import acolyte.jdbc.StatementHandler.Parameter
 

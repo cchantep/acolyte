@@ -2,7 +2,7 @@ package acolyte.reactivemongo
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-import reactivemongo.api.{ DB, MongoConnection, AsyncDriver }
+import reactivemongo.api.{AsyncDriver, DB, MongoConnection}
 import reactivemongo.api.acolyte.AcolyteDB
 
 /**
@@ -13,7 +13,8 @@ import reactivemongo.api.acolyte.AcolyteDB
  * @define f the function applied to initialized Mongo DB
  * @define nameParam the name of database
  */
-trait WithDB { withDriver: WithDriver ⇒
+trait WithDB { withDriver: WithDriver =>
+
   /**
    * Works with a Mongo database (named "acolyte") resolved using given driver
    * initialized using Acolyte for ReactiveMongo
@@ -32,19 +33,21 @@ trait WithDB { withDriver: WithDriver ⇒
    *
    * def s(handler: ConnectionHandler)(
    *   implicit ec: ExecutionContext, d: AsyncDriver): Future[String] =
-   *   AcolyteDSL.withDB(handler) { db =>
-   *     val d: DB = db
+   *   AcolyteDSL.withDB(handler) { (_: DB) =>
    *     "Result"
    *   }
    * }}}
    * @see AcolyteDSL.withConnection
    */
-  def withDB[A, B](conParam: ⇒ A)(f: DB ⇒ B)(
-    implicit
-    d: AsyncDriver,
-    m: ConnectionManager[A],
-    ec: ExecutionContext,
-    compose: ComposeWithCompletion[B]): compose.Outer =
+  def withDB[A, B](
+      conParam: => A
+    )(f: DB => B
+    )(implicit
+      d: AsyncDriver,
+      m: ConnectionManager[A],
+      ec: ExecutionContext,
+      compose: ComposeWithCompletion[B]
+    ): compose.Outer =
     withDB[A, B](conParam, "acolyte")(f)
 
   /**
@@ -67,31 +70,30 @@ trait WithDB { withDriver: WithDriver ⇒
    *
    * def s(handler: ConnectionHandler)(
    *   implicit ec: ExecutionContext, d: AsyncDriver): Future[String] =
-   *   AcolyteDSL.withDB(handler, "my_db") { db =>
-   *     val d: DB = db
+   *   AcolyteDSL.withDB(handler, "my_db") { (_: DB) =>
    *     "Result"
    *   }
    * }}}
    * @see AcolyteDSL.withConnection
    */
   def withDB[A, B](
-    conParam: ⇒ A,
-    name: String,
-    setName: Option[String] = None)(f: DB ⇒ B)(
-    implicit
-    d: AsyncDriver,
-    m: ConnectionManager[A],
-    ec: ExecutionContext,
-    compose: ComposeWithCompletion[B]): compose.Outer = {
+      conParam: => A,
+      name: String,
+      setName: Option[String] = None
+    )(f: DB => B
+    )(implicit
+      d: AsyncDriver,
+      m: ConnectionManager[A],
+      ec: ExecutionContext,
+      compose: ComposeWithCompletion[B]
+    ): compose.Outer = {
     def database = Future.fromTry[DB](scala.util.Try {
       val connection = m.open(d, conParam)
 
       AcolyteDB(connection, name, setName = setName)
     })
 
-    compose(database, f) { db =>
-      m.releaseIfNecessary(db.connection); ()
-    }
+    compose(database, f) { db => m.releaseIfNecessary(db.connection); () }
   }
 
   /**
@@ -103,7 +105,7 @@ trait WithDB { withDriver: WithDriver ⇒
    * @param f $f
    *
    * {{{
-   * import scala.concurrent.{ ExecutionContext, Future }
+   * import scala.concurrent.ExecutionContext
    *
    * import reactivemongo.api.{ DB, AsyncDriver }
    * import acolyte.reactivemongo.{ AcolyteDSL, ConnectionHandler }
@@ -111,19 +113,20 @@ trait WithDB { withDriver: WithDriver ⇒
    * def s(handler: ConnectionHandler)(
    *   implicit ec: ExecutionContext, d: AsyncDriver) =
    *   AcolyteDSL.withConnection(handler) { con =>
-   *     AcolyteDSL.withDB(con) { db =>
-   *       val d: DB = db
+   *     AcolyteDSL.withDB(con) { (_: DB) =>
    *       "Result"
    *     }
    *   }
    * }}}
    * @see AcolyteDSL.withConnection
    */
-  def withDB[T](con: ⇒ MongoConnection)(
-    f: DB ⇒ T)(
-    implicit
-    ec: ExecutionContext,
-    compose: ComposeWithCompletion[T]): compose.Outer =
+  def withDB[T](
+      con: => MongoConnection
+    )(f: DB => T
+    )(implicit
+      ec: ExecutionContext,
+      compose: ComposeWithCompletion[T]
+    ): compose.Outer =
     withDB[T](con, "acolyte")(f)
 
   /**
@@ -145,19 +148,21 @@ trait WithDB { withDriver: WithDriver ⇒
    * def s(handler: ConnectionHandler)(
    *   implicit ec: ExecutionContext, d: AsyncDriver): Future[String] =
    *   AcolyteDSL.withConnection(handler) { con =>
-   *     AcolyteDSL.withDB(con, "my_db") { db =>
-   *       val d: DB = db
+   *     AcolyteDSL.withDB(con, "my_db") { (_: DB) =>
    *       "Result"
    *     }
    *   }
    * }}}
    * @see AcolyteDSL.withConnection
    */
-  def withDB[T](con: ⇒ MongoConnection, name: String)(
-    f: DB ⇒ T)(
-    implicit
-    ec: ExecutionContext,
-    compose: ComposeWithCompletion[T]): compose.Outer =
-    compose(con.database(name), f)(_ ⇒ {})
+  def withDB[T](
+      con: => MongoConnection,
+      name: String
+    )(f: DB => T
+    )(implicit
+      ec: ExecutionContext,
+      compose: ComposeWithCompletion[T]
+    ): compose.Outer =
+    compose(con.database(name), f)(_ => {})
 
 }

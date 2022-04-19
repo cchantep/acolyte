@@ -3,18 +3,18 @@ package acolyte.jdbc
 import java.sql.{ SQLException, SQLFeatureNotSupportedException }
 
 object BlobSpec extends org.specs2.mutable.Specification {
-  "Binary Large OBject" title
+  "Binary Large OBject".title
 
   "Nil instance" should {
     "be zero-sized" in {
       Blob.Nil aka "Nil blob" must beLike {
-        case blob => blob.length aka "size" must_== 0
+        case blob => blob.length aka "size" must_=== 0
       }
     }
 
     "has empty binary stream" in {
-      Blob.Nil.getBinaryStream.read aka "binary stream #1" must_== -1 and (
-        Blob.Nil.getBinaryStream(1, 2).read aka "binary stream #2" must_== -1)
+      Blob.Nil.getBinaryStream.read aka "binary stream #1" must_=== -1 and (
+        Blob.Nil.getBinaryStream(1, 2).read aka "binary stream #2" must_=== -1)
     }
 
     "throw SQL exception accessing stream at position > 1" in {
@@ -24,7 +24,7 @@ object BlobSpec extends org.specs2.mutable.Specification {
     }
 
     "has empty binary stream" in {
-      Blob.Nil.getBytes(1, 3).length aka "bytes" must_== 0
+      Blob.Nil.getBytes(1, 3).length aka "bytes" must_=== 0
     }
 
     "throw SQL exception with position > 1" in {
@@ -40,10 +40,10 @@ object BlobSpec extends org.specs2.mutable.Specification {
     }
 
     "not find position" in {
-      Blob.Nil.position(serialBlob, 0) aka "position" must_== -1L and (
-        Blob.Nil.position(serialBlob, 1) aka "position" must_== -1L) and (
-          Blob.Nil.position(testData, 0) aka "position" must_== -1L) and (
-            Blob.Nil.position(testData, 1) aka "position" must_== -1L)
+      Blob.Nil.position(serialBlob, 0) aka "position" must_=== -1L and (
+        Blob.Nil.position(serialBlob, 1) aka "position" must_=== -1L) and (
+          Blob.Nil.position(testData, 0) aka "position" must_=== -1L) and (
+            Blob.Nil.position(testData, 1) aka "position" must_=== -1L)
     }
 
     "truncate as no-op" in {

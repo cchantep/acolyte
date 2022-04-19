@@ -4,12 +4,12 @@ import java.sql.SQLException
 
 import org.specs2.mutable.Specification
 
+import acolyte.jdbc.AbstractCompositeHandler.{ QueryHandler, UpdateHandler }
 import acolyte.jdbc.AbstractStatement.NO_PARAMS
 import acolyte.jdbc.StatementHandler.Parameter
-import acolyte.jdbc.AbstractCompositeHandler.{ QueryHandler, UpdateHandler }
 
 object CompositeHandlerSpec extends Specification {
-  "Composite statement handler" title
+  "Composite statement handler".title
 
   "Query detection" should {
     "always match" in {
@@ -82,25 +82,25 @@ object CompositeHandlerSpec extends Specification {
         def apply(s: String, p: java.util.List[Parameter]) =
           new UpdateResult(1)
       }).whenSQLUpdate("TEST", NO_PARAMS).getUpdateCount.
-        aka("count") mustEqual 1).
+        aka("count") must_=== 1).
         and(new CompositeHandler().withUpdateHandler(new UpdateHandler {
           def apply(s: String, p: java.util.List[Parameter]) =
             new UpdateResult(3)
         }).whenSQLUpdate("TEST", NO_PARAMS).getUpdateCount().
-          aka("count") mustEqual 3).
+          aka("count") must_=== 3).
         and(new CompositeHandler().withUpdateHandler(new UpdateHandler {
           def apply(s: String, p: java.util.List[Parameter]) =
             new UpdateResult(10)
         }).whenSQLUpdate("TEST", NO_PARAMS).getUpdateCount.
-          aka("count") mustEqual 10)
+          aka("count") must_=== 10)
 
     }
 
     "throw exception for update statement" in {
       new CompositeHandler().whenSQLUpdate("DELETE * FROM table", NO_PARAMS).
         aka("update") must throwA[SQLException].like {
-          case e ⇒ e.getMessage.
-            aka("message") mustEqual "No update handler: DELETE * FROM table"
+          case e => e.getMessage.
+            aka("message") must_=== "No update handler: DELETE * FROM table"
         }
     }
   }
@@ -125,7 +125,7 @@ object CompositeHandlerSpec extends Specification {
           def apply(s: String, p: java.util.List[Parameter]) = rows.asResult
         }).whenSQLQuery("SELECT *", NO_PARAMS)
 
-      res.aka("resultset") mustEqual rows.asResult
+      res.aka("resultset") must_=== rows.asResult
     }
 
     "be successful for not-empty resultset" in {
@@ -137,7 +137,7 @@ object CompositeHandlerSpec extends Specification {
           def apply(s: String, p: java.util.List[Parameter]) = rows.asResult
         }).whenSQLQuery("SELECT *", NO_PARAMS)
 
-      res.aka("resultset") mustEqual rows.asResult
+      res.aka("resultset") must_=== rows.asResult
     }
   }
 
@@ -151,7 +151,7 @@ object CompositeHandlerSpec extends Specification {
             RowLists.rowList1(classOf[String]).asResult.withWarning(warning)
         }).whenSQLQuery("SELECT *", NO_PARAMS)
 
-      res.getWarning aka "warning" mustEqual warning
+      res.getWarning aka "warning" must_=== warning
     }
 
     "be found for update" in {
@@ -161,7 +161,7 @@ object CompositeHandlerSpec extends Specification {
             UpdateResult.Nothing.withWarning(warning)
         }).whenSQLUpdate("UPDATE", NO_PARAMS)
 
-      res.getWarning aka "warning" mustEqual warning
+      res.getWarning aka "warning" must_=== warning
     }
   }
 }

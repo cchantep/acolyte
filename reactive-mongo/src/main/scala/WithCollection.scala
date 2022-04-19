@@ -2,7 +2,7 @@ package acolyte.reactivemongo
 
 import scala.concurrent.ExecutionContext
 
-import reactivemongo.api.{ DB, MongoConnection, AsyncDriver }
+import reactivemongo.api.{AsyncDriver, DB, MongoConnection}
 import reactivemongo.api.bson.collection.BSONCollection
 
 /**
@@ -11,7 +11,8 @@ import reactivemongo.api.bson.collection.BSONCollection
  * @define conParam Connection manager parameter (see [[ConnectionManager]])
  * @define nameParam the name of the collection
  */
-trait WithCollection { self: WithDB ⇒
+trait WithCollection { self: WithDriver with WithDB =>
+
   /**
    * Works with specified collection from MongoDB "acolyte"
    * resolved using given driver initialized with Acolyte for ReactiveMongo
@@ -25,25 +26,29 @@ trait WithCollection { self: WithDB ⇒
    *
    * {{{
    * import scala.concurrent.{ ExecutionContext, Future }
-   * import reactivemongo.api.{ Collection, AsyncDriver }
+   * import reactivemongo.api.AsyncDriver
    * import acolyte.reactivemongo.{ AcolyteDSL, ConnectionManager }
    *
    * // handler: ConnectionHandler
    * def s[T: ConnectionManager](handler: => T)(
    *   implicit ec: ExecutionContext, d: AsyncDriver): Future[String] =
-   *   AcolyteDSL.withCollection(handler, "colName") { col =>
+   *   AcolyteDSL.withCollection(handler, "colName") { _ =>
    *     "Result"
    *   }
    * }}}
    * @see AcolyteDSL.withDB[A,B]
    */
-  def withCollection[A, B](conParam: ⇒ A, name: String)(f: BSONCollection ⇒ B)(
-    implicit
-    d: AsyncDriver,
-    m: ConnectionManager[A],
-    ec: ExecutionContext,
-    compose: ComposeWithCompletion[B]): compose.Outer =
-    withDB(conParam) { db ⇒ f(db.collection(name)) }
+  def withCollection[A, B](
+      conParam: => A,
+      name: String
+    )(f: BSONCollection => B
+    )(implicit
+      d: AsyncDriver,
+      m: ConnectionManager[A],
+      ec: ExecutionContext,
+      compose: ComposeWithCompletion[B]
+    ): compose.Outer =
+    withDB(conParam) { db => f(db.collection(name)) }
 
   /**
    * Works with specified collection from MongoDB "acolyte"
@@ -55,26 +60,29 @@ trait WithCollection { self: WithDB ⇒
    *
    * {{{
    * import scala.concurrent.{ ExecutionContext, Future }
-   * import reactivemongo.api.{ Collection, AsyncDriver }
+   * import reactivemongo.api.AsyncDriver
    * import acolyte.reactivemongo.{ AcolyteDSL, ConnectionHandler }
    *
    * // handler: ConnectionHandler
    * def s(handler: ConnectionHandler)(
    *   implicit ec: ExecutionContext, d: AsyncDriver): Future[String] =
    *   AcolyteDSL.withConnection(handler) { con =>
-   *     AcolyteDSL.withCollection(con, "colName") { col =>
+   *     AcolyteDSL.withCollection(con, "colName") { _ =>
    *       "Result"
    *     }
    *   }
    * }}}
    * @see WithDriver.withDB[T]
    */
-  def withCollection[T](con: ⇒ MongoConnection, name: String)(
-    f: BSONCollection ⇒ T)(
-    implicit
-    ec: ExecutionContext,
-    compose: ComposeWithCompletion[T]): compose.Outer =
-    withDB(con) { db ⇒ f(db.collection(name)) }
+  def withCollection[T](
+      con: => MongoConnection,
+      name: String
+    )(f: BSONCollection => T
+    )(implicit
+      ec: ExecutionContext,
+      compose: ComposeWithCompletion[T]
+    ): compose.Outer =
+    withDB(con) { db => f(db.collection(name)) }
 
   /**
    * Works with specified collection from MongoDB "acolyte"
@@ -86,21 +94,22 @@ trait WithCollection { self: WithDB ⇒
    *
    * {{{
    * import scala.concurrent.{ ExecutionContext, Future }
-   * import reactivemongo.api.{ Collection, AsyncDriver }
+   * import reactivemongo.api.AsyncDriver
    * import acolyte.reactivemongo.{ AcolyteDSL, ConnectionHandler }
    *
    * def s(handler: ConnectionHandler)(
    *   implicit ec: ExecutionContext, d: AsyncDriver): Future[String] =
    *   AcolyteDSL.withDB(handler) { db =>
-   *     AcolyteDSL.withCollection(db, "colName") { col =>
+   *     AcolyteDSL.withCollection(db, "colName") { _ =>
    *       "Result"
    *     }
    *   }
    * }}}
    */
   def withCollection[T](
-    db: DB,
-    name: String)(
-    f: BSONCollection ⇒ T): T = f(db.collection(name))
+      db: DB,
+      name: String
+    )(f: BSONCollection => T
+    ): T = f(db.collection(name))
 
 }

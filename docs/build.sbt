@@ -19,7 +19,5 @@ lazy val `acolyte-site` = (project in file(".")).settings(
     "com.typesafe.play" %% "play-jdbc" % PlayVer
   ),
   resolvers in ThisBuild ++= Seq(
-    "Tatami Snapshots" at "https://raw.github.com/cchantep/tatami/master/snapshots"),
-  autoCompilerPlugins := true,
-  addCompilerPlugin("org.eu.acolyte" %% "scalac-plugin" % ver)
+    "Tatami Snapshots" at "https://raw.github.com/cchantep/tatami/master/snapshots")
 )

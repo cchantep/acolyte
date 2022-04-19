@@ -2,20 +2,20 @@ package acolyte.jdbc
 
 import java.util.{ ServiceLoader, UUID }
 
-import java.sql.{ Driver ⇒ JdbcDriver, DriverManager }
+import java.sql.{ Driver => JdbcDriver, DriverManager }
 
+import scala.concurrent.Future
 import scala.reflect.ClassTag
-import scala.concurrent.{ Await, ExecutionContext, Future }
 
-import org.specs2.mutable.Specification
 import org.specs2.concurrent.ExecutionEnv
+import org.specs2.mutable.Specification
 
 import acolyte.jdbc.test.EmptyConnectionHandler
 
 final class DriverSpec(implicit ee: ExecutionEnv)
   extends Specification with DriverUtils with DriverFixtures {
 
-  "Acolyte driver" title
+  "Acolyte driver".title
 
   "Driver class" should {
     "be assignable as java.sql.Driver" in {
@@ -122,7 +122,7 @@ final class DriverSpec(implicit ee: ExecutionEnv)
       directConnect(
         url = jdbcUrl,
         props = null,
-        handler = defaultHandler) aka "connection" must not beNull
+        handler = defaultHandler) aka "connection" must not(beNull)
     }
   }
 
@@ -153,7 +153,7 @@ final class DriverSpec(implicit ee: ExecutionEnv)
           acolyte.jdbc.Driver.register(handlerId, new CompositeHandler())
           handlerId
         }.map { handlerId =>
-          acolyte.jdbc.Driver.handlers.get(handlerId) must not beNull
+          acolyte.jdbc.Driver.handlers.get(handlerId) must not(beNull)
         }
       }
 
@@ -169,7 +169,7 @@ sealed trait DriverFixtures {
 }
 
 sealed trait DriverUtils {
-  import java.util.{ Properties ⇒ JProps }
+  import java.util.{ Properties => JProps }
 
   private val _ = {
     // Workaround for SBT-like classloaders
@@ -209,7 +209,7 @@ sealed trait DriverUtils {
     }
 
     d.connect(url, Option(props) match {
-      case Some(map) ⇒ {
+      case Some(map) => {
         map.foreach {
           case (k, v) => properties.put(k, v)
         }
@@ -217,7 +217,7 @@ sealed trait DriverUtils {
         properties
       }
 
-      case _ ⇒ properties
+      case _ => properties
     })
   }
 }

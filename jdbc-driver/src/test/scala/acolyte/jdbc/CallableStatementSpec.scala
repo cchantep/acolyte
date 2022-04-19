@@ -9,7 +9,7 @@ import org.specs2.mutable.Specification
 object CallableStatementSpec
   extends Specification with StatementSpecification[CallableStatement] {
 
-  "Callable statement specification" title
+  "Callable statement specification".title
 
   "Out parameter registration" should {
     "fail on closed statement" in {
@@ -119,11 +119,11 @@ object CallableStatementSpec
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
         and(stmt.setSQLXML("param", null.asInstanceOf[java.sql.SQLXML]).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
-        and(stmt.setDouble("param", 1d).
+        and(stmt.setDouble("param", 1D).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
-        and(stmt.setFloat("param", 1f).
+        and(stmt.setFloat("param", 1F).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
-        and(stmt.setLong("param", 1l).
+        and(stmt.setLong("param", 1L).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
         and(stmt.setInt("param", 1).
           aka("setter") must throwA[SQLFeatureNotSupportedException]).
