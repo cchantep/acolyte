@@ -177,10 +177,10 @@ object UpdateElement {
    *
    * @return (q, u, upsert, multi)
    */
-  def unapply(value: BSONValue): Option[(BSONDocument, BSONDocument, Boolean, Boolean)] = value match {
+  def unapply(value: BSONValue): Option[(BSONDocument, BSONValue, Boolean, Boolean)] = value match {
     case el: BSONDocument ⇒ for {
       q ← el.getAsOpt[BSONDocument]("q")
-      u ← el.getAsOpt[BSONDocument]("u")
+      u ← el.getAsOpt[BSONValue]("u")
       upsert = el.getAsOpt[Boolean]("upsert").getOrElse(false)
       multi = el.getAsOpt[Boolean]("multi").getOrElse(false)
     } yield (q, u, upsert, multi)
@@ -194,22 +194,32 @@ object UpdateRequest {
   /** @return Collection name, elements of selector/document to be updated. */
   def unapply(update: (WriteOp, Request)): Option[(String, List[(String, BSONValue)], List[(String, BSONValue)], Boolean, Boolean)] = (update._1, update._2.body) match {
     case (UpdateOp, first :: _) ⇒ UpdateElement.unapply(first).collect {
-      case (selector, body, upsert, multi) ⇒
+      case (selector, doc: BSONDocument, upsert, multi) =>
         (
           update._2.collection,
           selector.elements.map {
-            case BSONElement(name, value) ⇒ name → value
+            case BSONElement(name, value) => name → value
           }.toList,
-          body.elements.map {
-            case BSONElement(name, value) ⇒ name → value
+          doc.elements.map {
+            case BSONElement(name, value) => name → value
+          }.toList,
+          upsert,
+          multi)
+
+      case (selector, arr: BSONArray, upsert, multi) =>
+        (
+          update._2.collection,
+          selector.elements.map {
+            case BSONElement(name, value) => name → value
+          }.toList,
+          arr.values.collect {
+            case ValueDocument((name, stage) :: Nil) =>
+              name -> stage
+
           }.toList,
           upsert,
           multi)
     }
-
-    case (UpdateOp, req) =>
-      println(s"_HERE: $req")
-      None
 
     case _ ⇒ None
   }

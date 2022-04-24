@@ -117,6 +117,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
 
             case Success(res) ⇒ res.fold(noQueryResponse(cid, msg.toString)) {
               case Success(r) ⇒ r
+
               case Failure(e) ⇒ MongoDB.queryError(cid, Option(e.getMessage).
                 getOrElse(e.getClass.getName)) match {
                 case Success(err) ⇒ err
@@ -138,7 +139,13 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
 
     case Close() ⇒ {
       sender ! Closed
-      postStop()
+
+      try {
+        postStop()
+      } catch {
+        case _: java.util.concurrent.TimeoutException =>
+          logger.warn("Fails to close in a timely manner the MongoDBSystem")
+      }
     }
 
     case msg ⇒

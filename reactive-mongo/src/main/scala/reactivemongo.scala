@@ -146,7 +146,7 @@ package object acolyte {
         supervisor, name, actorSystem, mongosystem, options)
   }
 
-  object ActorSystem {
+  object ReactiveMongoActorSystem {
     @inline def apply(drv: reactivemongo.api.AsyncDriver) = drv.system
   }
 
