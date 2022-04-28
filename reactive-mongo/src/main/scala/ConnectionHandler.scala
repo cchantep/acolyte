@@ -76,7 +76,9 @@ object ConnectionHandler {
    * }}}
    */
   def apply[A, B](queryHandler: A = QueryHandler.empty, writeHandler: B = WriteHandler.empty)(implicit f: A ⇒ QueryHandler, g: B ⇒ WriteHandler): ConnectionHandler = {
-    val q = queryHandler; val w = writeHandler
+    val q = queryHandler
+    val w = writeHandler
+
     new ConnectionHandler {
       val queryHandler = f(q)
       val writeHandler = g(w)

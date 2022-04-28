@@ -383,6 +383,28 @@ final class RequestSpec extends org.specs2.mutable.Specification
     }
   }
 
+  "Update" should {
+    "be extracted with pipeline" in {
+      UpdateRequest.unapply(UpdateOp -> update2) must beSome.like {
+        case ("db1.col5",
+          ("_id", BSONString("foo")) :: Nil,
+          ("$set", ValueDocument(
+            ("status", ValueDocument(
+              ("$cond", ValueDocument(
+                ("if", ValueDocument(
+                  ("status", BSONString("Pending")) :: Nil)) :: (
+                  "then", BSONString("Assigned")) :: (
+                  "else", BSONString("$status")) :: Nil
+                )) :: Nil
+              ))
+              :: Nil
+            )) :: Nil,
+          false, false) =>
+          ok
+      }
+    }
+  }
+
   "Multiple document body" should {
     "be extracted" in {
       update1 aka "update request" must beLike {
@@ -440,6 +462,23 @@ sealed trait RequestFixtures {
     val body = List(
       BSONDocument("sel" → "hector"),
       BSONDocument("updated" → "property"))
+  }
+
+  val update2 = new Request {
+    val collection = "db1.col5"
+    val body = List(
+      BSONDocument(
+        "q" -> BSONDocument("_id" -> "foo"),
+        "u" -> BSONArray(
+          BSONDocument(
+            f"$$set" -> BSONDocument(
+              "status" -> BSONDocument(
+                f"$$cond" -> BSONDocument(
+                  "if" -> BSONDocument("status" -> "Pending"),
+                  "then" -> "Assigned",
+                  "else" -> f"$$status"))))),
+        "upsert" -> false,
+        "multi" -> false))
   }
 
   val aggregate1 = new Request {

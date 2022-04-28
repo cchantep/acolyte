@@ -5,7 +5,7 @@ import scala.util.control.NonFatal
 import scala.concurrent.ExecutionContext
 
 import reactivemongo.api.AsyncDriver
-import reactivemongo.acolyte.{ MongoConnection, ActorSystem }
+import reactivemongo.acolyte.{ MongoConnection, ReactiveMongoActorSystem }
 
 /** Driver manager */
 @annotation.implicitNotFound("Cannot find `acolyte.reactivemongo.DriverManager` (default one requires an `ExecutionContext`)")
@@ -72,7 +72,7 @@ object ConnectionManager {
     import scala.concurrent.duration._
 
     def open(driver: AsyncDriver, handler: ConnectionHandler) = {
-      val sys = ActorSystem(driver)
+      val sys = ReactiveMongoActorSystem(driver)
       val actorRef = sys.actorOf(Props(classOf[Actor], handler))
 
       MongoConnection(

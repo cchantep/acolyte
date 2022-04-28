@@ -15,7 +15,7 @@ import reactivemongo.api.bson.{
 }
 
 import reactivemongo.api.{ Cursor, DB, MongoConnection, AsyncDriver }
-import reactivemongo.acolyte.ActorSystem
+import reactivemongo.acolyte.ReactiveMongoActorSystem
 import reactivemongo.api.commands.WriteResult
 
 import org.specs2.concurrent.ExecutionEnv
@@ -32,12 +32,14 @@ final class DriverSpec extends org.specs2.mutable.Specification
   val timeout = 5.seconds
   val driver = AsyncDriver()
   implicit val driverManager = DriverManager.identity(driver)
+
   implicit def ec: ExecutionEnv =
-    ExecutionEnv.fromExecutionContext(ActorSystem(driver).dispatcher)
+    ExecutionEnv.fromExecutionContext(
+      ReactiveMongoActorSystem(driver).dispatcher)
 
   "Resource management" should {
     "successfully initialize driver from connection handler" in {
-      withDriver(_ => true) must beTrue.await(0, timeout)
+      withDriver(_ => true) must beTrue.awaitFor(timeout)
     }
 
     "successfully work with initialized driver" >> {
@@ -45,55 +47,55 @@ final class DriverSpec extends org.specs2.mutable.Specification
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withQueryHandler(
             { _: Request => QueryResponse.empty })(_ => true)
-        } aka "work with query handler" must beTrue.await(0, timeout)
+        } aka "work with query handler" must beTrue.awaitFor(timeout)
       }
 
       "from sync query result" in {
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withQueryResult(QueryResponse(
             BSONDocument("res" → "ult")))(_ => true)
-        } aka "work with query result" must beTrue.await(0, timeout)
+        } aka "work with query result" must beTrue.awaitFor(timeout)
       }
 
       "from query handler with future result" in {
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withQueryHandler(
             { _: Request => QueryResponse.undefined })(_ => Future(2 + 6))
-        } aka "work with query handler" must beTypedEqualTo(8).await(0, timeout)
+        } aka "work with query handler" must beTypedEqualTo(8).awaitFor(timeout)
       }
 
       "from future query result" in {
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withQueryResult(QueryResponse(
             BSONDocument("res" → "ult")))(_ => Future(1 + 2))
-        } aka "work with query result" must beTypedEqualTo(3).await(0, timeout)
+        } aka "work with query result" must beTypedEqualTo(3).awaitFor(timeout)
       }
 
       "from sync write handler" in {
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withWriteHandler(
             { (_: WriteOp, _: Request) => WriteResponse(1) })(_ => true)
-        } aka "work with write result" must beTrue.await(0, timeout)
+        } aka "work with write result" must beTrue.awaitFor(timeout)
       }
 
       "from sync write result" in {
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withWriteResult(WriteResponse("error"))(_ => true)
-        } aka "work with write result" must beTrue.await(0, timeout)
+        } aka "work with write result" must beTrue.awaitFor(timeout)
       }
 
       "from write handler with future result" in {
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withWriteHandler(
             { (_: WriteOp, _: Request) => WriteResponse(1) })(_ => Future(1 + 6))
-        } aka "work with write result" must beTypedEqualTo(7).await(0, timeout)
+        } aka "work with write result" must beTypedEqualTo(7).awaitFor(timeout)
       }
 
       "from sync future result" in {
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withWriteResult(
             WriteResponse("error"))(_ => Future(1 + 2))
-        } aka "work with write result" must beTypedEqualTo(3).await(0, timeout)
+        } aka "work with write result" must beTypedEqualTo(3).awaitFor(timeout)
       }
     }
 
@@ -101,13 +103,13 @@ final class DriverSpec extends org.specs2.mutable.Specification
       "from connection handler" in {
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withConnection(chandler1)(_ => true)
-        } aka "work with connection" must beTrue.await(0, timeout)
+        } aka "work with connection" must beTrue.awaitFor(timeout)
       }
 
       "from initialized driver" in {
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withConnection(chandler1)(_ => Future.successful(true))
-        } aka "work with driver" must beTrue.await(0, timeout)
+        } aka "work with driver" must beTrue.awaitFor(timeout)
       }
     }
 
@@ -115,7 +117,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
       "from connection handler" in {
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withDB(chandler1)(_ => true)
-        } aka "work with DB" must beTrue.await(0, timeout)
+        } aka "work with DB" must beTrue.awaitFor(timeout)
       }
 
       "from initialized driver and connection" in {
@@ -123,7 +125,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
           AcolyteDSL.withConnection(chandler1) {
             AcolyteDSL.withDB(_)(_ => true)
           }
-        } aka "work with DB" must beTrue.await(0, timeout)
+        } aka "work with DB" must beTrue.awaitFor(timeout)
       }
 
       "from initialized connection handler and connection with sync result" in {
@@ -131,7 +133,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
           AcolyteDSL.withConnection(chandler1) { con =>
             AcolyteDSL.withDB(con)(_ => true)
           }
-        } aka "work with DB" must beTrue.await(0, timeout)
+        } aka "work with DB" must beTrue.awaitFor(timeout)
       }
 
       "from initialized connection handler and connection with future" in {
@@ -139,7 +141,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
           AcolyteDSL.withConnection(chandler1) { con =>
             AcolyteDSL.withDB(con)(_ => Future(1 + 2))
           }
-        } aka "work with DB" must beTypedEqualTo(3).await(0, timeout)
+        } aka "work with DB" must beTypedEqualTo(3).awaitFor(timeout)
       }
 
       "from initialized driver and connection with sync sync result" in {
@@ -147,7 +149,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
           AcolyteDSL.withConnection(chandler1) {
             AcolyteDSL.withDB(_)(_ => true)
           }
-        } aka "work with DB" must beTrue.await(0, timeout)
+        } aka "work with DB" must beTrue.awaitFor(timeout)
       }
 
       "from initialized driver and connection with sync sync result" in {
@@ -155,7 +157,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
           AcolyteDSL.withConnection(chandler1) {
             AcolyteDSL.withDB(_)(_ => Future(2 + 5))
           }
-        } aka "work with DB" must beTypedEqualTo(7).await(0, timeout)
+        } aka "work with DB" must beTypedEqualTo(7).awaitFor(timeout)
       }
     }
 
@@ -163,7 +165,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
       "from connection handler with sync result" in {
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withCollection(chandler1, "colName")(_ => true)
-        } aka "work with collection" must beTrue.await(0, timeout)
+        } aka "work with collection" must beTrue.awaitFor(timeout)
       }
 
       "from initialized connection with sync result" in {
@@ -171,7 +173,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
           AcolyteDSL.withConnection(chandler1) { con =>
             AcolyteDSL.withCollection(con, "colName")(_ => true)
           }
-        } aka "work with collection" must beTrue.await(0, timeout)
+        } aka "work with collection" must beTrue.awaitFor(timeout)
       }
 
       "from resolved DB with sync result" in {
@@ -179,14 +181,14 @@ final class DriverSpec extends org.specs2.mutable.Specification
           AcolyteDSL.withDB(chandler1) { db =>
             AcolyteDSL.withCollection(db, "colName")(_ => true)
           }
-        } aka "work with collection" must beTrue.await(0, timeout)
+        } aka "work with collection" must beTrue.awaitFor(timeout)
       }
 
       "from connection handler with future result" in {
         withDriver { implicit drv: AsyncDriver =>
           AcolyteDSL.withCollection(chandler1, "colName")(
             _ => Future.successful(true))
-        } aka "work with collection" must beTrue.await(0, timeout)
+        } aka "work with collection" must beTrue.awaitFor(timeout)
       }
 
       "from initialized connection with future result" in {
@@ -194,7 +196,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
           AcolyteDSL.withConnection(chandler1) { con =>
             AcolyteDSL.withCollection(con, "colName")(_ => Future(1 + 3))
           }
-        } aka "work with collection" must beTypedEqualTo(4).await(0, timeout)
+        } aka "work with collection" must beTypedEqualTo(4).awaitFor(timeout)
       }
 
       "from resolved DB with future result" in {
@@ -202,7 +204,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
           AcolyteDSL.withDB(chandler1) { db =>
             AcolyteDSL.withCollection(db, "colName")(_ => Future(2 + 5))
           }
-        } aka "work with collection" must beTypedEqualTo(7).await(0, timeout)
+        } aka "work with collection" must beTypedEqualTo(7).awaitFor(timeout)
       }
     }
   }
@@ -218,7 +220,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
           }
         } aka "query result" must beLike[List[BSONDocument]] {
           case ValueDocument(("b", BSONInteger(3)) :: Nil) :: Nil => ok
-        }.await(0, timeout)
+        }.awaitFor(timeout)
       }
 
       "when is successful #2" in {
@@ -232,7 +234,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
         } aka ("query result") must beLike[List[BSONDocument]] {
           case ValueDocument(("d", BSONDouble(4.56D)) :: Nil) ::
             ValueDocument(("ef", BSONString("ghi")) :: Nil) :: Nil => ok
-        }.await(0, timeout)
+        }.awaitFor(timeout)
       }
 
       "using withQueryResult" >> {
@@ -248,7 +250,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
           } aka "query result" must beLike[List[BSONDocument]] {
             case ValueDocument(("res", BSONString("ult")) ::
               ("n", BSONInteger(3)) :: Nil) :: Nil => ok
-          }.await(0, timeout)
+          }.awaitFor(timeout)
         }
 
         "for a many documents" in {
@@ -264,7 +266,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
           } aka "query result" must beLike[List[BSONDocument]] {
             case ValueDocument(("doc", BSONInteger(1)) :: Nil) ::
               ValueDocument(("doc", BSONDouble(2.3d)) :: Nil) :: Nil => ok
-          }.await(0, timeout)
+          }.awaitFor(timeout)
         }
 
         "for an explicit error" in {
@@ -304,7 +306,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
                 collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
             }
           }
-        }.map(_.isEmpty) aka "query result" must beTrue.await(0, timeout)
+        }.map(_.isEmpty) aka "query result" must beTrue.awaitFor(timeout)
       }
 
       "support query options" in {
@@ -324,7 +326,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
                 collect[List](-1, Cursor.FailOnError[List[BSONDocument]]())
             }
           }
-        }.map(_.size) aka "query result" must beTypedEqualTo(1).await(0, timeout)
+        }.map(_.size) aka "query result" must beTypedEqualTo(1).awaitFor(timeout)
       }
 
       "support findAndModify" in {
@@ -342,7 +344,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
           }
         } aka "query result" must beSome(BSONDocument(
           "bypassDocumentValidation" -> false,
-          "upsert" → false, "new" → false)).await(0, timeout)
+          "upsert" → false, "new" → false)).awaitFor(timeout)
 
       }
 
@@ -475,7 +477,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
           }
         } aka "result" must beLike[WriteResult] {
           case result => result.n aka "inserted" must_=== 0
-        }.await(0, timeout)
+        }.awaitFor(timeout)
       }
 
       "as error when write handler returns no write result" in {
@@ -535,7 +537,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
             }
           } aka "write result" must beLike[WriteResult] {
             case lastError => lastError.n aka "deleted" must_=== 2
-          }.await(0, timeout)
+          }.awaitFor(timeout)
         }
 
         "for explicit error" in {
@@ -658,7 +660,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
                 }
               } yield res.n
             }
-          } must beTypedEqualTo(3).await(0, timeout)
+          } must beTypedEqualTo(3).awaitFor(timeout)
         }
 
         "for delete" in {
@@ -673,7 +675,7 @@ final class DriverSpec extends org.specs2.mutable.Specification
                 _.delete.one(BSONDocument("a" → "val")).map(_ => {})
               }
             }
-          } aka "write result" must beTypedEqualTo({}).await(0, timeout)
+          } aka "write result" must beTypedEqualTo({}).awaitFor(timeout)
         }
       }
     }

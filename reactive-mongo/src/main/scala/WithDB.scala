@@ -1,7 +1,9 @@
 package acolyte.reactivemongo
 
 import scala.concurrent.{ ExecutionContext, Future }
+
 import reactivemongo.api.{ DB, MongoConnection, AsyncDriver }
+import reactivemongo.api.acolyte.AcolyteDB
 
 /**
  * Functions to work with MongoDB (provided driver functions).
@@ -76,11 +78,17 @@ trait WithDB { withDriver: WithDriver ⇒
     d: AsyncDriver,
     m: ConnectionManager[A],
     ec: ExecutionContext,
-    compose: ComposeWithCompletion[B]): compose.Outer =
-    compose(Future(m.open(d, conParam)).
-      flatMap(_.database(name)), f) { db ⇒
+    compose: ComposeWithCompletion[B]): compose.Outer = {
+    def database = Future.fromTry[DB](scala.util.Try {
+      val connection = m.open(d, conParam)
+
+      AcolyteDB(connection, name)
+    })
+
+    compose(database, f) { db =>
       m.releaseIfNecessary(db.connection); ()
     }
+  }
 
   /**
    * Works with Mongo database (named "acolyte") resolved using given driver
