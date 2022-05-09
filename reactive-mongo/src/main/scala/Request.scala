@@ -6,6 +6,7 @@ import reactivemongo.api.bson.{
   BSONArray,
   BSONDocument,
   BSONElement,
+  BSONInteger,
   BSONString,
   BSONValue
 }
@@ -124,7 +125,7 @@ object Request {
    * @see [[CountRequest]]
    */
   def unapply(q: Request): Option[(String, List[BDoc])] =
-    Some(q.collection → q.body.map(BDoc.apply))
+    Some(q.collection -> q.body.map(BDoc.apply))
 }
 
 /** BSONDocument wrapper for pattern matching */
@@ -138,7 +139,7 @@ object SimpleBody {
   /** @return BSON properties from the first document of the body. */
   def unapply(body: List[BDoc]): Option[List[(String, BSONValue)]] =
     body.headOption.map(_.underlying.elements.map {
-      case BSONElement(name, value) ⇒ name → value
+      case BSONElement(name, value) => name -> value
     }.toList)
 
 }
@@ -148,7 +149,7 @@ object RequestBody {
   /** @return List of document, each document as list of its BSON properties. */
   def unapply(body: List[BDoc]): Option[List[List[(String, BSONValue)]]] =
     Some(body.map(_.underlying.elements.map {
-      case BSONElement(name, value) ⇒ name → value
+      case BSONElement(name, value) => name -> value
     }.toList))
 }
 
@@ -156,12 +157,12 @@ object RequestBody {
 object InsertRequest {
   /** @return Collection name and elements of document to be inserted. */
   def unapply(insert: (WriteOp, Request)): Option[(String, List[(String, BSONValue)])] = (insert._1, insert._2.body) match {
-    case (InsertOp, body :: Nil) ⇒
-      Some(insert._2.collection → (body.elements.map {
-        case BSONElement(name, value) ⇒ name → value
+    case (InsertOp, body :: Nil) =>
+      Some(insert._2.collection -> (body.elements.map {
+        case BSONElement(name, value) => name -> value
       }.toList))
 
-    case _ ⇒ None
+    case _ => None
   }
 }
 
@@ -178,14 +179,14 @@ object UpdateElement {
    * @return (q, u, upsert, multi)
    */
   def unapply(value: BSONValue): Option[(BSONDocument, BSONValue, Boolean, Boolean)] = value match {
-    case el: BSONDocument ⇒ for {
+    case el: BSONDocument => for {
       q ← el.getAsOpt[BSONDocument]("q")
       u ← el.getAsOpt[BSONValue]("u")
       upsert = el.getAsOpt[Boolean]("upsert").getOrElse(false)
       multi = el.getAsOpt[Boolean]("multi").getOrElse(false)
     } yield (q, u, upsert, multi)
 
-    case _ ⇒ None
+    case _ => None
   }
 }
 
@@ -193,15 +194,15 @@ object UpdateElement {
 object UpdateRequest {
   /** @return Collection name, elements of selector/document to be updated. */
   def unapply(update: (WriteOp, Request)): Option[(String, List[(String, BSONValue)], List[(String, BSONValue)], Boolean, Boolean)] = (update._1, update._2.body) match {
-    case (UpdateOp, first :: _) ⇒ UpdateElement.unapply(first).collect {
+    case (UpdateOp, first :: _) => UpdateElement.unapply(first).collect {
       case (selector, doc: BSONDocument, upsert, multi) =>
         (
           update._2.collection,
           selector.elements.map {
-            case BSONElement(name, value) => name → value
+            case BSONElement(name, value) => name -> value
           }.toList,
           doc.elements.map {
-            case BSONElement(name, value) => name → value
+            case BSONElement(name, value) => name -> value
           }.toList,
           upsert,
           multi)
@@ -210,7 +211,7 @@ object UpdateRequest {
         (
           update._2.collection,
           selector.elements.map {
-            case BSONElement(name, value) => name → value
+            case BSONElement(name, value) => name -> value
           }.toList,
           arr.values.collect {
             case ValueDocument((name, stage) :: Nil) =>
@@ -221,7 +222,7 @@ object UpdateRequest {
           multi)
     }
 
-    case _ ⇒ None
+    case _ => None
   }
 }
 
@@ -230,19 +231,19 @@ object DeleteRequest {
   /** @return Collection name and elements of selector. */
   def unapply(delete: (WriteOp, Request)): Option[(String, List[(String, BSONValue)])] = (delete._1, delete._2.body) match {
     case (DeleteOp, ValueDocument(
-      ("q", selector: BSONDocument) :: _) :: Nil) ⇒
-      Some(delete._2.collection → (selector.elements.map {
-        case BSONElement(name, value) ⇒ name → value
+      ("q", selector: BSONDocument) :: _) :: Nil) =>
+      Some(delete._2.collection -> (selector.elements.map {
+        case BSONElement(name, value) => name -> value
       }.toList))
 
     case (DeleteOp, ValueDocument(
       ("q", selector: BSONDocument) :: _) ::
-      ValueDocument(_ /*options*/ ) :: _) ⇒
-      Some(delete._2.collection → (selector.elements.map {
-        case BSONElement(name, value) ⇒ name → value
+      ValueDocument(_ /*options*/ ) :: _) =>
+      Some(delete._2.collection -> (selector.elements.map {
+        case BSONElement(name, value) => name -> value
       }.toList))
 
-    case _ ⇒ None
+    case _ => None
   }
 }
 
@@ -251,11 +252,43 @@ object CommandRequest {
   /** @return The body of the command request */
   def unapply(request: Request): Option[List[(String, BSONValue)]] =
     request match {
-      case Request(c, SimpleBody(body)) if (c endsWith f".$$cmd") ⇒
+      case Request(c, SimpleBody(body)) if (c endsWith f".$$cmd") =>
         Some(body)
 
-      case _ ⇒ None
+      case _ => None
     }
+}
+
+/**
+ * Request extractor for `startSession` command (at DB level).
+ *
+ * {{{
+ * import acolyte.reactivemongo.{ Request, StartSessionRequest }
+ *
+ * def isStart(req: Request): Boolean = req match {
+ *   case StartSessionRequest() => true
+ *   case _ => false
+ * }
+ * }}}
+ */
+object StartSessionRequest {
+  def unapply(request: Request): Boolean = request match {
+    case CommandRequest(("startSession", BSONInteger(1)) :: _) =>
+      true
+
+    case _ =>
+      false
+  }
+}
+
+object StartTransactionRequest {
+  def unapply(request: Request): Option[String] = request match {
+    case Request(name, SimpleBody(Nil)) if (name.indexOf(".startx") != -1) =>
+      Some(name)
+
+    case _ =>
+      None
+  }
 }
 
 /**
@@ -268,21 +301,21 @@ object FindAndModifyRequest {
    * @return Collection name, query, update and then options
    */
   def unapply(request: Request): Option[(String, List[(String, BSONValue)], List[(String, BSONValue)], List[(String, BSONValue)])] = request match {
-    case CommandRequest(("findAndModify", BSONString(col)) :: ps) ⇒ {
+    case CommandRequest(("findAndModify", BSONString(col)) :: ps) => {
       var q = List.empty[(String, BSONValue)]
       var u = List.empty[(String, BSONValue)]
       val o = List.newBuilder[(String, BSONValue)]
 
       ps.foreach {
-        case ("query", ValueDocument(query))   ⇒ q = query
-        case ("update", ValueDocument(update)) ⇒ u = update
-        case opt                               ⇒ o += opt
+        case ("query", ValueDocument(query))   => q = query
+        case ("update", ValueDocument(update)) => u = update
+        case opt                               => o += opt
       }
 
       Some((col, q, u, o.result()))
     }
 
-    case _ ⇒ None
+    case _ => None
   }
 }
 
@@ -313,11 +346,11 @@ object AggregateRequest {
 object ValueDocument {
   def unapply(v: BSONValue): Option[List[(String, BSONValue)]] = {
     v match {
-      case doc: BSONDocument ⇒ Some(doc.elements.map {
-        case BSONElement(name, value) ⇒ name → value
+      case doc: BSONDocument => Some(doc.elements.map {
+        case BSONElement(name, value) => name -> value
       }.toList)
 
-      case _ ⇒ None
+      case _ => None
     }
   }
 }
@@ -341,10 +374,10 @@ object CountRequest {
   def unapply(request: Request): Option[(String, List[(String, BSONValue)])] =
     request match {
       case CommandRequest(("count", BSONString(col)) ::
-        ("query", ValueDocument(query)) :: _) ⇒ Some(col → query)
+        ("query", ValueDocument(query)) :: _) => Some(col -> query)
       // TODO: limit
 
-      case _ ⇒ None
+      case _ => None
     }
 }
 
@@ -359,9 +392,9 @@ object InClause {
    */
   def unapply(bson: BSONValue): Option[List[BSONValue]] =
     bson match {
-      case ValueDocument(("$in", a: BSONArray) :: _) ⇒
+      case ValueDocument(("$in", a: BSONArray) :: _) =>
         Some(a.values.toList)
-      case _ ⇒ None
+      case _ => None
     }
 }
 
@@ -376,9 +409,9 @@ object NotInClause {
    */
   def unapply(bson: BSONValue): Option[List[BSONValue]] =
     bson match {
-      case ValueDocument(("$nin", a: BSONArray) :: _) ⇒
+      case ValueDocument(("$nin", a: BSONArray) :: _) =>
         Some(a.values.toList)
-      case _ ⇒ None
+      case _ => None
     }
 }
 
@@ -389,7 +422,7 @@ object NotInClause {
  */
 @SuppressWarnings(Array("ObjectNames"))
 object & {
-  def unapply[A](a: A) = Some(a → a)
+  def unapply[A](a: A) = Some(a -> a)
 }
 
 /**
@@ -455,7 +488,7 @@ object & {
  */
 case class Property(name: String) {
   def unapply(properties: List[(String, BSONValue)]): Option[BSONValue] =
-    properties.collectFirst { case (`name`, value) ⇒ value }
+    properties.collectFirst { case (`name`, value) => value }
 }
 
 /** Operator, along with request when writing. */

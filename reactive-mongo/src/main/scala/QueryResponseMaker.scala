@@ -124,6 +124,12 @@ object QueryResponseMaker extends LowPrioQueryResponseMaker {
     /** @return None */
     def apply(chanId: ChannelId, undefined: None.type): Option[Try[Response]] = None
   }
+
+  def firstBatchMaker =
+    new QueryResponseMaker[(Long, String, Seq[BSONDocument])] {
+      def apply(chanId: ChannelId, data: (Long, String, Seq[BSONDocument])): Option[Try[Response]] = Some(MongoDB.firstBatch(chanId, data._1, data._2, data._3))
+    }
+
 }
 
 sealed trait LowPrioQueryResponseMaker { _: QueryResponseMaker.type =>
