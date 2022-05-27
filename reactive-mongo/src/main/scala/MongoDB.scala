@@ -8,10 +8,12 @@ import scala.util.Try
 import reactivemongo.api.bson.BSONDocument
 import reactivemongo.acolyte.{
   readReply,
+  Reply,
   Delete,
   Insert,
   MessageHeader,
   Response,
+  ResponseWithCursor,
   ResponseInfo,
   Update,
   WriteRequestOp
@@ -27,8 +29,8 @@ object MongoDB {
    * @param error Error message
    */
   def queryError(chanId: ChannelId, error: String, code: Option[Int] = None): Try[Response] = mkResponse(chanId, 1 /*QueryFailure*/ , {
-    val doc = BSONDocument("$err" → error)
-    code.fold(Seq(doc)) { c ⇒ Seq(doc ++ ("code" → c)) }
+    val doc = BSONDocument(f"$$err" -> error)
+    code.fold(Seq(doc)) { c => Seq(doc ++ ("code" -> c)) }
   })
 
   /**
@@ -40,6 +42,18 @@ object MongoDB {
   def querySuccess(chanId: ChannelId, docs: Traversable[BSONDocument]): Try[Response] = mkResponse(chanId, 4 /* unspecified */ , docs)
 
   /**
+   * Builds a response for a success batch.
+   *
+   * @param chanId Unique ID of channel
+   */
+  def firstBatch(
+    chanId: ChannelId,
+    cursorId: Long,
+    ns: String,
+    firstBatch: Seq[BSONDocument]): Try[Response] =
+    mkCursorResponse(chanId, 0, cursorId, ns, firstBatch)
+
+  /**
    * Builds a response with error details for a write operation.
    *
    * @param chanId Uniqe ID of channel
@@ -47,8 +61,8 @@ object MongoDB {
    * @param code Error code
    */
   def writeError(chanId: ChannelId, error: String, code: Option[Int] = None): Try[Response] = mkResponse(chanId, 4 /* unspecified */ , List(
-    BSONDocument("ok" → 0, "err" → error, "errmsg" → error,
-      "code" → code.getOrElse(-1), "updatedExisting" → false, "n" → 0)))
+    BSONDocument("ok" -> 0, "err" -> error, "errmsg" -> error,
+      "code" -> code.getOrElse(-1), "updatedExisting" -> false, "n" -> 0)))
 
   /**
    * Builds a response for a successful write operation.
@@ -59,7 +73,7 @@ object MongoDB {
    */
   def writeSuccess(chanId: ChannelId, count: Int, updatedExisting: Boolean = false): Try[Response] = mkResponse(chanId, 4 /*unspecified*/ ,
     List(BSONDocument(
-      "ok" → 1, "updatedExisting" → updatedExisting, "n" → count)))
+      "ok" -> 1, "updatedExisting" -> updatedExisting, "n" -> count)))
 
   /**
    * Builds a Mongo response.
@@ -75,33 +89,73 @@ object MongoDB {
 
     val body = writable()
 
-    docs foreach { writeDocument(_, body) }
+    docs.foreach { writeDocument(_, body) }
 
-    val len = 36 /* header size */ + body.size
-    val buf = Unpooled.buffer(len)
+    val messageLength = 36 /* header size */ + body.size
+    val buf = Unpooled.buffer(messageLength)
 
-    buf.writeIntLE(len)
-    buf.writeIntLE(System identityHashCode docs) // fake response ID
-    buf.writeIntLE(System identityHashCode buf) // fake request ID
-    buf.writeIntLE(4 /* OP_REPLY */ ) // opCode
-    buf.writeIntLE(flags)
-    buf.writeLongLE(0) // cursor ID
-    buf.writeIntLE(0) // cursor starting from
-    buf.writeIntLE(docs.size) // number of document
     buf.writeBytes(body.array)
 
     val in = Unpooled.wrappedUnmodifiableBuffer(buf)
 
-    Response(MessageHeader(in), readReply(in), in, ResponseInfo(chanId))
+    val header = MessageHeader(
+      messageLength,
+      System identityHashCode docs,
+      System identityHashCode buf,
+      0)
+
+    val reply = Reply(flags, 0L, 4 /* OP_REPLY */ , docs.size)
+
+    Response(header, reply, in, ResponseInfo(chanId))
+  }
+
+  def mkCursorResponse(
+    chanId: ChannelId,
+    flags: Int,
+    id: Long,
+    ns: String,
+    firstBatch: Seq[BSONDocument]): Try[Response] = Try {
+    import _root_.reactivemongo.api.bson.buffer.acolyte.{
+      writable,
+      writeDocument
+    }
+
+    val body = writable()
+
+    firstBatch.foreach { writeDocument(_, body) }
+
+    val messageLength = 36 /* header size */ + body.size
+    val buf = Unpooled.buffer(messageLength)
+
+    buf.writeBytes(body.array)
+
+    val in = Unpooled.wrappedUnmodifiableBuffer(buf)
+
+    val header = MessageHeader(
+      messageLength,
+      System identityHashCode firstBatch,
+      System identityHashCode buf,
+      0)
+
+    val reply = Reply(flags, 0L, 0, firstBatch.size)
+
+    ResponseWithCursor(
+      header,
+      reply,
+      in,
+      ResponseInfo(chanId),
+      ns,
+      BSONDocument("id" -> id, "ns" -> ns, "firstBatch" -> firstBatch),
+      firstBatch)
   }
 
   /** Defines instance of WriteOp enum. */
   @inline def writeOp(mongoOp: WriteRequestOp): Option[WriteOp] =
     mongoOp match {
-      case Delete(_, _) ⇒ Some(DeleteOp)
-      case Insert(_, _) ⇒ Some(InsertOp)
-      case Update(_, _) ⇒ Some(UpdateOp)
-      case _            ⇒ None
+      case Delete(_, _) => Some(DeleteOp)
+      case Insert(_, _) => Some(InsertOp)
+      case Update(_, _) => Some(UpdateOp)
+      case _            => None
     }
 
   private[reactivemongo] def mkQueryError(chanId: ChannelId = DefaultChannelId.newInstance()): Response = mkError(chanId, Array[Byte](76, 0, 0, 0, 16, -55, -63, 115, -49, 116, 119, 55, 4, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 40, 0, 0, 0, 2, 36, 101, 114, 114, 0, 25, 0, 0, 0, 70, 97, 105, 108, 115, 32, 116, 111, 32, 99, 114, 101, 97, 116, 101, 32, 114, 101, 115, 112, 111, 110, 115, 101, 0, 0)) // "Fails to create response"

@@ -17,13 +17,13 @@ final class RequestSpec extends org.specs2.mutable.Specification
     "match" >> {
       "request #1" in {
         request1 aka "request" must beLike {
-          case Request("db1.col1", _) ⇒ ok
+          case Request("db1.col1", _) => ok
         }
       }
 
       "request #2" in {
         request2 aka "request" must beLike {
-          case Request("db1.col2", _) ⇒ ok
+          case Request("db1.col2", _) => ok
         }
       }
     }
@@ -31,25 +31,25 @@ final class RequestSpec extends org.specs2.mutable.Specification
     "not match" >> {
       "request #1" in {
         request1 aka "request" must not(
-          beLike { case Request("db1.col2", _) ⇒ ok })
+          beLike { case Request("db1.col2", _) => ok })
       }
 
       "request #2" in {
         request2 aka "request" must not(
-          beLike { case Request("db1.col1", _) ⇒ ok })
+          beLike { case Request("db1.col1", _) => ok })
       }
     }
 
     "be extracted" >> {
       "request #1" in {
         request1 aka "request" must beLike {
-          case Request(n, _) ⇒ n aka "collection name" must_=== "db1.col1"
+          case Request(n, _) => n aka "collection name" must_=== "db1.col1"
         }
       }
 
       "request #2" in {
         request2 aka "request" must beLike {
-          case Request(n, _) ⇒ n aka "collection name" must_=== "db1.col2"
+          case Request(n, _) => n aka "collection name" must_=== "db1.col2"
         }
       }
     }
@@ -58,20 +58,20 @@ final class RequestSpec extends org.specs2.mutable.Specification
   "Request properties" should {
     "be extracted from request #1" in {
       request1 aka "request" must beLike {
-        case Request("db1.col1", SimpleBody(props)) ⇒
+        case Request("db1.col1", SimpleBody(props)) =>
           props aka "properties" must_=== List(
-            "email" → BSONString("em@il.net"), "age" → BSONInteger(11))
+            "email" -> BSONString("em@il.net"), "age" -> BSONInteger(11))
       }
     }
 
     "be extracted from request #2" in {
       request2 aka "request" must beLike {
-        case Request("db1.col2", SimpleBody(props)) ⇒
+        case Request("db1.col2", SimpleBody(props)) =>
           props aka "properties" must_=== List(
-            "email" → BSONString("em@il.net"),
-            "age" → BSONDocument(
-              "meta" → BSONString("y"), "$gt" → BSONInteger(10)),
-            "priority" → BSONDouble(0.25))
+            "email" -> BSONString("em@il.net"),
+            "age" -> BSONDocument(
+              "meta" -> BSONString("y"), "$gt" -> BSONInteger(10)),
+            "priority" -> BSONDouble(0.25))
       }
     }
   }
@@ -79,18 +79,18 @@ final class RequestSpec extends org.specs2.mutable.Specification
   "Document properties" should {
     "be extracted from doc #1" in {
       doc1 aka "document" must beLike {
-        case ValueDocument(props) ⇒ props aka "properties" must_=== List(
-          "email" → BSONString("em@il.net"), "age" → BSONInteger(11))
+        case ValueDocument(props) => props aka "properties" must_=== List(
+          "email" -> BSONString("em@il.net"), "age" -> BSONInteger(11))
       }
     }
 
     "be extracted from doc #2" in {
       doc2 aka "document" must beLike {
-        case ValueDocument(props) ⇒ props aka "properties" must_=== List(
-          "email" → BSONString("em@il.net"),
-          "age" → BSONDocument(
-            "meta" → BSONString("y"), "$gt" → BSONInteger(10)),
-          "priority" → BSONDouble(0.25))
+        case ValueDocument(props) => props aka "properties" must_=== List(
+          "email" -> BSONString("em@il.net"),
+          "age" -> BSONDocument(
+            "meta" -> BSONString("y"), "$gt" -> BSONInteger(10)),
+          "priority" -> BSONDouble(0.25))
       }
     }
   }
@@ -100,13 +100,13 @@ final class RequestSpec extends org.specs2.mutable.Specification
       request1 aka "request #1" must beLike {
         case Request("db1.col1", SimpleBody(
           ("email", BSONString("em@il.net")) ::
-            ("age", BSONInteger(11)) :: Nil)) ⇒ ok
+            ("age", BSONInteger(11)) :: Nil)) => ok
       }
     }
 
     "be extracted as BSON values for exactly 2 properties" in {
       request1 aka "request #1" must beLike {
-        case Request(col, SimpleBody((k1, v1) :: (k2, v2) :: Nil)) ⇒
+        case Request(col, SimpleBody((k1, v1) :: (k2, v2) :: Nil)) =>
           col aka "collection" must_=== "db1.col1" and (
             k1 aka "key #1" must_=== "email") and (
               v1 aka "value #1" must_=== BSONString("em@il.net")) and (
@@ -118,7 +118,7 @@ final class RequestSpec extends org.specs2.mutable.Specification
     "be extracted as Scala values for exactly 2 properties" in {
       request1 aka "request #1" must beLike {
         case Request(col, SimpleBody(
-          (k1, BSONString(v1)) :: (k2, BSONInteger(v2)) :: Nil)) ⇒
+          (k1, BSONString(v1)) :: (k2, BSONInteger(v2)) :: Nil)) =>
           col aka "collection" must_=== "db1.col1" and (
             k1 aka "key #1" must_=== "email") and (
               v1 aka "value #1" must_=== "em@il.net") and (
@@ -133,7 +133,7 @@ final class RequestSpec extends org.specs2.mutable.Specification
           ("email", BSONString("em@il.net")) ::
             ("age", ValueDocument(("meta", BSONString("y")) ::
               ("$gt", BSONInteger(10)) :: Nil)) ::
-            ("priority", BSONDouble(0.25D)) :: Nil)) ⇒ ok
+            ("priority", BSONDouble(0.25D)) :: Nil)) => ok
       }
     }
 
@@ -141,7 +141,7 @@ final class RequestSpec extends org.specs2.mutable.Specification
       request2 aka "request #1" must beLike {
         case Request("db1.col2", SimpleBody(("email", email) ::
           ("age", ValueDocument(("meta", meta) :: ("$gt", gt) :: Nil)) ::
-          ("priority", prio) :: Nil)) ⇒
+          ("priority", prio) :: Nil)) =>
           email aka "email" must_=== BSONString("em@il.net") and (
             meta aka "meta" must_=== BSONString("y")) and (
               gt aka "gt" must_=== BSONInteger(10)) and (
@@ -154,7 +154,7 @@ final class RequestSpec extends org.specs2.mutable.Specification
         case Request("db1.col2", SimpleBody(("email", BSONString(email)) ::
           ("age", ValueDocument(("meta", BSONString(meta)) ::
             ("$gt", BSONInteger(gt)) :: Nil)) ::
-          ("priority", BSONDouble(prio)) :: Nil)) ⇒
+          ("priority", BSONDouble(prio)) :: Nil)) =>
           email aka "email" must_=== "em@il.net" and (
             meta aka "meta" must_=== "y") and (gt aka "gt" must_=== 10) and (
               prio aka "priority" must_=== 0.25D)
@@ -172,14 +172,14 @@ final class RequestSpec extends org.specs2.mutable.Specification
       "on request #1" in {
         request1 aka "request" must beLike {
           case Request("db1.col1", SimpleBody(
-            Email(BSONString("em@il.net")))) ⇒ ok
+            Email(BSONString("em@il.net")))) => ok
         }
       }
 
       "on request #2" in {
         request2 aka "request" must beLike {
           case Request("db1.col2", SimpleBody(
-            Email(BSONString("em@il.net")))) ⇒ ok
+            Email(BSONString("em@il.net")))) => ok
         }
       }
     }
@@ -188,14 +188,14 @@ final class RequestSpec extends org.specs2.mutable.Specification
       "on request #1" in {
         request1 aka "request" must beLike {
           case Request("db1.col1", SimpleBody(
-            Email(email))) ⇒
+            Email(email))) =>
             email aka "email" must_=== BSONString("em@il.net")
         }
       }
 
       "on request #2" in {
         request2 aka "request" must beLike {
-          case Request("db1.col2", SimpleBody(Email(email))) ⇒
+          case Request("db1.col2", SimpleBody(Email(email))) =>
             email aka "email" must_=== BSONString("em@il.net")
         }
       }
@@ -205,7 +205,7 @@ final class RequestSpec extends org.specs2.mutable.Specification
       "on request #1" in {
         request1 aka "request" must beLike {
           case Request("db1.col1", SimpleBody(
-            Email(BSONString(email)))) ⇒
+            Email(BSONString(email)))) =>
             email aka "email" must_=== "em@il.net"
         }
       }
@@ -213,7 +213,7 @@ final class RequestSpec extends org.specs2.mutable.Specification
       "on request #2" in {
         request2 aka "request" must beLike {
           case Request("db1.col2", SimpleBody(
-            Email(BSONString(email)))) ⇒
+            Email(BSONString(email)))) =>
             email aka "email" must_=== "em@il.net"
         }
       }
@@ -224,7 +224,7 @@ final class RequestSpec extends org.specs2.mutable.Specification
         request1 aka "request #1" must beLike {
           case Request("db1.col1", SimpleBody(
             Email(BSONString("em@il.net")) &
-              Age(BSONInteger(11)))) ⇒ ok
+              Age(BSONInteger(11)))) => ok
 
         }
       }
@@ -233,7 +233,7 @@ final class RequestSpec extends org.specs2.mutable.Specification
         request1 aka "request #1" must beLike {
           case Request("db1.col1", SimpleBody(
             Age(BSONInteger(11)) &
-              Email(BSONString("em@il.net")))) ⇒ ok
+              Email(BSONString("em@il.net")))) => ok
 
         }
       }
@@ -243,7 +243,7 @@ final class RequestSpec extends org.specs2.mutable.Specification
           case Request("db1.col2", SimpleBody(
             Email(BSONString("em@il.net")) &
               Age(ValueDocument(
-                Greater(BSONInteger(10)))))) ⇒ ok
+                Greater(BSONInteger(10)))))) => ok
 
         }
       }
@@ -253,7 +253,7 @@ final class RequestSpec extends org.specs2.mutable.Specification
           case Request("db1.col2", SimpleBody(
             Age(ValueDocument(
               Greater(BSONInteger(10)))) &
-              Email(BSONString("em@il.net")))) ⇒ ok
+              Email(BSONString("em@il.net")))) => ok
 
         }
       }
@@ -264,7 +264,7 @@ final class RequestSpec extends org.specs2.mutable.Specification
         request2 aka "request #2" must not(beLike {
           case Request("db1.col2", SimpleBody(
             Email(BSONString("em@il.net")) &
-              Age(BSONInteger(11)))) ⇒ ok
+              Age(BSONInteger(11)))) => ok
 
         })
       }
@@ -272,7 +272,7 @@ final class RequestSpec extends org.specs2.mutable.Specification
       "on request #2 in reverse order with different 'email' type" in {
         request2 aka "request #2" must not(beLike {
           case Request("db1.col2", SimpleBody(Age(_) &
-            Email(BSONInteger(_)))) ⇒ ok
+            Email(BSONInteger(_)))) => ok
 
         })
       }
@@ -282,7 +282,7 @@ final class RequestSpec extends org.specs2.mutable.Specification
       "on request #2 in same order" in {
         request2 aka "request" must beLike {
           case Request("db1.col2", SimpleBody(Age(ValueDocument(
-            Meta(meta) & Greater(gt))))) ⇒
+            Meta(meta) & Greater(gt))))) =>
 
             gt aka "gt" must_=== BSONInteger(10) and (
               meta aka "meta" must_=== BSONString("y"))
@@ -292,7 +292,7 @@ final class RequestSpec extends org.specs2.mutable.Specification
       "on request #2 in reverse order" in {
         request2 aka "request" must beLike {
           case Request("db1.col2", SimpleBody(Age(ValueDocument(
-            Greater(gt) & Meta(meta))))) ⇒
+            Greater(gt) & Meta(meta))))) =>
 
             gt aka "gt" must_=== BSONInteger(10) and (
               meta aka "meta" must_=== BSONString("y"))
@@ -307,7 +307,7 @@ final class RequestSpec extends org.specs2.mutable.Specification
         request2 aka "request" must beLike {
           case Request("db1.col2", SimpleBody(Age(ValueDocument(
             Meta(BSONString(meta)) &
-              Greater(BSONInteger(gt)))))) ⇒
+              Greater(BSONInteger(gt)))))) =>
 
             gt aka "gt" must_=== 10 and (meta aka "meta" must_=== "y")
         }
@@ -317,7 +317,7 @@ final class RequestSpec extends org.specs2.mutable.Specification
         request2 aka "request" must beLike {
           case Request("db1.col2", SimpleBody(Age(ValueDocument(
             Greater(BSONInteger(gt)) &
-              Meta(BSONString(meta)))))) ⇒
+              Meta(BSONString(meta)))))) =>
 
             gt aka "gt" must_=== 10 and (meta aka "meta" must_=== "y")
         }
@@ -328,7 +328,7 @@ final class RequestSpec extends org.specs2.mutable.Specification
   "Count request" should {
     "be extracted" in {
       count1 aka "request" must beLike {
-        case CountRequest("col3", ("fil", BSONString("ter")) :: Nil) ⇒ ok
+        case CountRequest("col3", ("fil", BSONString("ter")) :: Nil) => ok
       }
     }
   }
@@ -340,7 +340,7 @@ final class RequestSpec extends org.specs2.mutable.Specification
           List(("_id", BSONInteger(1))),
           List(("$set", ValueDocument(List(("foo", BSONString("bar")))))),
           List(("limit", BSONInteger(2)))
-          ) ⇒ ok
+          ) => ok
       }
     }
   }
@@ -362,23 +362,23 @@ final class RequestSpec extends org.specs2.mutable.Specification
     "be extracted as list values" in {
       BSONArray("a", 2, 3.45d) aka "array" must beLike {
         case ValueList(BSONString(_) :: BSONInteger(_) ::
-          BSONDouble(_) :: Nil) ⇒ ok
+          BSONDouble(_) :: Nil) => ok
       }
     }
 
     "be extracted from an $in clause" in {
-      BSONDocument("selector" → BSONDocument("$in" → BSONArray("A", "B"))).
+      BSONDocument("selector" -> BSONDocument("$in" -> BSONArray("A", "B"))).
         aka("body") must beLike {
           case ValueDocument(("selector", InClause(
-            BSONString("A") :: BSONString("B") :: Nil)) :: Nil) ⇒ ok
+            BSONString("A") :: BSONString("B") :: Nil)) :: Nil) => ok
         }
     }
 
     "be extracted from an $nin clause" in {
-      BSONDocument("selector" → BSONDocument("$nin" → BSONArray("A", "B"))).
+      BSONDocument("selector" -> BSONDocument("$nin" -> BSONArray("A", "B"))).
         aka("body") must beLike {
           case ValueDocument(("selector", NotInClause(
-            BSONString("A") :: BSONString("B") :: Nil)) :: Nil) ⇒ ok
+            BSONString("A") :: BSONString("B") :: Nil)) :: Nil) => ok
         }
     }
   }
@@ -409,7 +409,7 @@ final class RequestSpec extends org.specs2.mutable.Specification
     "be extracted" in {
       update1 aka "update request" must beLike {
         case Request(_, RequestBody(List(("sel", BSONString("hector"))) ::
-          List(("updated", BSONString("property"))) :: Nil)) ⇒ ok
+          List(("updated", BSONString("property"))) :: Nil)) => ok
       }
     }
 
@@ -425,16 +425,16 @@ final class RequestSpec extends org.specs2.mutable.Specification
 }
 
 sealed trait RequestFixtures {
-  val doc1 = BSONDocument("email" → "em@il.net", "age" → 11)
+  val doc1 = BSONDocument("email" -> "em@il.net", "age" -> 11)
   val request1 = new Request {
     val collection = "db1.col1"
     val body = List(doc1)
   }
 
   val doc2 = BSONDocument(
-    "email" → "em@il.net",
-    "age" → BSONDocument("meta" → "y", f"$$gt" → 10),
-    "priority" → 0.25D)
+    "email" -> "em@il.net",
+    "age" -> BSONDocument("meta" -> "y", f"$$gt" -> 10),
+    "priority" -> 0.25D)
 
   val request2 = new Request {
     val collection = "db1.col2"
@@ -444,24 +444,24 @@ sealed trait RequestFixtures {
   val count1 = new Request {
     val collection = f"db1.$$cmd"
     val body = List(BSONDocument(
-      "count" → "col3",
-      "query" → BSONDocument("fil" → "ter")))
+      "count" -> "col3",
+      "query" -> BSONDocument("fil" -> "ter")))
   }
 
   val findAndModify1 = new Request {
     val collection = f"db1.$$cmd"
     val body = List(BSONDocument(
-      "findAndModify" → "col3",
-      "update" → BSONDocument(f"$$set" → BSONDocument("foo" → "bar")),
-      "query" → BSONDocument("_id" → 1),
-      "limit" → 2))
+      "findAndModify" -> "col3",
+      "update" -> BSONDocument(f"$$set" -> BSONDocument("foo" -> "bar")),
+      "query" -> BSONDocument("_id" -> 1),
+      "limit" -> 2))
   }
 
   val update1 = new Request {
     val collection = "db1.col4"
     val body = List(
-      BSONDocument("sel" → "hector"),
-      BSONDocument("updated" → "property"))
+      BSONDocument("sel" -> "hector"),
+      BSONDocument("updated" -> "property"))
   }
 
   val update2 = new Request {

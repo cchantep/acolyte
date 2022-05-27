@@ -59,12 +59,29 @@ package object acolyte {
 
   lazy val MessageHeader = reactivemongo.core.protocol.MessageHeader.apply _
 
+  def MessageHeader(
+    messageLength: Int,
+    requestID: Int,
+    responseTo: Int,
+    opCode: Int) = new reactivemongo.core.protocol.MessageHeader(
+    messageLength, requestID, responseTo, opCode)
+
+  def Reply(
+    flags: Int,
+    cursorID: Long,
+    startingFrom: Int,
+    numberReturned: Int) = reactivemongo.core.protocol.Reply(
+    flags, cursorID, startingFrom, numberReturned)
+
   def readReply(buf: reactivemongo.io.netty.buffer.ByteBuf) =
     reactivemongo.core.protocol.Reply.readFrom(buf)
 
   type Response = reactivemongo.core.protocol.Response
 
   lazy val Response = reactivemongo.core.protocol.Response.apply _
+
+  lazy val ResponseWithCursor =
+    reactivemongo.core.protocol.Response.WithCursor.apply _
 
   type ResponseInfo = reactivemongo.core.protocol.ResponseInfo
 

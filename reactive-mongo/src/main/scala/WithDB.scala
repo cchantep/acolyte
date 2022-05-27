@@ -56,6 +56,7 @@ trait WithDB { withDriver: WithDriver ⇒
    *
    * @param conParam $conParam
    * @param name $nameParam
+   * @param setName the name of the replica set (if some)
    * @param f $f
    *
    * {{{
@@ -73,7 +74,10 @@ trait WithDB { withDriver: WithDriver ⇒
    * }}}
    * @see AcolyteDSL.withConnection
    */
-  def withDB[A, B](conParam: ⇒ A, name: String)(f: DB ⇒ B)(
+  def withDB[A, B](
+    conParam: ⇒ A,
+    name: String,
+    setName: Option[String] = None)(f: DB ⇒ B)(
     implicit
     d: AsyncDriver,
     m: ConnectionManager[A],
@@ -82,7 +86,7 @@ trait WithDB { withDriver: WithDriver ⇒
     def database = Future.fromTry[DB](scala.util.Try {
       val connection = m.open(d, conParam)
 
-      AcolyteDB(connection, name)
+      AcolyteDB(connection, name, setName = setName)
     })
 
     compose(database, f) { db =>
