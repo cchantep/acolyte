@@ -11,6 +11,10 @@ title: Changelog
 
 Update dependencies.
 
+## 1.1.0 to 1.1.4
+
+([1.0.52..1.1.4](https://github.com/cchantep/acolyte/compare/1.0.58...1.1.4) @ [reactivemongo](https://github.com/cchantep/acolyte/tree/master/reactivemongo)) Various improvements in the ReactiveMongo module.
+
 ## 1.0.52
 
 Add support for Scala 2.13.
