@@ -7,7 +7,7 @@ import ScalacPlugin._
 // Settings
 ThisBuild / organization := "org.eu.acolyte"
 
-ThisBuild / scalaVersion := "2.12.15"
+ThisBuild / scalaVersion := "2.12.16"
 
 ThisBuild / crossScalaVersions := Seq(
   "2.11.12", (ThisBuild / scalaVersion).value, "2.13.8"
