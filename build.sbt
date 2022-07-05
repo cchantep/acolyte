@@ -41,7 +41,7 @@ lazy val studio = (sbt.project in file("studio")).settings(
     "https://raw.github.com/cchantep/tatami/master/releases"),
   libraryDependencies ++= Seq(
     "melasse" % "melasse-core" % "1.0",
-    "de.sciss" % "syntaxpane" % "1.2.0",
+    "de.sciss" % "syntaxpane" % "1.2.1",
     "org.apache.commons" % "commons-lang3" % "3.12.0"),
   assembly / mainClass := Some("acolyte.Studio"),
   assembly / assemblyJarName := s"acolyte-studio-${version.value}.jar")
