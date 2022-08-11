@@ -13,14 +13,15 @@ object AcolyteSpec extends Specification {
     val con = usecase.JavaUseCases.useCase1()
 
     "return 2 for DELETE statement" in {
-      con.prepareStatement("DELETE * FROM table").
-        executeUpdate aka "update count" must_=== 2
+      con
+        .prepareStatement("DELETE * FROM table")
+        .executeUpdate aka "update count" must_=== 2
 
     }
 
     "return 1 for other update statement" in {
-      lazy val s = con.prepareStatement(
-        "INSERT INTO table('id', 'name') VALUES (?, ?)")
+      lazy val s =
+        con.prepareStatement("INSERT INTO table('id', 'name') VALUES (?, ?)")
 
       s.setString(1, "idVal");
       s.setString(2, "idName")
@@ -29,9 +30,12 @@ object AcolyteSpec extends Specification {
     }
 
     "return empty resultset for SELECT query" in {
-      con.createStatement().executeQuery("SELECT * FROM table").
-        aka("resultset") must_=== RowLists.
-        rowList1(classOf[String]).resultSet()
+      con
+        .createStatement()
+        .executeQuery("SELECT * FROM table")
+        .aka("resultset") must_=== RowLists
+        .rowList1(classOf[String])
+        .resultSet()
 
     }
 
@@ -44,26 +48,35 @@ object AcolyteSpec extends Specification {
       lazy val rs = s.executeQuery
 
       "with expected 3 columns on first row" in {
-        (rs.next aka "has first row" must beTrue).
-          and(rs.getString(1) aka "1st row/1st col (by index)" must_=== "str").
-          and(rs.getString("String").
-            aka("1st row/1st col (by label)") must_=== "str").
-          and(rs.getFloat(2) aka "1st row/2nd col" must_=== 1.2F).
-          and(rs.getDate(3).
-            aka("1st row/2rd col (by index)") must_=== new Date(1L)).
-          and(rs.getDate("Date").
-            aka("1st row/2rd col (by label)") must_=== new Date(1L))
+        (rs.next aka "has first row" must beTrue)
+          .and(rs.getString(1) aka "1st row/1st col (by index)" must_=== "str")
+          .and(
+            rs.getString("String")
+              .aka("1st row/1st col (by label)") must_=== "str"
+          )
+          .and(rs.getFloat(2) aka "1st row/2nd col" must_=== 1.2F)
+          .and(
+            rs.getDate(3).aka("1st row/2rd col (by index)") must_=== new Date(
+              1L
+            )
+          )
+          .and(
+            rs.getDate("Date")
+              .aka("1st row/2rd col (by label)") must_=== new Date(1L)
+          )
 
       }
 
       "with expected 3 columns on second row" in {
-        (rs.next aka "has second row" must beTrue).
-          and(rs.getString(1) aka "2nd row/1st col (by index)" must_=== "val").
-          and(rs.getString("String").
-            aka("2nd row/1st col (by label)") must_=== "val").
-          and(rs.getFloat(2) aka "2nd row/2nd col" must_=== 2.34F).
-          and(rs.getDate(3) aka "2nd row/2rd col (by index)" must beNull).
-          and(rs.getDate("Date") aka "2nd row/2rd col (by label)" must beNull)
+        (rs.next aka "has second row" must beTrue)
+          .and(rs.getString(1) aka "2nd row/1st col (by index)" must_=== "val")
+          .and(
+            rs.getString("String")
+              .aka("2nd row/1st col (by label)") must_=== "val"
+          )
+          .and(rs.getFloat(2) aka "2nd row/2nd col" must_=== 2.34F)
+          .and(rs.getDate(3) aka "2nd row/2rd col (by index)" must beNull)
+          .and(rs.getDate("Date") aka "2nd row/2rd col (by label)" must beNull)
 
       }
 
@@ -85,36 +98,50 @@ object AcolyteSpec extends Specification {
       lazy val rs = s.executeQuery
 
       "with expected 3 columns on first row" in {
-        (rs.next aka "has first row" must beTrue).
-          and(rs.getString(1).
-            aka("1st row/1st col (by index)") must_=== "text").
-          and(rs.getFloat(2).
-            aka("1st row/2nd col (by index)") must_=== 2.3F).
-          and(rs.getDate(3).
-            aka("1st row/2rd col (by index)") must_=== new Date(3L)).
-          and(rs.getString("str").
-            aka("1st row/1st col (by label)") must_=== "text").
-          and(rs.getFloat("f").
-            aka("1st row/2nd col (by label)") must_=== 2.3F).
-          and(rs.getDate("date").
-            aka("1st row/2rd col (by label)") must_=== new Date(3L))
+        (rs.next aka "has first row" must beTrue)
+          .and(
+            rs.getString(1).aka("1st row/1st col (by index)") must_=== "text"
+          )
+          .and(rs.getFloat(2).aka("1st row/2nd col (by index)") must_=== 2.3F)
+          .and(
+            rs.getDate(3).aka("1st row/2rd col (by index)") must_=== new Date(
+              3L
+            )
+          )
+          .and(
+            rs.getString("str")
+              .aka("1st row/1st col (by label)") must_=== "text"
+          )
+          .and(rs.getFloat("f").aka("1st row/2nd col (by label)") must_=== 2.3F)
+          .and(
+            rs.getDate("date")
+              .aka("1st row/2rd col (by label)") must_=== new Date(3L)
+          )
 
       }
 
       "with expected 3 columns on second row" in {
-        (rs.next aka "has second row" must beTrue).
-          and(rs.getString(1).
-            aka("2nd row/1st col (by index)") must_=== "label").
-          and(rs.getFloat(2).
-            aka("2nd row/2nd col (by index)") must_=== 4.56F).
-          and(rs.getDate(3).
-            aka("2nd row/2rd col (by index)") must_=== new Date(4L)).
-          and(rs.getString("str").
-            aka("2nd row/1st col (by label)") must_=== "label").
-          and(rs.getFloat("f").
-            aka("2nd row/2nd col (by label)") must_=== 4.56F).
-          and(rs.getDate("date").
-            aka("2nd row/2rd col (by label)") must_=== new Date(4L))
+        (rs.next aka "has second row" must beTrue)
+          .and(
+            rs.getString(1).aka("2nd row/1st col (by index)") must_=== "label"
+          )
+          .and(rs.getFloat(2).aka("2nd row/2nd col (by index)") must_=== 4.56F)
+          .and(
+            rs.getDate(3).aka("2nd row/2rd col (by index)") must_=== new Date(
+              4L
+            )
+          )
+          .and(
+            rs.getString("str")
+              .aka("2nd row/1st col (by label)") must_=== "label"
+          )
+          .and(
+            rs.getFloat("f").aka("2nd row/2nd col (by label)") must_=== 4.56F
+          )
+          .and(
+            rs.getDate("date")
+              .aka("2nd row/2rd col (by label)") must_=== new Date(4L)
+          )
 
       }
 
@@ -136,8 +163,8 @@ object AcolyteSpec extends Specification {
     "return SQL warning for EXEC query" in {
       lazy val s = con.prepareStatement("EXEC proc")
 
-      (s.executeQuery.next aka "has first row" must beFalse).
-        and(s.getWarnings.getMessage aka "reason" must_=== "Warn EXEC")
+      (s.executeQuery.next aka "has first row" must beFalse)
+        .and(s.getWarnings.getMessage aka "reason" must_=== "Warn EXEC")
     }
 
     "update nothing" in {
@@ -149,8 +176,8 @@ object AcolyteSpec extends Specification {
     "raise SQL warning on DELETE execution" in {
       lazy val s = con.prepareStatement("DELETE y")
 
-      (s.executeUpdate aka "updated count" must_=== 0).
-        and(s.getWarnings.getMessage aka "reason" must_=== "Warn DELETE")
+      (s.executeUpdate aka "updated count" must_=== 0)
+        .and(s.getWarnings.getMessage aka "reason" must_=== "Warn DELETE")
     }
   }
 
@@ -161,8 +188,8 @@ object AcolyteSpec extends Specification {
       lazy val s = con.prepareStatement("SELECT * FROM table")
       lazy val rs = s.executeQuery
 
-      (rs.next aka "has first row" must beTrue).
-        and(rs.getBoolean(1) aka "single column" must beTrue)
+      (rs.next aka "has first row" must beTrue)
+        .and(rs.getBoolean(1) aka "single column" must beTrue)
 
     }
   }
@@ -176,9 +203,9 @@ object AcolyteSpec extends Specification {
 
       val keys = s.getGeneratedKeys
 
-      (keys.next aka "has generated key" must beTrue).
-        and(keys.getInt(1) aka "first key" must_=== 100).
-        and(keys.next aka "has second key" must beFalse)
+      (keys.next aka "has generated key" must beTrue)
+        .and(keys.getInt(1) aka "first key" must_=== 100)
+        .and(keys.next aka "has second key" must beFalse)
 
     }
   }

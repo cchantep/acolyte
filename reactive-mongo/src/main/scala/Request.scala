@@ -10,7 +10,12 @@ import reactivemongo.api.bson.{
   BSONString,
   BSONValue
 }
-import reactivemongo.api.bson.buffer.acolyte.{readDocument, writable, ReadableBuffer, WritableBuffer}
+import reactivemongo.api.bson.buffer.acolyte.{
+  readDocument,
+  writable,
+  ReadableBuffer,
+  WritableBuffer
+}
 
 /**
  * Request executed against Mongo connection.
@@ -47,8 +52,9 @@ object Request {
    */
   def pretty(
       request: Request
-    ): String = s"""Request(${request.collection}, [ ${request.body
-      .map(BSONDocument.pretty) mkString ", "} ])"""
+    ): String = s"""Request(${request.collection}, [ ${request.body.map(
+      BSONDocument.pretty
+    ) mkString ", "} ])"""
 
   /** Parses body documents from prepared buffer. */
   @annotation.tailrec
@@ -116,7 +122,7 @@ object Request {
    *     // e.g. `{ 'age': { '\\$gt', 10 } }`
    *     println("minAge=" + minAge)
    *     resultE
-   * 
+   *
    *   case req =>
    *     sys.error("req = " + req)
    * }

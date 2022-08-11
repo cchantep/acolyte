@@ -7,27 +7,28 @@ object ConnectionHandlerSpec extends Specification {
 
   "Default handler" should {
     "refuse null statement handler" in {
-      new ConnectionHandler.Default(null).
-        aka("ctor") must throwA[IllegalArgumentException]("Statement handler")
+      new ConnectionHandler.Default(null)
+        .aka("ctor") must throwA[IllegalArgumentException]("Statement handler")
 
     }
 
     "refuse null resource handler" in {
-      new ConnectionHandler.Default(null, null).
-        aka("ctor") must throwA[IllegalArgumentException]
+      new ConnectionHandler.Default(null, null)
+        .aka("ctor") must throwA[IllegalArgumentException]
 
     }
 
     "update the resource handler" in {
-      val conHandler1 = new ConnectionHandler.Default(
-        test.EmptyStatementHandler)
+      val conHandler1 =
+        new ConnectionHandler.Default(test.EmptyStatementHandler)
 
       val resHandler2 = new ResourceHandler.Default()
       val conHandler2 = conHandler1.withResourceHandler(resHandler2)
 
       conHandler1.hashCode must not(beEqualTo(conHandler2.hashCode)) and {
-        conHandler2.getResourceHandler.hashCode must not(beEqualTo(
-          conHandler1.getResourceHandler.hashCode))
+        conHandler2.getResourceHandler.hashCode must not(
+          beEqualTo(conHandler1.getResourceHandler.hashCode)
+        )
       }
     }
   }

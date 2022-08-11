@@ -13,14 +13,16 @@ import org.specs2.mutable.Specification
 import acolyte.jdbc.test.EmptyConnectionHandler
 
 final class DriverSpec(implicit ee: ExecutionEnv)
-  extends Specification with DriverUtils with DriverFixtures {
+    extends Specification
+    with DriverUtils
+    with DriverFixtures {
 
   "Acolyte driver".title
 
   "Driver class" should {
     "be assignable as java.sql.Driver" in {
-      classOf[JdbcDriver].
-        aka("JDBC interface") must beAssignableFrom[acolyte.jdbc.Driver]
+      classOf[JdbcDriver]
+        .aka("JDBC interface") must beAssignableFrom[acolyte.jdbc.Driver]
 
     }
 
@@ -31,8 +33,9 @@ final class DriverSpec(implicit ee: ExecutionEnv)
 
   "Driver manager" should {
     s"return Acolyte driver for $jdbcUrl" in {
-      DriverManager.getDriver(jdbcUrl).
-        aka("JDBC driver") must haveClass[acolyte.jdbc.Driver]
+      DriverManager
+        .getDriver(jdbcUrl)
+        .aka("JDBC driver") must haveClass[acolyte.jdbc.Driver]
 
     }
   }
@@ -43,8 +46,9 @@ final class DriverSpec(implicit ee: ExecutionEnv)
     }
 
     "return null connection for unsupported URL" in {
-      directConnect("https://github.com/cchantep/acolyte/").
-        aka("JDBC connection") must beNull
+      directConnect("https://github.com/cchantep/acolyte/").aka(
+        "JDBC connection"
+      ) must beNull
 
     }
 
@@ -53,8 +57,9 @@ final class DriverSpec(implicit ee: ExecutionEnv)
     }
 
     "support no meta-property" in {
-      driver.getPropertyInfo(jdbcUrl, null).
-        aka("meta-properties") must_=== noMetaProps
+      driver
+        .getPropertyInfo(jdbcUrl, null)
+        .aka("meta-properties") must_=== noMetaProps
 
     }
 
@@ -65,54 +70,78 @@ final class DriverSpec(implicit ee: ExecutionEnv)
       acolyte.jdbc.Driver.register(handlerId, defaultHandler)
 
       "as dictionary" in {
-        (new acolyte.jdbc.Driver().connect(jdbcUrl, props).getProperties.
-          aka("connection 1 properties") must_=== props).
-          and(acolyte.jdbc.Driver.connection(defaultHandler, props).
-            getProperties aka "connection 2 properties" must_=== props).
-          and(acolyte.jdbc.Driver.connection(CompositeHandler.empty, props).
-            getProperties aka "connection 3 properties" must_=== props)
+        (new acolyte.jdbc.Driver()
+          .connect(jdbcUrl, props)
+          .getProperties
+          .aka("connection 1 properties") must_=== props)
+          .and(
+            acolyte.jdbc.Driver
+              .connection(defaultHandler, props)
+              .getProperties aka "connection 2 properties" must_=== props
+          )
+          .and(
+            acolyte.jdbc.Driver
+              .connection(CompositeHandler.empty, props)
+              .getProperties aka "connection 3 properties" must_=== props
+          )
       }
 
       "as list" in {
         import acolyte.jdbc.Driver.Property
         def prop(n: String, v: String) = new Property(n, v)
 
-        (new acolyte.jdbc.Driver().connect(jdbcUrl, prop("_test", "_val")).
-          getProperties aka "connection 1 properties" must_=== props).
-          and(acolyte.jdbc.Driver.
-            connection(defaultHandler, prop("_test", "_val")).
-            getProperties aka "connection 2 properties" must_=== props).
-          and(acolyte.jdbc.Driver.
-            connection(CompositeHandler.empty, prop("_test", "_val")).
-            getProperties aka "connection 3 properties" must_=== props)
+        (new acolyte.jdbc.Driver()
+          .connect(jdbcUrl, prop("_test", "_val"))
+          .getProperties aka "connection 1 properties" must_=== props)
+          .and(
+            acolyte.jdbc.Driver
+              .connection(defaultHandler, prop("_test", "_val"))
+              .getProperties aka "connection 2 properties" must_=== props
+          )
+          .and(
+            acolyte.jdbc.Driver
+              .connection(CompositeHandler.empty, prop("_test", "_val"))
+              .getProperties aka "connection 3 properties" must_=== props
+          )
       }
     }
 
     "not open connection without handler" in {
-      (directConnect("jdbc:acolyte:test").
-        aka("connection") must throwA[IllegalArgumentException](
-          message = "Invalid handler ID: null")).
-        and(acolyte.jdbc.Driver.connection(null.asInstanceOf[ConnectionHandler]).
-          aka("direct connection 1") must throwA[IllegalArgumentException]).
-        and(acolyte.jdbc.Driver.connection(null.asInstanceOf[StatementHandler]).
-          aka("direct connection 2") must throwA[IllegalArgumentException]).
-        and(acolyte.jdbc.Driver.
-          connection(
+      (directConnect("jdbc:acolyte:test")
+        .aka("connection") must throwA[IllegalArgumentException](
+        message = "Invalid handler ID: null"
+      )).and(
+        acolyte.jdbc.Driver
+          .connection(null.asInstanceOf[ConnectionHandler])
+          .aka("direct connection 1") must throwA[IllegalArgumentException]
+      ).and(
+        acolyte.jdbc.Driver
+          .connection(null.asInstanceOf[StatementHandler])
+          .aka("direct connection 2") must throwA[IllegalArgumentException]
+      ).and(
+        acolyte.jdbc.Driver
+          .connection(
             null.asInstanceOf[ConnectionHandler],
-            null.asInstanceOf[java.util.Properties]).
-            aka("direct connection 3") must throwA[IllegalArgumentException]).
-        and(acolyte.jdbc.Driver.
-          connection(
+            null.asInstanceOf[java.util.Properties]
+          )
+          .aka("direct connection 3") must throwA[IllegalArgumentException]
+      ).and(
+        acolyte.jdbc.Driver
+          .connection(
             null.asInstanceOf[StatementHandler],
-            null.asInstanceOf[java.util.Properties]).
-            aka("direct connection 4") must throwA[IllegalArgumentException])
+            null.asInstanceOf[java.util.Properties]
+          )
+          .aka("direct connection 4") must throwA[IllegalArgumentException]
+      )
 
     }
 
     "not open connection with invalid handler" in {
-      directConnect("jdbc:acolyte:test?handler=test").
-        aka("connection") must throwA[IllegalArgumentException](
-          message = "No matching handler: test")
+      directConnect("jdbc:acolyte:test?handler=test").aka(
+        "connection"
+      ) must throwA[IllegalArgumentException](
+        message = "No matching handler: test"
+      )
 
     }
 
@@ -122,16 +151,20 @@ final class DriverSpec(implicit ee: ExecutionEnv)
       directConnect(
         url = jdbcUrl,
         props = null,
-        handler = defaultHandler) aka "connection" must not(beNull)
+        handler = defaultHandler
+      ) aka "connection" must not(beNull)
     }
   }
 
   "Handler registry" should {
     "refuse null handler" in {
-      (acolyte.jdbc.Driver.register("id", null.asInstanceOf[ConnectionHandler]).
-        aka("factory") must throwA[IllegalArgumentException]).
-        and(acolyte.jdbc.Driver.register("id", null.asInstanceOf[StatementHandler]).
-          aka("factory") must throwA[IllegalArgumentException])
+      (acolyte.jdbc.Driver
+        .register("id", null.asInstanceOf[ConnectionHandler])
+        .aka("factory") must throwA[IllegalArgumentException]).and(
+        acolyte.jdbc.Driver
+          .register("id", null.asInstanceOf[StatementHandler])
+          .aka("factory") must throwA[IllegalArgumentException]
+      )
 
     }
 
@@ -139,8 +172,9 @@ final class DriverSpec(implicit ee: ExecutionEnv)
       val h = new CompositeHandler()
       acolyte.jdbc.Driver.register("id", h)
 
-      acolyte.jdbc.Driver.unregister("id").
-        getStatementHandler aka "handler" must_=== h
+      acolyte.jdbc.Driver
+        .unregister("id")
+        .getStatementHandler aka "handler" must_=== h
 
     }
 
@@ -200,7 +234,11 @@ sealed trait DriverUtils {
 
   def driver = new acolyte.jdbc.Driver()
 
-  def directConnect(url: String, props: Map[String, String] = Map(), handler: ConnectionHandler = null) = {
+  def directConnect(
+      url: String,
+      props: Map[String, String] = Map(),
+      handler: ConnectionHandler = null
+    ) = {
     val properties = new JProps()
     val d = driver
 
@@ -208,16 +246,17 @@ sealed trait DriverUtils {
       properties.put("connection.handler", handler)
     }
 
-    d.connect(url, Option(props) match {
-      case Some(map) => {
-        map.foreach {
-          case (k, v) => properties.put(k, v)
+    d.connect(
+      url,
+      Option(props) match {
+        case Some(map) => {
+          map.foreach { case (k, v) => properties.put(k, v) }
+
+          properties
         }
 
-        properties
+        case _ => properties
       }
-
-      case _ => properties
-    })
+    )
   }
 }

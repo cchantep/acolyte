@@ -17,6 +17,7 @@ package object test {
 
   object EmptyStatementHandler extends StatementHandler {
     def isQuery(sql: String): Boolean = false
+
     def whenSQLQuery(sql: String, params: Params) =
       RowLists.rowList1(classOf[String]).asResult
 

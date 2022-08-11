@@ -2,7 +2,7 @@ package acolyte.reactivemongo
 
 import scala.concurrent.ExecutionContext
 
-import reactivemongo.api.{AsyncDriver, DB, MongoConnection}
+import reactivemongo.api.{ AsyncDriver, DB, MongoConnection }
 import reactivemongo.api.bson.collection.BSONCollection
 
 /**

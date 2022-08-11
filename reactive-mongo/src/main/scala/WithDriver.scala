@@ -4,7 +4,7 @@ import scala.util.control.NonFatal
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-import reactivemongo.api.{AsyncDriver, MongoConnection}
+import reactivemongo.api.{ AsyncDriver, MongoConnection }
 
 /**
  * Functions to work with driver.

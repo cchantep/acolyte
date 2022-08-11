@@ -11,8 +11,10 @@ object ConnectionSpec extends org.specs2.mutable.Specification {
     }
 
     "be set" in {
-      AcolyteDSL.connection(handleStatement, prop("_test", "_val")).
-        getProperties.get("_test") aka "property" must_=== "_val"
+      AcolyteDSL
+        .connection(handleStatement, prop("_test", "_val"))
+        .getProperties
+        .get("_test") aka "property" must_=== "_val"
 
     }
   }

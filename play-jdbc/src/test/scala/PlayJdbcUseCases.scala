@@ -2,7 +2,7 @@ package acolyte.jdbc.play
 
 import java.sql.SQLException
 
-import acolyte.jdbc.{AcolyteDSL, RowLists, UpdateExecution}
+import acolyte.jdbc.{ AcolyteDSL, RowLists, UpdateExecution }
 import acolyte.jdbc.Implicits._
 
 case object PlayJdbcUseCases {

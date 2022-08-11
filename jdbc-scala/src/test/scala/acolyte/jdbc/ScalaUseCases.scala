@@ -54,7 +54,9 @@ object ScalaUseCases {
             .withLabels( // Optional: set labels
               1 -> "String",
               3 -> "Date"
-            ).append("str", 1.2F, new Date(1L)).append("val", 2.34F, null)
+            )
+            .append("str", 1.2F, new Date(1L))
+            .append("val", 2.34F, null)
 
         rows.asResult
       }
@@ -73,15 +75,18 @@ object ScalaUseCases {
   def useCase2: SqlConnection = {
     val jdbcUrl = "jdbc:acolyte:anything-you-want?handler=handler2"
 
-    val handler: ScalaCompositeHandler = handleStatement.withQueryDetection(
-      "^SELECT "
-    ).withQueryHandler { _ =>
-      rowList3(
-        classOf[String] -> "str",
-        classOf[Float] -> "f",
-        classOf[Date] -> "date"
-      ).append("text", 2.3F, new Date(3L)).append("label", 4.56F, new Date(4L))
-    }
+    val handler: ScalaCompositeHandler = handleStatement
+      .withQueryDetection(
+        "^SELECT "
+      )
+      .withQueryHandler { _ =>
+        rowList3(
+          classOf[String] -> "str",
+          classOf[Float] -> "f",
+          classOf[Date] -> "date"
+        ).append("text", 2.3F, new Date(3L))
+          .append("label", 4.56F, new Date(4L))
+      }
 
     // Register prepared handler with expected ID 'handler2'
     acolyte.jdbc.Driver.register("handler2", handler)

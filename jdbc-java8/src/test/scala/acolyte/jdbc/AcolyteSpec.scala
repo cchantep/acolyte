@@ -18,8 +18,8 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
     }
 
     "return 1 for other update statement" in {
-      lazy val s = con.prepareStatement(
-        "INSERT INTO table('id', 'name') VALUES (?, ?)")
+      lazy val s =
+        con.prepareStatement("INSERT INTO table('id', 'name') VALUES (?, ?)")
 
       s.setString(1, "idVal");
       s.setString(2, "idName")
@@ -28,8 +28,10 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
     }
 
     "return empty resultset for SELECT query" in {
-      con.createStatement().executeQuery("SELECT * FROM table").
-        aka("resultset") mustEqual RowLists.rowList1(classOf[String]).resultSet
+      con
+        .createStatement()
+        .executeQuery("SELECT * FROM table")
+        .aka("resultset") mustEqual RowLists.rowList1(classOf[String]).resultSet
 
     }
 
@@ -42,18 +44,18 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
       lazy val rs = s.executeQuery
 
       "with expected 3 columns on first row" in {
-        (rs.next aka "has first row" must beTrue).
-          and(rs.getString(1) aka "1st row/1st col" mustEqual "str").
-          and(rs.getFloat(2) aka "1st row/2nd col" mustEqual 1.2F).
-          and(rs.getDate(3) aka "1st row/2rd col" mustEqual new Date(1L))
+        (rs.next aka "has first row" must beTrue)
+          .and(rs.getString(1) aka "1st row/1st col" mustEqual "str")
+          .and(rs.getFloat(2) aka "1st row/2nd col" mustEqual 1.2F)
+          .and(rs.getDate(3) aka "1st row/2rd col" mustEqual new Date(1L))
 
       }
 
       "with expected 3 columns on second row" in {
-        (rs.next aka "has second row" must beTrue).
-          and(rs.getString(1) aka "2nd row/1st col" mustEqual "val").
-          and(rs.getFloat(2) aka "2nd row/2nd col" mustEqual 2.34F).
-          and(rs.getDate(3) aka "2nd row/2rd col" must beNull)
+        (rs.next aka "has second row" must beTrue)
+          .and(rs.getString(1) aka "2nd row/1st col" mustEqual "val")
+          .and(rs.getFloat(2) aka "2nd row/2nd col" mustEqual 2.34F)
+          .and(rs.getDate(3) aka "2nd row/2rd col" must beNull)
 
       }
 
@@ -67,9 +69,11 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
     val con = Java8UseCases.useCase2
 
     "throw exception for update statement" in {
-      con.prepareStatement("DELETE * FROM table").
-        executeUpdate aka "update" must throwA[SQLException](
-          message = "No update handler")
+      con
+        .prepareStatement("DELETE * FROM table")
+        .executeUpdate aka "update" must throwA[SQLException](
+        message = "No update handler"
+      )
 
     }
 
@@ -82,36 +86,52 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
       lazy val rs = s.executeQuery
 
       "with expected 3 columns on first row" in {
-        (rs.next aka "has first row" must beTrue).
-          and(rs.getString(1).
-            aka("1st row/1st col (by index)") mustEqual "text").
-          and(rs.getFloat(2).
-            aka("1st row/2nd col (by index)") mustEqual 2.3F).
-          and(rs.getDate(3).
-            aka("1st row/2rd col (by index)") mustEqual new Date(3L)).
-          and(rs.getString("str").
-            aka("1st row/1st col (by label)") mustEqual "text").
-          and(rs.getFloat("f").
-            aka("1st row/2nd col (by label)") mustEqual 2.3F).
-          and(rs.getDate("date").
-            aka("1st row/2rd col (by label)") mustEqual new Date(3L))
+        (rs.next aka "has first row" must beTrue)
+          .and(
+            rs.getString(1).aka("1st row/1st col (by index)") mustEqual "text"
+          )
+          .and(rs.getFloat(2).aka("1st row/2nd col (by index)") mustEqual 2.3F)
+          .and(
+            rs.getDate(3).aka("1st row/2rd col (by index)") mustEqual new Date(
+              3L
+            )
+          )
+          .and(
+            rs.getString("str")
+              .aka("1st row/1st col (by label)") mustEqual "text"
+          )
+          .and(
+            rs.getFloat("f").aka("1st row/2nd col (by label)") mustEqual 2.3F
+          )
+          .and(
+            rs.getDate("date")
+              .aka("1st row/2rd col (by label)") mustEqual new Date(3L)
+          )
 
       }
 
       "with expected 3 columns on second row" in {
-        (rs.next aka "has second row" must beTrue).
-          and(rs.getString(1).
-            aka("2nd row/1st col (by index)") mustEqual "label").
-          and(rs.getFloat(2).
-            aka("2nd row/2nd col (by index)") mustEqual 4.56F).
-          and(rs.getDate(3).
-            aka("2nd row/2rd col (by index)") mustEqual new Date(4L)).
-          and(rs.getString("str").
-            aka("2nd row/1st col (by label)") mustEqual "label").
-          and(rs.getFloat("f").
-            aka("2nd row/2nd col (by label)") mustEqual 4.56F).
-          and(rs.getDate("date").
-            aka("2nd row/2rd col (by label)") mustEqual new Date(4L))
+        (rs.next aka "has second row" must beTrue)
+          .and(
+            rs.getString(1).aka("2nd row/1st col (by index)") mustEqual "label"
+          )
+          .and(rs.getFloat(2).aka("2nd row/2nd col (by index)") mustEqual 4.56F)
+          .and(
+            rs.getDate(3).aka("2nd row/2rd col (by index)") mustEqual new Date(
+              4L
+            )
+          )
+          .and(
+            rs.getString("str")
+              .aka("2nd row/1st col (by label)") mustEqual "label"
+          )
+          .and(
+            rs.getFloat("f").aka("2nd row/2nd col (by label)") mustEqual 4.56F
+          )
+          .and(
+            rs.getDate("date")
+              .aka("2nd row/2rd col (by label)") mustEqual new Date(4L)
+          )
 
       }
 
@@ -130,23 +150,23 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
 
       lazy val rs = s.executeQuery
 
-      (rs.next aka "has first row" must beTrue).
-        and(rs.getString(1) aka "str(1)" mustEqual "useCase_3a")
+      (rs.next aka "has first row" must beTrue)
+        .and(rs.getString(1) aka "str(1)" mustEqual "useCase_3a")
 
     }
 
     "return expected result with 2 parameters" in {
-      lazy val s = con.
-        prepareStatement("SELECT * FROM table WHERE id = ? AND type = ?")
+      lazy val s =
+        con.prepareStatement("SELECT * FROM table WHERE id = ? AND type = ?")
       s.setString(1, "id")
       s.setInt(2, 3)
 
       lazy val rs = s.executeQuery
 
-      (rs.next aka "has first row" must beTrue).
-        and(rs.getString(1) aka "str(1)" mustEqual "useCase_3str").
-        and(rs.getInt(2) aka "int(2)" mustEqual 2).
-        and(rs.getLong(3) aka "long(3)" mustEqual 3)
+      (rs.next aka "has first row" must beTrue)
+        .and(rs.getString(1) aka "str(1)" mustEqual "useCase_3str")
+        .and(rs.getInt(2) aka "int(2)" mustEqual 2)
+        .and(rs.getLong(3) aka "long(3)" mustEqual 3)
 
     }
 
@@ -165,8 +185,8 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
       lazy val s = con.prepareStatement("SELECT * FROM table")
       lazy val rs = s.executeQuery
 
-      (rs.next aka "has first row" must beTrue).
-        and(rs.getBoolean(1) aka "single column" must beTrue)
+      (rs.next aka "has first row" must beTrue)
+        .and(rs.getBoolean(1) aka "single column" must beTrue)
 
     }
   }
@@ -178,8 +198,10 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
     }
 
     lazy val res1: QueryResult =
-      RowLists.rowList2(classOf[String], classOf[Float]).
-        append("test", 3.45f).asResult
+      RowLists
+        .rowList2(classOf[String], classOf[Float])
+        .append("test", 3.45F)
+        .asResult
 
     "always return provided result" >> {
       "for SELECT" in {
@@ -187,8 +209,9 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
           res1,
           fun({ (c: java.sql.Connection) =>
             val rs = query("SELECT * FROM table", c)
-            s"${rs.getString(1)} -> ${rs.getFloat(2) + 1f}"
-          }))
+            s"${rs.getString(1)} -> ${rs.getFloat(2) + 1F}"
+          })
+        )
 
         str aka "from query result" mustEqual "test -> 4.45"
       }
@@ -198,10 +221,11 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
         fun({ (c: java.sql.Connection) =>
           query("EXEC proc", c) aka "proc result" must beLike {
             case rs =>
-              (rs.getString(1) aka "col #1" mustEqual "test").
-                and(rs.getFloat(2) aka "col #2" mustEqual 3.45f)
+              (rs.getString(1) aka "col #1" mustEqual "test")
+                .and(rs.getFloat(2) aka "col #2" mustEqual 3.45F)
           }
-        }))
+        })
+      )
 
     }
   }
@@ -215,27 +239,29 @@ object AcolyteSpec extends org.specs2.mutable.Specification {
 
       val keys = s.getGeneratedKeys
 
-      (keys.next aka "has generated key" must beTrue).
-        and(keys.getInt(1) aka "first key" must_== 100).
-        and(keys.next aka "has second key" must beFalse)
+      (keys.next aka "has generated key" must beTrue)
+        .and(keys.getInt(1) aka "first key" must_== 100)
+        .and(keys.next aka "has second key" must beFalse)
 
     }
   }
 
   "Update result" should {
     "have generated keys" in {
-      AcolyteDSL.updateResult(2, RowLists.intList(3, 4)).
-        aka("update result") must beLike {
-          case res => (res.getUpdateCount aka "count" must_== 2).
-            and(res.getGeneratedKeys.resultSet aka "keys" must beLike {
+      AcolyteDSL
+        .updateResult(2, RowLists.intList(3, 4))
+        .aka("update result") must beLike {
+        case res =>
+          (res.getUpdateCount aka "count" must_== 2)
+            .and(res.getGeneratedKeys.resultSet aka "keys" must beLike {
               case genKeys =>
-                (genKeys.next aka "has first generated key" must beTrue).
-                  and(genKeys.getInt(1) aka "first key" must_== 3).
-                  and(genKeys.next aka "has second generated key" must beTrue).
-                  and(genKeys.getInt(1) aka "second key" must_== 4).
-                  and(genKeys.next aka "has third generated key" must beFalse)
+                (genKeys.next aka "has first generated key" must beTrue)
+                  .and(genKeys.getInt(1) aka "first key" must_== 3)
+                  .and(genKeys.next aka "has second generated key" must beTrue)
+                  .and(genKeys.getInt(1) aka "second key" must_== 4)
+                  .and(genKeys.next aka "has third generated key" must beFalse)
             })
-        }
+      }
     }
   }
 

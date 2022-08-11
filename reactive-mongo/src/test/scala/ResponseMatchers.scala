@@ -9,10 +9,10 @@ import reactivemongo.api.bson.{
   BSONString
 }
 
-import org.specs2.matcher.{Expectable, MatchResult, Matcher}
+import org.specs2.matcher.{ Expectable, MatchResult, Matcher }
 import org.specs2.mutable.Specification
 
-import reactivemongo.acolyte.{parseResponse, Response}
+import reactivemongo.acolyte.{ parseResponse, Response }
 
 trait ResponseMatchers { specs: Specification =>
 

@@ -2,7 +2,7 @@ package acolyte.reactivemongo
 
 import scala.concurrent.ExecutionContext
 
-import reactivemongo.api.{AsyncDriver, MongoConnection}
+import reactivemongo.api.{ AsyncDriver, MongoConnection }
 
 /** Functions to work with handler (provided driver functions). */
 trait WithHandler { up: WithDriver =>

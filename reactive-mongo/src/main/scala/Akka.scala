@@ -6,7 +6,20 @@ import reactivemongo.io.netty.channel.{ ChannelId, DefaultChannelId }
 
 import reactivemongo.api.bson.{ BSONArray, BSONDocument, BSONString, BSONValue }
 
-import reactivemongo.acolyte.{Authenticate, Close, Closed, Connection, ExpectingResponse, MongoDBSystem, PrimaryAvailable, Query => RQuery, RegisterMonitor, RequestMaker, Response, SetAvailable}
+import reactivemongo.acolyte.{
+  Authenticate,
+  Close,
+  Closed,
+  Connection,
+  ExpectingResponse,
+  MongoDBSystem,
+  PrimaryAvailable,
+  Query => RQuery,
+  RegisterMonitor,
+  RequestMaker,
+  Response,
+  SetAvailable
+}
 import reactivemongo.core.protocol.ProtocolMetadata
 
 private[reactivemongo] class Actor(handler: ConnectionHandler)
@@ -46,7 +59,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
             Option(e.getMessage).getOrElse(e.getClass.getName)
           ) match {
             case Success(err) => err
-            case _ => MongoDB.mkWriteError(chanId)
+            case _            => MongoDB.mkWriteError(chanId)
           }
       }
   }
@@ -128,7 +141,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
                     Option(e.getMessage).getOrElse(e.getClass.getName)
                   ) match {
                     case Success(err) => err
-                    case _ => MongoDB.mkQueryError(cid)
+                    case _            => MongoDB.mkQueryError(cid)
                   }
               }
           }
@@ -161,7 +174,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
       }
     }
 
-    case _/*msg*/ =>
+    case _ /*msg*/ =>
       // println(s"message = $msg")
 
       // next forward msg
@@ -179,7 +192,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
       case "insert" => Some(InsertOp)
       case "update" => Some(UpdateOp)
       case "delete" => Some(DeleteOp)
-      case _ => None
+      case _        => None
     }
   }
 
@@ -189,7 +202,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
       req: String
     ): Response = MongoDB.queryError(chanId, s"No response: $req") match {
     case Success(resp) => resp
-    case _ => MongoDB.mkQueryError(chanId)
+    case _             => MongoDB.mkQueryError(chanId)
   }
 
   // Fallback response when write handler is failing.
@@ -199,7 +212,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
     ): Response =
     MongoDB.writeError(chanId, s"Invalid write handler: $msg") match {
       case Success(resp) => resp
-      case _ => MongoDB.mkWriteError(chanId)
+      case _             => MongoDB.mkWriteError(chanId)
     }
 
   // Fallback response when no handler provides a write response.
@@ -208,7 +221,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
       req: String
     ): Response = MongoDB.writeError(chanId, s"No response: $req") match {
     case Success(resp) => resp
-    case _ => MongoDB.mkWriteError(chanId)
+    case _             => MongoDB.mkWriteError(chanId)
   }
 
   // Fallback response when query handler is failing.
@@ -218,6 +231,6 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
     ): Response =
     MongoDB.queryError(chanId, s"Invalid query handler: $msg") match {
       case Success(resp) => resp
-      case _ => MongoDB.mkQueryError(chanId)
+      case _             => MongoDB.mkQueryError(chanId)
     }
 }

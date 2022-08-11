@@ -7,7 +7,18 @@ import reactivemongo.io.netty.channel.{ ChannelId, DefaultChannelId }
 
 import reactivemongo.api.bson.BSONDocument
 
-import reactivemongo.acolyte.{readReply, Delete, Insert, MessageHeader, Reply, Response, ResponseInfo, ResponseWithCursor, Update, WriteRequestOp}
+import reactivemongo.acolyte.{
+  readReply,
+  Delete,
+  Insert,
+  MessageHeader,
+  Reply,
+  Response,
+  ResponseInfo,
+  ResponseWithCursor,
+  Update,
+  WriteRequestOp
+}
 
 import ScalaCompat.Iterable
 

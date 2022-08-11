@@ -4,7 +4,12 @@ import scala.util.Try
 
 import reactivemongo.io.netty.channel.DefaultChannelId
 
-import reactivemongo.api.bson.{BSONBoolean, BSONDocument, BSONInteger, BSONString}
+import reactivemongo.api.bson.{
+  BSONBoolean,
+  BSONDocument,
+  BSONInteger,
+  BSONString
+}
 
 import reactivemongo.acolyte.Response
 
@@ -164,12 +169,16 @@ final class WriteHandlerSpec
             WriteResponse.successful(1, false)
           case _ => WriteResponse.failed("Unexpected")
         }
-      } 
+      }
 
-      handler(channelId(), InsertOp, new Request {
-        val collection = "col1"
-        val body = List(BSONDocument("a" -> 1, "b" -> true))
-      }) aka "prepared" must beSome[Try[Response]].which(
+      handler(
+        channelId(),
+        InsertOp,
+        new Request {
+          val collection = "col1"
+          val body = List(BSONDocument("a" -> 1, "b" -> true))
+        }
+      ) aka "prepared" must beSome[Try[Response]].which(
         _ aka "result" must beResponse(
           _ aka "response" must beWriteSuccess(1, false)
         )
@@ -221,10 +230,14 @@ final class WriteHandlerSpec
         }
       }
 
-      handler(channelId(), DeleteOp, new Request {
-        val collection = "col3"
-        val body = List(BSONDocument("q" -> BSONDocument("name" -> "xyz")))
-      }) aka "prepared" must beSome[Try[Response]].which(
+      handler(
+        channelId(),
+        DeleteOp,
+        new Request {
+          val collection = "col3"
+          val body = List(BSONDocument("q" -> BSONDocument("name" -> "xyz")))
+        }
+      ) aka "prepared" must beSome[Try[Response]].which(
         _ aka "result" must beResponse(
           _ aka "response" must beWriteSuccess(2, true)
         )

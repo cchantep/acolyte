@@ -48,7 +48,9 @@ object ExecutionSpec extends org.specs2.mutable.Specification {
       "not match statement extractor" in {
         val Executed = ExecutedStatement(" reindex$")
 
-        q1 aka "q1" must not(beLike { case Executed((_, XP("x") :: Nil)) => ok })
+        q1 aka "q1" must not(beLike {
+          case Executed((_, XP("x") :: Nil)) => ok
+        })
       }
     }
 

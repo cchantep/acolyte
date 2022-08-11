@@ -4,7 +4,7 @@ import reactivemongo.io.netty.channel.DefaultChannelId
 
 import reactivemongo.api.bson.BSONDocument
 
-import reactivemongo.acolyte.{parseResponse, Delete, Insert, Response, Update}
+import reactivemongo.acolyte.{ parseResponse, Delete, Insert, Response, Update }
 import reactivemongo.core.errors.DatabaseException
 
 final class MongoDBSpec

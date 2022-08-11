@@ -166,6 +166,7 @@ object QueryResponseMaker extends LowPrioQueryResponseMaker {
 }
 
 sealed trait LowPrioQueryResponseMaker { _self: QueryResponseMaker.type =>
+
   /**
    * {{{
    * import acolyte.reactivemongo.QueryResponseMaker

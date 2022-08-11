@@ -1,7 +1,8 @@
 package acolyte.jdbc
 
 object SavepointSpec
-    extends org.specs2.mutable.Specification with SavepointFixtures {
+    extends org.specs2.mutable.Specification
+    with SavepointFixtures {
 
   "Savepoint specification".title
 

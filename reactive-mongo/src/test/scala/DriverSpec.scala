@@ -5,7 +5,7 @@ import scala.util.Try
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 
-import reactivemongo.api.{AsyncDriver, Cursor, DB, MongoConnection}
+import reactivemongo.api.{ AsyncDriver, Cursor, DB, MongoConnection }
 import reactivemongo.api.bson.{
   BSONBoolean,
   BSONDocument,
