@@ -6,10 +6,10 @@ import java.util.{ Properties, TimeZone }
 
 import java.sql.{
   BatchUpdateException,
+  ResultSet,
   SQLException,
   SQLFeatureNotSupportedException,
-  Types,
-  ResultSet
+  Types
 }
 import java.sql.Statement.EXECUTE_FAILED
 

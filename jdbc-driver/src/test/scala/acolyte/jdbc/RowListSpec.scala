@@ -21,7 +21,6 @@ import org.specs2.specification.core.Fragment
 
 import acolyte.jdbc.RowList.{ Column => Col }
 import acolyte.jdbc.test.Params
-
 import org.apache.commons.io.IOUtils.contentEquals
 
 object RowListSpec extends Specification with RowListTest {
