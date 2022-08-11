@@ -47,7 +47,7 @@ fi
 EXTRA_JAVA_MODULES="jdbc-java8"
 
 if [ "_$SCALA_MODULES" = "_" ]; then
-  SCALA_MODULES="jdbc-scala scalac-plugin reactive-mongo play-jdbc play-reactive-mongo"
+  SCALA_MODULES="jdbc-scala reactive-mongo play-jdbc play-reactive-mongo"
 fi
 
 SCALA_VERSIONS="2.11 2.12 2.13 3.1.3"
