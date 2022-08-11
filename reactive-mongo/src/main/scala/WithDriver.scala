@@ -4,7 +4,7 @@ import scala.util.control.NonFatal
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-import reactivemongo.api.{ MongoConnection, AsyncDriver }
+import reactivemongo.api.{ AsyncDriver, MongoConnection }
 
 /**
  * Functions to work with driver.
@@ -13,16 +13,18 @@ import reactivemongo.api.{ MongoConnection, AsyncDriver }
  * @define conParam the connection manager parameter (see [[ConnectionManager]])
  */
 trait WithDriver {
+
   /**
    * Returns unmanaged driver.
    * You will have to close it by yourself.
    */
-  def driver(implicit m: DriverManager): AsyncDriver = m.open
+  def driver(implicit m: DriverManager): AsyncDriver = m.open()
 
   // TODO: Pass the driver ClassLoader
   private def asyncDriver(implicit m: DriverManager): Future[AsyncDriver] =
-    try Future.successful(m.open()) catch {
-      case NonFatal(cause) ⇒
+    try Future.successful(m.open())
+    catch {
+      case NonFatal(cause) =>
         Future.failed[AsyncDriver](cause)
     }
 
@@ -40,16 +42,19 @@ trait WithDriver {
    *
    * // handler: ConnectionHandler
    * def s(implicit ec: ExecutionContext): Future[String] =
-   *   AcolyteDSL.withDriver { d =>
-   *     val initedDriver: AsyncDriver = d
+   *   AcolyteDSL.withDriver { (_: AsyncDriver) =>
    *     "Result"
    *   }
    * }}}
    */
-  def withDriver[T](f: AsyncDriver ⇒ T)(implicit m: DriverManager, ec: ExecutionContext, compose: ComposeWithCompletion[T]): compose.Outer = {
-    compose(asyncDriver, f) { driver ⇒
-      m.releaseIfNecessary(driver); ()
-    }
+  def withDriver[T](
+      f: AsyncDriver => T
+    )(implicit
+      m: DriverManager,
+      ec: ExecutionContext,
+      compose: ComposeWithCompletion[T]
+    ): compose.Outer = {
+    compose(asyncDriver, f) { driver => m.releaseIfNecessary(driver); () }
   }
 
   /**
@@ -70,19 +75,21 @@ trait WithDriver {
    * // handler: ConnectionHandler
    * def s(handler: ConnectionHandler)(
    *   implicit ec: ExecutionContext, d: AsyncDriver): Future[String] =
-   *   AcolyteDSL.withConnection(handler) { con =>
-   *     val c: MongoConnection = con
+   *   AcolyteDSL.withConnection(handler) { (_: MongoConnection) =>
    *     "Result"
    *   }
    * }}}
    */
-  def withConnection[A, B](conParam: ⇒ A)(f: MongoConnection ⇒ B)(
-    implicit
-    d: AsyncDriver,
-    m: ConnectionManager[A],
-    ec: ExecutionContext,
-    compose: ComposeWithCompletion[B]): compose.Outer =
-    compose(Future(m.open(d, conParam)), f) { con ⇒
+  def withConnection[A, B](
+      conParam: => A
+    )(f: MongoConnection => B
+    )(implicit
+      d: AsyncDriver,
+      m: ConnectionManager[A],
+      ec: ExecutionContext,
+      compose: ComposeWithCompletion[B]
+    ): compose.Outer =
+    compose(Future(m.open(d, conParam)), f) { con =>
       m.releaseIfNecessary(con); ()
     }
 }

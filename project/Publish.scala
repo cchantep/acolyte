@@ -17,11 +17,13 @@ object Publish {
     Test / publishArtifact := false,
     ThisBuild / publishTo := Some(repoUrl).map(repoName at _),
     ThisBuild / credentials ++= Seq(
-      Credentials(repoName, repoId, repoUser, repoPass)),
+      Credentials(repoName, repoId, repoUser, repoPass)
+    ),
     ThisBuild / pomIncludeRepository := { _ => false },
     ThisBuild / licenses := Seq(
       "GNU Lesser General Public License, Version 2.1" ->
-        url("https://raw.github.com/cchantep/acolyte/master/LICENSE.txt")),
+        url("https://raw.github.com/cchantep/acolyte/master/LICENSE.txt")
+    ),
     ThisBuild / homepage := Some(url(siteUrl)),
     ThisBuild / autoAPIMappings := true,
     ThisBuild / pomExtra := (

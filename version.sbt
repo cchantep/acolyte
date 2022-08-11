@@ -16,7 +16,8 @@ ThisBuild / version := {
               s"${maj}.${min}.${nextPatch}-${suffix}-SNAPSHOT"
             }).getOrElse {
               println(
-                s"Fails to determine qualified snapshot version: $previousVer")
+                s"Fails to determine qualified snapshot version: $previousVer"
+              )
 
               previousVer
             }

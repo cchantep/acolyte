@@ -7,14 +7,13 @@ import java.util.logging.Logger
 
 import java.sql.{ Connection, DriverManager }
 
-import play.api.db.Database
-
 import acolyte.jdbc.{
   ConnectionHandler,
-  Driver ⇒ AcolyteDriver,
+  Driver => AcolyteDriver,
   ResourceHandler,
   ScalaCompositeHandler
 }
+import play.api.db.Database
 
 /**
  * Acolyte implementation for `play.api.db.Database`.
@@ -25,9 +24,14 @@ import acolyte.jdbc.{
 final class AcolyteDatabase(
     handler: ScalaCompositeHandler,
     resourceHandler: ResourceHandler = new ResourceHandler.Default(),
-    id: String = java.util.UUID.randomUUID().toString) extends Database with AcolyteDatabaseCompat { self ⇒
+    id: String = java.util.UUID.randomUUID().toString)
+    extends Database
+    with AcolyteDatabaseCompat { self =>
 
-  AcolyteDriver.register(id, new ConnectionHandler.Default(handler, resourceHandler))
+  AcolyteDriver.register(
+    id,
+    new ConnectionHandler.Default(handler, resourceHandler)
+  )
 
   val name = s"acolyte-$id"
 
@@ -40,7 +44,8 @@ final class AcolyteDatabase(
 
     override def getConnection: Connection = self.getConnection(false)
 
-    override def getConnection(username: String, password: String): Connection = self.getConnection()
+    override def getConnection(username: String, password: String): Connection =
+      self.getConnection()
 
     def isWrapperFor(cls: Class[_]) = false
 
@@ -69,7 +74,10 @@ final class AcolyteDatabase(
 
   override def getConnection(): Connection = getConnection(autocommit = false)
 
-  override def withConnection[A](autocommit: Boolean)(block: Connection ⇒ A): A = {
+  override def withConnection[A](
+      autocommit: Boolean
+    )(block: Connection => A
+    ): A = {
     lazy val con = getConnection(autocommit)
 
     try {
@@ -79,10 +87,10 @@ final class AcolyteDatabase(
     }
   }
 
-  override def withConnection[A](block: Connection ⇒ A): A =
+  override def withConnection[A](block: Connection => A): A =
     withConnection[A](autocommit = false)(block)
 
-  def withTransaction[A](block: Connection ⇒ A): A =
+  def withTransaction[A](block: Connection => A): A =
     withConnection(autocommit = true)(block)
 
   @SuppressWarnings(Array("EmptyMethod"))

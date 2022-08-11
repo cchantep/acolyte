@@ -2,8 +2,7 @@ package acolyte.jdbc.play
 
 import java.sql.SQLException
 
-import acolyte.jdbc.{ AcolyteDSL, RowLists }
-import acolyte.jdbc.UpdateExecution
+import acolyte.jdbc.{ AcolyteDSL, RowLists, UpdateExecution }
 import acolyte.jdbc.Implicits._
 
 case object PlayJdbcUseCases {
@@ -18,7 +17,8 @@ case object PlayJdbcUseCases {
         AcolyteDSL.updateResult(2, RowLists.longList.append(1L))
       case u => throw new SQLException(s"Unexpected update: $u")
     },
-    AcolyteDSL.handleTransaction(whenCommit = { _ => onUpdate }))
+    AcolyteDSL.handleTransaction(whenCommit = { _ => onUpdate })
+  )
 
   def useCase3(onUpdate: => Unit): PlayJdbcContext = new PlayJdbcContext(
     AcolyteDSL.handleStatement.withUpdateHandler {
@@ -28,6 +28,7 @@ case object PlayJdbcUseCases {
         throw new SQLException("Simulating on error.")
       case u => throw new SQLException(s"Unexpected update: $u")
     },
-    AcolyteDSL.handleTransaction(whenRollback = { _ => onUpdate }))
+    AcolyteDSL.handleTransaction(whenRollback = { _ => onUpdate })
+  )
 
 }

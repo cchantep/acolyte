@@ -3,15 +3,19 @@ package acolyte.reactivemongo
 import scala.util.{ Failure, Success, Try }
 
 import reactivemongo.io.netty.channel.ChannelId
+
 import reactivemongo.api.bson.{ BSONDocument, BSONDocumentWriter }
 
 import reactivemongo.acolyte.Response
+
+import ScalaCompat.Iterable
 
 /**
  * Creates a query response for given channel ID and result.
  * @tparam T Result type
  */
-trait QueryResponseMaker[T] extends ((ChannelId, T) ⇒ Option[Try[Response]]) {
+trait QueryResponseMaker[T] extends ((ChannelId, T) => Option[Try[Response]]) {
+
   /**
    * @param chanId ID of Mongo channel
    * @param result Optional result to be wrapped into response
@@ -21,11 +25,15 @@ trait QueryResponseMaker[T] extends ((ChannelId, T) ⇒ Option[Try[Response]]) {
 
 /** Response maker companion. */
 object QueryResponseMaker extends LowPrioQueryResponseMaker {
+
   /** Identity maker for already prepared response. */
   implicit object IdentityQueryResponseMaker
-    extends QueryResponseMaker[PreparedResponse] {
+      extends QueryResponseMaker[PreparedResponse] {
 
-    def apply(chanId: ChannelId, already: PreparedResponse): Option[Try[Response]] = already(chanId)
+    def apply(
+        chanId: ChannelId,
+        already: PreparedResponse
+      ): Option[Try[Response]] = already(chanId)
   }
 
   /**
@@ -33,14 +41,16 @@ object QueryResponseMaker extends LowPrioQueryResponseMaker {
    * import reactivemongo.api.bson.BSONDocument
    * import acolyte.reactivemongo.QueryResponseMaker
    *
-   * val maker = implicitly[QueryResponseMaker[Traversable[BSONDocument]]]
+   * val maker = implicitly[QueryResponseMaker[List[BSONDocument]]]
    * }}}
    */
-  implicit def traversableQueryResponseMaker[T <: Traversable[BSONDocument]] =
-    new QueryResponseMaker[T] {
-      def apply(chanId: ChannelId, result: T): Option[Try[Response]] =
-        Some(MongoDB.querySuccess(chanId, result))
-    }
+  implicit def traversableQueryResponseMaker[
+      T <: Iterable[BSONDocument]
+    ]: QueryResponseMaker[T] = new QueryResponseMaker[T] {
+
+    def apply(chanId: ChannelId, result: T): Option[Try[Response]] =
+      Some(MongoDB.querySuccess(chanId, result))
+  }
 
   /**
    * {{{
@@ -50,9 +60,15 @@ object QueryResponseMaker extends LowPrioQueryResponseMaker {
    * val maker = implicitly[QueryResponseMaker[BSONDocument]]
    * }}}
    */
-  implicit def singleQueryResponseMaker = new QueryResponseMaker[BSONDocument] {
-    def apply(chanId: ChannelId, result: BSONDocument): Option[Try[Response]] = Some(MongoDB.querySuccess(chanId, Seq(result)))
-  }
+  implicit val singleQueryResponseMaker: QueryResponseMaker[BSONDocument] =
+    new QueryResponseMaker[BSONDocument] {
+
+      def apply(
+          chanId: ChannelId,
+          result: BSONDocument
+        ): Option[Try[Response]] =
+        Some(MongoDB.querySuccess(chanId, Seq(result)))
+    }
 
   /**
    * {{{
@@ -68,8 +84,9 @@ object QueryResponseMaker extends LowPrioQueryResponseMaker {
    * }}}
    */
   implicit def writableSingleQueryResponseMaker[T](
-    implicit
-    w: BSONDocumentWriter[T]): QueryResponseMaker[T] =
+      implicit
+      w: BSONDocumentWriter[T]
+    ): QueryResponseMaker[T] =
     new QueryResponseMaker[T] {
 
       def apply(chanId: ChannelId, result: T): Option[Try[Response]] =
@@ -91,25 +108,31 @@ object QueryResponseMaker extends LowPrioQueryResponseMaker {
    * val maker = implicitly[QueryResponseMaker[String]]
    * }}}
    */
-  implicit def errorQueryResponseMaker = new QueryResponseMaker[String] {
-    def apply(chanId: ChannelId, error: String): Option[Try[Response]] =
-      Some(MongoDB.queryError(chanId, error))
-  }
+  implicit val errorQueryResponseMaker: QueryResponseMaker[String] =
+    new QueryResponseMaker[String] {
+
+      def apply(chanId: ChannelId, error: String): Option[Try[Response]] =
+        Some(MongoDB.queryError(chanId, error))
+    }
 
   /**
    * Provides response maker for an error.
    *
    * {{{
-   * import reactivemongo.io.netty.channel.ChannelId
    * import acolyte.reactivemongo.QueryResponseMaker
    *
    * val maker = implicitly[QueryResponseMaker[(String, Int)]]
    * }}}
    */
-  implicit def errorCodeQueryResponseMaker = new QueryResponseMaker[(String, Int)] {
-    def apply(chanId: ChannelId, error: (String, Int)): Option[Try[Response]] =
-      Some(MongoDB.queryError(chanId, error._1, Some(error._2)))
-  }
+  implicit val errorCodeQueryResponseMaker: QueryResponseMaker[(String, Int)] =
+    new QueryResponseMaker[(String, Int)] {
+
+      def apply(
+          chanId: ChannelId,
+          error: (String, Int)
+        ): Option[Try[Response]] =
+        Some(MongoDB.queryError(chanId, error._1, Some(error._2)))
+    }
 
   /**
    * Provides response maker for handler not supporting specific query.
@@ -120,19 +143,30 @@ object QueryResponseMaker extends LowPrioQueryResponseMaker {
    * val maker = implicitly[QueryResponseMaker[None.type]]
    * }}}
    */
-  implicit def undefinedQueryResponseMaker = new QueryResponseMaker[None.type] {
-    /** @return None */
-    def apply(chanId: ChannelId, undefined: None.type): Option[Try[Response]] = None
-  }
+  implicit val undefinedQueryResponseMaker: QueryResponseMaker[None.type] =
+    new QueryResponseMaker[None.type] {
+
+      /** @return None */
+      def apply(
+          chanId: ChannelId,
+          undefined: None.type
+        ): Option[Try[Response]] = None
+    }
 
   def firstBatchMaker =
     new QueryResponseMaker[(Long, String, Seq[BSONDocument])] {
-      def apply(chanId: ChannelId, data: (Long, String, Seq[BSONDocument])): Option[Try[Response]] = Some(MongoDB.firstBatch(chanId, data._1, data._2, data._3))
+
+      def apply(
+          chanId: ChannelId,
+          data: (Long, String, Seq[BSONDocument])
+        ): Option[Try[Response]] =
+        Some(MongoDB.firstBatch(chanId, data._1, data._2, data._3))
     }
 
 }
 
-sealed trait LowPrioQueryResponseMaker { _: QueryResponseMaker.type =>
+sealed trait LowPrioQueryResponseMaker { _self: QueryResponseMaker.type =>
+
   /**
    * {{{
    * import acolyte.reactivemongo.QueryResponseMaker
@@ -146,18 +180,25 @@ sealed trait LowPrioQueryResponseMaker { _: QueryResponseMaker.type =>
    * val maker = implicitly[QueryResponseMaker[Seq[MyCaseClass]]]
    * }}}
    */
-  implicit def writableTraversableQueryResponseMaker[T[X] <: Traversable[X], U](implicit w: BSONDocumentWriter[U]) = new QueryResponseMaker[T[U]] {
+  implicit def writableTraversableQueryResponseMaker[T[X] <: Iterable[X], U](
+      implicit
+      w: BSONDocumentWriter[U]
+    ): QueryResponseMaker[T[U]] = new QueryResponseMaker[T[U]] {
+
     @annotation.tailrec
     def documents(
-      in: Seq[U], out: Seq[BSONDocument]): Try[Seq[BSONDocument]] =
+        in: Seq[U],
+        out: Seq[BSONDocument]
+      ): Try[Seq[BSONDocument]] =
       in.headOption match {
-        case Some(value) => w.writeTry(value) match {
-          case Success(doc) =>
-            documents(in.tail, doc +: out)
+        case Some(value) =>
+          w.writeTry(value) match {
+            case Success(doc) =>
+              documents(in.tail, doc +: out)
 
-          case Failure(cause) =>
-            Failure(cause)
-        }
+            case Failure(cause) =>
+              Failure(cause)
+          }
 
         case _ =>
           Success(out.reverse)

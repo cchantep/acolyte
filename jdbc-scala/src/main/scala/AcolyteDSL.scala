@@ -1,29 +1,33 @@
 // -*- mode: scala -*-
 package acolyte.jdbc
 
-import java.util.{ List ⇒ JList }
+import java.util.{ List => JList, Map => JMap }
 import java.util.regex.Pattern
-import java.sql.{ Connection ⇒ SqlConnection, SQLException }
+
+import java.sql.{ Connection => SqlConnection, SQLException }
+
+import java.lang.{ Boolean => JBool }
 
 import scala.language.implicitConversions
+
 import scala.collection.JavaConverters._
 
 import acolyte.jdbc.AbstractCompositeHandler.{ QueryHandler, UpdateHandler }
+import acolyte.jdbc.RowList.{ Column => Col }
 import acolyte.jdbc.StatementHandler.Parameter
-import acolyte.jdbc.RowList.{ Column ⇒ Col }
 
 /**
  * Acolyte DSL for JDBC.
  *
  * {{{
  * import acolyte.jdbc.AcolyteDSL.{ connection, handleStatement }
- * import acolyte.jdbc.Implicits._
+ * // Useful: import acolyte.jdbc.Implicits._
  * import acolyte.jdbc.{ QueryExecution, UpdateExecution }
  *
  * connection {
  *   handleStatement.withQueryDetection("...").
- *     withQueryHandler({ e: QueryExecution => ??? }).
- *     withUpdateHandler({ e: UpdateExecution => ??? })
+ *     withQueryHandler({ (_: QueryExecution) => ??? }).
+ *     withUpdateHandler({ (_: UpdateExecution) => ??? })
  * }
  * }}}
  */
@@ -48,9 +52,13 @@ object AcolyteDSL {
    *   connection(handler, "acolyte.parameter.untypedNull" -> "true")
    * }}}
    */
-  def connection(sh: AbstractCompositeHandler[_], p: (String, String)*): Connection = Driver.connection(sh, p.foldLeft(new java.util.Properties()) { (ps, t) ⇒
-    ps.put(t._1, t._2); ps
-  })
+  def connection(
+      sh: AbstractCompositeHandler[_],
+      p: (String, String)*
+    ): Connection = Driver.connection(
+    sh,
+    p.foldLeft(new java.util.Properties()) { (ps, t) => ps.put(t._1, t._2); ps }
+  )
 
   /**
    * Creates a connection, whose statement will be passed to given handler.
@@ -73,12 +81,14 @@ object AcolyteDSL {
    * }}}
    */
   def connection(
-    sh: AbstractCompositeHandler[_],
-    rh: ResourceHandler,
-    p: (String, String)*): Connection = Driver.connection(sh, rh,
-    p.foldLeft(new java.util.Properties()) { (ps, t) ⇒
-      ps.put(t._1, t._2); ps
-    })
+      sh: AbstractCompositeHandler[_],
+      rh: ResourceHandler,
+      p: (String, String)*
+    ): Connection = Driver.connection(
+    sh,
+    rh,
+    p.foldLeft(new java.util.Properties()) { (ps, t) => ps.put(t._1, t._2); ps }
+  )
 
   /**
    * Creates a connection, managed with given handler.
@@ -100,9 +110,12 @@ object AcolyteDSL {
    * }}}
    */
   def connection(h: ConnectionHandler, p: (String, String)*) =
-    Driver.connection(h, p.foldLeft(new java.util.Properties()) { (ps, t) ⇒
-      ps.put(t._1, t._2); ps
-    })
+    Driver.connection(
+      h,
+      p.foldLeft(new java.util.Properties()) { (ps, t) =>
+        ps.put(t._1, t._2); ps
+      }
+    )
 
   /**
    * Creates an empty handler.
@@ -127,7 +140,7 @@ object AcolyteDSL {
    * def foo(res: QueryResult) = connection(handleQuery { _ => res })
    * }}}
    */
-  def handleQuery(h: QueryExecution ⇒ QueryResult): ScalaCompositeHandler =
+  def handleQuery(h: QueryExecution => QueryResult): ScalaCompositeHandler =
     handleStatement withQueryDetection ".*" withQueryHandler h
 
   /**
@@ -139,11 +152,11 @@ object AcolyteDSL {
    * import acolyte.jdbc.AcolyteDSL.withQueryResult
    *
    * def str(queryRes: QueryResult): String =
-   *   withQueryResult(queryRes) { con => "str" }
+   *   withQueryResult(queryRes) { _ => "str" }
    * }}}
    */
-  def withQueryResult[A](res: QueryResult)(f: SqlConnection ⇒ A): A =
-    f(connection(handleQuery(_ ⇒ res)))
+  def withQueryResult[A](res: QueryResult)(f: SqlConnection => A): A =
+    f(connection(handleQuery(_ => res)))
 
   /**
    * Returns an update result with row `count` and generated `keys`.
@@ -170,8 +183,9 @@ object AcolyteDSL {
    * @see `java.sql.Connection.rollback`
    */
   def handleTransaction(
-    whenCommit: Connection ⇒ Unit = { _ ⇒ () },
-    whenRollback: Connection ⇒ Unit = { _ ⇒ () }): ResourceHandler =
+      whenCommit: Connection => Unit = { _ => () },
+      whenRollback: Connection => Unit = { _ => () }
+    ): ResourceHandler =
     new ResourceHandler {
       def whenCommitTransaction(con: Connection) = whenCommit(con)
       def whenRollbackTransaction(con: Connection) = whenRollback(con)
@@ -196,8 +210,11 @@ object AcolyteDSL {
    * // => Executed query: QueryExecution(SELECT * FROM Test WHERE id = ?,List(Param(foo, VARCHAR)))
    * }}}
    */
-  def debuging[A](printer: QueryExecution ⇒ Unit = { x ⇒ println(s"Executed query: $x") })(f: SqlConnection ⇒ A): Unit = {
-    implicit val con = connection(handleQuery { x ⇒
+  def debuging[A](
+      printer: QueryExecution => Unit = { x => println(s"Executed query: $x") }
+    )(f: SqlConnection => A
+    ): Unit = {
+    implicit val con = connection(handleQuery { x =>
       printer(x)
       throw DebugException
     })
@@ -206,17 +223,19 @@ object AcolyteDSL {
       f(con)
       ()
     } catch {
-      case e: SQLException ⇒ e.getCause match {
-        case DebugException ⇒ ()
-        case sqlError       ⇒ throw sqlError
-      }
+      case e: SQLException =>
+        e.getCause match {
+          case DebugException => ()
+          case sqlError       => throw sqlError
+        }
     } finally {
       con.close()
     }
   }
 
   private case object DebugException
-    extends Exception with scala.util.control.NoStackTrace
+      extends Exception
+      with scala.util.control.NoStackTrace
 }
 
 /**
@@ -228,7 +247,7 @@ object AcolyteDSL {
  * val qr: acolyte.jdbc.QueryResult = "str" // convert string
  * }}}
  */
-object Implicits extends ScalaRowLists with CompositeHandlerImplicits {
+object Implicits extends ScalaRowListsImplicits with CompositeHandlerImplicits {
 
   /**
    * Converts tuple to column definition.
@@ -245,7 +264,28 @@ object Implicits extends ScalaRowLists with CompositeHandlerImplicits {
 
 }
 
-final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: UpdateHandler) extends AbstractCompositeHandler[ScalaCompositeHandler](qd, qh, uh) {
+sealed trait ScalaRowListsImplicits extends ScalaRowLists {
+
+  final class EnrichedScalaRowList1[T] private[jdbc] (
+      c0: Class[T],
+      rows: JList[Row1[T]],
+      colNames: JMap[String, Integer],
+      colNullables: JMap[Integer, JBool])
+      extends ScalaRowList1[T](c0, rows, colNames, colNullables) {
+    @inline def :+(v: T) = append(v)
+  }
+
+  implicit override def rowList1AsScala[T](
+      l: RowList1.Impl[T]
+    ): EnrichedScalaRowList1[T] =
+    new EnrichedScalaRowList1[T](l.c0, l.rows, l.colNames, l.colNullables)
+}
+
+final class ScalaCompositeHandler(
+    qd: Array[Pattern],
+    qh: QueryHandler,
+    uh: UpdateHandler)
+    extends AbstractCompositeHandler[ScalaCompositeHandler](qd, qh, uh) {
 
   /**
    * Returns handler that detects statement matching given pattern(s)
@@ -260,7 +300,10 @@ final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: Upda
    * }}}
    */
   def withQueryDetection(pattern: Array[Pattern]) = new ScalaCompositeHandler(
-    queryDetectionPattern(pattern: _*), queryHandler, updateHandler)
+    queryDetectionPattern(pattern: _*),
+    queryHandler,
+    updateHandler
+  )
 
   /**
    * Returns handler that delegates query execution to `h` function.
@@ -274,7 +317,7 @@ final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: Upda
    * import acolyte.jdbc.Implicits.stringAsResult
    * def aQueryResult: QueryResult = "lorem"
    *
-   * handleStatement withQueryHandler { e: QueryExecution => aQueryResult }
+   * handleStatement withQueryHandler { (_: QueryExecution) => aQueryResult }
    *
    * // With pattern matching ...
    * import acolyte.jdbc.{ ExecutedParameter => P }
@@ -291,11 +334,16 @@ final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: Upda
    *   }
    * }}}
    */
-  def withQueryHandler(h: QueryExecution ⇒ QueryResult) =
-    new ScalaCompositeHandler(queryDetection, new QueryHandler {
-      def apply(sql: String, p: JList[Parameter]): QueryResult =
-        h(QueryExecution(sql, scalaParameters(p)))
-    }, updateHandler)
+  def withQueryHandler(h: QueryExecution => QueryResult) =
+    new ScalaCompositeHandler(
+      queryDetection,
+      new QueryHandler {
+
+        def apply(sql: String, p: JList[Parameter]): QueryResult =
+          h(QueryExecution(sql, scalaParameters(p)))
+      },
+      updateHandler
+    )
 
   /**
    * Returns handler that delegates update execution to `h` function.
@@ -309,7 +357,7 @@ final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: Upda
    *
    * val aUpResult: UpdateResult = 1
    *
-   * handleStatement withUpdateHandler { e: UpdateExecution => aUpResult }
+   * handleStatement withUpdateHandler { (_: UpdateExecution) => aUpResult }
    *
    * // With pattern matching ...
    * import acolyte.jdbc.{ ExecutedParameter => P }
@@ -318,27 +366,38 @@ final class ScalaCompositeHandler(qd: Array[Pattern], qh: QueryHandler, uh: Upda
    *   _ match {
    *     case UpdateExecution(
    *       "INSERT INTO Country (code, name) VALUES (?, ?)",
-   *       P(code) :: P(name) :: Nil) => 1 // update count
+   *       P(_/*code*/) :: P(_/*name*/) :: Nil) => 1 // update count
    *
    *     case _ => otherResult
    *   }
    * }
    * }}}
    */
-  def withUpdateHandler(h: UpdateExecution ⇒ UpdateResult) =
-    new ScalaCompositeHandler(queryDetection, queryHandler, new UpdateHandler {
-      def apply(sql: String, p: JList[Parameter]): UpdateResult =
-        h(UpdateExecution(sql, scalaParameters(p)))
-    })
+  def withUpdateHandler(h: UpdateExecution => UpdateResult) =
+    new ScalaCompositeHandler(
+      queryDetection,
+      queryHandler,
+      new UpdateHandler {
 
-  private def scalaParameters(p: JList[Parameter]): List[ExecutedParameter] =
-    p.asScala.foldLeft(List.empty[ExecutedParameter]) { (l, t) ⇒
-      DefinedParameter(t.right, t.left) +: l
-    }.reverse
+        def apply(sql: String, p: JList[Parameter]): UpdateResult =
+          h(UpdateExecution(sql, scalaParameters(p)))
+      }
+    )
 
+  private def scalaParameters(p: JList[Parameter]): List[ExecutedParameter] = {
+    val buf = List.newBuilder[ExecutedParameter]
+    val it = p.iterator()
+
+    while (it.hasNext) {
+      val t = it.next()
+      buf += DefinedParameter(t.right, t.left)
+    }
+
+    buf.result()
+  }
 }
 
-trait CompositeHandlerImplicits { srl: ScalaRowLists ⇒
+trait CompositeHandlerImplicits { srl: ScalaRowListsImplicits =>
 
   /**
    * Allows to directly use update count as update result.
@@ -347,10 +406,11 @@ trait CompositeHandlerImplicits { srl: ScalaRowLists ⇒
    * import acolyte.jdbc.AcolyteDSL.handleStatement
    * import acolyte.jdbc.Implicits._
    *
-   * handleStatement withUpdateHandler { exec => 1 } // 1 = count
+   * handleStatement withUpdateHandler { _ => 1 } // 1 = count
    * }}}
    */
-  implicit def intUpdateResult(updateCount: Int) = new UpdateResult(updateCount)
+  implicit def intUpdateResult(updateCount: Int): UpdateResult =
+    new UpdateResult(updateCount)
 
   /**
    * Allows to directly use row list as query result.
@@ -412,6 +472,7 @@ trait CompositeHandlerImplicits { srl: ScalaRowLists ⇒
 }
 
 private object ScalaCompositeHandler {
+
   @SuppressWarnings(Array("NullParameter"))
   def empty = new ScalaCompositeHandler(null, null, null)
 }
@@ -422,23 +483,13 @@ private object ScalaCompositeHandler {
 @deprecated("Direct manipulation of row is no longer required", "1.0.12")
 object JavaConverters {
 
-  /**
-   * Pimps result row.
-   *
-   * {{{
-   * import acolyte.jdbc.JavaConverters.rowAsScala
-   *
-   * def rowAsList[R <: acolyte.jdbc.Row](row: R) =
-   *   row.list // Scala list equivalent to .cells
-   * }}}
-   */
+  /** Pimps result row. */
   implicit def rowAsScala[R <: Row](r: R): ScalaRow = new ScalaRow(r)
 
   final class ScalaRow(r: Row) extends Row {
     lazy val cells = r.cells
 
-    lazy val list: List[Any] = cells.asScala.foldLeft(List[Any]()) {
-      (l, v) ⇒ v +: l
-    }.reverse
+    lazy val list: List[Any] =
+      cells.asScala.foldLeft(List[Any]()) { (l, v) => v +: l }.reverse
   }
 }

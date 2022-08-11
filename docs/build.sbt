@@ -2,7 +2,7 @@ organization := "org.eu.acolyte"
 
 name := "acolyte-site"
 
-val ver = "1.0.58"
+val ver = "1.1.4"
 val PlayVer = "2.6.7"
 
 version := ver
@@ -19,7 +19,5 @@ lazy val `acolyte-site` = (project in file(".")).settings(
     "com.typesafe.play" %% "play-jdbc" % PlayVer
   ),
   resolvers in ThisBuild ++= Seq(
-    "Tatami Snapshots" at "https://raw.github.com/cchantep/tatami/master/snapshots"),
-  autoCompilerPlugins := true,
-  addCompilerPlugin("org.eu.acolyte" %% "scalac-plugin" % ver)
+    "Tatami Snapshots" at "https://raw.github.com/cchantep/tatami/master/snapshots")
 )

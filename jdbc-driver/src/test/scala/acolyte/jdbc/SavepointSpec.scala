@@ -1,23 +1,20 @@
 package acolyte.jdbc
 
-import org.specs2.mutable.Specification
+object SavepointSpec
+    extends org.specs2.mutable.Specification
+    with SavepointFixtures {
 
-object SavepointSpec extends Specification with SavepointFixtures {
-  "Savepoint specification" title
+  "Savepoint specification".title
 
   "Un-named savepoint" should {
     "have null name" in {
-      Option(unnamed) aka "savepoint" must beSome.which { s ⇒
-        s.getSavepointName aka "name" must beNull
-      }
+      unnamed.getSavepointName aka "name" must beNull
     }
   }
 
   "Named savepoint" should {
     "have expected name" in {
-      Option(named("test")) aka "savepoint" must beSome.which { s ⇒
-        s.getSavepointName aka "name" mustEqual "test"
-      }
+      named("test").getSavepointName aka "name" must_=== "test"
     }
   }
 }

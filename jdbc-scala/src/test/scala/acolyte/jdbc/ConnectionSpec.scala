@@ -1,9 +1,9 @@
 package acolyte.jdbc
 
-import acolyte.jdbc.ScalaCompositeHandler.{ empty ⇒ EmptyHandler }
+import acolyte.jdbc.ScalaCompositeHandler.{ empty => EmptyHandler }
 
 object ConnectionSpec extends org.specs2.mutable.Specification {
-  "Connection" title
+  "Connection".title
 
   "Properties" should {
     "be empty" in {
@@ -11,8 +11,10 @@ object ConnectionSpec extends org.specs2.mutable.Specification {
     }
 
     "be set" in {
-      AcolyteDSL.connection(EmptyHandler, "_test" → "_val").
-        getProperties.get("_test") aka "property" mustEqual "_val"
+      AcolyteDSL
+        .connection(EmptyHandler, "_test" -> "_val")
+        .getProperties
+        .get("_test") aka "property" must_=== "_val"
 
     }
   }
@@ -22,10 +24,11 @@ object ConnectionSpec extends org.specs2.mutable.Specification {
       @volatile var commit = 0
       val con = AcolyteDSL.connection(
         EmptyHandler,
-        AcolyteDSL.handleTransaction(whenCommit = { _ ⇒ commit += 1 }))
+        AcolyteDSL.handleTransaction(whenCommit = { _ => commit += 1 })
+      )
 
       con.commit() must not(throwA[Exception]) and {
-        commit must_== 1
+        commit must_=== 1
       }
     }
 
@@ -34,7 +37,8 @@ object ConnectionSpec extends org.specs2.mutable.Specification {
 
       val con = AcolyteDSL.connection(
         EmptyHandler,
-        AcolyteDSL.handleTransaction(whenRollback = rollbacked.success))
+        AcolyteDSL.handleTransaction(whenRollback = rollbacked.success)
+      )
 
       con.rollback() must not(throwA[Exception]) and {
         rollbacked.isCompleted must beTrue
@@ -46,20 +50,22 @@ object ConnectionSpec extends org.specs2.mutable.Specification {
     "be successful" in {
       val output = Seq.newBuilder[String]
 
-      AcolyteDSL.debuging(x ⇒ { output += x.toString; () }) { con ⇒
+      AcolyteDSL.debuging(x => { output += x.toString; () }) { con =>
         val stmt = con.prepareStatement("SELECT * FROM Test WHERE id = ?")
 
         try {
           stmt.setString(1, "foo")
           stmt.executeQuery()
         } catch {
-          case _: java.sql.SQLException ⇒ ()
+          case _: java.sql.SQLException => ()
         } finally {
           stmt.close()
         }
       }
 
-      output.result() must_== Seq("QueryExecution(SELECT * FROM Test WHERE id = ?,List(Param(foo, VARCHAR)))")
+      output.result() must_=== Seq(
+        "QueryExecution(SELECT * FROM Test WHERE id = ?,List(Param(foo, VARCHAR)))"
+      )
     }
   }
 }

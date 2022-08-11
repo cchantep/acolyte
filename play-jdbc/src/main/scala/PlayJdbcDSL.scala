@@ -1,8 +1,12 @@
 // -*- mode: scala -*-
 package acolyte.jdbc.play
 
-import acolyte.jdbc.{ AcolyteDSL, QueryResult, ResourceHandler, ScalaCompositeHandler }
-
+import acolyte.jdbc.{
+  AcolyteDSL,
+  QueryResult,
+  ResourceHandler,
+  ScalaCompositeHandler
+}
 import play.api.db.Database
 
 /** Acolyte DSL for JDBC. */
@@ -19,11 +23,11 @@ object PlayJdbcDSL {
    * import acolyte.jdbc.play.PlayJdbcDSL.withPlayDBResult
    *
    * def queryRes: QueryResult = "foo"
-   * val str: String = withPlayDBResult(queryRes) { con => "str" }
+   * val str: String = withPlayDBResult(queryRes) { _ => "str" }
    * }}}
    */
   def withPlayDBResult(res: QueryResult) =
-    withPlayDB(AcolyteDSL.handleQuery(_ ⇒ res))
+    withPlayDB(AcolyteDSL.handleQuery(_ => res))
 
   /**
    * Returns a Play JDBC context, able to apply function `Database => A`.
@@ -41,7 +45,7 @@ object PlayJdbcDSL {
    * val otherResult = "ipsum"
    *
    * withPlayDB(
-   *   handleStatement withQueryHandler { e: QueryExecution => aQueryResult })
+   *   handleStatement withQueryHandler { (_: QueryExecution) => aQueryResult })
    *
    * // With pattern matching ...
    * import acolyte.jdbc.{ ExecutedParameter => P }
@@ -56,7 +60,7 @@ object PlayJdbcDSL {
    *   }
    * })
    *
-   * runner { db: play.api.db.Database =>
+   * runner { (_: play.api.db.Database) =>
    *   // Any code using Play Database
    * }
    * }}}
@@ -73,7 +77,7 @@ final class PlayJdbcContext(
   /**
    * @param f the function applied on the Acolyte/Play `Database`
    */
-  def apply[A](f: Database ⇒ A): A = {
+  def apply[A](f: Database => A): A = {
     lazy val db = new AcolyteDatabase(handler, resourceHandler)
 
     try {

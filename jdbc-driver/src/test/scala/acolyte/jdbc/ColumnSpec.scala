@@ -2,25 +2,29 @@ package acolyte.jdbc
 
 import org.specs2.mutable.Specification
 
-import acolyte.jdbc.RowList.{ Column ⇒ Col }
+import acolyte.jdbc.RowList.{ Column => Col }
 
 object ColumnSpec extends Specification {
-  "Column" title
+  "Column".title
 
   "Definition" should {
     "refuse null class" in {
       Col(null, "col") aka "define" must throwA[IllegalArgumentException](
-        message = "No column class")
+        message = "No column class"
+      )
 
     }
 
     "refuse empty name" in {
-      (Col(classOf[String], null).
-        aka("null name") must throwA[IllegalArgumentException](
-          message = "Invalid column name: null")).
-        and(Col(classOf[String], "").
-          aka("empty name") must throwA[IllegalArgumentException](
-            message = "Invalid column name: "))
+      (Col(classOf[String], null)
+        .aka("null name") must throwA[IllegalArgumentException](
+        message = "Invalid column name: null"
+      )).and(
+        Col(classOf[String], "")
+          .aka("empty name") must throwA[IllegalArgumentException](
+          message = "Invalid column name: "
+        )
+      )
 
     }
 
@@ -30,27 +34,30 @@ object ColumnSpec extends Specification {
 
       "and not nullable" in {
         col1 aka "define" must beLike {
-          case col ⇒ (col.columnClass aka "class" mustEqual classOf[Int]).
-            and(col.name aka "name" mustEqual "int").
-            and(col.nullable aka "nullable" must beFalse)
+          case col =>
+            (col.columnClass aka "class" must_=== classOf[Int])
+              .and(col.name aka "name" must_=== "int")
+              .and(col.nullable aka "nullable" must beFalse)
 
         }
       }
 
       "and nullable" in {
         col2 aka "define" must beLike {
-          case col ⇒ (col.columnClass aka "class" mustEqual classOf[Int]).
-            and(col.name aka "name" mustEqual "int").
-            and(col.nullable aka "nullable" must beTrue)
+          case col =>
+            (col.columnClass aka "class" must_=== classOf[Int])
+              .and(col.name aka "name" must_=== "int")
+              .and(col.nullable aka "nullable" must beTrue)
 
         }
       }
 
       "and updated as not nullable" in {
         col2.withNullable(false) must beLike {
-          case col ⇒ (col.columnClass aka "class" mustEqual classOf[Int]).
-            and(col.name aka "name" mustEqual "int").
-            and(col.nullable aka "nullable" must beFalse)
+          case col =>
+            (col.columnClass aka "class" must_=== classOf[Int])
+              .and(col.name aka "name" must_=== "int")
+              .and(col.nullable aka "nullable" must beFalse)
         }
       }
     }
