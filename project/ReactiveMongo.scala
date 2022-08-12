@@ -32,7 +32,7 @@ final class ReactiveMongo { self =>
       ),
       libraryDependencies += {
         if (scalaBinaryVersion.value == "3") {
-          "org.typelevel" %% "shapeless3-test" % "3.0.4"
+          "org.typelevel" %% "shapeless3-test" % "3.1.0"
         } else {
           "com.chuusai" %% "shapeless" % "2.3.9",
         }
@@ -78,8 +78,8 @@ final class ReactiveMongo { self =>
           (Seq("reactivemongo-play-json-compat", "play2-reactivemongo").map {
             "org.reactivemongo" %% _ % playRmVer % Provided
           }) ++ Seq(
-            ("com.typesafe.play" %% "play" % playVer % Provided).
-              cross(CrossVersion.for3Use2_13/* TODO */),
+            ("com.typesafe.play" %% "play" % playVer % Provided)
+              .cross(CrossVersion.for3Use2_13 /* TODO */ ),
             "org.specs2" %% "specs2-core" % specsVer.value % Test
           ) ++ iteratees
         }
