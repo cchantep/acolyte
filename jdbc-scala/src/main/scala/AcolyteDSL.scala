@@ -1,12 +1,10 @@
 // -*- mode: scala -*-
 package acolyte.jdbc
 
-import java.util.{ List => JList, Map => JMap }
+import java.util.{ List => JList }
 import java.util.regex.Pattern
 
 import java.sql.{ Connection => SqlConnection, SQLException }
-
-import java.lang.{ Boolean => JBool }
 
 import scala.language.implicitConversions
 
@@ -266,19 +264,10 @@ object Implicits extends ScalaRowListsImplicits with CompositeHandlerImplicits {
 
 sealed trait ScalaRowListsImplicits extends ScalaRowLists {
 
-  final class EnrichedScalaRowList1[T] private[jdbc] (
-      c0: Class[T],
-      rows: JList[Row1[T]],
-      colNames: JMap[String, Integer],
-      colNullables: JMap[Integer, JBool])
-      extends ScalaRowList1[T](c0, rows, colNames, colNullables) {
-    @inline def :+(v: T) = append(v)
-  }
-
   implicit override def rowList1AsScala[T](
       l: RowList1.Impl[T]
-    ): EnrichedScalaRowList1[T] =
-    new EnrichedScalaRowList1[T](l.c0, l.rows, l.colNames, l.colNullables)
+    ): ScalaRowList1[T] =
+    new ScalaRowList1[T](l.c0, l.rows, l.colNames, l.colNullables)
 }
 
 final class ScalaCompositeHandler(

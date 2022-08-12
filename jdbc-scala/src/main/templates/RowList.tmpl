@@ -36,4 +36,5 @@ private[acolyte] class ScalaRowList#N#[#TC#](#CV#, rows: JList[Row#N#[#TC#]], co
    */
   def withLabels(labels: (Int, String)*): ScalaRowList#N#[#TC#] =
     labels.foldLeft(this) { (l, t) => l.withLabel(t._1, t._2) }
+  #EXTRA#
 }
