@@ -3,6 +3,10 @@ layout: page
 title: Changelog
 ---
 
+## 1.2.1
+
+([9d85de9222172d7e9b009d963eeea39e9c2649f5](https://github.com/cchantep/acolyte/commit/9d85de9222172d7e9b009d963eeea39e9c2649f5) @ Fix append on single column row with the Scala DSL. (#254)
+
 ## 1.2.0
 
 ([369ae7f25d6d43a33d84c153e0e650bfb23d32ce](https://github.com/cchantep/acolyte/commit/369ae7f25d6d43a33d84c153e0e650bfb23d32ce) @ Support [Scala3](https://scala-lang.org/api/3.1.3/); Remove `scalac-plugin`. (#253)
