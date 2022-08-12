@@ -45,8 +45,8 @@ val javaVersion =
 lazy val root = Project(id = "acolyte", base = file("."))
   .settings(Publish.settings)
   .aggregate(reactiveMongo, jdbcDriver, jdbcScala, studio)
-  .disablePlugins(HighlightExtractorPlugin, ScaladocExtractorPlugin).
-  configure { p =>
+  .disablePlugins(HighlightExtractorPlugin, ScaladocExtractorPlugin)
+  .configure { p =>
     if (isJavaAtLeast("1.8")) {
       p.aggregate(playJdbc, jdbcJava8, playReactiveMongo)
     } else p

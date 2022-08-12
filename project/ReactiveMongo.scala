@@ -78,8 +78,8 @@ final class ReactiveMongo { self =>
           (Seq("reactivemongo-play-json-compat", "play2-reactivemongo").map {
             "org.reactivemongo" %% _ % playRmVer % Provided
           }) ++ Seq(
-            ("com.typesafe.play" %% "play" % playVer % Provided).
-              cross(CrossVersion.for3Use2_13/* TODO */),
+            ("com.typesafe.play" %% "play" % playVer % Provided)
+              .cross(CrossVersion.for3Use2_13 /* TODO */ ),
             "org.specs2" %% "specs2-core" % specsVer.value % Test
           ) ++ iteratees
         }
