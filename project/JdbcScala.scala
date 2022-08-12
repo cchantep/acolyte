@@ -56,7 +56,17 @@ final class JdbcScala(jdbcDriver: Project) {
       IO.writer[java.io.File](f, "", IO.defaultCharset, false) { w =>
         // Generate by substitution on each line of template
         IO.reader[Unit](listTmpl) { r =>
-          IO.foreachLine(r) { l =>
+          IO.foreachLine(r) { ln =>
+            val l = {
+              if (n == 1) {
+                ln.replace("#EXTRA#", s"""
+  @inline def :+(v: A): ScalaRowList1[A] = append(v)
+""")
+              } else {
+                ln.replace("#EXTRA#", "")
+              }
+            }
+
             w.append(
               l.replace("#PKG#", pkg)
                 .replace("#CLA#", { if (deprecated) "@deprecated" else "" })
