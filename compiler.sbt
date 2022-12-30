@@ -1,13 +1,13 @@
 ThisBuild / resolvers ++= (("Tatami Snapshots" at "https://raw.github.com/cchantep/tatami/master/snapshots") +: Resolver
   .sonatypeOssRepos("snapshots"))
 
-ThisBuild / scalaVersion := "2.12.16"
+ThisBuild / scalaVersion := "2.12.17"
 
 ThisBuild / crossScalaVersions := Seq(
   "2.11.12",
   scalaVersion.value,
   "2.13.8",
-  "3.1.3"
+  "3.2.1"
 )
 
 crossVersion := CrossVersion.binary
@@ -17,19 +17,19 @@ ThisBuild / scalacOptions ++= Seq(
   "UTF-8",
   "-unchecked",
   "-deprecation",
-  "-feature",
-  "-Xfatal-warnings"
+  "-feature"
 )
 
 ThisBuild / scalacOptions ++= {
   if (scalaBinaryVersion.value startsWith "2.") {
     Seq(
+      "-Xfatal-warnings",
       "-target:jvm-1.8",
       "-Xlint",
       "-g:vars",
       "-language:higherKinds"
     )
-  } else Seq()
+  } else Seq.empty
 }
 
 ThisBuild / scalacOptions ++= {
@@ -97,7 +97,7 @@ Test / console / scalacOptions ~= filteredScalacOpts
 // Silencer
 ThisBuild / libraryDependencies ++= {
   if (!scalaBinaryVersion.value.startsWith("3")) {
-    val silencerVersion = "1.7.11"
+    val silencerVersion = "1.7.12"
 
     Seq(
       compilerPlugin(
