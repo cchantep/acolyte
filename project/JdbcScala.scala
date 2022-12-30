@@ -59,9 +59,12 @@ final class JdbcScala(jdbcDriver: Project) {
           IO.foreachLine(r) { ln =>
             val l = {
               if (n == 1) {
-                ln.replace("#EXTRA#", s"""
+                ln.replace(
+                  "#EXTRA#",
+                  s"""
   @inline def :+(v: A): ScalaRowList1[A] = append(v)
-""")
+"""
+                )
               } else {
                 ln.replace("#EXTRA#", "")
               }
