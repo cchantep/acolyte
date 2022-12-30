@@ -17,19 +17,19 @@ ThisBuild / scalacOptions ++= Seq(
   "UTF-8",
   "-unchecked",
   "-deprecation",
-  "-feature",
-  "-Xfatal-warnings"
+  "-feature"
 )
 
 ThisBuild / scalacOptions ++= {
   if (scalaBinaryVersion.value startsWith "2.") {
     Seq(
+      "-Xfatal-warnings",
       "-target:jvm-1.8",
       "-Xlint",
       "-g:vars",
       "-language:higherKinds"
     )
-  } else Seq()
+  } else Seq.empty
 }
 
 ThisBuild / scalacOptions ++= {
