@@ -27,12 +27,12 @@ final class ReactiveMongo { self =>
       },
       libraryDependencies ++= Seq(
         "org.reactivemongo" %% "reactivemongo" % reactiveMongoVer % Provided,
-        "org.slf4j" % "slf4j-simple" % "2.0.1" % Provided,
+        "org.slf4j" % "slf4j-simple" % "2.0.5" % Provided,
         "org.specs2" %% "specs2-core" % specsVer.value % Test
       ),
       libraryDependencies += {
         if (scalaBinaryVersion.value == "3") {
-          "org.typelevel" %% "shapeless3-test" % "3.2.0"
+          "org.typelevel" %% "shapeless3-test" % "3.3.0"
         } else {
           "com.chuusai" %% "shapeless" % "2.3.10",
         }

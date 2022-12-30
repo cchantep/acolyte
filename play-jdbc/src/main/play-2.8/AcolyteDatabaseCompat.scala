@@ -5,7 +5,11 @@ import java.sql.Connection
 import play.api.db.TransactionIsolationLevel
 
 private[play] trait AcolyteDatabaseCompat { db: AcolyteDatabase =>
-  def withTransaction[A](isolationLevel: TransactionIsolationLevel)(block: Connection => A): A = {
+
+  def withTransaction[A](
+      isolationLevel: TransactionIsolationLevel
+    )(block: Connection => A
+    ): A = {
     lazy val con = getConnection(false)
 
     try {
