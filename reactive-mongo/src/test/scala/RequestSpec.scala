@@ -508,7 +508,7 @@ final class RequestSpec
             List[(String, BSONValue)],
             Boolean,
             Boolean
-        )
+          )
       ].like {
         case (
               "db1.col5",
