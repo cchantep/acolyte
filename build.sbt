@@ -27,7 +27,7 @@ lazy val studio = (sbt.project in file("studio")).settings(
   ),
   libraryDependencies ++= Seq(
     "melasse" % "melasse-core" % "1.0",
-    "de.sciss" % "syntaxpane" % "1.2.1",
+    "de.sciss" % "syntaxpane" % "1.3.0",
     "org.apache.commons" % "commons-lang3" % "3.12.0"
   ),
   assembly / mainClass := Some("acolyte.Studio"),
