@@ -2,7 +2,7 @@ organization := "org.eu.acolyte"
 
 name := "acolyte-site"
 
-val ver = "1.2.0"
+val ver = "1.2.1"
 val PlayVer = "2.6.7"
 
 version := ver
