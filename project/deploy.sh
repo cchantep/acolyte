@@ -50,7 +50,7 @@ if [ "_$SCALA_MODULES" = "_" ]; then
   SCALA_MODULES="jdbc-scala reactive-mongo play-jdbc play-reactive-mongo"
 fi
 
-SCALA_VERSIONS="2.11 2.12 2.13 3.2.1"
+SCALA_VERSIONS="2.11 2.12 2.13 3.2.2"
 BASES=""
 
 for M in $JAVA_MODULES; do
