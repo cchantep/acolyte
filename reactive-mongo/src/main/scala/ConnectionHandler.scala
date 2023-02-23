@@ -21,7 +21,11 @@ sealed trait ConnectionHandler { self =>
    *
    * @param handler Query handler
    */
-  final def withQueryHandler[T](handler: T)(implicit f: T => QueryHandler) =
+  final def withQueryHandler[T](
+      handler: T
+    )(implicit
+      f: T => QueryHandler
+    ) =
     ConnectionHandler(
       new QueryHandler {
 
@@ -37,7 +41,11 @@ sealed trait ConnectionHandler { self =>
    *
    * @param handler Write handler
    */
-  final def withWriteHandler[T](handler: T)(implicit f: T => WriteHandler) =
+  final def withWriteHandler[T](
+      handler: T
+    )(implicit
+      f: T => WriteHandler
+    ) =
     ConnectionHandler(
       queryHandler,
       new WriteHandler {
