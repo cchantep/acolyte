@@ -23,7 +23,10 @@ trait DriverManager {
 object DriverManager {
   import scala.concurrent.duration._
 
-  private class Default(timeout: FiniteDuration)(implicit ec: ExecutionContext)
+  private class Default(
+      timeout: FiniteDuration
+    )(implicit
+      ec: ExecutionContext)
       extends DriverManager {
     def open() = AsyncDriver()
 
@@ -41,7 +44,10 @@ object DriverManager {
     override lazy val toString = s"DriverManager(timeout = $timeout)"
   }
 
-  implicit def default(implicit ec: ExecutionContext): DriverManager =
+  implicit def default(
+      implicit
+      ec: ExecutionContext
+    ): DriverManager =
     new Default(5.seconds)
 
   def withTimeout(

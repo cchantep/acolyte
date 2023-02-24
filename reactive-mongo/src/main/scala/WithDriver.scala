@@ -18,10 +18,16 @@ trait WithDriver {
    * Returns unmanaged driver.
    * You will have to close it by yourself.
    */
-  def driver(implicit m: DriverManager): AsyncDriver = m.open()
+  def driver(
+      implicit
+      m: DriverManager
+    ): AsyncDriver = m.open()
 
   // TODO: Pass the driver ClassLoader
-  private def asyncDriver(implicit m: DriverManager): Future[AsyncDriver] =
+  private def asyncDriver(
+      implicit
+      m: DriverManager
+    ): Future[AsyncDriver] =
     try Future.successful(m.open())
     catch {
       case NonFatal(cause) =>

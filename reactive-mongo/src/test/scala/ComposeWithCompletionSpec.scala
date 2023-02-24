@@ -4,7 +4,9 @@ import scala.concurrent.Future
 
 import org.specs2.concurrent.ExecutionEnv
 
-class ComposeWithCompletionSpec(implicit ee: ExecutionEnv)
+class ComposeWithCompletionSpec(
+    implicit
+    ee: ExecutionEnv)
     extends org.specs2.mutable.Specification {
 
   "Compose".title

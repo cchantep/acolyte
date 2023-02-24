@@ -502,8 +502,7 @@ final class RequestSpec
   "Update" should {
     "be extracted with pipeline" in {
       UpdateRequest.unapply(UpdateOp -> update2) must beSome[
-        (
-            String,
+        (String,
             List[(String, BSONValue)],
             List[(String, BSONValue)],
             Boolean,

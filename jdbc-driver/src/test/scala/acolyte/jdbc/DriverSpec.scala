@@ -12,7 +12,9 @@ import org.specs2.mutable.Specification
 
 import acolyte.jdbc.test.EmptyConnectionHandler
 
-final class DriverSpec(implicit ee: ExecutionEnv)
+final class DriverSpec(
+    implicit
+    ee: ExecutionEnv)
     extends Specification
     with DriverUtils
     with DriverFixtures {
