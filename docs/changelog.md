@@ -3,6 +3,10 @@ layout: page
 title: Changelog
 ---
 
+## 1.2.5
+
+Update ReactiveMongo dependency.
+
 ## 1.2.1
 
 ([9d85de9222172d7e9b009d963eeea39e9c2649f5](https://github.com/cchantep/acolyte/commit/9d85de9222172d7e9b009d963eeea39e9c2649f5) @ Fix append on single column row with the Scala DSL. (#254)
