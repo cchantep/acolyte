@@ -26,7 +26,7 @@ object DriverManager {
   import scala.concurrent.duration._
 
   private class Default(
-    timeout: FiniteDuration,
+      timeout: FiniteDuration,
       classLoader: Option[ClassLoader]
     )(implicit
       ec: ExecutionContext)

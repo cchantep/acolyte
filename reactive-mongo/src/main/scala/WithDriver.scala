@@ -18,8 +18,9 @@ trait WithDriver {
    * Returns unmanaged driver.
    * You will have to close it by yourself.
    */
-  def driver(cl: ClassLoader)(
-      implicit
+  def driver(
+      cl: ClassLoader
+    )(implicit
       m: DriverManager
     ): AsyncDriver = m.withClassLoader(cl).open()
 
