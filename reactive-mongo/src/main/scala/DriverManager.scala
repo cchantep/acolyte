@@ -17,6 +17,8 @@ trait DriverManager {
 
   /** Releases driver if necessary. */
   def releaseIfNecessary(driver: AsyncDriver): Boolean
+
+  def withClassLoader(cl: ClassLoader): DriverManager
 }
 
 /** Driver manage companion. */
@@ -24,11 +26,15 @@ object DriverManager {
   import scala.concurrent.duration._
 
   private class Default(
-      timeout: FiniteDuration
+      timeout: FiniteDuration,
+      classLoader: Option[ClassLoader]
     )(implicit
       ec: ExecutionContext)
       extends DriverManager {
-    def open() = AsyncDriver()
+    def open() = new AsyncDriver(None, classLoader)
+
+    def withClassLoader(cl: ClassLoader): DriverManager =
+      new Default(timeout, Some(cl))
 
     /** Releases driver if necessary. */
     def releaseIfNecessary(driver: AsyncDriver): Boolean =
@@ -48,16 +54,18 @@ object DriverManager {
       implicit
       ec: ExecutionContext
     ): DriverManager =
-    new Default(5.seconds)
+    new Default(5.seconds, None)
 
   def withTimeout(
       timeout: FiniteDuration
     )(implicit
       ec: ExecutionContext
-    ): DriverManager = new Default(timeout)
+    ): DriverManager = new Default(timeout, None)
 
   def identity(existing: AsyncDriver): DriverManager = new DriverManager {
     def open() = existing
+
+    def withClassLoader(cl: ClassLoader): DriverManager = this
 
     def releaseIfNecessary(driver: AsyncDriver): Boolean = false
 
