@@ -149,11 +149,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
         }
 
         case req =>
-          doc.resetReaderIndex()
-          invalidQueryHandler(
-            cid,
-            s"Unexpected request[${System identityHashCode doc}]: $req: Array[Byte](${doc.array.toSeq mkString ", "})"
-          )
+          invalidQueryHandler(cid, s"Unexpected request: $req")
       }
 
       resp.error.fold(promise.success(resp))(promise.failure(_))
