@@ -148,7 +148,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
         }
 
         case req =>
-          sys.error(s"Unexpected request: $req")
+          invalidQueryHandler(cid, s"Unexpected request: $req")
       }
 
       resp.error.fold(promise.success(resp))(promise.failure(_))
