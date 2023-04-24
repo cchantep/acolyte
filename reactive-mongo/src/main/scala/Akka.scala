@@ -106,7 +106,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
           )
         }
 
-        case Request(coln, SimpleBody(ps)) => {
+        case Request(cn, SimpleBody(ps)) => {
           val reqBody: List[BSONDocument] =
             ps.foldLeft(
               Option.empty[BSONDocument] -> (List.empty[(String, BSONValue)])
@@ -124,12 +124,13 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
             }
 
           val qreq = new Request {
-            val collection = coln
+            val collection = cn
             val body = reqBody
           }
 
           Try(handler.queryHandler(cid, qreq)) match {
-            case Failure(cause) => invalidQueryHandler(cid, cause.getMessage)
+            case Failure(cause) =>
+              invalidQueryHandler(cid, cause.getMessage)
 
             case Success(res) =>
               res.fold(noQueryResponse(cid, msg.toString)) {
@@ -148,7 +149,11 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
         }
 
         case req =>
-          invalidQueryHandler(cid, s"Unexpected request: $req")
+          doc.resetReaderIndex()
+          invalidQueryHandler(
+            cid,
+            s"Unexpected request[${System identityHashCode doc}]: $req: Array[Byte](${doc.array.toSeq mkString ", "})"
+          )
       }
 
       resp.error.fold(promise.success(resp))(promise.failure(_))
