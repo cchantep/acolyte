@@ -569,6 +569,31 @@ final class RequestSpec
       )
     }
   }
+
+  "Buffer" should {
+    "be parsed" >> {
+      import reactivemongo.io.netty.buffer.Unpooled
+
+      "from large payload" in {
+        val buf = Unpooled.wrappedBuffer(BufferFixtures.payload1)
+
+        Request("foo", buf).body must beLike[List[BSONDocument]] {
+          case doc :: Nil =>
+            doc.elements.map(_.name) must_=== Seq(
+              "aggregate",
+              "pipeline",
+              "explain",
+              "allowDiskUse",
+              "cursor"
+            )
+        }
+      }
+
+      "from exhausted buffer" in {
+        Request("exhausted", Unpooled.EMPTY_BUFFER).body must beEmpty
+      }
+    }
+  }
 }
 
 sealed trait RequestFixtures {

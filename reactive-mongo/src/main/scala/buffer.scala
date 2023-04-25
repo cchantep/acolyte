@@ -9,6 +9,9 @@ package object acolyte {
   @inline def writable(): WritableBuffer =
     reactivemongo.api.bson.buffer.WritableBuffer.empty
 
+  def readableBuffer(bytes: Array[Byte]) =
+    reactivemongo.api.bson.buffer.ReadableBuffer(bytes)
+
   @inline def readDocument(buf: ReadableBuffer): BSONDocument =
     DefaultBufferHandler.readDocument(buf)
 
@@ -17,4 +20,5 @@ package object acolyte {
       buf: WritableBuffer
     ): WritableBuffer =
     DefaultBufferHandler.writeDocument(doc, buf)
+
 }

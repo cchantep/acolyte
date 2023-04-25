@@ -10,12 +10,7 @@ import reactivemongo.api.bson.{
   BSONString,
   BSONValue
 }
-import reactivemongo.api.bson.buffer.acolyte.{
-  readDocument,
-  writable,
-  ReadableBuffer,
-  WritableBuffer
-}
+import reactivemongo.api.bson.buffer.acolyte.{ readDocument, readableBuffer }
 
 /**
  * Request executed against Mongo connection.
@@ -43,7 +38,8 @@ object Request {
    */
   def apply(name: String, buffer: ByteBuf): Request = new Request {
     val collection = name
-    val body = parse(go(buffer), Nil)
+
+    val body = parse(buffer, Nil)
   }
 
   /**
@@ -58,36 +54,28 @@ object Request {
 
   /** Parses body documents from prepared buffer. */
   @annotation.tailrec
-  private def parse(
-      buf: ReadableBuffer,
+  def parse(
+      buf: ByteBuf,
       body: List[BSONDocument]
-    ): List[BSONDocument] = if (buf.readable() == 0) return body.reverse
-  else {
-    val pos = buf.buffer.position()
-    val b = buf.readByte()
+    ): List[BSONDocument] = {
+    if (buf.readableBytes() == 0) {
+      body.reverse
+    } else {
+      val sz = buf.getIntLE(buf.readerIndex)
 
-    if (b == (0x0: Byte)) body
-    else {
-      buf.buffer.position(pos)
+      if (sz == 0) {
+        body.reverse
+      } else {
+        val bytes = Array.ofDim[Byte](sz)
 
-      val doc = readDocument(buf)
-      parse(buf, doc +: body)
-    }
-  }
+        // Avoid .readBytes(sz) which internally allocate a ByteBuf
+        // (which would require to manage its release)
+        buf.readBytes(bytes)
 
-  @annotation.tailrec
-  private def go(
-      chan: ByteBuf,
-      body: WritableBuffer = writable()
-    ): ReadableBuffer = {
-    val len = chan.readableBytes()
+        val doc = readDocument(readableBuffer(bytes))
 
-    if (len == 0) body.toReadableBuffer()
-    else {
-      val buff = new Array[Byte](len)
-      chan.readBytes(buff)
-
-      go(chan, body.writeBytes(buff))
+        parse(buf, doc :: body)
+      }
     }
   }
 
