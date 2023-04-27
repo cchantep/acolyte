@@ -267,7 +267,7 @@ sealed trait ScalaRowListsImplicits extends ScalaRowLists {
   implicit override def rowList1AsScala[T](
       l: RowList1.Impl[T]
     ): ScalaRowList1[T] =
-    new ScalaRowList1[T](l.c0, l.rows, l.colNames, l.colNullables)
+    new ScalaRowList1[T](l.c0, l.rows, l.colNames, l.colNullables, l.isCycling)
 }
 
 final class ScalaCompositeHandler(

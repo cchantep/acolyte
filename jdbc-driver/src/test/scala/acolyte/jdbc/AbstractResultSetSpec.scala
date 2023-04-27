@@ -168,11 +168,28 @@ final class AbstractResultSetSpec extends Specification {
     "be moved to next" >> {
       "successfully" in {
         lazy val rs = defaultSet
+
         rs.setFetchSize(1)
 
-        (rs.getRow aka "current row" must_=== 0)
+        (rs.isCycling must beFalse)
+          .and(rs.getRow aka "current row" must_=== 0)
           .and(rs.next() aka "move to next" must beTrue)
           .and(rs.getRow aka "new row" must_=== 1)
+          .and(rs.next() must beFalse)
+
+      }
+
+      "when cycling" in {
+        lazy val rs = new AbstractResultSet {
+          this.setCycling(true)
+        }
+
+        rs.setFetchSize(1)
+
+        (rs.isCycling must beTrue)
+          .and(rs.next() must beTrue)
+          .and(rs.next() must beTrue)
+          .and(rs.getRow must_=== 1)
 
       }
     }

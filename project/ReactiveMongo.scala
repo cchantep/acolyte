@@ -7,7 +7,7 @@ final class ReactiveMongo { self =>
   lazy val generatedClassDirectory =
     settingKey[File]("Directory where classes get generated")
 
-  val reactiveMongoVer = "1.1.0-RC9"
+  val reactiveMongoVer = "1.1.0-RC10"
 
   lazy val project =
     Project(id = "reactive-mongo", base = file("reactive-mongo")).settings(

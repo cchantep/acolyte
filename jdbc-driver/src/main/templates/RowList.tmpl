@@ -43,7 +43,8 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
             
         copy.add(row);
 
-        return factory().rowList(#GC#, copy, getColumnLabels(), getColumnNullables());
+        return factory().rowList(#GC#, copy, getColumnLabels(), getColumnNullables(), isCycling());
+
     } // end of append
 
     /**
@@ -61,7 +62,8 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
 
         cols.put(label, (Integer) columnIndex);
 
-        return factory().rowList(#GC#, getRows(), cols, getColumnNullables());
+        return factory().
+            rowList(#GC#, getRows(), cols, getColumnNullables(), isCycling());
     } // end of withLabel
 
     /**
@@ -73,8 +75,17 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
 
         nls.put(columnIndex, nullable);
 
-        return factory().rowList(#GC#, getRows(), getColumnLabels(), nls);
+        return factory().
+            rowList(#GC#, getRows(), getColumnLabels(), nls, isCycling());
+
     } // end of withNullable
+
+    /**
+     * {@inheritDoc}
+     */
+    public UPDATED withCycling(final boolean cycling) {
+        return factory().rowList(#GC#, getRows(), getColumnLabels(), getColumnNullables(), cycling);
+    } // end of withCycling
 
     // --- Inner classes ---
 
@@ -88,7 +99,7 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
          *
          * @param nullables Nullable flags.
          */
-        public ROWLIST rowList(#CS#, final List<Row#N#<#CP#>> rows, final Map<String,Integer> labels, final Map<Integer,Boolean> nullables);
+        public ROWLIST rowList(#CS#, final List<Row#N#<#CP#>> rows, final Map<String,Integer> labels, final Map<Integer,Boolean> nullables, final boolean cycling);
 
     } // end of interface Factory
 
@@ -113,6 +124,11 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
          */
         final Map<Integer,Boolean> colNullables;
 
+        /**
+         * Cycling?
+         */
+        final boolean cycling;
+
         #PS#
 
         /**
@@ -127,7 +143,7 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
          *
          * @throws IllegalArgumentException if rows is null
          */
-        Impl(#CS#, final List<Row#N#<#CP#>> rows, final Map<String,Integer> colNames, final Map<Integer,Boolean> colNullables) {
+        Impl(#CS#, final List<Row#N#<#CP#>> rows, final Map<String,Integer> colNames, final Map<Integer,Boolean> colNullables, final boolean cycling) {
 
             #IC#
 
@@ -146,6 +162,7 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
             this.rows = Collections.unmodifiableList(rows);
             this.colNames = Collections.unmodifiableMap(colNames);
             this.colNullables = Collections.unmodifiableMap(colNullables);
+            this.cycling = cycling;
 
             // Column classes
             final ArrayList<Class<?>> colClasses = new ArrayList<Class<?>>();
@@ -159,7 +176,7 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
          * No-arg constructor.
          */
         Impl(#CS#) {
-            this(#CA#, new ArrayList<Row#N#<#CP#>>(), new HashMap<String,Integer>(), new HashMap<Integer,Boolean>());
+            this(#CA#, new ArrayList<Row#N#<#CP#>>(), new HashMap<String,Integer>(), new HashMap<Integer,Boolean>(), false);
         } // end of <init>
 
         // ---
@@ -171,8 +188,8 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
          */
         RowList#N#.Factory<#CP#, Impl<#CP#>> factory() {
             return new RowList#N#.Factory<#CP#,Impl<#CP#>>() {
-                public Impl<#CP#> rowList(#CS#, final List<Row#N#<#CP#>> rows, final Map<String,Integer> colNames, final Map<Integer,Boolean> colNullables) {
-                    return new Impl(#PSC#, rows, colNames, colNullables);
+                public Impl<#CP#> rowList(#CS#, final List<Row#N#<#CP#>> rows, final Map<String,Integer> colNames, final Map<Integer,Boolean> colNullables, final boolean cycling) {
+                    return new Impl(#PSC#, rows, colNames, colNullables, cycling);
                 }
             };
         } // end of factory
@@ -196,5 +213,7 @@ public abstract class RowList#N#<#CP#,UPDATED extends RowList#N#<#CP#,?>>
          * {@inheritDoc}
          */
         public Map<Integer,Boolean> getColumnNullables() { return this.colNullables; }
+
+        public boolean isCycling() { return this.cycling; }
     } // end of class Impl
 } // end of class RowList#N#

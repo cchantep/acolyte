@@ -73,6 +73,10 @@ public abstract class RowList<R extends Row> {
      */
     public abstract RowList<R> withNullable(int columnIndex, boolean nullable);
 
+    public abstract RowList<R> withCycling(boolean cycling);
+
+    public abstract boolean isCycling();
+
     /**
      * Returns result set from these rows.
      *
@@ -83,10 +87,11 @@ public abstract class RowList<R extends Row> {
      */
     public RowResultSet<R> resultSet(int maxRows) {
         if (maxRows <= 0) {
-            return new RowResultSet<R>(getRows());
+            return new RowResultSet<R>(getRows(), this.isCycling());
         } // end of if
 
-        return new RowResultSet<R>(getRows().subList(0, maxRows));
+        return new RowResultSet<R>(getRows().subList(0, maxRows),
+                                   this.isCycling());
     } // end of resultSet
 
     /**
@@ -165,6 +170,8 @@ public abstract class RowList<R extends Row> {
         private final Map<Integer,Boolean> nullables = 
             new HashMap<Integer,Boolean>(0);
 
+        private final boolean cycling = false;
+
         // --- Constructors ---
 
         /**
@@ -201,6 +208,17 @@ public abstract class RowList<R extends Row> {
 
             return this;
         } // end of withNullable
+
+        /**
+         * Returns unchanged nil row list.
+         */
+        public NilRowList withCycling(final boolean cycling) {
+            return this;
+        } // end of withCycling
+
+        public boolean isCycling() {
+            return this.cycling;
+        } // end of isCycling
 
         /**
          * Returns empty list of columns classes.
@@ -261,8 +279,8 @@ public abstract class RowList<R extends Row> {
          * Constructor
          * @param rows the list of rows
          */
-        protected RowResultSet(final List<R> rows) {
-            this(rows, null, null, null);
+        protected RowResultSet(final List<R> rows, final boolean cycling) {
+            this(rows, null, null, null, cycling);
         } // end of <init>
 
         /**
@@ -272,14 +290,17 @@ public abstract class RowList<R extends Row> {
          * @param last the cursor to last result
          * @param statement the associated statement
          * @param warning the SQL warning
+         * @param cycling
          */
         private RowResultSet(final List<R> rows,
                              final Object last,
                              final AbstractStatement statement,
-                             final SQLWarning warning) {
+                             final SQLWarning warning,
+                             final boolean cycling) {
 
             this(getColumnClasses(), getColumnLabels(), getColumnNullables(),
-                 rows, last, statement, warning);
+                 rows, last, statement, warning, cycling);
+
         } // end of <init>
 
         /**
@@ -292,6 +313,7 @@ public abstract class RowList<R extends Row> {
          * @param last the cursor to last result
          * @param statement the associated statement
          * @param warning the SQL warning
+         * @param cycling
          */
         private RowResultSet(final List<Class<?>> columnClasses,
                              final Map<String, Integer> columnLabels,
@@ -299,7 +321,8 @@ public abstract class RowList<R extends Row> {
                              final List<R> rows,
                              final Object last,
                              final AbstractStatement statement,
-                             final SQLWarning warning) {
+                             final SQLWarning warning,
+                             final boolean cycling) {
 
             if (columnClasses == null || columnLabels == null ||
                 columnNullables == null || rows == null) {
@@ -315,7 +338,9 @@ public abstract class RowList<R extends Row> {
             this.statement = statement;
             this.warning = warning;
             this.last = null;
+
             super.fetchSize = rows.size();
+            super.cycling = cycling;
 
             if (this.statement != null && super.fetchSize > 0 &&
                 "true".equals(this.statement.connection.getProperties().
@@ -336,9 +361,17 @@ public abstract class RowList<R extends Row> {
          */
         public RowResultSet<R> withStatement(final AbstractStatement statement) {
             return new RowResultSet<R>(this.rows, this.last, 
-                                       statement, this.warning);
+                                       statement, this.warning, this.cycling);
 
         } // end of withStatement
+
+        /**
+         * Returns updated resultset, with cycling set.
+         */
+        public RowResultSet<R> withCycling(final boolean cycling) {
+            return new RowResultSet<R>(this.rows, this.last, 
+                                       this.statement, this.warning, cycling);
+        } // end of withCycling
 
         /**
          * Returns updated resultset, with given |warning|.
@@ -348,7 +381,7 @@ public abstract class RowList<R extends Row> {
          */
         public RowResultSet<R> withWarning(final SQLWarning warning) {
             return new RowResultSet<R>(this.rows, this.last, 
-                                       this.statement, warning);
+                                       this.statement, warning, this.cycling);
 
         } // end of withWarning
 
@@ -369,9 +402,9 @@ public abstract class RowList<R extends Row> {
                 new HashMap<Integer,Boolean>();
 
             int i = 1;
-            for (String name : columnNames) {
-                Integer index = this.columnLabels.get(name);
-                Boolean nable = this.columnNullables.get(index);
+            for (final String name : columnNames) {
+                final Integer index = this.columnLabels.get(name);
+                final Boolean nable = this.columnNullables.get(index);
 
                 if (index != null) {
                     final Integer updIdx = new Integer(i++);
@@ -396,8 +429,8 @@ public abstract class RowList<R extends Row> {
 
             int upd = 1;
 
-            for (int index : columnIndexes) {
-                for (String columnName : this.columnLabels.keySet()) {
+            for (final int index : columnIndexes) {
+                for (final String columnName : this.columnLabels.keySet()) {
                     final Integer i = this.columnLabels.get(columnName);
 
                     if (i.intValue() == index) {
@@ -418,7 +451,7 @@ public abstract class RowList<R extends Row> {
             final ArrayList<Class<?>> classes =
                 new ArrayList<Class<?>>(labels.size());
 
-            for (String name : labels.keySet()) {
+            for (final String name : labels.keySet()) {
                 Integer index = labels.get(name);
                 Class<?> cls = this.columnClasses.get(index.intValue()-1);
 
@@ -430,13 +463,13 @@ public abstract class RowList<R extends Row> {
             final ArrayList<Row> projected =
                 new ArrayList<Row>(this.rows.size());
 
-            for (R row : this.rows) {
+            for (final R row : this.rows) {
                 final List<Object> orig = row.cells();
 
                 final ArrayList<Object> cells =
                     new ArrayList<Object>(columnIndexes.size());
 
-                for (Integer index : columnIndexes) {
+                for (final Integer index : columnIndexes) {
                     cells.add(orig.get(index.intValue()-1));
                 }
 
@@ -444,7 +477,8 @@ public abstract class RowList<R extends Row> {
             }
 
             return new RowResultSet(classes, labels, nullables, projected,
-                                    this.last, this.statement, this.warning);
+                                    this.last, this.statement, this.warning,
+                                    this.cycling);
             
         } // end of withProjection
 
@@ -472,6 +506,7 @@ public abstract class RowList<R extends Row> {
                 append(this.columnClasses, other.columnClasses).
                 append(this.columnLabels, other.columnLabels).
                 append(this.columnNullables, other.columnNullables).
+                append(this.cycling, other.cycling).
                 isEquals();
 
         } // end of equals
@@ -484,6 +519,7 @@ public abstract class RowList<R extends Row> {
                 append(this.columnClasses).
                 append(this.columnLabels).
                 append(this.columnNullables).
+                append(this.cycling).
                 toHashCode();
 
         } // end of hashCode

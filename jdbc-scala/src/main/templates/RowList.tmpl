@@ -6,12 +6,14 @@ import java.util.{ ArrayList, List => JList, Map => JMap }
 
 /** Scala implementation of RowList#N#. */
 #CLA#
-private[acolyte] class ScalaRowList#N#[#TC#](#CV#, rows: JList[Row#N#[#TC#]], colNames: JMap[String, Integer], colNullables: JMap[Integer, JBool]) extends RowList#N#[#TC#, ScalaRowList#N#[#TC#]] {
+private[acolyte] class ScalaRowList#N#[#TC#](#CV#, rows: JList[Row#N#[#TC#]], colNames: JMap[String, Integer], colNullables: JMap[Integer, JBool], cycling: Boolean) extends RowList#N#[#TC#, ScalaRowList#N#[#TC#]] {
 
   lazy val factory: RowList#N#.Factory[#TC#, ScalaRowList#N#[#TC#]] =
     new RowList#N#.Factory[#TC#, ScalaRowList#N#[#TC#]]() {
-      def rowList(#CA#, rows: JList[Row#N#[#TC#]], colNames: JMap[String, Integer], colNullables: JMap[Integer,JBool]): ScalaRowList#N#[#TC#] = new ScalaRowList#N#[#TC#](#CC#, rows, colNames, colNullables)
+      def rowList(#CA#, rows: JList[Row#N#[#TC#]], colNames: JMap[String, Integer], colNullables: JMap[Integer,JBool], cycling: Boolean): ScalaRowList#N#[#TC#] = new ScalaRowList#N#[#TC#](#CC#, rows, colNames, colNullables, cycling)
     }
+
+  def isCycling(): Boolean = cycling
 
   /** Rows */
   lazy val getRows: JList[Row#N#[#TC#]] = rows
