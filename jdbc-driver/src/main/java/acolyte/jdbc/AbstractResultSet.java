@@ -68,6 +68,11 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
      */
     protected final String cursorName;
 
+    /**
+     * Cycling?
+     */
+    protected boolean cycling = false;
+
     // --- Constructors ---
 
     /**
@@ -78,6 +83,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
             String.format("cursor-%d", System.identityHashCode(this));
 
         this.type = TYPE_FORWARD_ONLY;
+        this.cycling = false;
     } // end of <init>
 
     /**
@@ -92,6 +98,7 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
 
         this.cursorName = cursor;
         this.type = TYPE_FORWARD_ONLY;
+        this.cycling = false;
     } // end of <init>
 
     /**
@@ -107,10 +114,42 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
 
         this.cursorName = cursor;
         this.type = type;
+        this.cycling = false;
+    } // end of <init>
+
+    /**
+     * Bulk constructor.
+     *
+     * @param cursor the cursor name
+     * @param type the type of result set
+     * @param cycling cycling back to the first row after the last one?
+     */
+    protected AbstractResultSet(final String cursor,
+                                final int type,
+                                final boolean cycling) {
+
+        if (cursor == null) {
+            throw new IllegalArgumentException();
+        } // end of if
+
+        this.cursorName = cursor;
+        this.type = type;
+        this.cycling = cycling;
     } // end of <init>
 
     // ---
 
+    /**
+     * Returns whether is cycling?
+     */
+    public boolean isCycling() {
+        return this.cycling;
+    } // end of isCycling
+
+    protected void setCycling(boolean cycling) {
+        this.cycling = cycling;
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -532,9 +571,15 @@ public abstract class AbstractResultSet implements java.sql.ResultSet {
         } // end of if
 
         if (r > this.fetchSize) {
-            this.row = this.fetchSize + 1;
+            if (!this.cycling) {
+                this.row = this.fetchSize + 1;
+                
+                return false;
+            } else {
+                this.row = 1;
 
-            return false;
+                return true;
+            }
         } // end of if
 
         this.row = r;

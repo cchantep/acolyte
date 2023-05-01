@@ -32,7 +32,8 @@ object RowListSpec extends Specification with RowListTest {
         classOf[String],
         null,
         new java.util.HashMap[String, Integer](),
-        new java.util.HashMap[Integer, java.lang.Boolean]()
+        new java.util.HashMap[Integer, java.lang.Boolean](),
+        false
       ).aka("ctor") must throwA[IllegalArgumentException](
         message = "Invalid rows"
       )
@@ -44,7 +45,8 @@ object RowListSpec extends Specification with RowListTest {
         classOf[Float],
         new java.util.ArrayList[Row2[String, Float]](),
         null,
-        new java.util.HashMap[Integer, java.lang.Boolean]()
+        new java.util.HashMap[Integer, java.lang.Boolean](),
+        false
       ).aka("ctor") must throwA[IllegalArgumentException](
         message = "Invalid names"
       )
@@ -56,7 +58,8 @@ object RowListSpec extends Specification with RowListTest {
         classOf[Float],
         new java.util.ArrayList[Row2[String, Float]](),
         new java.util.HashMap[String, Integer](),
-        null
+        null,
+        false
       ).aka("ctor") must throwA[IllegalArgumentException](
         message = "Invalid nullable flags"
       )
@@ -346,12 +349,13 @@ object RowListSpec extends Specification with RowListTest {
       val url = "jdbc:acolyte:test"
       val ch = test.EmptyConnectionHandler
       lazy val con = new acolyte.jdbc.Connection(url, null, ch)
-      lazy val s = new AbstractStatement(con, ch.getStatementHandler) {}
+      val s = new AbstractStatement(con, ch.getStatementHandler) {}
+      val list = new RowList1.Impl(classOf[String]).withCycling(true)
+      val rs = list.resultSet.withStatement(s)
 
-      new RowList1.Impl(classOf[String]).resultSet
-        .withStatement(s)
-        .getStatement aka "statement" must_=== s
-
+      rs.isCycling must beTrue and {
+        rs.getStatement aka "statement" must_=== s
+      }
     }
   }
 
@@ -364,17 +368,34 @@ object RowListSpec extends Specification with RowListTest {
         .and(rs.getString(1) aka "single col" must_=== "strval")
     }
 
-    "be created with initial string values" in {
-      val rs = RowLists.stringList("A", "B", "C").resultSet
+    "be created with initial string values" >> {
+      val list = RowLists.stringList("A", "B", "C")
 
-      (rs.getFetchSize aka "size" must_=== 3)
-        .and(rs.next aka "has row #1" must beTrue)
-        .and(rs.getString(1) aka "single col #1" must_=== "A")
-        .and(rs.next aka "has row #2" must beTrue)
-        .and(rs.getString(1) aka "single col #2" must_=== "B")
-        .and(rs.next aka "has row #3" must beTrue)
-        .and(rs.getString(1) aka "single col #3" must_=== "C")
+      "without cycling" in {
+        val rs = list.resultSet
 
+        (rs.isCycling must beFalse)
+          .and(rs.getFetchSize aka "size" must_=== 3)
+          .and(rs.next aka "has row #1" must beTrue)
+          .and(rs.getString(1) aka "single col #1" must_=== "A")
+          .and(rs.next aka "has row #2" must beTrue)
+          .and(rs.getString(1) aka "single col #2" must_=== "B")
+          .and(rs.next aka "has row #3" must beTrue)
+          .and(rs.getString(1) aka "single col #3" must_=== "C")
+
+      }
+
+      "with cycling" in {
+        val rs = list.withCycling(true).resultSet
+
+        (rs.isCycling must beTrue)
+          .and((rs.next && rs.next && rs.next) must beTrue)
+          .and(rs.next must beTrue /* cycling */ )
+          .and(rs.getString(1) aka "single col #1" must_=== "A")
+          .and(rs.next aka "has row #2" must beTrue)
+          .and(rs.getString(1) aka "single col #2" must_=== "B")
+
+      }
     }
 
     "accept binary value" in {

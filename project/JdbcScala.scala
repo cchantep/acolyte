@@ -95,7 +95,7 @@ final class JdbcScala(jdbcDriver: Project) {
         val gp = (for (i <- 0 until n) yield letter(i)).mkString(", ")
         val ca = (for (i <- 0 until n) yield s"l.c$i").mkString(", ")
 
-        s"  implicit def rowList${n}AsScala[$gp](l: RowList$n.Impl[$gp]): ScalaRowList$n[$gp] = new ScalaRowList$n[$gp]($ca, l.rows, l.colNames, l.colNullables)\r\n"
+        s"  implicit def rowList${n}AsScala[$gp](l: RowList$n.Impl[$gp]): ScalaRowList$n[$gp] = new ScalaRowList$n[$gp]($ca, l.rows, l.colNames, l.colNullables, l.cycling)\r\n"
 
       })
       val tmpl = base / "src" / "main" / "templates" / "RowLists.tmpl"
