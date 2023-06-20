@@ -97,7 +97,7 @@ Test / console / scalacOptions ~= filteredScalacOpts
 // Silencer
 ThisBuild / libraryDependencies ++= {
   if (!scalaBinaryVersion.value.startsWith("3")) {
-    val silencerVersion = "1.7.13"
+    val silencerVersion = "1.17.13"
 
     Seq(
       compilerPlugin(
