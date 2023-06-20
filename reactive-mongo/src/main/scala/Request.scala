@@ -406,13 +406,21 @@ object CountRequest {
   /**
    * @return Collection name -> query body (count BSON properties)
    */
-  def unapply(request: Request): Option[(String, List[(String, BSONValue)])] =
+  def unapply(request: Request): Option[(String, Int, List[(String, BSONValue)])] =
     request match {
       case CommandRequest(
             ("count", BSONString(col)) ::
             ("query", ValueDocument(query)) :: _
           ) =>
-        Some(col -> query)
+        Some((col, 0, query))
+
+      case CommandRequest(
+            ("count", BSONString(col)) ::
+            ("skip", BSONInteger(skip)) ::
+            ("query", ValueDocument(query)) :: _
+          ) =>
+        Some((col, skip, query))
+
       // TODO: limit
 
       case _ => None
