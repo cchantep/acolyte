@@ -419,9 +419,9 @@ final class RequestSpec
   "Count request" should {
     "be extracted" in {
       count1 aka "request" must beLike {
-        case CountRequest("col3", ("fil", BSONString("ter")) :: Nil) => ok
+        case CountRequest("col3", 0, ("fil", BSONString("ter")) :: Nil) => ok
       }
-    }
+    } tag "wip"
   }
 
   "Find and modify request" should {
@@ -619,7 +619,11 @@ sealed trait RequestFixtures {
     val collection = f"db1.$$cmd"
 
     val body = List(
-      BSONDocument("count" -> "col3", "query" -> BSONDocument("fil" -> "ter"))
+      BSONDocument(
+        "count" -> "col3",
+        "skip" -> 0,
+        "query" -> BSONDocument("fil" -> "ter")
+      )
     )
   }
 
