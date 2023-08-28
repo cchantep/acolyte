@@ -41,6 +41,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
     ): Connection = connection
 
   protected def newChannelFactory(effect: Unit) =
+    // TODO: throw Exception as must not be used from there?
     reactivemongo.acolyte.channelFactory(supervisor, name, options)
 
   private def handleWrite(
@@ -181,6 +182,18 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
       // next forward msg
       ()
   }
+
+  // Akka hooks
+
+  override def preStart(): Unit =
+    info("Starting the MongoDBSystem")
+
+  override def postStop(): Unit =
+    info("Stopping the MongoDBSystem")
+
+  @SuppressWarnings(Array("NullParameter"))
+  override def postRestart(reason: Throwable): Unit =
+    info("MongoDBSystem is restarted", reason)
 
   // ---
 
