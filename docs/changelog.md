@@ -3,6 +3,10 @@ layout: page
 title: Changelog
 ---
 
+## 1.2.8 & 1.2.9
+
+ReactiveMongo support improvements
+
 ## 1.2.6 to 1.2.7
 
 Fixes for ReactiveMongo module & Cycling feature for JDBC row list (aka infinite `ResultSet`).
