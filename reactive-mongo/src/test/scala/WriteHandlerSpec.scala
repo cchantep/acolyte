@@ -206,6 +206,7 @@ final class WriteHandlerSpec
         UpdateOp,
         new Request {
           val collection = "col2"
+
           val body = List(
             BSONDocument(
               "q" -> BSONDocument("id" -> "id1"),

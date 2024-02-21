@@ -53,6 +53,7 @@ object AbstractStatementSpec extends Specification {
     lazy val h = new StatementHandler {
       def isQuery(s: String) = true
       def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
+
       def whenSQLQuery(s: String, p: Params) = {
         sql = s
         RowLists.stringList.asResult
@@ -155,6 +156,7 @@ object AbstractStatementSpec extends Specification {
     var sql: String = null
     lazy val h = new StatementHandler {
       def isQuery(s: String) = false
+
       def whenSQLUpdate(s: String, p: Params) = {
         sql = s; new UpdateResult(5).withGeneratedKeys(genKeys)
       }
@@ -326,6 +328,7 @@ object AbstractStatementSpec extends Specification {
     lazy val h = new StatementHandler {
       def isQuery(s: String) = true
       def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
+
       def whenSQLQuery(s: String, p: Params) = {
         RowLists.stringList.append("A").append("B").append("C").asResult
       }
@@ -373,6 +376,7 @@ object AbstractStatementSpec extends Specification {
     class Handler extends StatementHandler {
       var exed = Seq[String]()
       def isQuery(s: String) = false
+
       def whenSQLUpdate(s: String, p: Params) = {
         exed = exed :+ s; new UpdateResult(exed.size)
       }
@@ -403,6 +407,7 @@ object AbstractStatementSpec extends Specification {
 
     "throw exception as error is raised while executing first element" in {
       val h = new Handler {
+
         override def whenSQLUpdate(s: String, p: Params) =
           sys.error("Batch error")
       }
@@ -426,6 +431,7 @@ object AbstractStatementSpec extends Specification {
 
       var i = 0
       val h = new Handler {
+
         override def whenSQLUpdate(s: String, p: Params) = {
           i = i + 1
           if (i == 1) sys.error(s"Batch error: $i")
@@ -453,6 +459,7 @@ object AbstractStatementSpec extends Specification {
     "throw exception as error is raised while executing second element" in {
       var i = 0
       val h = new Handler {
+
         override def whenSQLUpdate(s: String, p: Params) = {
           i = i + 1
           if (i == 2) sys.error(s"Batch error: $i")
@@ -479,6 +486,7 @@ object AbstractStatementSpec extends Specification {
 
       var i = 0
       val h = new Handler {
+
         override def whenSQLUpdate(s: String, p: Params) = {
           i = i + 1
           if (i == 2) sys.error(s"Batch error: $i")
@@ -555,6 +563,7 @@ object AbstractStatementSpec extends Specification {
       lazy val h = new StatementHandler {
         def isQuery(s: String) = true
         def whenSQLUpdate(s: String, p: Params) = sys.error("Not")
+
         def whenSQLQuery(s: String, p: Params) =
           RowLists.stringList.asResult.withWarning(warning)
 
@@ -574,6 +583,7 @@ object AbstractStatementSpec extends Specification {
       lazy val h = new StatementHandler {
         def isQuery(s: String) = false
         def whenSQLQuery(s: String, p: Params) = sys.error("Not")
+
         def whenSQLUpdate(s: String, p: Params) =
           UpdateResult.Nothing.withWarning(warning)
 
