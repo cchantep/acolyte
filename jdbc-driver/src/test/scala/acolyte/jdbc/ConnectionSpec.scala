@@ -505,6 +505,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
           def getStatementHandler = test.EmptyStatementHandler
 
           def getResourceHandler = new ResourceHandler {
+
             def whenCommitTransaction(c: Connection): Unit = {
               commit += 1
             }
@@ -528,6 +529,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
           def getStatementHandler = test.EmptyStatementHandler
 
           def getResourceHandler = new ResourceHandler {
+
             def whenCommitTransaction(c: Connection): Unit =
               throw new SQLException("Bar")
 
@@ -816,6 +818,7 @@ object ConnectionSpec extends Specification with ConnectionFixtures {
       lazy val h = new StatementHandler {
         def isQuery(s: String) = false
         def whenSQLQuery(s: String, p: Params) = sys.error("Not")
+
         def whenSQLUpdate(s: String, p: Params) =
           UpdateResult.One.withGeneratedKeys(generatedKeys)
 

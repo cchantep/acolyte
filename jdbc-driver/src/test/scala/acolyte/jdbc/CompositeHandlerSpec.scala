@@ -83,6 +83,7 @@ object CompositeHandlerSpec extends Specification {
     "be successful" in {
       (new CompositeHandler()
         .withUpdateHandler(new UpdateHandler {
+
           def apply(s: String, p: java.util.List[Parameter]) =
             new UpdateResult(1)
         })
@@ -92,6 +93,7 @@ object CompositeHandlerSpec extends Specification {
         .and(
           new CompositeHandler()
             .withUpdateHandler(new UpdateHandler {
+
               def apply(s: String, p: java.util.List[Parameter]) =
                 new UpdateResult(3)
             })
@@ -102,6 +104,7 @@ object CompositeHandlerSpec extends Specification {
         .and(
           new CompositeHandler()
             .withUpdateHandler(new UpdateHandler {
+
               def apply(s: String, p: java.util.List[Parameter]) =
                 new UpdateResult(10)
             })
@@ -174,6 +177,7 @@ object CompositeHandlerSpec extends Specification {
       lazy val res =
         new CompositeHandler()
           .withQueryHandler(new QueryHandler {
+
             def apply(s: String, p: java.util.List[Parameter]) =
               RowLists.rowList1(classOf[String]).asResult.withWarning(warning)
           })
@@ -186,6 +190,7 @@ object CompositeHandlerSpec extends Specification {
       lazy val res =
         new CompositeHandler()
           .withUpdateHandler(new UpdateHandler {
+
             def apply(s: String, p: java.util.List[Parameter]) =
               UpdateResult.Nothing.withWarning(warning)
           })

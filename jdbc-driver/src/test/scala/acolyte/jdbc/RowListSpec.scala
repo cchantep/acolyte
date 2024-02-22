@@ -851,6 +851,7 @@ object RowListSpec extends Specification with RowListTest {
       lazy val sh = new StatementHandler {
         def isQuery(s: String) = true
         def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
+
         def whenSQLQuery(s: String, p: Params) = {
           RowLists
             .rowList1(classOf[String])
@@ -1001,6 +1002,7 @@ object RowListSpec extends Specification with RowListTest {
       lazy val sh = new StatementHandler {
         def isQuery(s: String) = true
         def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
+
         def whenSQLQuery(s: String, p: Params) = {
           RowLists
             .rowList1(Col(classOf[String], "colStr"))

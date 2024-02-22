@@ -171,6 +171,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
     class Handler extends StatementHandler {
       var exed = Seq[(String, Array[Parameter])]()
       def isQuery(s: String) = false
+
       def whenSQLUpdate(s: String, p: Params) = {
         exed = exed :+ (s -> p.toArray(Array[Parameter]()))
         new UpdateResult(exed.size)
@@ -220,6 +221,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
     "throw exception as error is raised while executing first element" in {
       val h = new Handler {
+
         override def whenSQLUpdate(s: String, p: Params) =
           sys.error("Batch error")
       }
@@ -244,6 +246,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       var i = 0
       val h = new Handler {
+
         override def whenSQLUpdate(s: String, p: Params) = {
           i = i + 1
           if (i == 1) sys.error(s"Batch error: $i")
@@ -271,6 +274,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
     "throw exception as error is raised while executing second element" in {
       var i = 0
       val h = new Handler {
+
         override def whenSQLUpdate(s: String, p: Params) = {
           i = i + 1
           if (i == 2) sys.error(s"Batch error: $i")
@@ -298,6 +302,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
 
       var i = 0
       val h = new Handler {
+
         override def whenSQLUpdate(s: String, p: Params) = {
           i = i + 1
           if (i == 2) sys.error(s"Batch error: $i")
@@ -1686,6 +1691,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
     lazy val h = new StatementHandler {
       def isQuery(s: String) = true
       def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
+
       def whenSQLQuery(s: String, p: Params) = {
         RowLists.rowList1(classOf[String]).asResult
       }
@@ -1740,6 +1746,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       lazy val h = new StatementHandler {
         def isQuery(s: String) = false
         def whenSQLQuery(s: String, p: Params) = sys.error("Not")
+
         def whenSQLUpdate(s: String, p: Params) =
           UpdateResult.One.withGeneratedKeys(RowLists.intList.append(200))
 
@@ -1760,6 +1767,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       lazy val h = new StatementHandler {
         def isQuery(s: String) = true
         def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
+
         def whenSQLQuery(s: String, p: Params) = {
           RowLists.rowList1(classOf[String]).asResult
         }
@@ -1788,6 +1796,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
     lazy val h = new StatementHandler {
       def isQuery(s: String) = true
       def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
+
       def whenSQLQuery(s: String, p: Params) = {
         RowLists.rowList1(classOf[String]).asResult
       }
@@ -1852,6 +1861,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       lazy val h = new StatementHandler {
         def isQuery(s: String) = true
         def whenSQLUpdate(s: String, p: Params) = sys.error("Not")
+
         def whenSQLQuery(s: String, p: Params) =
           RowLists.rowList1(classOf[String]).asResult.withWarning(warning)
 
@@ -1871,6 +1881,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       lazy val h = new StatementHandler {
         def isQuery(s: String) = false
         def whenSQLQuery(s: String, p: Params) = sys.error("Not")
+
         def whenSQLUpdate(s: String, p: Params) =
           UpdateResult.Nothing.withWarning(warning)
 
@@ -1897,9 +1908,11 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
     var param: Parameter = null
     lazy val h = new StatementHandler {
       def isQuery(s: String) = false
+
       def whenSQLUpdate(s: String, p: Params) = {
         sql = s; param = p.get(0); new UpdateResult(1)
       }
+
       def whenSQLQuery(s: String, p: Params) =
         RowLists.rowList1(classOf[String]).asResult
     }
@@ -1924,6 +1937,7 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
     lazy val h = new StatementHandler {
       def isQuery(s: String) = true
       def whenSQLUpdate(s: String, p: Params) = UpdateResult.Nothing
+
       def whenSQLQuery(s: String, p: Params) = {
         sql = s; param = p.get(0); RowLists.rowList1(classOf[String]).asResult
       }
