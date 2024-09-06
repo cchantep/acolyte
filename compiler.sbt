@@ -1,7 +1,7 @@
 ThisBuild / resolvers ++= (("Tatami Snapshots" at "https://raw.github.com/cchantep/tatami/master/snapshots") +: Resolver
   .sonatypeOssRepos("snapshots") ++: Resolver.sonatypeOssRepos("staging"))
 
-ThisBuild / scalaVersion := "2.12.17"
+ThisBuild / scalaVersion := "2.12.20"
 
 ThisBuild / crossScalaVersions := Seq(
   "2.11.12",
