@@ -30,7 +30,7 @@ class PlayJdbc(jdbcScala: Project) {
         },
         // make sure plugin is there
         libraryDependencies ++= {
-          val anorm = "org.playframework.anorm" %% "anorm" % "2.7.0"
+          val anorm = "org.playframework.anorm" %% "anorm" % "2.8.0"
 
           Seq(
             "org.eu.acolyte" % "jdbc-driver" % (ThisBuild / version).value,
