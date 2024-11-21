@@ -16,7 +16,7 @@ object JdbcDriver {
         _.filterNot(o => o.startsWith("-Y") || o.startsWith("-W"))
       },
       libraryDependencies ++= Seq(
-        "commons-io" % "commons-io" % "2.17.0",
+        "commons-io" % "commons-io" % "2.18.0",
         "org.apache.commons" % "commons-lang3" % "3.9",
         "org.specs2" %% "specs2-core" % specsVer.value % Test
       ),
