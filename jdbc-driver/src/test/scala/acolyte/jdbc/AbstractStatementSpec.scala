@@ -552,6 +552,26 @@ object AbstractStatementSpec extends Specification {
     }
   }
 
+  "Exception" should {
+    "be thrown" in {
+      lazy val h = new StatementHandler {
+        def isQuery(s: String) = true
+        def whenSQLUpdate(s: String, p: Params) =
+          UpdateResult.Nothing.withException("Bar")
+
+        def whenSQLQuery(s: String, p: Params) =
+          RowLists.stringList.asResult.withException(new SQLException("Foo"))
+
+      }
+
+      val s = statement(h = h)
+
+      s.executeQuery("TEST") must throwA[SQLException]("Foo") and {
+        s.executeUpdate("TEST") must throwA[SQLException]("Bar")
+      }
+    }
+  }
+
   "Warning" should {
     lazy val warning = new java.sql.SQLWarning("TEST")
 
@@ -569,7 +589,7 @@ object AbstractStatementSpec extends Specification {
 
       }
 
-      lazy val s = statement(h = h)
+      val s = statement(h = h)
       s.executeQuery("TEST")
 
       (s.getWarnings aka "warning" must_=== warning).and(
@@ -589,7 +609,7 @@ object AbstractStatementSpec extends Specification {
 
       }
 
-      lazy val s = statement(h = h)
+      val s = statement(h = h)
       s.executeUpdate("TEST")
 
       s.getWarnings aka "warning" must_=== warning

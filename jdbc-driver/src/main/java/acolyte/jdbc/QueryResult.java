@@ -1,5 +1,6 @@
 package acolyte.jdbc;
 
+import java.sql.SQLException;
 import java.sql.SQLWarning;
 
 /**
@@ -30,6 +31,7 @@ public interface QueryResult extends Result<QueryResult> {
     final class Default implements QueryResult {
         final RowList<?> rowList;
         final SQLWarning warning;
+        final SQLException exception;
 
         /**
          * Rows constructor.
@@ -37,7 +39,7 @@ public interface QueryResult extends Result<QueryResult> {
          * @param list the list of rows for this result
          */
         protected Default(final RowList<?> list) {
-            this(list, null);
+            this(list, null, null);
         } // end of <init>
 
         /**
@@ -46,9 +48,13 @@ public interface QueryResult extends Result<QueryResult> {
          * @param list the list of rows for this result
          * @param warning the SQL warning
          */
-        private Default(final RowList<?> list, final SQLWarning warning) {
+        private Default(final RowList<?> list,
+                        final SQLWarning warning,
+                        final SQLException exception) {
+
             this.rowList = list;
             this.warning = warning;
+            this.exception = exception;
         } // end of <init>
 
         // ---
@@ -64,7 +70,7 @@ public interface QueryResult extends Result<QueryResult> {
          * {@inheritDoc}
          */
         public QueryResult withWarning(final SQLWarning warning) {
-            return new Default(this.rowList, warning);
+            return new Default(this.rowList, warning, this.exception);
         } // end of withWarning
 
         /**
@@ -84,6 +90,27 @@ public interface QueryResult extends Result<QueryResult> {
         /**
          * {@inheritDoc}
          */
+        public QueryResult withException(final SQLException exception) {
+            return new Default(this.rowList, this.warning, exception);
+        } // end of withException
+
+        /**
+         * {@inheritDoc}
+         */
+        public QueryResult withException(final String message) {
+            return withException(new SQLException(message));
+        } // end of withException
+
+        /**
+         * {@inheritDoc}
+         */
+        public SQLException getException() {
+            return this.exception;
+        } // end of getException
+
+        /**
+         * {@inheritDoc}
+         */
         public boolean equals(final Object o) {
             if (o == null || !(o instanceof QueryResult.Default)) {
                 return false;
@@ -91,9 +118,13 @@ public interface QueryResult extends Result<QueryResult> {
 
             final QueryResult.Default other = (QueryResult.Default) o;
 
-            return ((this.rowList == null && other.rowList == null) ||
-                    (this.rowList != null && 
-                     this.rowList.equals(other.rowList)));
+            return (((this.rowList == null && other.rowList == null) ||
+                     (this.rowList != null && 
+                      this.rowList.equals(other.rowList))) &&
+                    ((this.warning == null && other.warning == null) ||
+                     (this.warning != null && this.warning.equals(other.warning))) &&
+                    ((this.exception == null && other.exception == null) ||
+                     (this.exception != null && this.exception.equals(other.exception))));
 
         } // end of equals
 

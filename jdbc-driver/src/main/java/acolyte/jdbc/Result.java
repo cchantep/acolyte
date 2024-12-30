@@ -1,5 +1,6 @@
 package acolyte.jdbc;
 
+import java.sql.SQLException;
 import java.sql.SQLWarning;
 
 /**
@@ -30,5 +31,29 @@ public interface Result<SELF extends Result> {
      * @return the SQL warning, or null
      */
     public SQLWarning getWarning();
+
+    /**
+     * Returns result with given SQL exception
+     * that will be thrown by each method declaring it.
+     *
+     * @param message the SQL exception
+     * @return new result with specified exception
+     */
+    public SELF withException(SQLException message);
+
+    /**
+     * Returns result with message for an SQL exception
+     * that will be thrown by each method declaring it.
+     *
+     * @param message the SQL exception message
+     * @return new result with specified exception message
+     */
+    public SELF withException(String message);
+
+    /**
+     * Returns associated exception.
+     * @return the SQL exception, or null
+     */
+    public SQLException getException();
 
 } // end class Result

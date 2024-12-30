@@ -49,9 +49,9 @@ object CompositeHandlerSpec extends Specification {
           .withQueryDetection("^SELECT ")
           .withQueryDetection("EXEC that_proc")
 
-        (h.isQuery("EXEC that_proc('test')") aka "detection #1" must beTrue)
-          .and(h.isQuery("SELECT *") aka "detection #2" must beTrue)
-
+        h.isQuery("EXEC that_proc('test')") aka "detection #1" must beTrue and {
+          h.isQuery("SELECT *") aka "detection #2" must beTrue
+        }
       }
 
       "set up in one time" in {
@@ -174,7 +174,7 @@ object CompositeHandlerSpec extends Specification {
     lazy val warning = new java.sql.SQLWarning("TEST")
 
     "be found for query" in {
-      lazy val res =
+      val res =
         new CompositeHandler()
           .withQueryHandler(new QueryHandler {
 
@@ -187,7 +187,7 @@ object CompositeHandlerSpec extends Specification {
     }
 
     "be found for update" in {
-      lazy val res =
+      val res =
         new CompositeHandler()
           .withUpdateHandler(new UpdateHandler {
 
