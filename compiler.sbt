@@ -59,7 +59,8 @@ ThisBuild / scalacOptions ++= {
     )
   } else if (sv == "2.13") {
     Seq(
-      "-release", "8",
+      "-release",
+      "8",
       "-explaintypes",
       "-Werror",
       "-Wnumeric-widen",
@@ -70,7 +71,7 @@ ThisBuild / scalacOptions ++= {
       "-Wunused"
     )
   } else if (sv != "3") {
-    Seq(      "-release", "8", "-Wunused:all", "-language:implicitConversions")
+    Seq("-release", "8", "-Wunused:all", "-language:implicitConversions")
   } else {
     Seq.empty[String]
   }

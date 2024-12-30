@@ -1,5 +1,6 @@
 package acolyte.jdbc;
 
+import java.sql.SQLException;
 import java.sql.SQLWarning;
 
 /**
@@ -24,6 +25,7 @@ public final class UpdateResult implements Result<UpdateResult> {
 
     public final int count;
     public final SQLWarning warning;
+    public final SQLException exception;
     public final RowList<?> generatedKeys;
 
     // --- Constructors ---
@@ -33,18 +35,20 @@ public final class UpdateResult implements Result<UpdateResult> {
      */
     private UpdateResult(final int count, 
                          final RowList<?> generatedKeys,
-                         final SQLWarning warning) {
+                         final SQLWarning warning,
+                         final SQLException exception) {
 
         this.count = count;
         this.generatedKeys = generatedKeys;
         this.warning = warning;
+        this.exception = exception;
     } // end of <init>
 
     /**
      * With-warning constructor.
      */
     private UpdateResult(final int count, final SQLWarning warning) {
-        this(count, null, warning);
+        this(count, null, warning, null);
     } // end of <init>
 
     /**
@@ -83,7 +87,7 @@ public final class UpdateResult implements Result<UpdateResult> {
      * @param keys Generated keys
      */
     public UpdateResult withGeneratedKeys(final RowList<?> keys) {
-        return new UpdateResult(this.count, keys, this.warning);
+        return new UpdateResult(this.count, keys, this.warning, null);
     } // end of withGeneratedKeys
 
     /**
@@ -106,4 +110,25 @@ public final class UpdateResult implements Result<UpdateResult> {
     public SQLWarning getWarning() {
         return this.warning;
     } // end of getWarning
+
+    /**
+     * {@inheritDoc}
+     */
+    public UpdateResult withException(final SQLException exception) {
+        return new UpdateResult(this.count, this.generatedKeys, this.warning, exception);
+    } // end of withException
+
+    /**
+     * {@inheritDoc}
+     */
+    public UpdateResult withException(final String message) {
+        return withException(new SQLException(message));
+    } // end of withException
+
+    /**
+     * {@inheritDoc}
+     */
+    public SQLException getException() {
+        return this.exception;
+    } // end of getException
 } // end of interface UpdateResult

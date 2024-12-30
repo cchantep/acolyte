@@ -1854,6 +1854,26 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
     }
   }
 
+  "Exception" should {
+    "be thrown" in {
+      lazy val h = new StatementHandler {
+        def isQuery(s: String) = true
+        def whenSQLUpdate(s: String, p: Params) =
+          UpdateResult.Nothing.withException("Bar")
+
+        def whenSQLQuery(s: String, p: Params) =
+          RowLists.stringList.asResult.withException(new SQLException("Foo"))
+
+      }
+
+      val s = statement(h = h)
+
+      s.executeQuery("TEST") must throwA[SQLException]("Foo") and {
+        s.executeUpdate("TEST") must throwA[SQLException]("Bar")
+      }
+    }
+  }
+
   "Warning" should {
     lazy val warning = new java.sql.SQLWarning("TEST")
 
@@ -1870,11 +1890,11 @@ trait StatementSpecification[S <: PreparedStatement] extends Setters {
       lazy val s = statement(h = h)
       s.executeQuery("TEST")
 
-      (s.getWarnings aka "warning" must_=== warning)
-        .and(Option(s.getResultSet) must beSome[ResultSet].which {
+      s.getWarnings aka "warning" must_=== warning and {
+        Option(s.getResultSet) must beSome[ResultSet].which {
           _.getWarnings aka "result warning" must_=== warning
-        })
-
+        }
+      }
     }
 
     "be found for update" in {

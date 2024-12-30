@@ -214,6 +214,13 @@ public class PreparedStatement
 
         try {
             final QueryResult res = this.handler.whenSQLQuery(sql, params);
+            final SQLException exception = res.getException();
+
+            if (exception != null) {
+                throw exception;
+            }
+
+            // ---
 
             // Not an update, so no update count or generated keys
             this.updateCount = -1;
@@ -292,6 +299,14 @@ public class PreparedStatement
 
         try {
             final UpdateResult res = this.handler.whenSQLUpdate(sql, params);
+            final SQLException exception = res.getException();
+
+            if (exception != null) {
+                throw exception;
+            }
+
+            // ---
+            
             final SQLWarning w = res.getWarning();
             final ResultSet k = (res.generatedKeys == null) 
                 ? EMPTY_GENERATED_KEYS.withStatement(this)
