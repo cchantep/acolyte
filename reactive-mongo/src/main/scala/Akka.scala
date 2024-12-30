@@ -86,14 +86,14 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
           val opBody: Option[List[BSONDocument]] = if (k == "insert") {
             es.collectFirst {
               case ("documents", a: BSONArray) =>
-                a.values.toList.collect { case doc: BSONDocument => doc }
+                a.values.toList.collect { case nested: BSONDocument => nested }
             }
           } else {
             val Key = k + "s"
 
             es.collectFirst {
               case (Key, a: BSONArray) =>
-                a.values.toList.collect { case doc: BSONDocument => doc }
+                a.values.toList.collect { case nested: BSONDocument => nested }
             }
           }
 
