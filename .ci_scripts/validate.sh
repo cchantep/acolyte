@@ -4,7 +4,7 @@ set -e
 
 SCRIPT_DIR=`dirname $0`
 
-if [ "v$SCALA_VERSION" = "v2.13.8" ]; then
+if [ "v$SCALA_VERSION" = "v2.13.15" ]; then
     echo "[INFO] Check the source format and backward compatibility"
 
     sbt ";++$SCALA_VERSION ;error ;scalafixAll -check ;scalafmtCheckAll" || (cat >> /dev/stdout <<EOF

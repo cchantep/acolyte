@@ -1,13 +1,13 @@
 ThisBuild / resolvers ++= (("Tatami Snapshots" at "https://raw.github.com/cchantep/tatami/master/snapshots") +: Resolver
   .sonatypeOssRepos("snapshots") ++: Resolver.sonatypeOssRepos("staging"))
 
-ThisBuild / scalaVersion := "2.12.17"
+ThisBuild / scalaVersion := "2.12.20"
 
 ThisBuild / crossScalaVersions := Seq(
   "2.11.12",
   scalaVersion.value,
-  "2.13.8",
-  "3.2.2"
+  "2.13.15",
+  "3.4.2"
 )
 
 crossVersion := CrossVersion.binary
@@ -24,7 +24,6 @@ ThisBuild / scalacOptions ++= {
   if (scalaBinaryVersion.value startsWith "2.") {
     Seq(
       "-Xfatal-warnings",
-      "-target:jvm-1.8",
       "-Xlint",
       "-g:vars",
       "-language:higherKinds"
@@ -37,6 +36,7 @@ ThisBuild / scalacOptions ++= {
 
   if (sv == "2.12") {
     Seq(
+      "-target:jvm-1.8",
       "-Xmax-classfile-name",
       "128",
       "-Ywarn-numeric-widen",
@@ -49,6 +49,7 @@ ThisBuild / scalacOptions ++= {
     )
   } else if (sv == "2.11") {
     Seq(
+      "-target:jvm-1.8",
       "-Xmax-classfile-name",
       "128",
       "-Yopt:_",
@@ -58,6 +59,7 @@ ThisBuild / scalacOptions ++= {
     )
   } else if (sv == "2.13") {
     Seq(
+      "-release", "8",
       "-explaintypes",
       "-Werror",
       "-Wnumeric-widen",
@@ -68,9 +70,21 @@ ThisBuild / scalacOptions ++= {
       "-Wunused"
     )
   } else if (sv != "3") {
-    Seq("-Wunused:all", "-language:implicitConversions")
+    Seq(      "-release", "8", "-Wunused:all", "-language:implicitConversions")
   } else {
     Seq.empty[String]
+  }
+}
+
+ThisBuild / scalacOptions ++= {
+  val ver = scalaBinaryVersion.value
+
+  if (ver == "2.13") {
+    Seq(
+      "-Wconf:msg=.*inferred\\ to\\ be.*(Any|AnyVal|Object).*:is"
+    )
+  } else {
+    Seq.empty
   }
 }
 
@@ -95,9 +109,17 @@ Compile / console / scalacOptions ~= filteredScalacOpts
 Test / console / scalacOptions ~= filteredScalacOpts
 
 // Silencer
-ThisBuild / libraryDependencies ++= {
-  if (!scalaBinaryVersion.value.startsWith("3")) {
-    val silencerVersion = "1.17.13"
+libraryDependencies ++= {
+  val v = scalaBinaryVersion.value
+
+  if (!v.startsWith("3")) {
+    val silencerVersion: String = {
+      if (v == "2.11") {
+        "1.17.13"
+      } else {
+        "1.7.19"
+      }
+    }
 
     Seq(
       compilerPlugin(
