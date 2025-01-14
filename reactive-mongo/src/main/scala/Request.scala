@@ -406,7 +406,9 @@ object CountRequest {
   /**
    * @return Collection name -> query body (count BSON properties)
    */
-  def unapply(request: Request): Option[(String, Int, List[(String, BSONValue)])] =
+  def unapply(
+      request: Request
+    ): Option[(String, Int, List[(String, BSONValue)])] =
     request match {
       case CommandRequest(
             ("count", BSONString(col)) ::
