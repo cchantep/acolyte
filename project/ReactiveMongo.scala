@@ -27,7 +27,7 @@ final class ReactiveMongo { self =>
       },
       libraryDependencies ++= Seq(
         "org.reactivemongo" %% "reactivemongo" % reactiveMongoVer % Provided,
-        "org.slf4j" % "slf4j-simple" % "2.0.16" % Provided,
+        "org.slf4j" % "slf4j-simple" % "2.0.17" % Provided,
         "org.specs2" %% "specs2-core" % specsVer.value % Test
       ),
       libraryDependencies += {
