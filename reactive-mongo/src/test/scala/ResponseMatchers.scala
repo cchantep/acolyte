@@ -67,7 +67,7 @@ trait ResponseMatchers { specs: Specification =>
               m aka "error message" must_=== msg and ((code, others).aka(
                 "extra properties"
               ) must beLike {
-                case (None, _) => ok
+                case (None, _)                                  => ok
                 case (Some(a), ("code", BSONInteger(b)) :: Nil) =>
                   a aka "code" must_=== b
               })
