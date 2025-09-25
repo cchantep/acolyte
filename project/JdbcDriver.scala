@@ -17,7 +17,7 @@ object JdbcDriver {
       },
       libraryDependencies ++= Seq(
         "commons-io" % "commons-io" % "2.20.0",
-        "org.apache.commons" % "commons-lang3" % "3.18.0",
+        "org.apache.commons" % "commons-lang3" % "3.19.0",
         "org.specs2" %% "specs2-core" % specsVer.value % Test
       ),
       Compile / sourceGenerators += Def.task[Seq[File]] {
