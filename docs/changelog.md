@@ -3,6 +3,10 @@ layout: page
 title: Changelog
 ---
 
+## 1.2.10 & 1.2.11
+
+Dependency updates & minor JDBC improvements.	
+
 ## 1.2.8 & 1.2.9
 
 ReactiveMongo support improvements

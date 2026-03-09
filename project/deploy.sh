@@ -1,6 +1,8 @@
 #! /bin/sh
 
-REPO="https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+# curl -D - -X POST -u '...' "https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/org.reactivemongo"
+
+REPO="https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
 
 VERSION="$1"
 KEY="$2"
