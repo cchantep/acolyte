@@ -67,7 +67,7 @@ jobs:
     working_directory: ~/repo
 
     environment:
-      SCALA_VERSION: 2.11.12
+      SCALA_VERSION: 2.11
     
     steps:
       - checkout
@@ -84,7 +84,7 @@ jobs:
     working_directory: ~/repo
 
     environment:
-      SCALA_VERSION: 2.12.21
+      SCALA_VERSION: 2.12
     
     steps:
       - checkout
@@ -101,7 +101,7 @@ jobs:
     working_directory: ~/repo
 
     environment:
-      SCALA_VERSION: 2.13.16
+      SCALA_VERSION: 2.13
     
     steps:
       - checkout
@@ -118,7 +118,7 @@ jobs:
     working_directory: ~/repo
 
     environment:
-      SCALA_VERSION: 3.4.3
+      SCALA_VERSION: 3.3
     
     steps:
       - checkout
@@ -155,8 +155,8 @@ jobs:
             fi
 
             export PUBLISH_REPO_NAME="Sonatype Nexus Repository Manager"
-            export PUBLISH_REPO_ID="oss.sonatype.org"
-            export PUBLISH_REPO_URL="https://oss.sonatype.org/content/repositories/snapshots"
+            export PUBLISH_REPO_ID="central.sonatype.com"
+            export PUBLISH_REPO_URL="https://central.sonatype.com/repository/maven-snapshots/"
 
             if [ "x$PUBLISH_USER" = "x" -o "x$PUBLISH_PASS" = "x" ]; then
               echo "Missing publication credentials"
