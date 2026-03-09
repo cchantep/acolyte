@@ -1,5 +1,10 @@
-ThisBuild / resolvers ++= (("Tatami Snapshots" at "https://raw.github.com/cchantep/tatami/master/snapshots") +: Resolver
-  .sonatypeOssRepos("snapshots") ++: Resolver.sonatypeOssRepos("staging"))
+ThisBuild / resolvers ++= Seq(
+  "Tatami Snapshots" at "https://raw.github.com/cchantep/tatami/master/snapshots",
+  Resolver.sonatypeCentralSnapshots)
+
+ThisBuild / Compile / javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
+
+ThisBuild / Compile / doc / javacOptions --= Seq("-source", "1.8", "-target", "1.8")
 
 ThisBuild / scalaVersion := "2.12.20"
 
@@ -7,7 +12,7 @@ ThisBuild / crossScalaVersions := Seq(
   "2.11.12",
   scalaVersion.value,
   "2.13.15",
-  "3.4.2"
+  "3.3.7"
 )
 
 crossVersion := CrossVersion.binary
