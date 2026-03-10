@@ -1,10 +1,16 @@
 ThisBuild / resolvers ++= Seq(
   "Tatami Snapshots" at "https://raw.github.com/cchantep/tatami/master/snapshots",
-  Resolver.sonatypeCentralSnapshots)
+  Resolver.sonatypeCentralSnapshots
+)
 
 ThisBuild / Compile / javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
 
-ThisBuild / Compile / doc / javacOptions --= Seq("-source", "1.8", "-target", "1.8")
+ThisBuild / Compile / doc / javacOptions --= Seq(
+  "-source",
+  "1.8",
+  "-target",
+  "1.8"
+)
 
 ThisBuild / scalaVersion := "2.12.20"
 
