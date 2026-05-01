@@ -63,10 +63,7 @@ ThisBuild / scalacOptions ++= {
       "-target:jvm-1.8",
       "-Xmax-classfile-name",
       "128",
-      "-Yopt:_",
-      "-Ydead-code",
-      "-Yclosure-elim",
-      "-Yconst-opt"
+      "-Ywarn-unused-import"
     )
   } else if (sv == "2.13") {
     Seq(
@@ -79,10 +76,11 @@ ThisBuild / scalacOptions ++= {
       "-Wvalue-discard",
       "-Wextra-implicit",
       "-Wmacros:after",
-      "-Wunused"
+      "-Wunused",
+      "-Wunused:imports"
     )
-  } else if (sv != "3") {
-    Seq("-release", "8", "-Wunused:all", "-language:implicitConversions")
+  } else if (sv == "3") {
+    Seq("-release", "8", "-Wunused:imports", "-language:implicitConversions")
   } else {
     Seq.empty[String]
   }
