@@ -1,5 +1,6 @@
 import scala.util.Properties.isJavaAtLeast
 
+import scalafix.sbt.ScalafixPlugin.autoImport._
 import sbt._
 import Keys._
 
@@ -15,6 +16,7 @@ object JdbcDriver {
       scalacOptions ~= {
         _.filterNot(o => o.startsWith("-Y") || o.startsWith("-W"))
       },
+      scalafix / skip := true,
       libraryDependencies ++= Seq(
         "commons-io" % "commons-io" % "2.21.0",
         "org.apache.commons" % "commons-lang3" % "3.20.0",
