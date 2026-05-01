@@ -18,7 +18,7 @@ object JdbcDriver {
       },
       scalafix / skip := true,
       libraryDependencies ++= Seq(
-        "commons-io" % "commons-io" % "2.21.0",
+        "commons-io" % "commons-io" % "2.22.0",
         "org.apache.commons" % "commons-lang3" % "3.20.0",
         "org.specs2" %% "specs2-core" % specsVer.value % Test
       ),
