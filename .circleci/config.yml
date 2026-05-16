@@ -96,7 +96,7 @@ jobs:
 
   scala213_jdk8:
     docker:
-      - image: cimg/openjdk:8.0
+      - image: cimg/openjdk:11.0
 
     working_directory: ~/repo
 
@@ -118,12 +118,66 @@ jobs:
     working_directory: ~/repo
 
     environment:
-      SCALA_VERSION: 3.3
+      SCALA_VERSION: 3.4
     
     steps:
       - checkout
       - setup_sbt
       - build_n_tests
+      - collect_test_reports
+      - store_test_results:
+          path: test-reports
+
+  jdbc_mcp_jdk11:
+    docker:
+      - image: cimg/openjdk:11.0
+      - image: postgres:15
+        environment:
+          POSTGRES_DB: test_db
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+      - setup_sbt
+      - restore_cache:
+          keys:
+          - &jdbc_mcp_cache_key jdbc-mcp-{{ checksum "version.sbt" }}-{{ checksum "build.sbt" }}-{{ checksum "jdbc-mcp/build.sbt" }}
+
+      - run:
+          name: Compile jdbc-mcp
+          command: |
+                    export PATH=$PATH:~/sbt/bin
+                    sbt jdbc-mcp/compile
+
+      - run:
+          name: Run jdbc-mcp tests
+          command: |
+                    export PATH=$PATH:~/sbt/bin
+                    sbt jdbc-mcp/test
+          environment:
+            POSTGRES_HOST: localhost
+            POSTGRES_PORT: "5432"
+            POSTGRES_DB: test_db
+            POSTGRES_USER: test_user
+            POSTGRES_PASSWORD: test_password
+
+      - run:
+          name: Check jdbc-mcp code quality
+          command: |
+                    export PATH=$PATH:~/sbt/bin
+                    sbt -Dsbt.log.noformat=true \
+                      'set scalacOptions += "-Xfatal-warnings"' \
+                      jdbc-mcp/compile
+
+      - save_cache:
+          paths:
+            - ~/.ivy2
+            - ~/.coursier/cache
+            - ~/.sbt
+          key: *jdbc_mcp_cache_key
+
       - collect_test_reports
       - store_test_results:
           path: test-reports
@@ -175,6 +229,8 @@ workflows:
       - scala212_jdk8
       - scala213_jdk8
       - scala3_jdk10
+
+      - jdbc_mcp_jdk11
 
       - publish_snapshots:
           filters:

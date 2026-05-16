@@ -14,6 +14,8 @@ val jdbcScala = new JdbcScala(jdbcDriver).project
 
 val playJdbc = new PlayJdbc(jdbcScala).project
 
+val jdbcMcp = JdbcMcp.project.dependsOn(jdbcDriver)
+
 // ReactiveMongo
 val rm = new ReactiveMongo()
 val reactiveMongo = rm.project
@@ -37,14 +39,15 @@ lazy val studio = (sbt.project in file("studio")).settings(
 // Aggregation
 val versionVariant = if (isJavaAtLeast("1.7")) "-j7p" else ""
 
-val javaVersion =
+val javaVersion = {
   if (isJavaAtLeast("1.8")) "1.8"
   else if (isJavaAtLeast("1.7")) "1.7"
   else "1.6"
+}
 
 lazy val root = Project(id = "acolyte", base = file("."))
   .settings(Publish.settings)
-  .aggregate(reactiveMongo, jdbcDriver, jdbcScala, studio)
+  .aggregate(reactiveMongo, jdbcDriver, jdbcScala, studio, jdbcMcp)
   .disablePlugins(HighlightExtractorPlugin, ScaladocExtractorPlugin)
   .configure { p =>
     if (isJavaAtLeast("1.8")) {

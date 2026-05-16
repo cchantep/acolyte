@@ -16,7 +16,9 @@ import reactivemongo.acolyte.{ parseResponse, Response }
 
 trait ResponseMatchers { specs: Specification =>
 
-  def beResponse(f: List[BSONDocument] => MatchResult[_]) =
+  def beResponse(
+      f: List[BSONDocument] => MatchResult[_]
+    ): Matcher[Try[Response]] =
     new Matcher[Try[Response]] {
 
       def apply[R <: Try[Response]](e: Expectable[R]) = {
@@ -33,7 +35,9 @@ trait ResponseMatchers { specs: Specification =>
       }
     }
 
-  def beResponseLike(f: PartialFunction[List[BSONDocument], MatchResult[_]]) =
+  def beResponseLike(
+      f: PartialFunction[List[BSONDocument], MatchResult[_]]
+    ): Matcher[Try[Response]] =
     new Matcher[Try[Response]] {
 
       def apply[R <: Try[Response]](e: Expectable[R]) = {
@@ -55,7 +59,10 @@ trait ResponseMatchers { specs: Specification =>
       }
     }
 
-  def beQueryError(msg: String, code: Option[Int] = None) =
+  def beQueryError(
+      msg: String,
+      code: Option[Int] = None
+    ): Matcher[Try[Response]] =
     new Matcher[Try[Response]] {
 
       def apply[R <: Try[Response]](e: Expectable[R]) =
@@ -75,7 +82,10 @@ trait ResponseMatchers { specs: Specification =>
         }
     }
 
-  def beWriteError(msg: String, code: Option[Int] = None) =
+  def beWriteError(
+      msg: String,
+      code: Option[Int] = None
+    ): Matcher[Try[Response]] =
     new Matcher[Try[Response]] {
 
       def apply[R <: Try[Response]](e: Expectable[R]) =
@@ -95,7 +105,10 @@ trait ResponseMatchers { specs: Specification =>
         }
     }
 
-  def beWriteSuccess(count: Int, updatedExisting: Boolean) =
+  def beWriteSuccess(
+      count: Int,
+      updatedExisting: Boolean
+    ): Matcher[List[BSONDocument]] =
     new Matcher[List[BSONDocument]] {
       val C = count
       val U = updatedExisting

@@ -1,0 +1,82 @@
+{
+  "standard_mappings": {
+    "CHAR": "String",
+    "VARCHAR": "String",
+    "VARCHAR2": "String",
+    "NCHAR": "String",
+    "NVARCHAR": "String",
+    "NVARCHAR2": "String",
+    "TEXT": "String",
+    "CLOB": "String",
+    "NCLOB": "String",
+    "LONGVARCHAR": "String",
+    "BOOLEAN": "Boolean",
+    "BOOL": "Boolean",
+    "BIT": "Boolean",
+    "TINYINT": "Integer",
+    "SMALLINT": "Integer",
+    "INTEGER": "Integer",
+    "INT": "Integer",
+    "BIGINT": "Long",
+    "LONG": "Long",
+    "FLOAT": "Double",
+    "REAL": "Float",
+    "DOUBLE": "Double",
+    "DECIMAL": "BigDecimal",
+    "NUMERIC": "BigDecimal",
+    "MONEY": "BigDecimal",
+    "SMALLMONEY": "BigDecimal",
+    "DATE": "java.time.LocalDate",
+    "TIME": "java.time.LocalTime",
+    "TIMESTAMP": "java.time.Instant",
+    "TIMESTAMP WITH TIME ZONE": "java.time.ZonedDateTime",
+    "TIMESTAMP WITH LOCAL TIME ZONE": "java.time.OffsetDateTime",
+    "DATETIME": "java.time.Instant",
+    "DATETIME2": "java.time.Instant",
+    "DATETIMEOFFSET": "java.time.OffsetDateTime",
+    "SMALLDATETIME": "java.time.LocalDateTime",
+    "BINARY": "Array[Byte]",
+    "VARBINARY": "Array[Byte]",
+    "LONGVARBINARY": "Array[Byte]",
+    "BLOB": "Array[Byte]",
+    "BYTEA": "Array[Byte]",
+    "JSON": "String",
+    "JSONB": "String",
+    "XML": "String"
+  },
+  "ambiguous_mappings": {
+    "NUMERIC": {
+      "default": "BigDecimal",
+      "note": "NUMERIC without scale/precision defaults to BigDecimal. For Int/Long, specify explicitly."
+    },
+    "DECIMAL": {
+      "default": "BigDecimal",
+      "note": "DECIMAL without scale/precision defaults to BigDecimal. For Int/Long, specify explicitly."
+    }
+  },
+  "unsupported_types": [
+    "STRUCT",
+    "ARRAY",
+    "REF",
+    "JAVA_OBJECT",
+    "DISTINCT",
+    "DATALINK",
+    "ROWID",
+    "SQLXML",
+    "GEOMETRY",
+    "GEOGRAPHY",
+    "POINT",
+    "POLYGON",
+    "LINESTRING",
+    "MULTIPOINT",
+    "MULTILINESTRING",
+    "MULTIPOLYGON",
+    "GEOMETRYCOLLECTION"
+  ],
+  "notes": {
+    "java_types": "Types prefixed with 'java.time.' may require import statements in generated code",
+    "ambiguous": "NUMERIC and DECIMAL can map to multiple types; users should specify if different from default",
+    "unsupported": "Unsupported types will return an error with guidance for user-specified mapping",
+    "case_sensitivity": "Type matching is case-insensitive (CHAR, char, Char all match 'String')"
+  }
+}
