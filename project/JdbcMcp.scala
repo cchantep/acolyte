@@ -17,7 +17,7 @@ object JdbcMcp {
 
       Seq(
         "org.specs2" %% "specs2-core" % specsVer.value % Test,
-        "com.h2database" % "h2" % "2.2.224" % Test,
+        "com.h2database" % "h2" % "2.4.240" % Test,
         "com.typesafe.play" %% "play-json" % jsonVer
       )
     },

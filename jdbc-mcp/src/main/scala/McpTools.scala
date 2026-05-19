@@ -103,7 +103,7 @@ object McpTools {
       DriverRegistryEntry(
         "jdbc:h2:",
         "org.h2.Driver",
-        "com.h2database:h2:2.2.224"
+        "com.h2database:h2:2.4.240"
       ),
       DriverRegistryEntry(
         "jdbc:sqlite:",
