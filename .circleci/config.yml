@@ -77,9 +77,9 @@ jobs:
       - store_test_results:
           path: test-reports
 
-  scala212_jdk8:
+  scala212_jdk11:
     docker:
-      - image: cimg/openjdk:8.0
+      - image: cimg/openjdk:11.0
 
     working_directory: ~/repo
 
@@ -226,7 +226,7 @@ workflows:
   main_suite:
     jobs:
       - scala211_jdk8
-      - scala212_jdk8
+      - scala212_jdk11
       - scala213_jdk8
       - scala3_jdk10
 
@@ -239,6 +239,6 @@ workflows:
                 - master
           requires:
             - scala211_jdk8
-            - scala212_jdk8
+            - scala212_jdk11
             - scala213_jdk8
             - scala3_jdk10
