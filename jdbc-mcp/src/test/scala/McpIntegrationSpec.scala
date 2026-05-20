@@ -327,6 +327,7 @@ final class McpIntegrationSpec extends org.specs2.mutable.Specification {
   }
 
   private def setupTestDatabase(): String = {
+    val _ = Class.forName("org.h2.Driver")
     val dbNum = dbCounter.incrementAndGet()
     val url = s"jdbc:h2:mem:test$dbNum;DB_CLOSE_DELAY=-1"
     val conn = DriverManager.getConnection(url)
