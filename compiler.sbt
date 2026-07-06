@@ -23,16 +23,26 @@ ThisBuild / crossScalaVersions := Seq(
 
 crossVersion := CrossVersion.binary
 
-ThisBuild / scalacOptions ++= Seq(
-  "-encoding",
-  "UTF-8",
-  "-unchecked",
-  "-deprecation",
-  "-feature"
-)
+Compile / scalacOptions ++= {
+  val sv = (Compile / scalaBinaryVersion).value
 
-ThisBuild / scalacOptions ++= {
-  if (scalaBinaryVersion.value startsWith "2.") {
+  if (!sv.startsWith("3.")) {
+    Seq(
+      "-encoding",
+      "UTF-8",
+      "-unchecked",
+      "-deprecation",
+      "-feature"
+    )
+  } else {
+    Seq.empty
+  }
+}
+
+Compile / scalacOptions ++= {
+  val sv = (Compile / scalaBinaryVersion).value
+
+  if (sv.startsWith("2.")) {
     Seq(
       "-Xfatal-warnings",
       "-Xlint",
@@ -42,8 +52,8 @@ ThisBuild / scalacOptions ++= {
   } else Seq.empty
 }
 
-ThisBuild / scalacOptions ++= {
-  val sv = scalaBinaryVersion.value
+Compile / scalacOptions ++= {
+  val sv = (Compile / scalaBinaryVersion).value
 
   if (sv == "2.12") {
     Seq(
@@ -86,8 +96,8 @@ ThisBuild / scalacOptions ++= {
   }
 }
 
-ThisBuild / scalacOptions ++= {
-  val ver = scalaBinaryVersion.value
+Compile / scalacOptions ++= {
+  val ver = (Compile / scalaBinaryVersion).value
 
   if (ver == "2.13") {
     Seq(

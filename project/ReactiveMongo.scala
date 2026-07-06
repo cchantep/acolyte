@@ -7,11 +7,11 @@ final class ReactiveMongo { self =>
   lazy val generatedClassDirectory =
     settingKey[File]("Directory where classes get generated")
 
-  val reactiveMongoVer = "1.1.0-RC10"
+  val reactiveMongoVer = "1.1.0-RC12"
 
-  lazy val project =
-    Project(id = "reactive-mongo", base = file("reactive-mongo")).settings(
-      name := "reactive-mongo",
+  lazy val akkaProject =
+    Project(id = "reactive-mongo-akka", base = file("reactive-mongo-akka")).settings(
+      name := "reactive-mongo-akka",
       Test / fork := true,
       Compile / unmanagedSourceDirectories ++= {
         val base = (Compile / sourceDirectory).value
@@ -27,6 +27,7 @@ final class ReactiveMongo { self =>
       },
       libraryDependencies ++= Seq(
         "org.reactivemongo" %% "reactivemongo" % reactiveMongoVer % Provided,
+        "org.reactivemongo" %% "reactivemongo-actors-akka" % reactiveMongoVer % Provided,
         "org.slf4j" % "slf4j-simple" % "2.0.18" % Provided,
         "org.specs2" %% "specs2-core" % specsVer.value % Test
       ),
@@ -59,7 +60,7 @@ final class ReactiveMongo { self =>
                 case ("", _) =>
                   s"${v}-${playVar}"
 
-                case (a, "") if (a startsWith "RC") =>
+                case (a, "") if (a.startsWith("RC")) =>
                   s"${v}-${playVar}-${a}"
 
                 case (a, b) =>
@@ -84,6 +85,6 @@ final class ReactiveMongo { self =>
           ) ++ iteratees
         }
       )
-      .dependsOn(self.project)
+      .dependsOn(sbt.projectToLocalProject(self.akkaProject) % Provided)
 
 }

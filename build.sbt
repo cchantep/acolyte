@@ -18,7 +18,7 @@ val jdbcMcp = JdbcMcp.project.dependsOn(jdbcDriver)
 
 // ReactiveMongo
 val rm = new ReactiveMongo()
-val reactiveMongo = rm.project
+val reactiveMongo = rm.akkaProject
 val playReactiveMongo = rm.playProject
 
 lazy val studio = (sbt.project in file("studio")).settings(
