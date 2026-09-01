@@ -12,6 +12,19 @@ Then any connection created will be managed by your Acolyte (query & writer) han
 
 ## Usage
 
+First, add the Acolyte ReactiveMongo dependency:
+
+```ocaml
+libraryDependencies ++= {
+  val actorMode = "akka" // or: "pekko"
+
+  Seq(
+    "org.eu.acolyte" %% "reactive-mongo-core-${actorMode}" % "<version>",
+    "org.eu.acolyte" %% s"reactive-mongo-${actorMode}" % "<version>"
+  )
+}
+```
+
 - 1. Configure connection handler according expected behaviour: which response to which query, which result for which write request.
 - 2. Allow the persistence code to be given a `MongoDriver` according environment (e.g. test, dev, ..., prod).
 - 3. Provide this testing driver to persistence code during validation.

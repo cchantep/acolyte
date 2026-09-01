@@ -420,7 +420,8 @@ object McpTools {
         target: Path
       ): Try[Unit] = Try {
       val normalizedRepo = repository.stripSuffix("/")
-      val sourceUrl = new URI(s"$normalizedRepo/${dependency.relativeJarPath}").toURL
+      val sourceUrl =
+        new URI(s"$normalizedRepo/${dependency.relativeJarPath}").toURL
       val parent = target.getParent
 
       Files.createDirectories(parent)

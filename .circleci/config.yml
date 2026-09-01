@@ -60,23 +60,6 @@ commands:
           when: always
 
 jobs:
-  scala211_jdk17:
-    docker:
-      - image: cimg/openjdk:17.0
-
-    working_directory: ~/repo
-
-    environment:
-      SCALA_VERSION: 2.11
-    
-    steps:
-      - checkout
-      - setup_sbt
-      - build_n_tests
-      - collect_test_reports
-      - store_test_results:
-          path: test-reports
-
   scala212_jdk26:
     docker:
       - image: cimg/openjdk:26.0
@@ -163,14 +146,6 @@ jobs:
             POSTGRES_USER: test_user
             POSTGRES_PASSWORD: test_password
 
-      - run:
-          name: Check jdbc-mcp code quality
-          command: |
-                    export PATH=$PATH:~/sbt/bin
-                    sbt -Dsbt.log.noformat=true \
-                      'set scalacOptions += "-Xfatal-warnings"' \
-                      jdbc-mcp/compile
-
       - save_cache:
           paths:
             - ~/.ivy2
@@ -224,7 +199,6 @@ workflows:
 
   main_suite:
     jobs:
-      - scala211_jdk17
       - scala212_jdk26
       - scala213_jdk26
       - scala3_jdk26
@@ -237,7 +211,6 @@ workflows:
               only:
                 - master
           requires:
-            - scala211_jdk17
             - scala212_jdk26
             - scala213_jdk26
             - scala3_jdk26

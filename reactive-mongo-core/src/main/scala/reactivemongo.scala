@@ -162,26 +162,6 @@ package object acolyte {
 
   type MongoDBSystem = reactivemongo.core.actors.MongoDBSystem
 
-  type MongoConnection = reactivemongo.api.MongoConnection
-
-  object MongoConnection {
-
-    @inline def apply(
-        supervisor: String,
-        name: String,
-        actorSystem: akka.actor.ActorSystem,
-        mongosystem: akka.actor.ActorRef,
-        options: reactivemongo.api.MongoConnectionOptions
-      ) =
-      new reactivemongo.api.MongoConnection(
-        supervisor,
-        name,
-        actorSystem,
-        mongosystem,
-        options
-      )
-  }
-
   object ReactiveMongoActorSystem {
     @inline def apply(drv: reactivemongo.api.AsyncDriver) = drv.system
   }
