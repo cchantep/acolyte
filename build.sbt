@@ -55,7 +55,11 @@ lazy val root = Project(id = "acolyte", base = file("."))
     reactiveMongoCorePekko,
     reactiveMongoAkka,
     reactiveMongoPekko,
-    jdbcDriver, jdbcScala, studio, jdbcMcp)
+    jdbcDriver,
+    jdbcScala,
+    studio,
+    jdbcMcp
+  )
   .disablePlugins(HighlightExtractorPlugin, ScaladocExtractorPlugin)
   .configure { p =>
     if (isJavaAtLeast("1.8")) {

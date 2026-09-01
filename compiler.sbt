@@ -155,9 +155,3 @@ Test / console / scalacOptions += "-Yrepl-class-based"
 
 // Scaladoc
 Compile / doc / scalacOptions ++= Opts.doc.title(s"Acolyte ${name.value}")
-
-Compile / doc / scalacOptions ++= {
-  sbtdynver.DynVerPlugin.autoImport.previousStableVersion.value.map {
-    _.takeWhile(_ != '.')
-  }.toSeq
-}

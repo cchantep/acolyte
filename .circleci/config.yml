@@ -170,9 +170,9 @@ jobs:
           name: Publish artifacts to Sonatype Snapshots
           command: |
             set -e
-        
-            if [ "$TRAVIS_PULL_REQUEST" -gt '0' ]; then
-              echo "Do not publish on pull request"
+
+            if [ ! "${CIRCLE_BRANCH}" = "master" ]; then
+              echo "Skipped on branch ${CIRCLE_BRANCH}"
               exit 0
             fi
 

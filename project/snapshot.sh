@@ -1,12 +1,21 @@
 #! /bin/sh
 
 export PUBLISH_REPO_NAME="Sonatype Nexus Repository Manager"
-export PUBLISH_REPO_ID="oss.sonatype.org"
-export PUBLISH_USER="cchantep"
-export PUBLISH_REPO_URL="https://oss.sonatype.org/content/repositories/snapshots"
+export PUBLISH_REPO_ID="central.sonatype.com"
+export PUBLISH_REPO_URL="https://central.sonatype.com/repository/maven-snapshots/"
 
-echo "Password: "
-read PASS
-export PUBLISH_PASS="$PASS"
+if [ -z "$PUBLISH_USER" ]; then
+  echo "User: "
+  read PUBLISH_USER
+fi
+
+export PUBLISH_USER
+
+if [ -z "$PUBLISH_PASS" ]; then
+  echo "Password: "
+  read PUBLISH_PASS
+fi
+
+export PUBLISH_PASS
 
 sbt
