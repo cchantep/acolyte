@@ -169,8 +169,8 @@ package object acolyte {
     @inline def apply(
         supervisor: String,
         name: String,
-        actorSystem: akka.actor.ActorSystem,
-        mongosystem: akka.actor.ActorRef,
+        actorSystem: org.apache.pekko.actor.ActorSystem,
+        mongosystem: org.apache.pekko.actor.ActorRef,
         options: reactivemongo.api.MongoConnectionOptions
       ) =
       new reactivemongo.api.MongoConnection(

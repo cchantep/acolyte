@@ -183,7 +183,7 @@ private[reactivemongo] class Actor(handler: ConnectionHandler)
       ()
   }
 
-  // Akka hooks
+  // Pekko hooks
 
   override def preStart(): Unit =
     info("Starting the MongoDBSystem")

@@ -85,7 +85,7 @@ trait ConnectionManager[T] {
 
 /** Connection manage companion. */
 object ConnectionManager {
-  import akka.actor.Props
+  import org.apache.pekko.actor.Props
   import reactivemongo.api.MongoConnectionOptions
 
   /** Manager instance based on connection handler. */
