@@ -20,11 +20,14 @@ object Publish {
       Credentials(repoName, repoId, repoUser, repoPass)
     ),
     ThisBuild / pomIncludeRepository := { _ => false },
+
     ThisBuild / licenses := Seq(
-      "GNU Lesser General Public License, Version 2.1" ->
-        url("https://raw.github.com/cchantep/acolyte/master/LICENSE.txt")
+      License(
+        "GNU Lesser General Public License, Version 2.1",
+        uri("https://raw.github.com/cchantep/acolyte/master/LICENSE.txt")
+      )
     ),
-    ThisBuild / homepage := Some(url(siteUrl)),
+    ThisBuild / homepage := Some(uri(siteUrl)),
     ThisBuild / autoAPIMappings := true,
     ThisBuild / pomExtra := (
       <scm>

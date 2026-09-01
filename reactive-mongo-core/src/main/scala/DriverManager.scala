@@ -6,7 +6,8 @@ import scala.concurrent.ExecutionContext
 
 import reactivemongo.api.AsyncDriver
 
-import reactivemongo.acolyte.{ MongoConnection, ReactiveMongoActorSystem }
+import reactivemongo.acolyte.ReactiveMongoActorSystem
+import reactivemongo.acolyte.bindings.MongoConnection
 
 /** Driver manager */
 @annotation.implicitNotFound("Cannot find `acolyte.reactivemongo.DriverManager` (default one requires an `ExecutionContext`)")
@@ -85,7 +86,7 @@ trait ConnectionManager[T] {
 
 /** Connection manage companion. */
 object ConnectionManager {
-  import akka.actor.Props
+  import reactivemongo.actors.actor.Props
   import reactivemongo.api.MongoConnectionOptions
 
   /** Manager instance based on connection handler. */

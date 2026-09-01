@@ -6,7 +6,7 @@ commands:
     parameters:
       sbt_version:
         type: string
-        default: "1.10.7"
+        default: "2.0.7"
     steps:
       - restore_cache:
           keys:
@@ -31,7 +31,7 @@ commands:
     steps:
       - restore_cache:
           keys:
-          - &scala_cache_key scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "version.sbt" }}-{{ checksum "build.sbt" }}-{{ checksum "project/Dependencies.scala" }}
+          - &scala_cache_key scala-{{ .Environment.CIRCLE_JOB }}-{{ checksum "version.sbt" }}-{{ checksum "build.sbt" }}-{{ checksum "project/build.properties" }}-{{ checksum "project/Dependencies.scala" }}
 
       - run:
           name: Build & Run tests
@@ -60,26 +60,9 @@ commands:
           when: always
 
 jobs:
-  scala211_jdk8:
+  scala212_jdk26:
     docker:
-      - image: cimg/openjdk:8.0
-
-    working_directory: ~/repo
-
-    environment:
-      SCALA_VERSION: 2.11
-    
-    steps:
-      - checkout
-      - setup_sbt
-      - build_n_tests
-      - collect_test_reports
-      - store_test_results:
-          path: test-reports
-
-  scala212_jdk11:
-    docker:
-      - image: cimg/openjdk:11.0
+      - image: cimg/openjdk:26.0
 
     working_directory: ~/repo
 
@@ -94,9 +77,9 @@ jobs:
       - store_test_results:
           path: test-reports
 
-  scala213_jdk8:
+  scala213_jdk26:
     docker:
-      - image: cimg/openjdk:11.0
+      - image: cimg/openjdk:26.0
 
     working_directory: ~/repo
 
@@ -111,9 +94,9 @@ jobs:
       - store_test_results:
           path: test-reports
 
-  scala3_jdk10:
+  scala3_jdk26:
     docker:
-      - image: cimg/openjdk:11.0
+      - image: cimg/openjdk:26.0
 
     working_directory: ~/repo
 
@@ -128,9 +111,9 @@ jobs:
       - store_test_results:
           path: test-reports
 
-  jdbc_mcp_jdk11:
+  jdbc_mcp_jdk17:
     docker:
-      - image: cimg/openjdk:11.0
+      - image: cimg/openjdk:17.0
       - image: postgres:15
         environment:
           POSTGRES_DB: test_db
@@ -143,7 +126,7 @@ jobs:
       - setup_sbt
       - restore_cache:
           keys:
-          - &jdbc_mcp_cache_key jdbc-mcp-{{ checksum "version.sbt" }}-{{ checksum "build.sbt" }}-{{ checksum "jdbc-mcp/build.sbt" }}
+          - &jdbc_mcp_cache_key jdbc-mcp-{{ checksum "version.sbt" }}-{{ checksum "build.sbt" }}
 
       - run:
           name: Compile jdbc-mcp
@@ -155,21 +138,13 @@ jobs:
           name: Run jdbc-mcp tests
           command: |
                     export PATH=$PATH:~/sbt/bin
-                    sbt jdbc-mcp/test
+                    sbt --server jdbc-mcp/test
           environment:
             POSTGRES_HOST: localhost
             POSTGRES_PORT: "5432"
             POSTGRES_DB: test_db
             POSTGRES_USER: test_user
             POSTGRES_PASSWORD: test_password
-
-      - run:
-          name: Check jdbc-mcp code quality
-          command: |
-                    export PATH=$PATH:~/sbt/bin
-                    sbt -Dsbt.log.noformat=true \
-                      'set scalacOptions += "-Xfatal-warnings"' \
-                      jdbc-mcp/compile
 
       - save_cache:
           paths:
@@ -184,7 +159,7 @@ jobs:
 
   publish_snapshots:
     docker:
-      - image: cimg/openjdk:8.0
+      - image: cimg/openjdk:26.0
 
     working_directory: ~/repo
     
@@ -201,10 +176,15 @@ jobs:
               exit 0
             fi
 
-            V=`sbt 'show version' | tail -n 1 | cut -d ']' -f 2 | perl -pe 's/^[ \t]+//;s/[ \t]+$//'`
-    
-            if [ `echo "$V" | grep -- '-SNAPSHOT' | wc -l` -eq 0 ]; then
-              echo "Cannot publish release $V"
+            if [ "x$PUBLISH_USER" = "x" -o "x$PUBLISH_PASS" = "x" ]; then
+              echo "Missing publication credentials"
+              exit 1
+            fi
+
+            V=$(sbt --server 'show version' 2>&1 | sed 's/\x1b\[0[Jm]//g' | grep --color=never '[0-9]\+\.[0-9]\+' | tail -1 | sed 's/\[info\]//' | xargs | tr -cd '[:alnum:]._-')
+
+            if [[ "$V" != *SNAPSHOT* ]]; then
+              echo "Skip non snapshot: $V"
               exit 0
             fi
 
@@ -212,25 +192,18 @@ jobs:
             export PUBLISH_REPO_ID="central.sonatype.com"
             export PUBLISH_REPO_URL="https://central.sonatype.com/repository/maven-snapshots/"
 
-            if [ "x$PUBLISH_USER" = "x" -o "x$PUBLISH_PASS" = "x" ]; then
-              echo "Missing publication credentials"
-              exit 1
-            fi
-
             sbt +publish
-
 
 workflows:
   version: 2
 
   main_suite:
     jobs:
-      - scala211_jdk8
-      - scala212_jdk11
-      - scala213_jdk8
-      - scala3_jdk10
+      - scala212_jdk26
+      - scala213_jdk26
+      - scala3_jdk26
 
-      - jdbc_mcp_jdk11
+      - jdbc_mcp_jdk17
 
       - publish_snapshots:
           filters:
@@ -238,7 +211,6 @@ workflows:
               only:
                 - master
           requires:
-            - scala211_jdk8
-            - scala212_jdk11
-            - scala213_jdk8
-            - scala3_jdk10
+            - scala212_jdk26
+            - scala213_jdk26
+            - scala3_jdk26

@@ -11,7 +11,7 @@ final class JdbcScala(jdbcDriver: Project) {
         name := "jdbc-scala",
         // make sure plugin is there
         libraryDependencies ++= Seq(
-          "org.eu.acolyte" % "jdbc-driver" % (ThisBuild / version).value,
+          // "org.eu.acolyte" % "jdbc-driver" % (ThisBuild / version).value,
           "org.specs2" %% "specs2-core" % specsVer.value % Test
         ),
         Compile / sourceGenerators += Def.task[Seq[File]] {
@@ -26,7 +26,7 @@ final class JdbcScala(jdbcDriver: Project) {
           )
         }
       )
-      .dependsOn(jdbcDriver)
+      .dependsOn(sbt.projectToLocalProject(jdbcDriver))
 
   // Source generator
   private def generateRowClasses(

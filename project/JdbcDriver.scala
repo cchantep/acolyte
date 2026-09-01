@@ -100,18 +100,18 @@ object JdbcDriver {
     val letter = ('A' to 'Z').map(_.toString) ++: ('A' to 'Z').map(l => "A" + l)
     val lim = letter.size
 
-    val rows: Seq[File] = for (n ← 2 to lim) yield {
+    val rows: Seq[File] = for (n <- 2 to lim) yield {
       val f = outdir / s"Row$n.java"
       IO.writer[File](f, "", IO.defaultCharset, false) { w =>
-        val cp = for (i ← 0 until n) yield letter(i)
-        val ps = for (i ← 0 until n) yield s"public final ${letter(i)} _$i;"
-        val ip = for (i ← 0 until n) yield s"final ${letter(i)} c$i"
-        val as = for (i ← 0 until n) yield s"this._$i = c$i;"
-        val rp = for (i ← 0 until n) yield s"cs.add(this._$i);"
-        val na = for (i ← 0 until n) yield "null"
+        val cp = for (i <- 0 until n) yield letter(i)
+        val ps = for (i <- 0 until n) yield s"public final ${letter(i)} _$i;"
+        val ip = for (i <- 0 until n) yield s"final ${letter(i)} c$i"
+        val as = for (i <- 0 until n) yield s"this._$i = c$i;"
+        val rp = for (i <- 0 until n) yield s"cs.add(this._$i);"
+        val na = for (i <- 0 until n) yield "null"
 
         val sp =
-          for (i ← 0 until n)
+          for (i <- 0 until n)
             yield """/**
      * Sets value for cell #%s.
      *
@@ -128,12 +128,12 @@ object JdbcDriver {
               letter(i),
               n,
               cp.mkString(","),
-              (for (j ← 0 until n)
+              (for (j <- 0 until n)
                 yield { if (j == i) "value" else s"this._$j" }).mkString(", ")
             )
 
-        val ao = for (i ← (n + 1) to (lim - n)) yield {
-          val ol = for (j ← 0 until i) yield letter(n + j - 1)
+        val ao = for (i <- (n + 1) to (lim - n)) yield {
+          val ol = for (j <- 0 until i) yield letter(n + j - 1)
 
           s"""/**
      * Appends the values of the rows.
@@ -142,8 +142,8 @@ object JdbcDriver {
     }"""
         }
 
-        val hc = for (i ← 0 until n) yield s"append(this._$i)"
-        val eq = for (i ← 0 until n) yield s"append(this._$i, other._$i)"
+        val hc = for (i <- 0 until n) yield s"append(this._$i)"
+        val eq = for (i <- 0 until n) yield s"append(this._$i, other._$i)"
 
         // Generate by substitution on each line of template
         IO.reader[Unit](rowTmpl) { r =>
@@ -172,43 +172,43 @@ object JdbcDriver {
     }
 
     val listTmpl = basedir / "src" / "main" / "templates" / "RowList.tmpl"
-    val rowLists: Seq[File] = for (n ← 1 to lim) yield {
+    val rowLists: Seq[File] = for (n <- 1 to lim) yield {
       val f = outdir / s"RowList$n.java"
-      val cp = for (i ← 0 until n) yield letter(i)
-      val cs = for (i ← 0 until n) yield s"final Class<${letter(i)}> c$i"
-      val ic = for (i ← 0 until n) yield {
+      val cp = for (i <- 0 until n) yield letter(i)
+      val cs = for (i <- 0 until n) yield s"final Class<${letter(i)}> c$i"
+      val ic = for (i <- 0 until n) yield {
         s"""if (c$i == null) {
                 throw new IllegalArgumentException("Invalid class for column #$i");
             }"""
       }
-      val ac = for (i ← 0 until n) yield {
+      val ac = for (i <- 0 until n) yield {
         s"""this._c$i = c$i;
             colClasses.add(this._c$i);"""
       }
-      val ca = for (i ← 0 until n) yield s"c$i"
+      val ca = for (i <- 0 until n) yield s"c$i"
       val ap = cp map { l => s"final $l ${l.toLowerCase}" }
       val pd = cp map { l => s"@param ${l.toLowerCase} the $l value" }
-      val ps = for (i ← 0 until n) yield {
+      val ps = for (i <- 0 until n) yield {
         s"""/**
          * Class of column #$i
          */
         final Class<${letter(i)}> _c$i;"""
       }
-      val ags = for (i ← 0 until n) yield {
+      val ags = for (i <- 0 until n) yield {
         s"""/**
      * Returns the class of column #$i.
      * @return Class of column #$i.
      */
     public abstract Class<${letter(i)}> c$i();"""
       }
-      val gc = for (i ← 0 until n) yield s"c$i()"
-      val gs = for (i ← 0 until n) yield {
+      val gc = for (i <- 0 until n) yield s"c$i()"
+      val gs = for (i <- 0 until n) yield {
         s"""/**
          * {inheritDoc}
          */
         public Class<${letter(i)}> c$i() { return this._c$i; }"""
       }
-      val psc = for (i ← 0 until n) yield s"_c$i"
+      val psc = for (i <- 0 until n) yield s"_c$i"
 
       IO.writer[File](f, "", IO.defaultCharset, false) { w =>
         // Generate by substitution on each line of template
@@ -245,13 +245,14 @@ object JdbcDriver {
 
       IO.writer[File](f, "", IO.defaultCharset, false) { w =>
         val funcs = (1 to lim).foldLeft(Nil: List[String]) { (l, n) =>
-          val g = for (i ← 0 until n) yield letter(i)
-          val ps = for (i ← 0 until n) yield s"final Class<${letter(i)}> _c$i"
-          val cs = for (i ← 0 until n) yield s"final Column<${letter(i)}> _c$i"
-          val as = for (i ← 0 until n) yield s"_c$i"
-          val ls = for (i ← 0 until n) yield s"withLabel(${i + 1}, _c$i.name)"
+          val g = for (i <- 0 until n) yield letter(i)
+          val ps = for (i <- 0 until n) yield s"final Class<${letter(i)}> _c$i"
+          val cs = for (i <- 0 until n) yield s"final Column<${letter(i)}> _c$i"
+          val as = for (i <- 0 until n) yield s"_c$i"
+          val ls = for (i <- 0 until n) yield s"withLabel(${i + 1}, _c$i.name)"
           val ns =
-            for (i ← 0 until n) yield (s"withNullable(${i + 1}, _c$i.nullable)")
+            for (i <- 0 until n)
+              yield (s"withNullable(${i + 1}, _c$i.nullable)")
           val gp = g.mkString(",")
 
           l :+ """
