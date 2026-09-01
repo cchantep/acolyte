@@ -33,7 +33,7 @@ class PlayJdbc(jdbcScala: Project) {
           val anorm = "org.playframework.anorm" %% "anorm" % "2.9.1"
 
           Seq(
-            "org.eu.acolyte" % "jdbc-driver" % (ThisBuild / version).value,
+            // "org.eu.acolyte" % "jdbc-driver" % (ThisBuild / version).value,
             ("com.typesafe.play" %% "play-jdbc-api" % playVersion.value % Provided)
               .cross(CrossVersion.for3Use2_13 /* TODO */ ),
             (anorm % Test).cross(CrossVersion.for3Use2_13 /* TODO */ ),
@@ -41,5 +41,5 @@ class PlayJdbc(jdbcScala: Project) {
           )
         }
       )
-      .dependsOn(jdbcScala)
+      .dependsOn(sbt.projectToLocalProject(jdbcScala))
 }
