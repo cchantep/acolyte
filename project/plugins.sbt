@@ -2,11 +2,11 @@ resolvers ++= Seq(
   "Tatami Releases" at "https://raw.github.com/cchantep/tatami/master/releases"
 )
 
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.1")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.2")
 
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.14.6")
 
-addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "2.3.1")
+addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "2.5.0")
 
 addSbtPlugin("cchantep" % "sbt-hl-compiler" % "0.12")
 
