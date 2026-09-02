@@ -1,27 +1,38 @@
+# Issue Template
+
 ### Are you looking for help?
 
-This tracker is not a support system and so it is not a place to ask questions or get help. If you're not sure if you have found a bug, the best place to start is with either the [users mailing list](https://groups.google.com/forum/?fromgroups#!forum/acolyte).
+This tracker is not a support system and is not the place to ask questions or get general help.
 
-This tracker is for confirmed issue or actionable feature request, used to manage and track the development of Acolyte.
+If you're not sure whether you have found a bug, the best place to start is the [Acolyte users mailing list](https://groups.google.com/forum/?fromgroups#!forum/acolyte).
 
-### Acolyte Version (1.0.34, 1.0.35 / etc)
+This tracker is for **confirmed issues and actionable feature requests** used to manage and track the development of Acolyte.
 
+Before opening an issue, please make sure that:
 
-### Operating System (Ubuntu 15.10 / MacOS 10.10 / Windows 10)
+- you are using a supported version of Acolyte;
+- the issue has not already been reported;
+- for bugs, you can provide a reproducible example whenever possible.
 
-> Use `uname -a` if on Linux.
+### Acolyte Version
 
-### JDK (Oracle 1.8.0_72, OpenJDK 1.8.x, Azul Zing)
+<!-- e.g. 1.0.34, 1.0.35, or a specific commit -->
 
-> Paste the output from `java -version` at the command line.
+### Operating System
+
+<!-- e.g. Ubuntu 24.04, macOS 15, Windows 11 -->
+
+### JDK
+
+<!-- Paste the output of `java -version` -->
 
 ### Library Dependencies
 
-If this is an issue that involves integration with other frameworks (e.g. ReactiveMongo, Anorm), include the exact versions the other frameworks.
+If the issue involves integration with another library or framework (e.g. ReactiveMongo, Anorm, Play), please include the exact versions of the relevant dependencies.
 
 ### Expected Behavior
 
-Please describe the expected behavior of the issue, starting from the first action.
+Please describe the expected behavior, starting from the initial action.
 
 1.
 2.
@@ -29,11 +40,17 @@ Please describe the expected behavior of the issue, starting from the first acti
 
 ### Actual Behavior
 
-Please provide a description of what actually happens, working from the same starting point.
+Please describe what actually happens, using the same starting point as above.
 
-Be descriptive: "it doesn't work" does not describe what the behaviour actually is -- instead, say "function foo() fails with the exception X when the conditions".
+Be specific. For example, instead of saying:
 
-Copy and paste logs, and include any URLs.
+> It doesn't work.
+
+describe what happens, such as:
+
+> Calling `foo()` with these conditions fails with exception `X`.
+
+Please include relevant logs, stack traces, error messages, and URLs where appropriate.
 
 1.
 2.
@@ -41,6 +58,12 @@ Copy and paste logs, and include any URLs.
 
 ### Reproducible Test Case
 
-Please provide a PR with a failing test.  
+Please provide a **minimal reproducible test case** whenever possible.
 
-If the issue is more complex or requires configuration, please provide a link to a project on Github that reproduces the issue.
+For a bug, a pull request containing a failing test is strongly preferred. This makes it easier to reproduce, diagnose, and verify the fix.
+
+If the issue is more complex or requires additional configuration, please provide a link to a GitHub project that reproduces the problem.
+
+### Additional Context
+
+<!-- Add any other information that may help diagnose the issue. -->
