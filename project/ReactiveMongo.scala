@@ -49,7 +49,7 @@ final class ReactiveMongo { self =>
         if (scalaBinaryVersion.value == "3") {
           "org.typelevel" %% "shapeless3-test" % "3.6.0"
         } else {
-          "com.chuusai" %% "shapeless" % "2.3.11"
+          "com.chuusai" %% "shapeless" % "2.3.13"
         }
       }
     )
