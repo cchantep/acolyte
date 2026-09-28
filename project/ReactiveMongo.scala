@@ -7,7 +7,7 @@ final class ReactiveMongo { self =>
   lazy val generatedClassDirectory =
     settingKey[File]("Directory where classes get generated")
 
-  val reactiveMongoVer = "1.1.0-RC13"
+  val reactiveMongoVer = "1.1.0-pekko.noshaded.RC21"
 
   lazy val reactiveMongoPekkoVer = reactiveMongoVer.span(_ != '-') match {
     case (v, mod) =>
