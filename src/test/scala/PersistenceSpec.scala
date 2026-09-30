@@ -1,3 +1,5 @@
+import scala.language.implicitConversions
+
 import acolyte.jdbc.QueryResult
 import acolyte.jdbc.RowLists.rowList3
 import acolyte.jdbc.AcolyteDSL.withQueryResult
@@ -38,7 +40,7 @@ object PersistenceSpec extends org.specs2.mutable.Specification {
   "Form" should {
     "not be found if data is missing" in withQueryResult(QueryResult.Nil) {
       // Acolyte pushes empty form data into used JDBC connection
-      implicit con ⇒ Persistence.form aka "loaded form" must beRight(None)
+      implicit con ⇒ Persistence.form aka "loaded form" must beRight(Option.empty[Form])
     }
 
     "be successfully loaded from valid data" in withQueryResult(formFixtures) {
@@ -50,7 +52,7 @@ object PersistenceSpec extends org.specs2.mutable.Specification {
   "Form error" should {
     "be detected when first row is an option" in withQueryResult(
       // Inject a single option row
-      formTable :+ ("opt", 2, "option")) { implicit con ⇒
+      formTable.append("opt", 2, "option")) { implicit con ⇒
         Persistence.form must beLeft { err: String ⇒
           err aka "error" must startWith("Unexpected item: SectionOption")
         }
@@ -58,7 +60,7 @@ object PersistenceSpec extends org.specs2.mutable.Specification {
 
     "be detected when first row is a sub-option" in withQueryResult(
       // Inject a single sub-option row
-      formTable :+ ("sub", 3, "sub-option")) { implicit con ⇒
+      formTable.append("sub", 3, "sub-option")) { implicit con ⇒
         Persistence.form must beLeft { err: String ⇒
           err aka "error" must startWith("Unexpected item: SubOption")
         }
@@ -66,7 +68,7 @@ object PersistenceSpec extends org.specs2.mutable.Specification {
 
     "be detected when first row of section is a sub-option" in withQueryResult(
       // Inject section row followed by a sub-option one
-      formTable :+ ("sec", 1, "section") :+ ("sub", 3, "sub-option")) {
+      formTable.append("sec", 1, "section").append("sub", 3, "sub-option")) {
         implicit con ⇒
           Persistence.form must beLeft { err: String ⇒
             err aka "error" must startWith("Unexpected item: SubOption")
