@@ -62,7 +62,7 @@ You can see detailed [use cases](https://github.com/cchantep/acolyte/blob/master
 
 - *[Interactive demo](http://tour.acolyte.eu.org/)*
 - *How to use [Acolyte connection](#connection)*
-- *See online [API documentation](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/jdbc-scala_2.12/{{site.latest_release}}/jdbc-scala_2.12-{{site.latest_release}}-javadoc.jar/!/index.html)*.
+- *See online [API documentation](https://javadoc.io/doc/org.eu.acolyte/jdbc-scala_2.12/{{site.latest_release}}/index.html)*.
 
 ## Setup in your project
 

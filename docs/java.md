@@ -69,7 +69,7 @@ Connection con = DriverManager.getConnection(jdbcUrl);
 You can see more [use cases](https://github.com/cchantep/acolyte/blob/master/jdbc-driver/src/test/java/usecase/JavaUseCases.java) whose expectations are visible in [specifications](https://github.com/cchantep/acolyte/blob/master/jdbc-driver/src/test/jdbc-scala/acolyte/AcolyteSpec.scala).
 
 - *How to use [Acolyte connection](#connection)*
-- *See online [API documentation](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/jdbc-driver/{{site.latest_release}}/jdbc-driver-{{site.latest_release}}-javadoc.jar/!/index.html)*.
+- *See online [API documentation](https://javadoc.io/doc/org.eu.acolyte/jdbc-driver/{{site.latest_release}}/index.html)*.
 
 ## Setup in your project
 
@@ -359,6 +359,6 @@ It can be added to your project with the following dependency.
 </dependency>
 ```
 
-*See online [API documentation](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/jdbc-java8/{{site.latest_release}}/jdbc-java8-{{site.latest_release}}-javadoc.jar/!/index.html)*.
+*See online [API documentation](https://javadoc.io/doc/org.eu.acolyte/jdbc-java8/{{site.latest_release}}/index.html)*.
 
 [Next: Acolyte for Scala](../scala/)

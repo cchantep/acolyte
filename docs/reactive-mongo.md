@@ -109,7 +109,7 @@ val res: Future[String] = withDriver { implicit driver: MongoDriver =>
 }
 ```
 
-As in previous example, main API object is [Acolyte DSL](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/reactive-mongo_2.12/{{site.latest_release}}/reactive-mongo_2.12-{{site.latest_release}}-javadoc.jar/!/index.html#acolyte.reactivemongo.AcolyteDSL$).
+As in previous example, main API object is [Acolyte DSL](https://javadoc.io/doc/org.eu.acolyte/reactive-mongo_2.12/{{site.latest_release}}/index.html#acolyte.reactivemongo.AcolyteDSL$).
 
 Dependency can be added to SBT project with `"org.eu.acolyte" %% "reactive-mongo" % "{{site.latest_release}}"`, or in a Maven one as following:
 
@@ -125,7 +125,7 @@ Dependency can be added to SBT project with `"org.eu.acolyte" %% "reactive-mongo
 
 ### Get started
 
-- [API documentation](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/reactive-mongo_2.12/{{site.latest_release}}/reactive-mongo_2.12-{{site.latest_release}}-javadoc.jar/!/index.html)
+- [API documentation](https://javadoc.io/doc/org.eu.acolyte/reactive-mongo_2.12/{{site.latest_release}}/index.html)
 - [Tutorial](https://github.com/cchantep/acolyte/tree/reactivemongo-tutorial)
 
 ### Setup in your project
@@ -147,7 +147,7 @@ AcolyteDSL.withDriver { implicit drv: reactivemongo.api.MongoDriver =>
 }
 ```
 
-[Acolyte DSL](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/reactive-mongo_2.12/{{site.latest_release}}/reactive-mongo_2.12-{{site.latest_release}}-javadoc.jar/!/index.html#acolyte.reactivemongo.AcolyteDSL$) provides several ways to initialize MongoDB resources (driver, connection, DB and collection) your code could expect.
+[Acolyte DSL](https://javadoc.io/doc/org.eu.acolyte/reactive-mongo_2.12/{{site.latest_release}}/index.html#acolyte.reactivemongo.AcolyteDSL$) provides several ways to initialize MongoDB resources (driver, connection, DB and collection) your code could expect.
 
 - `withDriver`
 - `withConnection`
@@ -690,7 +690,7 @@ AcolyteDSL.withDriver { implicit drv: MongoDriver =>
 }
 ```
 
-*See online [API documentation](https://oss.sonatype.org/service/local/repositories/releases/archive/org/eu/acolyte/play-reactive-mongo_2.12/{{site.latest_release}}/play-reactive-mongo_2.12-{{site.latest_release}}-javadoc.jar/!/index.html#package)*
+*See online [API documentation](https://javadoc.io/doc/org.eu.acolyte/play-reactive-mongo_2.12/{{site.latest_release}}/index.html#package)*
 
 ### SBT
 
