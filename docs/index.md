@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Acolyte
-subtitle: Acolyte is a JDBC driver designed for cases like mockup, testing, or any case you would like to be able to handle JDBC query by hand (or maybe that’s only Chmeee’s son on the Ringworld).
+subtitle: Acolyte is a database driver designed for cases like mockup, testing, or any case you would like to be able to handle query by hand.
 ---
 
 <div class="posts-list">
