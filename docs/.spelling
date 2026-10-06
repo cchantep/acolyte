@@ -46,7 +46,7 @@ Sonatype
 
 # Modules
 scalac-plugin
-tour.acolyte.eu.org
+acolyte-play-demo.onrender.com
 play-jdbc
 reactivemongo
 jdbc-driver

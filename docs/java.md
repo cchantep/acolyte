@@ -89,7 +89,7 @@ With Maven 2/3+, the dependency can be configured as bellow.
 
 > The dependency will usually be set with the scope `test`.
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.eu.acolyte/jdbc-driver/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.eu.acolyte/jdbc-driver/)
+[[![Maven Central Version](https://img.shields.io/maven-central/v/org.eu.acolyte/jdbc-driver)]](https://central.sonatype.com/artifact/org.eu.acolyte/jdbc-driver)
 
 It can be done similarly using SBT:
 

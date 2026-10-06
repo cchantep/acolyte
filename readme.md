@@ -29,7 +29,7 @@ It also makes simple testing of DB edge cases (e.g. unrecoverable/unexpected err
 
 You can also use Acolyte to fully benefit from data access abstraction, not only not having to wait persistence (DB) being setup to code accesses, but also not having to wait persistence to code tests for access code.
 
-You can get a quick interactive tour of Acolyte, online at [tour.acolyte.eu.org](http://tour.acolyte.eu.org).
+You can get a quick interactive tour of Acolyte, online at [tour.acolyte.eu.org](https://acolyte-play-demo.onrender.com/).
 
 ## Usage
 

@@ -60,9 +60,9 @@ DriverManager.getConnection(jdbcUrl)
 
 You can see detailed [use cases](https://github.com/cchantep/acolyte/blob/master/jdbc-scala/src/test/jdbc-scala/acolyte/ScalaUseCases.scala) whose expectations are visible in [specifications](https://github.com/cchantep/acolyte/blob/master/jdbc-scala/src/test/jdbc-scala/acolyte/AcolyteSpec.scala).
 
-- *[Interactive demo](http://tour.acolyte.eu.org/)*
+- *[Interactive demo](https://acolyte-play-demo.onrender.com/)*
 - *How to use [Acolyte connection](#connection)*
-- *See online [API documentation](https://javadoc.io/doc/org.eu.acolyte/jdbc-scala_2.12/{{site.latest_release}}/index.html)*.
+- *See online [API documentation](https://javadoc.io/doc/org.eu.acolyte/jdbc-scala_2.13/{{site.latest_release}}/index.html)*.
 
 ## Setup in your project
 
@@ -74,7 +74,7 @@ libraryDependencies ++= Seq(
 )
 ```
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.eu.acolyte/jdbc-scala_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.eu.acolyte/jdbc-scala_2.12/)
+[[![Maven Central Version](https://img.shields.io/maven-central/v/org.eu.acolyte/jdbc-scala_2.13)]](https://central.sonatype.com/artifact/org.eu.acolyte/jdbc-scala_2.13)
 
 ## Connection 
 
