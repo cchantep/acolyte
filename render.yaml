@@ -1,0 +1,20 @@
+# Render Blueprint for the Acolyte Play demo.
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: acolyte-play-demo
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: play-demo
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      # Play secret; Render generates a strong random value on first create.
+      - key: APPLICATION_SECRET
+        generateValue: true
+      # Optional override. Render injects PORT (default 10000); the image already
+      # binds 0.0.0.0:$PORT with a local fallback of 8000.
+      - key: PORT
+        value: "10000"
