@@ -343,7 +343,7 @@
                             on('changeDate', rv).
                             tooltip({'title':"Date for "+cn})
 
-                    } else if (ct == "float") {
+                    } else if (ct == "float" || ct == "int") {
                         cvf.push(vnv(ce));
                         ce.on('keyup change', rav(isNum)).
                             on('keyup change', rv).
@@ -392,7 +392,7 @@
             })
         })
     }),
-    pts = { 'string': "Text", 'float': "Number", 'date': "Date" },
+    pts = { 'string': "Text", 'int': "Integer", 'float': "Number", 'date': "Date" },
     rmp = function() {
         var c = parseInt(pc.text());
 
@@ -485,7 +485,7 @@
         if (v == "date") {
             $("#param-value").replaceWith($('<input type="text" class="form-control ac-date" id="param-value" readonly="readonly" />').tooltip(pvt).datepicker({'format':"yyyy-mm-dd"}).one('changeDate', function() { adp.removeAttr("disabled") }))
 
-        } else if (v == "float") {
+        } else if (v == "float" || v == "int") {
             $("#param-value").replaceWith($('<input type="text" class="form-control" id="param-value" />').tooltip(pvt).on('keyup change', pvi))
 
         } else pvr();

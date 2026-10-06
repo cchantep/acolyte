@@ -1,0 +1,17 @@
+.git
+.bsp
+.idea
+.metals
+.bloop
+.vscode
+target
+project/project
+project/target
+logs
+tmp
+dist
+out
+*.md
+!readme.md
+.travis.yml
+system.properties

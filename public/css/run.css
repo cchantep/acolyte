@@ -31,3 +31,50 @@
 
 #result .route .fa { margin-right: .5em }
 #result .panel-body > div { padding-left: 1em }
+
+/* Readable base type + Bootstrap 3 horizontal top menu */
+html {
+  font-size: 16px;
+}
+body {
+  font-size: 16px;
+  line-height: 1.5;
+}
+.navbar {
+  min-height: 50px;
+  margin-bottom: 20px;
+}
+.navbar-header {
+  float: left;
+}
+.navbar-brand {
+  font-size: 18px;
+  height: 50px;
+  padding: 15px;
+}
+@media (min-width: 768px) {
+  .navbar > .container-fluid {
+    display: block;
+  }
+  .navbar-collapse.collapse {
+    display: block !important;
+    height: auto !important;
+    padding-bottom: 0;
+    overflow: visible !important;
+  }
+  .navbar-nav {
+    float: right;
+    margin: 0;
+  }
+  .navbar-nav > li {
+    float: left;
+  }
+  .navbar-nav > li > a {
+    padding-top: 15px;
+    padding-bottom: 15px;
+  }
+  .navbar-right {
+    float: right !important;
+    margin-right: -15px;
+  }
+}

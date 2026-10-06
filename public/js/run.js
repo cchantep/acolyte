@@ -6,8 +6,8 @@
     cti = $("#config h2 .fa"),
     qs = $("#queries"), qsl = $(".list-group", qs),
     us = $("#updates"), usl = $(".list-group", us),
-    pts = { 'string': "Text", 'float': "Number", 'date': "Date" },
-    jct = { 'string': "String", 'float': "Float", 'date': "Date" },
+    pts = { 'string': "Text", 'int': "Integer", 'float': "Number", 'date': "Date" },
+    jct = { 'string': "String", 'int': "Integer", 'float': "Float", 'date': "Date" },
     exb = $("#execute .btn-primary"),
     stg = $("#execute .form-group"),
     stmt = $("#statement"),
@@ -282,7 +282,7 @@
 
                 ps += '<span class="n">Parameter</span><span class="o">.</span><span class="na">of</span><span class="o">(</span>';
 
-                if (p._type == "float") {
+                if (p._type == "float" || p._type == "int") {
                     ps += '<span class="n">ParameterMetaData</span><span class="o">.</span><span class="na">Float</span><span class="o">(</span><span class="mi">' + p.value + 'f</span><span class="o">),</span> <span class="mi">' + p.value + 'f</span><span class="o">)';
 
                     sm += '<span class="kt">ExecutedParameter</span><span class="o">(</span><span class="mi">' + p.value + 'f</span><span class="o">)</span> <span class="kt">::</span> '
@@ -348,7 +348,7 @@
                             srs += '<span class="o">,</span> ';
                         }
 
-                        if (ct == "float") {
+                        if (ct == "float" || ct == "int") {
                             rv = '<span class="mi">' + cv + 'f</span>';
                         } else if (ct == "date") {
                             rv = '<span class="n">dateFormat</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="s">"'+cv+'"</span><span class="o">)</span>';
@@ -404,7 +404,7 @@
         if (v == "date") {
             $("#param-value").replaceWith($('<input type="text" class="form-control ac-date" id="param-value" readonly="readonly" />').tooltip(pvt).datepicker({'format':"yyyy-mm-dd"}).one('changeDate', function() { adp.removeAttr("disabled") }))
 
-        } else if (v == "float") {
+        } else if (v == "float" || v == "int") {
             $("#param-value").replaceWith($('<input type="text" class="form-control" id="param-value" />').tooltip(pvt).on('keyup change', pvi))
 
         } else pvr()

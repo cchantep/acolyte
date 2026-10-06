@@ -11,3 +11,4 @@ dist
 /RUNNING_PID
 .ensime*
 *~
+.bsp

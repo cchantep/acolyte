@@ -6,17 +6,9 @@ version := "1.4"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-scalaVersion := "2.11.11"
+scalaVersion := "2.13.16"
 
 libraryDependencies ++= Seq(
-  "com.jsuereth" %% "scala-arm" % "1.4",
-  "org.eu.acolyte" %% "jdbc-scala" % "1.0.46" changing()
+  guice,
+  "org.eu.acolyte" %% "jdbc-scala" % "1.2.10"
 )
-
-routesGenerator := InjectedRoutesGenerator
-
-// scalacOptions ++= Seq("-feature", "-P:acolyte:debug")
-
-// autoCompilerPlugins := true
-
-// addCompilerPlugin("org.eu.acolyte" %% "scalac-plugin" % "1.0.39")
