@@ -4,8 +4,6 @@ Acolyte Play demo for the interactive JDBC tour.
 
 Online demo: [https://acolyte-play-demo.onrender.com](https://acolyte-play-demo.onrender.com)
 
-Legacy tour: [http://tour.acolyte.eu.org](http://tour.acolyte.eu.org)
-
 ## Requirements
 
 - **SBT 1.9.9**
