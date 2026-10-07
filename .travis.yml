@@ -1,7 +1,0 @@
-language: scala
-jdk:
-   - oraclejdk7
-   - oraclejdk8
-env: JAVA_OPTS="-Xms32m -Xmx128m"
-scala:
-   - 2.11.7
