@@ -1,0 +1,83 @@
+version: 2.1
+
+commands:
+  setup_sbt:
+    description: Get and install SBT
+    parameters:
+      sbt_version:
+        type: string
+        default: "2.0.6"
+    steps:
+      - restore_cache:
+          name: Restore SBT cache
+          keys:
+            - &sbt_cache sbt2-{{ arch }}-{{ checksum "project/build.properties" }}-20260716
+
+      - run:
+          name: Setup SBT
+          command: |
+                    if [ ! -x ~/sbt/bin/sbt ]; then
+                      cd ~/
+                      curl --silent -L -o sbt.tgz https://github.com/sbt/sbt/releases/download/v<< parameters.sbt_version >>/sbt-<< parameters.sbt_version >>.tgz
+                      tar -xzvf sbt.tgz && rm -f sbt.tgz
+                    fi
+
+      - save_cache:
+          name: Update SBT cache
+          paths:
+            - ~/sbt
+          key: *sbt_cache
+
+  build_n_tests:
+    description: Build & Run tests
+    steps:
+      - restore_cache:
+          keys:
+          - &scala_cache_key scala-1-{{ .Environment.CIRCLE_JOB }}-{{ checksum "build.sbt" }}-{{ checksum "project/build.properties" }}-{{ checksum "project/plugins.sbt" }}
+
+      - run:
+          name: Build & Run tests
+          command: |
+                    export PATH=$PATH:~/sbt/bin
+                    sbt ++$SCALA_VERSION testOnly
+
+      - save_cache:
+          paths:
+            - ~/.ivy2
+            - ~/.coursier/cache
+            - ~/.sbt
+          key: *scala_cache_key
+
+  collect_test_reports:
+    description: Collect test reports
+    steps:
+      - run:
+          name: Collect test report
+          command: |
+                    mkdir test-reports
+                    find . -path '*/test-reports/*' -name '*.xml' \
+                      -print -exec cp {} test-reports \;
+          when: always
+
+jobs:
+  scala213_jdk26:
+    docker:
+      - image: cimg/openjdk:26.0
+
+    working_directory: ~/repo
+
+    environment:
+      SCALA_VERSION: "2.13"
+    
+    steps:
+      - checkout
+      - setup_sbt
+      - build_n_tests
+      - collect_test_reports
+      - store_test_results:
+          path: test-reports
+
+workflows:
+  main_suite:
+    jobs:
+      - scala213_jdk26
