@@ -12,4 +12,4 @@ addSbtPlugin("cchantep" % "sbt-hl-compiler" % "0.12")
 
 addSbtPlugin("cchantep" % "sbt-scaladoc-compiler" % "0.8")
 
-addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.1.1")
+addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.2.0")
